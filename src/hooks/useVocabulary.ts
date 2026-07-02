@@ -44,7 +44,33 @@ export function useVocabulary() {
 
   const saveMutation = useMutation({
     mutationFn: saveWordRequest,
-    onSuccess: async () => {
+    onMutate: async (input) => {
+      await queryClient.cancelQueries({ queryKey: ["vocabulary", "lemmaIds"] });
+
+      const previousLemmaIds = queryClient.getQueryData<string[]>([
+        "vocabulary",
+        "lemmaIds",
+      ]);
+
+      queryClient.setQueryData<string[]>(
+        ["vocabulary", "lemmaIds"],
+        (current = []) =>
+          current.includes(input.lemmaId)
+            ? current
+            : [...current, input.lemmaId],
+      );
+
+      return { previousLemmaIds };
+    },
+    onError: (_error, _input, context) => {
+      if (context?.previousLemmaIds) {
+        queryClient.setQueryData(
+          ["vocabulary", "lemmaIds"],
+          context.previousLemmaIds,
+        );
+      }
+    },
+    onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ["vocabulary", "lemmaIds"] });
     },
   });

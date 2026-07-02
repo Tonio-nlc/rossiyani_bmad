@@ -29,12 +29,26 @@ async function saveProgress(payload: {
   });
 }
 
+function createInitialReadIndices(userProgress: TUserProgress | null): Set<number> {
+  const indices = new Set<number>();
+
+  if (!userProgress?.lastSentenceIndex) {
+    return indices;
+  }
+
+  for (let index = 0; index <= userProgress.lastSentenceIndex; index += 1) {
+    indices.add(index);
+  }
+
+  return indices;
+}
+
 export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [selectedSentence, setSelectedSentence] = useState<string | null>(null);
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [readSentenceIndices, setReadSentenceIndices] = useState<Set<number>>(
-    () => new Set(),
+    () => createInitialReadIndices(userProgress),
   );
 
   const lastSavedProgress = useRef(userProgress?.percentRead ?? 0);
@@ -65,6 +79,18 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
     return Math.round((readSentenceIndices.size / totalSentences) * 100);
   }, [readSentenceIndices.size, totalSentences]);
 
+  const requestExplanation = useCallback(
+    (surface: string, sentence: string) => {
+      reset();
+      explain({
+        surface,
+        sentence,
+        textId: text.id,
+      });
+    },
+    [explain, reset, text.id],
+  );
+
   const handleSentenceVisible = useCallback((sentenceIndex: number) => {
     setReadSentenceIndices((current) => {
       if (current.has(sentenceIndex)) {
@@ -87,15 +113,18 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
       setSelectedWord(surface);
       setSelectedSentence(sentence);
       setIsExplorerOpen(true);
-      reset();
-      explain({
-        surface,
-        sentence,
-        textId: text.id,
-      });
+      requestExplanation(surface, sentence);
     },
-    [explain, reset, text.id],
+    [requestExplanation],
   );
+
+  const handleRetry = useCallback(() => {
+    if (!selectedWord || !selectedSentence) {
+      return;
+    }
+
+    requestExplanation(selectedWord, selectedSentence);
+  }, [requestExplanation, selectedSentence, selectedWord]);
 
   const handleSaveWord = useCallback(() => {
     if (!explanation?.lemmaId) {
@@ -113,6 +142,9 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
     ? savedLemmaIds.includes(explanation.lemmaId)
     : false;
 
+  const activeExplanation =
+    isLoading || error || !selectedWord ? null : explanation;
+
   useEffect(() => {
     const interval = setInterval(() => {
       if (percentRead === lastSavedProgress.current) {
@@ -129,6 +161,20 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
     }, 10000);
 
     return () => clearInterval(interval);
+  }, [percentRead, text.id]);
+
+  useEffect(() => {
+    return () => {
+      if (percentRead === lastSavedProgress.current) {
+        return;
+      }
+
+      void saveProgress({
+        textId: text.id,
+        percentRead,
+        lastSentenceIndex: highestSentenceIndex.current,
+      });
+    };
   }, [percentRead, text.id]);
 
   return (
@@ -156,33 +202,32 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
             onWordClick={handleWordClick}
             onSentenceVisible={handleSentenceVisible}
           />
-
-          {error && (
-            <p className="mx-auto max-w-[680px] px-6 pb-6 text-sm text-destructive">
-              {error.message}
-            </p>
-          )}
         </div>
 
         <ExplorerPanel
-          explanation={explanation}
+          explanation={activeExplanation}
           isLoading={isLoading}
+          error={error}
           onClose={() => {
             setIsExplorerOpen(false);
             setSelectedWord(null);
+            setSelectedSentence(null);
             reset();
           }}
           onSaveWord={handleSaveWord}
+          onRetry={handleRetry}
           isSaved={isSaved}
         />
       </div>
 
       <ExplorerPanelMobile
-        explanation={explanation}
+        explanation={activeExplanation}
         isLoading={isLoading}
+        error={error}
         isOpen={isExplorerOpen}
         onClose={() => setIsExplorerOpen(false)}
         onSaveWord={handleSaveWord}
+        onRetry={handleRetry}
         isSaved={isSaved}
       />
     </div>
