@@ -29,3 +29,13 @@ export interface TAnnotatedWord {
   functionalRole: TFunctionalRole | null;
   functionColor: TFunctionColor | null;
 }
+
+export interface TUserProgress {
+  percentRead: number;
+  lastSentenceIndex: number;
+  completedAt: string | null;
+}
+
+export interface TTextWithProgress extends TText {
+  userProgress: TUserProgress | null;
+}
