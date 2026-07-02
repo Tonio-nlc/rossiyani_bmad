@@ -15,6 +15,8 @@ export interface TWordExplanationResponse {
   suffixExplanation: string;
   source: "api" | "proprio";
   confidenceScore: number;
+  lemmaId?: string;
+  explanationCacheId?: string;
 }
 
 export type TFunctionalRole =
