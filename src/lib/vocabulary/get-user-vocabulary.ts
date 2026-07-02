@@ -1,4 +1,5 @@
 import type { TVocabularyListItem, TVocabularyReviewStatus } from "@/types/vocabulary";
+import { extractTranslation } from "@/lib/vocabulary/extract-translation";
 import { createClient } from "@/lib/supabase/server";
 
 interface VocabularyRow {
@@ -22,23 +23,6 @@ interface VocabularyRow {
     | null;
 }
 
-function extractTranslation(explanationFr: string | undefined): string {
-  if (!explanationFr) {
-    return "";
-  }
-
-  try {
-    const parsed = JSON.parse(explanationFr) as { translation?: string };
-
-    if (parsed.translation) {
-      return parsed.translation;
-    }
-  } catch {
-    // explanation_fr est du texte brut
-  }
-
-  return "";
-}
 
 function computeReviewStatus(
   repetitions: number,

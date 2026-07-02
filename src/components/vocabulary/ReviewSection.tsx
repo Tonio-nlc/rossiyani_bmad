@@ -1,0 +1,46 @@
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+
+import type { TVocabularyReviewInfo } from "@/types/vocabulary";
+
+interface ReviewSectionProps {
+  review: TVocabularyReviewInfo | null;
+}
+
+function formatNextReview(nextReviewAt: string): string {
+  return format(new Date(nextReviewAt), "d MMMM yyyy", { locale: fr });
+}
+
+export function ReviewSection({ review }: ReviewSectionProps) {
+  if (!review) {
+    return null;
+  }
+
+  return (
+    <section className="rounded-xl border border-brand-border bg-brand-card p-6">
+      <h2 className="text-xl font-semibold text-brand-text-primary">
+        Révision
+      </h2>
+      <dl className="mt-4 divide-y divide-brand-border">
+        <div className="flex flex-col gap-1 py-3 first:pt-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <dt className="text-sm text-brand-text-muted">Prochaine révision</dt>
+          <dd className="text-base text-brand-text-primary sm:text-right">
+            {formatNextReview(review.nextReviewAt)}
+          </dd>
+        </div>
+        <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <dt className="text-sm text-brand-text-muted">Nombre de révisions</dt>
+          <dd className="text-base text-brand-text-primary sm:text-right">
+            {review.repetitions}
+          </dd>
+        </div>
+        <div className="flex flex-col gap-1 py-3 last:pb-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <dt className="text-sm text-brand-text-muted">Niveau actuel</dt>
+          <dd className="text-base text-brand-text-primary sm:text-right">
+            {review.currentLevel}
+          </dd>
+        </div>
+      </dl>
+    </section>
+  );
+}
