@@ -15,8 +15,11 @@ async function fetchSavedLemmaIds(): Promise<string[]> {
     throw new Error("Impossible de charger le vocabulaire");
   }
 
-  const payload = (await response.json()) as { lemmaIds: string[] };
-  return payload.lemmaIds;
+  const payload = (await response.json()) as {
+    words: Array<{ id: string }>;
+  };
+
+  return payload.words.map((word) => word.id);
 }
 
 async function saveWordRequest(input: SaveWordInput) {

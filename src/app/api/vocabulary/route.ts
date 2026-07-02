@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { getUserVocabulary } from "@/lib/vocabulary/get-user-vocabulary";
 import { createClient } from "@/lib/supabase/server";
 
 const saveSchema = z.object({
@@ -19,18 +20,18 @@ export async function GET() {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  const { data, error } = await supabase
-    .from("user_vocabulary")
-    .select("lemma_id")
-    .eq("user_id", user.id);
+  try {
+    const words = await getUserVocabulary(user.id);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ words });
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Impossible de charger le vocabulaire";
+
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  return NextResponse.json({
-    lemmaIds: data.map((item) => item.lemma_id),
-  });
 }
 
 export async function POST(request: Request) {
