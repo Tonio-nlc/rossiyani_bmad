@@ -1,8 +1,8 @@
 import type { TVocabularyEntry } from "@/types/vocabulary";
+import { buildKnowledge } from "@/lib/knowledge/build-knowledge";
 import { collectVocabularyExamples } from "@/lib/vocabulary/collect-vocabulary-examples";
 import { extractTranslation } from "@/lib/vocabulary/extract-translation";
 import { formatReviewLevel } from "@/lib/vocabulary/format-linguistic-labels";
-import { findAccentedLemmaForm } from "@/lib/vocabulary/normalize-russian-word";
 import { createClient } from "@/lib/supabase/server";
 
 interface VocabularyEntryRow {
@@ -11,20 +11,7 @@ interface VocabularyEntryRow {
   saved_at: string;
   text_id: string | null;
   notes: string | null;
-  lemmas:
-    | {
-        form: string;
-        pos: string;
-        gender: string | null;
-        aspect: string | null;
-      }
-    | {
-        form: string;
-        pos: string;
-        gender: string | null;
-        aspect: string | null;
-      }[]
-    | null;
+  lemmas: { form: string } | { form: string }[] | null;
   explanation_cache:
     | { explanation_fr: string }
     | { explanation_fr: string }[]
@@ -61,6 +48,14 @@ function getExplanationFr(
   return cacheRelation.explanation_fr;
 }
 
+function toNullableString(value: string | null | undefined): string | null {
+  if (!value || value === "unknown") {
+    return null;
+  }
+
+  return value;
+}
+
 async function resolveTranslation(
   supabase: Awaited<ReturnType<typeof createClient>>,
   lemmaId: string,
@@ -83,17 +78,6 @@ async function resolveTranslation(
   return extractTranslation(data?.explanation_fr);
 }
 
-async function resolveAccent(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  lemmaForm: string,
-): Promise<string | null> {
-  const { data: texts } = await supabase.from("texts").select("content");
-
-  const contents = (texts ?? []).map((text) => text.content as string);
-
-  return findAccentedLemmaForm(lemmaForm, contents);
-}
-
 export async function getVocabularyEntry(
   userId: string,
   lemmaId: string,
@@ -109,7 +93,7 @@ export async function getVocabularyEntry(
       saved_at,
       text_id,
       notes,
-      lemmas ( form, pos, gender, aspect ),
+      lemmas ( form ),
       explanation_cache ( explanation_fr ),
       srs_reviews ( repetitions, next_review_at, ease_factor, interval_days, last_review_at )
     `,
@@ -134,13 +118,14 @@ export async function getVocabularyEntry(
     return null;
   }
 
+  const knowledge = await buildKnowledge(lemmaId);
+
   const srsRelation = row.srs_reviews;
   const srsReview = Array.isArray(srsRelation) ? srsRelation[0] : srsRelation;
   const explanationFr = getExplanationFr(row.explanation_cache);
 
-  const [translation, accent, examples] = await Promise.all([
+  const [translation, examples] = await Promise.all([
     resolveTranslation(supabase, lemmaId, explanationFr),
-    resolveAccent(supabase, lemma.form),
     collectVocabularyExamples(supabase, lemmaId, lemma.form),
   ]);
 
@@ -150,10 +135,10 @@ export async function getVocabularyEntry(
     linguisticData: {
       lemma: lemma.form,
       translation,
-      pos: lemma.pos !== "unknown" ? lemma.pos : null,
-      gender: lemma.gender,
-      aspect: lemma.aspect,
-      accent,
+      pos: toNullableString(knowledge.partOfSpeech),
+      gender: toNullableString(knowledge.gender),
+      aspect: toNullableString(knowledge.aspect),
+      accent: toNullableString(knowledge.stress),
       addedAt: row.saved_at,
     },
     userVocabulary: {

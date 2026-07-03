@@ -7,7 +7,6 @@ const POS_LABELS: Record<string, string> = {
   conjunction: "Conjonction",
   pronoun: "Pronom",
   particle: "Particule",
-  unknown: "Non précisé",
 };
 
 const GENDER_LABELS: Record<string, string> = {
