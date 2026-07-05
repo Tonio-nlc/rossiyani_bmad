@@ -5,9 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { Word } from "@/components/reader/Word";
 import {
   normalizeToken,
+  shouldAddSpaceAfterToken,
   tokenizeSentence,
   type TReaderFunctionColor,
 } from "@/lib/utils/russian";
+import type { WordAnnotation } from "@/stores/readerStore";
 import type { TAnnotatedWord } from "@/types/reader";
 
 export interface AnnotatedWord {
@@ -20,6 +22,8 @@ export interface SentenceProps {
   text: string;
   translationFr?: string;
   words: AnnotatedWord[];
+  annotatedWords: Map<string, WordAnnotation>;
+  activeWordAnnotation?: WordAnnotation | null;
   selectedWord?: string;
   onWordClick: (surface: string, sentence: string) => void;
   onVisible?: () => void;
@@ -32,7 +36,35 @@ function findAnnotatedWord(
   const normalized = normalizeToken(token);
 
   return words.find(
-    (word) => normalizeToken(word.surface).toLowerCase() === normalized.toLowerCase(),
+    (word) =>
+      normalizeToken(word.surface).toLowerCase() === normalized.toLowerCase(),
+  );
+}
+
+function getSessionAnnotation(
+  token: string,
+  annotatedWords: Map<string, WordAnnotation>,
+): WordAnnotation | undefined {
+  return annotatedWords.get(normalTokenKey(token));
+}
+
+function normalTokenKey(token: string): string {
+  return normalizeToken(token).toLowerCase();
+}
+
+function isWordSelected(token: string, selectedWord?: string): boolean {
+  if (!selectedWord) {
+    return false;
+  }
+
+  const normalized = normalizeToken(token);
+  const selectedNormalized = normalizeToken(selectedWord);
+
+  return (
+    token === selectedWord ||
+    normalized === selectedWord ||
+    token === selectedNormalized ||
+    normalized === selectedNormalized
   );
 }
 
@@ -40,6 +72,8 @@ export function Sentence({
   text,
   translationFr,
   words,
+  annotatedWords,
+  activeWordAnnotation,
   selectedWord,
   onWordClick,
   onVisible,
@@ -68,9 +102,8 @@ export function Sentence({
   }, [onVisible]);
 
   return (
-    <p ref={paragraphRef} className="mb-6">
+    <p ref={paragraphRef} className="mb-6 leading-[44px]">
       {tokens.map((token, index) => {
-        const annotated = findAnnotatedWord(token, words);
         const normalized = normalizeToken(token);
         const isWord = normalized.length > 0;
 
@@ -78,28 +111,41 @@ export function Sentence({
           return (
             <span key={`${token}-${index}`} className="font-serif text-2xl">
               {token}
-              {index < tokens.length - 1 ? " " : ""}
             </span>
           );
         }
+
+        const sessionAnnotation = getSessionAnnotation(token, annotatedWords);
+        const isSelected = isWordSelected(token, selectedWord);
+        const annotation =
+          sessionAnnotation ??
+          (isSelected ? activeWordAnnotation ?? undefined : undefined);
+        const functionColor = annotation?.functionColor as
+          | TReaderFunctionColor
+          | undefined;
 
         return (
           <span key={`${token}-${index}`}>
             <Word
               surface={token}
               isClickable
-              functionalRole={annotated?.functionalRole}
-              functionColor={annotated?.functionColor}
-              isSelected={selectedWord === token || selectedWord === normalized}
+              functionalRole={
+                annotation?.functionalRole ??
+                findAnnotatedWord(token, words)?.functionalRole
+              }
+              functionColor={functionColor}
+              suffix={annotation?.suffix}
+              isSelected={isSelected}
+              isAnnotated={Boolean(sessionAnnotation) && !isSelected}
               onWordClick={(surface) => onWordClick(surface, text)}
             />
-            {index < tokens.length - 1 ? " " : ""}
+            {shouldAddSpaceAfterToken(index, tokens) ? " " : ""}
           </span>
         );
       })}
 
       {translationFr && (
-        <span className="mt-3 block">
+        <span className="mt-3 block leading-normal">
           {!showTranslation ? (
             <button
               type="button"

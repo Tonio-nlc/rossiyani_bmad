@@ -18,6 +18,7 @@ function mapCacheToResponse(
   return {
     surface,
     lemma: cached.lemma,
+    lemmaStressed: cached.payload.lemmaStressed,
     translation: cached.payload.translation,
     functionalRole: cached.functionalRole,
     functionColor: cached.functionColor,
@@ -59,6 +60,7 @@ export async function explainWord(
   return {
     surface,
     lemma: llmPayload.lemma,
+    lemmaStressed: llmPayload.lemmaStressed,
     translation: llmPayload.translation,
     functionalRole: llmPayload.functionalRole,
     functionColor: llmPayload.functionColor,

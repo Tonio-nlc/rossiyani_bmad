@@ -70,7 +70,7 @@ CREATE TABLE grammar_patterns (
 );
 ```
 
-### `explanation_cache` — cœur de la base propriétaire
+### `explanation_cache` — cœur de la base propriétaire (Reader contextuel)
 ```sql
 CREATE TABLE explanation_cache (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -89,6 +89,40 @@ CREATE TABLE explanation_cache (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 ```
+
+### `linguistic_knowledge` — Knowledge Layer (fiche permanente par lemme)
+
+Migration : `supabase/migrations/002_linguistic_knowledge.sql`
+
+Relation : **1 lemme → 0..1 fiche** (`lemma_id UNIQUE`).
+
+```sql
+CREATE TABLE linguistic_knowledge (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  lemma_id UUID NOT NULL UNIQUE REFERENCES lemmas(id) ON DELETE CASCADE,
+  part_of_speech TEXT,
+  gender TEXT,
+  aspect TEXT,
+  stress TEXT,
+  movement_type TEXT,
+  government TEXT,
+  semantic_category TEXT,
+  frequency_rank INTEGER,
+  register TEXT,
+  difficulty TEXT,
+  tags JSONB NOT NULL DEFAULT '[]'::jsonb,
+  notes TEXT,
+  generated_by TEXT,               -- 'manual' | 'llm' | 'import' | 'migration'
+  validated BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+- **Lecture** : utilisateurs authentifiés (RLS SELECT)
+- **Écriture** : API Routes serveur avec service role (`upsertKnowledge`, `buildKnowledge`)
+- **Ne remplace pas** les colonnes de `lemmas` — complète la connaissance permanente
+- **Consommée par** : Vocabulary Entry, Review Session (révélation), Lessons/Practice (futur)
 
 ---
 
@@ -119,7 +153,10 @@ CREATE TABLE user_vocabulary (
 );
 ```
 
-### `srs_reviews` — système de révision espacée
+### `srs_reviews` — état courant SRS (SM-2)
+
+État **courant** uniquement — recalculé à chaque rating. Ne pas confondre avec `review_history`.
+
 ```sql
 CREATE TABLE srs_reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -129,9 +166,30 @@ CREATE TABLE srs_reviews (
   repetitions INTEGER DEFAULT 0,
   next_review_at TIMESTAMPTZ DEFAULT now(),
   last_review_at TIMESTAMPTZ,
-  last_quality INTEGER                -- 0-5, qualité de la dernière révision
+  last_quality INTEGER                -- 0-5, qualité SM-2 de la dernière révision
 );
 ```
+
+### `review_history` — historique permanent des réponses utilisateur
+
+Migration : `supabase/migrations/003_review_history.sql`
+
+```sql
+CREATE TABLE review_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_vocabulary_id UUID NOT NULL REFERENCES user_vocabulary(id) ON DELETE CASCADE,
+  rating TEXT NOT NULL CHECK (rating IN ('again', 'hard', 'good', 'easy')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+- **Rôle** : journal append-only des évaluations utilisateur
+- **RLS** : via `user_vocabulary.user_id = auth.uid()`
+- **Pipeline** : `POST /api/review/rate` → insert `review_history` → SM-2 → update `srs_reviews`
+- **Ratings** : `again` (quality 1) | `hard` (3) | `good` (4) | `easy` (5)
+- **Ne jamais supprimer** — base pour recalcul futur si l'algorithme change
+
+---
 
 ### `user_progress` — progression par texte
 ```sql
@@ -167,29 +225,60 @@ CREATE TABLE texts (
 
 ---
 
-## L'orchestrateur linguistique — logique de décision
+## Migrations Supabase
 
-Fichier : `/src/lib/orchestrator/index.ts`
+| Fichier | Contenu |
+|---------|---------|
+| `001_initial_schema.sql` | Schéma initial (lemmas, explanation_cache, user_vocabulary, srs_reviews…) |
+| `002_linguistic_knowledge.sql` | Knowledge Layer — table `linguistic_knowledge` |
+| `003_review_history.sql` | Historique SRS — table `review_history` |
+
+---
+
+## Orchestrateur Reader (contextuel)
+
+Fichier : `src/lib/orchestrator/index.ts` → LLM : `src/lib/orchestrator/llm.ts`
 
 ```
-ENTRÉE : { word: string, sentence: string, textId: string }
+ENTRÉE : { surface: string, sentence: string, textId?: string }
 
-1. Lemmatiser le mot (appel à une lib de NLP russe ou à l'API)
-2. Calculer le context_hash = hash(lemma_form + sentence_structure_simplified)
-3. Chercher dans explanation_cache WHERE context_hash = hash AND confidence_score >= 0.8
-   → TROUVÉ + confiance OK : retourner l'explication directement (0 appel API)
-   → TROUVÉ + confiance faible : retourner ET re-valider en background
-   → PAS TROUVÉ : aller à l'étape 4
-4. Construire le prompt Claude avec :
-   - Le mot et sa phrase complète
-   - Le lemme identifié
-   - Les autres mots de la phrase (pour le contexte grammatical)
-   - Les instructions de la méthode Rossiyani
-   - Le format de réponse attendu (JSON structuré)
-5. Appeler l'API Claude (claude-sonnet-4-6)
-6. Parser la réponse et la stocker dans explanation_cache (source='api', confidence=0.5)
-7. Incrémenter usage_count à chaque réutilisation
-8. Quand usage_count >= 20 ET réponses cohérentes → confidence passe à 0.85, source='proprio'
+1. Calculer context_hash
+2. Chercher dans explanation_cache
+   → TROUVÉ : retourner (0 appel OpenAI)
+   → PAS TROUVÉ : appeler OpenAI via llm.ts
+3. Stocker dans explanation_cache (source='api')
+4. Retourner l'explication contextuelle
+```
+
+**Question répondue** : « Pourquoi cette forme ici ? »
+
+---
+
+## Knowledge Builder (permanent)
+
+Fichier : `src/lib/knowledge/build-knowledge.ts` → LLM : `src/lib/knowledge/generate-knowledge-llm.ts`
+
+```
+ENTRÉE : lemmaId
+
+1. Fiche validated existe ? → retour DB (0 appel OpenAI)
+2. Sinon → OpenAI → validation Zod → upsert linguistic_knowledge
+3. Déclenché uniquement à la première ouverture d'une fiche Vocabulary
+```
+
+**Question répondue** : « Qu'est-ce que ce mot ? »
+
+---
+
+## Pipeline Review (SRS)
+
+```
+user_vocabulary → srs_reviews → Review Queue (/review)
+  → Review Session (/review/session)
+  → POST /api/review/rate
+  → review_history (historique)
+  → SM-2 (src/lib/utils/srs.ts)
+  → srs_reviews (état courant)
 ```
 
 ---
@@ -199,5 +288,5 @@ ENTRÉE : { word: string, sentence: string, textId: string }
 - **Ne jamais modifier une migration existante** — toujours créer une nouvelle migration
 - **Ne jamais supprimer de colonne** sans une migration de rollback prête
 - **Toujours utiliser des UUID** comme clés primaires
-- **RLS activé** sur toutes les tables `user_*`
-- **Les tables de la base propriétaire** (`lemmas`, `word_forms`, `grammar_patterns`, `explanation_cache`) sont en lecture seule pour les clients — écriture uniquement via API Routes serveur
+- **RLS activé** sur toutes les tables utilisateur (`user_*`, `srs_reviews`, `review_history`)
+- **Les tables de la base propriétaire** (`lemmas`, `word_forms`, `grammar_patterns`, `explanation_cache`, `linguistic_knowledge`) sont en lecture seule pour les clients — écriture uniquement via API Routes serveur (service role)

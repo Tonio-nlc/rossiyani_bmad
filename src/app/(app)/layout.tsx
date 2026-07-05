@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { SignOutButton } from "@/components/auth/SignOutButton";
@@ -21,18 +22,27 @@ export default async function AppLayout({
     redirect("/login");
   }
 
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "";
+  const isOnboarding = pathname === "/onboarding";
+
   const readerHref = await getReaderHref(user.id);
   const reviewCount = await getReviewCount(user.id);
 
   return (
     <QueryProvider>
       <div className="flex min-h-full flex-1 flex-col bg-brand-surface">
-        <header className="border-b border-brand-border bg-brand-card">
-          <nav className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
-            <AppNav readerHref={readerHref} reviewDueCount={reviewCount.due} />
-            <SignOutButton />
-          </nav>
-        </header>
+        {!isOnboarding && (
+          <header className="border-b border-brand-border bg-brand-card">
+            <nav className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
+              <AppNav
+                readerHref={readerHref}
+                reviewDueCount={reviewCount.due}
+              />
+              <SignOutButton />
+            </nav>
+          </header>
+        )}
         <main className="flex-1">{children}</main>
       </div>
     </QueryProvider>

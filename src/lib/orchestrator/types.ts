@@ -7,6 +7,7 @@ export type {
 
 export interface TLlmExplanationPayload {
   lemma: string;
+  lemmaStressed?: string;
   translation: string;
   functionalRole: string;
   functionColor: string;
@@ -20,11 +21,13 @@ export interface TCachedExplanationPayload {
   translation: string;
   suffix: string;
   suffixExplanation: string;
+  lemmaStressed?: string;
 }
 
 export interface TWordExplanationResponseExtended {
   surface: string;
   lemma: string;
+  lemmaStressed?: string;
   translation: string;
   functionalRole: string;
   functionColor: string;

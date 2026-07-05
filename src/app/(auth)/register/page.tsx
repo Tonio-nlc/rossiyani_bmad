@@ -65,20 +65,32 @@ export default function RegisterPage() {
       return;
     }
 
-    const { error: profileError } = await supabase.from("user_profiles").insert({
-      id: data.user.id,
-      display_name: validation.data.displayName,
-      onboarding_completed: false,
-    });
+    const { data: existingProfile } = await supabase
+      .from("user_profiles")
+      .select("onboarding_completed")
+      .eq("id", data.user.id)
+      .maybeSingle();
 
-    if (profileError) {
-      setError(translateAuthError(profileError.message));
-      setIsLoading(false);
-      return;
+    if (!existingProfile) {
+      const { error: profileError } = await supabase
+        .from("user_profiles")
+        .insert({
+          id: data.user.id,
+          display_name: validation.data.displayName,
+          onboarding_completed: false,
+        });
+
+      if (profileError) {
+        setError(translateAuthError(profileError.message));
+        setIsLoading(false);
+        return;
+      }
     }
 
     router.refresh();
-    router.push("/onboarding");
+    router.push(
+      existingProfile?.onboarding_completed ? "/" : "/onboarding",
+    );
   }
 
   return (

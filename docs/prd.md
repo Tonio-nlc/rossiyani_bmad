@@ -1,6 +1,25 @@
 # Rossiyani — Product Requirements Document (PRD)
 ## Document BMAD — Référence features complète
-### Version 1.0 — Juillet 2026
+### Version 1.1 — Juillet 2026
+
+---
+
+## État d'implémentation
+
+> Dernière mise à jour : juillet 2026 — reflète l'état réel du code.
+
+| Epic / Module | Statut | Notes |
+|---------------|--------|-------|
+| Epic 1 — Reader | ✅ Implémenté | Texte annoté, ExplorerPanel, orchestrateur + cache |
+| Epic 2 — Library | ✅ Implémenté | Collections, filtres, progression |
+| Epic 3 — Vocabulary | ✅ Implémenté (basique) | Liste, fiche, Knowledge Layer |
+| Epic 4 — Auth | ✅ Implémenté | Login, register, middleware, RLS |
+| Epic 5 — Onboarding | ⏳ Placeholder uniquement | Page présente, flux incomplet |
+| Epic 6 — Practice | ⏳ Non implémenté | Composants stub |
+| Epic 7 — SRS | ✅ Implémenté | Queue, session, ratings, SM-2 |
+| Epic 8 — Lessons | ⏳ Non implémenté | Page placeholder |
+| Knowledge Layer | ✅ Implémenté | Non prévu initialement — `linguistic_knowledge` |
+| Review Queue / Session | ✅ Implémenté | Non prévu initialement — `/review`, `/review/session` |
 
 ---
 

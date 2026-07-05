@@ -46,6 +46,7 @@ function serializeCachedPayload(payload: TLlmExplanationPayload): string {
     translation: payload.translation,
     suffix: payload.suffix,
     suffixExplanation: payload.suffixExplanation,
+    lemmaStressed: payload.lemmaStressed,
   });
 }
 

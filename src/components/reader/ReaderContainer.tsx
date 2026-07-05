@@ -10,6 +10,7 @@ import { TextBody } from "@/components/reader/TextBody";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useWordExplanation } from "@/hooks/useWordExplanation";
 import { splitIntoSentences } from "@/lib/utils/russian";
+import { useReaderStore } from "@/stores/readerStore";
 import type { TText, TUserProgress } from "@/types/reader";
 
 export interface ReaderContainerProps {
@@ -62,6 +63,14 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
     reset,
   } = useWordExplanation();
   const { savedLemmaIds, saveWord } = useVocabulary();
+  const annotatedWords = useReaderStore((state) => state.annotatedWords);
+  const exploredCount = useReaderStore((state) => state.exploredCount);
+  const annotateWord = useReaderStore((state) => state.annotateWord);
+  const initForText = useReaderStore((state) => state.initForText);
+
+  useEffect(() => {
+    initForText(text.id);
+  }, [initForText, text.id]);
 
   const totalSentences = useMemo(() => {
     if (text.contentAnnotated?.sentences?.length) {
@@ -142,8 +151,37 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
     ? savedLemmaIds.includes(explanation.lemmaId)
     : false;
 
+  useEffect(() => {
+    if (!explanation?.functionColor || !selectedWord) {
+      return;
+    }
+
+    annotateWord(selectedWord, {
+      functionColor: explanation.functionColor,
+      functionalRole: explanation.functionalRole,
+      lemma: explanation.lemma,
+      translation: explanation.translation,
+      suffix: explanation.suffix,
+      suffixExplanation: explanation.suffixExplanation,
+      lemmaStressed: explanation.lemmaStressed,
+    });
+  }, [annotateWord, explanation, selectedWord]);
+
   const activeExplanation =
     isLoading || error || !selectedWord ? null : explanation;
+
+  const activeWordAnnotation =
+    activeExplanation && selectedWord
+      ? {
+          functionColor: activeExplanation.functionColor,
+          functionalRole: activeExplanation.functionalRole,
+          lemma: activeExplanation.lemma,
+          translation: activeExplanation.translation,
+          suffix: activeExplanation.suffix,
+          suffixExplanation: activeExplanation.suffixExplanation,
+          lemmaStressed: activeExplanation.lemmaStressed,
+        }
+      : null;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -183,6 +221,11 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 text-sm text-brand-text-secondary">
           <span>
             {text.level} · {text.readingTimeMinutes} min
+            <span className="text-[13px] text-brand-text-muted">
+              {" "}
+              · {exploredCount} mot{exploredCount > 1 ? "s" : ""} exploré
+              {exploredCount > 1 ? "s" : ""}
+            </span>
           </span>
           <span>{percentRead}% lu</span>
         </div>
@@ -198,6 +241,8 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
         <div className="flex-1 overflow-y-auto bg-brand-surface">
           <TextBody
             text={text}
+            annotatedWords={annotatedWords}
+            activeWordAnnotation={activeWordAnnotation}
             selectedWord={selectedWord ?? undefined}
             onWordClick={handleWordClick}
             onSentenceVisible={handleSentenceVisible}

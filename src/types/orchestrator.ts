@@ -7,6 +7,7 @@ export interface TWordExplanationRequest {
 export interface TWordExplanationResponse {
   surface: string;
   lemma: string;
+  lemmaStressed?: string;
   translation: string;
   functionalRole: string;
   functionColor: string;

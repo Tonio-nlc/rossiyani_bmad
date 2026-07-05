@@ -1,123 +1,152 @@
 # Rossiyani — Architecture technique
 ## Document BMAD — Référence technique permanente
-### Version 1.0 — Juillet 2026
+### Version 2.0 — Juillet 2026
 
 ---
 
 ## Vue d'ensemble
 
-Rossiyani est une application Next.js 14 (App Router) connectée à Supabase (PostgreSQL).
-L'intelligence linguistique passe par un orchestrateur central qui décide à chaque requête
-si la réponse vient de la base propriétaire ou de l'API Claude.
+Rossiyani est une application **Next.js 16** (App Router) connectée à **Supabase** (PostgreSQL).
+
+L'intelligence linguistique repose sur **deux pipelines LLM distincts**, chacun alimentant une couche de données persistée. L'application consomme uniquement ces couches — jamais le LLM directement.
+
+```
 Navigateur (React)
-↓
-Next.js App Router (Frontend)
-↓
-Next.js API Routes (Backend — /app/api/)
-↓
-Linguistic Orchestrator (/src/lib/orchestrator/)
-↓                          ↓
-Supabase PostgreSQL         API Claude
-(base propriétaire)         (fallback)
-↑___________________________|
-(réponse stockée après chaque appel API)
+        ↓
+Next.js App Router + API Routes (/app/api/)
+        ↓
+┌───────────────────────┬────────────────────────┐
+│  Reader Orchestrator  │   Knowledge Builder   │
+│  (contextuel)         │   (permanent)         │
+└───────────┬───────────┴──────────┬────────────┘
+            ↓                      ↓
+   explanation_cache      linguistic_knowledge
+            ↓                      ↓
+         Reader              Vocabulary / Review / Lessons / Practice
+            ↓
+    user_vocabulary → srs_reviews → Review Queue → Review Session
+                                            ↓
+                                    review_history → SM-2 Engine
+```
+
+### Règle d'architecture LLM
+
+| Couche | Rôle |
+|--------|------|
+| **OpenAI** | Produit de la connaissance (fallback uniquement) |
+| **Knowledge Layer + explanation_cache** | Stocke la connaissance |
+| **Application** | Consomme la connaissance persistée |
+
+- SDK : `openai` (package npm)
+- Variables : `OPENAI_API_KEY`, `OPENAI_MODEL` (ex. `gpt-4.1-mini`)
+- Fichiers LLM : `src/lib/orchestrator/llm.ts` (Reader), `src/lib/knowledge/generate-knowledge-llm.ts` (Knowledge)
+
+---
+
+## Architecture globale des données
+
+```
+OpenAI
+  ↓
+Knowledge Builder (buildKnowledge)
+  ↓
+linguistic_knowledge ──────────────────→ Vocabulary / Lessons / Practice
+                                              ↓
+Reader → explanation_cache              user_vocabulary
+                                              ↓
+                                        srs_reviews (état courant)
+                                              ↓
+                                        Review Queue (/review)
+                                              ↓
+                                        Review Session (/review/session)
+                                              ↓
+                                        review_history (historique)
+                                              ↓
+                                        SM-2 Engine (calculateNextReview)
+```
+
+---
+
+## Séparation Reader / Vocabulary
+
+| Module | Question | Source de données | Appel LLM |
+|--------|----------|-------------------|-----------|
+| **Reader** | Pourquoi cette forme **ici** ? | `explanation_cache` | Oui, si cache miss |
+| **Vocabulary** | Qu'est-ce que **ce mot** ? | `linguistic_knowledge` | Oui, 1× à la 1ère ouverture |
+
+Les deux modules sont **indépendants** et servent des besoins pédagogiques différents.
 
 ---
 
 ## Structure complète du projet
+
+```
 rossiyani/
-├── .cursor/
-│   └── rules/                          ← Règles Cursor (ne jamais modifier)
-├── docs/                               ← Documents BMAD (ne jamais modifier)
+├── .cursor/rules/                      ← Règles Cursor
+├── docs/                               ← Documents BMAD
 ├── supabase/
 │   ├── migrations/
-│   │   └── 001_initial_schema.sql      ← Schéma complet
+│   │   ├── 001_initial_schema.sql
+│   │   ├── 002_linguistic_knowledge.sql
+│   │   └── 003_review_history.sql
 │   └── seed/
-│       └── seed_grammar_patterns.sql   ← Données initiales des patterns
+│       └── seed_texts.sql
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx                  ← Layout racine
-│   │   ├── page.tsx                    ← Home
-│   │   ├── (auth)/
-│   │   │   ├── login/page.tsx
-│   │   │   └── register/page.tsx
-│   │   ├── (app)/                      ← Pages protégées (auth requise)
-│   │   │   ├── layout.tsx              ← Layout avec nav principale
+│   │   ├── (auth)/                     ← login, register
+│   │   ├── (app)/                      ← Pages protégées
 │   │   │   ├── library/page.tsx
 │   │   │   ├── reader/[textId]/page.tsx
-│   │   │   ├── vocabulary/page.tsx
+│   │   │   ├── vocabulary/
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── [lemmaId]/page.tsx
+│   │   │   ├── review/
+│   │   │   │   ├── page.tsx            ← Review Queue
+│   │   │   │   └── session/page.tsx    ← Review Session
 │   │   │   ├── lessons/page.tsx
-│   │   │   └── practice/page.tsx
+│   │   │   ├── practice/page.tsx
+│   │   │   └── onboarding/page.tsx
 │   │   └── api/
-│   │       ├── word/
-│   │       │   └── explain/route.ts    ← Endpoint principal du Reader
-│   │       ├── texts/
-│   │       │   ├── route.ts            ← GET tous les textes
-│   │       │   └── [id]/route.ts       ← GET un texte par ID
-│   │       ├── vocabulary/
-│   │       │   ├── route.ts            ← GET liste / POST sauvegarder
-│   │       │   └── [id]/route.ts       ← DELETE un mot
-│   │       ├── progress/
-│   │       │   └── route.ts            ← POST mise à jour progression
-│   │       └── srs/
-│   │           └── route.ts            ← GET mots à réviser / POST résultat
+│   │       ├── word/explain/route.ts   ← Reader — explication contextuelle
+│   │       ├── texts/                  ← Bibliothèque
+│   │       ├── vocabulary/             ← GET liste / POST save / GET fiche
+│   │       ├── review/
+│   │       │   ├── route.ts            ← GET queue + count
+│   │       │   └── rate/route.ts       ← POST rating → history + SM-2
+│   │       ├── progress/route.ts
+│   │       └── srs/route.ts            ← (stub — logique dans review/rate)
 │   ├── components/
-│   │   ├── reader/
-│   │   │   ├── ReaderContainer.tsx
-│   │   │   ├── TextBody.tsx
-│   │   │   ├── Sentence.tsx
-│   │   │   ├── Word.tsx               ← Mot cliquable avec couleur fonctionnelle
-│   │   │   └── ExplorerPanel.tsx      ← Panel d'explication contextuelle
-│   │   ├── vocabulary/
-│   │   │   ├── VocabularyGrid.tsx
-│   │   │   └── WordCard.tsx
-│   │   ├── practice/
-│   │   │   ├── SentenceBuilder.tsx
-│   │   │   └── ContextTranslation.tsx
+│   │   ├── reader/                     ← ReaderContainer, ExplorerPanel…
+│   │   ├── vocabulary/                 ← VocabularyView, VocabularyEntry…
+│   │   ├── review/                     ← ReviewView, ReviewSession
 │   │   ├── library/
-│   │   │   ├── TextCard.tsx
-│   │   │   └── CollectionCard.tsx
-│   │   ├── onboarding/
-│   │   │   └── OnboardingFlow.tsx
-│   │   └── ui/                        ← shadcn/ui + composants génériques
+│   │   ├── layout/                     ← AppNav (badge Review)
+│   │   └── ui/
 │   ├── lib/
-│   │   ├── supabase/
-│   │   │   ├── client.ts              ← Client Supabase côté navigateur
-│   │   │   ├── server.ts              ← Client Supabase côté serveur
-│   │   │   └── admin.ts               ← Client admin (service role key)
-│   │   ├── orchestrator/
-│   │   │   ├── index.ts               ← Point d'entrée principal
-│   │   │   ├── cache.ts               ← Logique explanation_cache
-│   │   │   ├── hasher.ts              ← Calcul du context_hash
-│   │   │   ├── claude.ts              ← Appel API Claude + prompt système
-│   │   │   └── types.ts               ← Types TypeScript de l'orchestrateur
-│   │   └── utils/
-│   │       ├── russian.ts             ← Utilitaires texte russe
-│   │       └── srs.ts                 ← Algorithme SM-2
+│   │   ├── supabase/                   ← client, server, admin
+│   │   ├── orchestrator/               ← Reader — cache, hasher, llm.ts
+│   │   ├── knowledge/                  ← Knowledge Layer — build, upsert, get
+│   │   ├── review/                     ← queue, session, rating, SM-2 apply
+│   │   ├── vocabulary/
+│   │   └── utils/                      ← srs.ts (SM-2), russian.ts
 │   ├── hooks/
-│   │   ├── useWordExplanation.ts
-│   │   ├── useTextProgress.ts
-│   │   ├── useVocabulary.ts
-│   │   └── useSRS.ts
-│   ├── stores/
-│   │   ├── readerStore.ts             ← State Reader (mot sélectionné, panel ouvert)
-│   │   └── userStore.ts               ← State utilisateur global
-│   └── types/
-│       ├── supabase.ts                ← Types générés par Supabase CLI
-│       ├── reader.ts
-│       └── orchestrator.ts
-├── public/
-├── .env.local                         ← Jamais commité
-├── .env.example                       ← Template à commiter
-├── next.config.ts
-├── tailwind.config.ts
+│   └── types/                          ← orchestrator, vocabulary, knowledge…
 └── package.json
+```
 
 ---
 
-## Schéma de base de données complet
+## Schéma de base de données
 
-À placer dans `supabase/migrations/001_initial_schema.sql`
+Migrations dans `supabase/migrations/` :
+
+| Migration | Tables ajoutées / modifiées |
+|-----------|----------------------------|
+| `001_initial_schema.sql` | Schéma initial complet |
+| `002_linguistic_knowledge.sql` | `linguistic_knowledge` |
+| `003_review_history.sql` | `review_history` |
+
+Schéma initial (`001_initial_schema.sql`) :
 
 ```sql
 -- ============================================
@@ -344,39 +373,132 @@ CREATE POLICY "authenticated_read_grammar_patterns" ON grammar_patterns
   FOR SELECT TO authenticated USING (true);
 ```
 
+### Migration `002_linguistic_knowledge.sql` — Knowledge Layer
+
+```sql
+CREATE TABLE linguistic_knowledge (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  lemma_id UUID NOT NULL UNIQUE REFERENCES lemmas(id) ON DELETE CASCADE,
+  part_of_speech TEXT,
+  gender TEXT,
+  aspect TEXT,
+  stress TEXT,
+  movement_type TEXT,
+  government TEXT,
+  semantic_category TEXT,
+  frequency_rank INTEGER,
+  register TEXT,
+  difficulty TEXT,
+  tags JSONB NOT NULL DEFAULT '[]'::jsonb,
+  notes TEXT,
+  generated_by TEXT,
+  validated BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+-- RLS : SELECT authenticated ; écriture via service role
+```
+
+Relation : **lemmas 1 → 0..1 linguistic_knowledge**
+
+Repository : `src/lib/knowledge/` — `getKnowledgeByLemmaId`, `buildKnowledge`, `upsertKnowledge`
+
+### Migration `003_review_history.sql` — Historique SRS
+
+```sql
+CREATE TABLE review_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_vocabulary_id UUID NOT NULL REFERENCES user_vocabulary(id) ON DELETE CASCADE,
+  rating TEXT NOT NULL CHECK (rating IN ('again', 'hard', 'good', 'easy')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+-- RLS : via user_vocabulary.user_id
+```
+
+- **`review_history`** : historique permanent (append-only)
+- **`srs_reviews`** : état courant SM-2 uniquement
+
+Repository : `src/lib/review/` — `getReviewQueue`, `processReviewRating`, `applySrsFromRating`
+
 ---
 
-## L'orchestrateur linguistique
+## Knowledge Layer
 
-### Logique de décision (à implémenter dans `src/lib/orchestrator/index.ts`)
+### Pipeline
+
+```
+Lemma
+  ↓
+buildKnowledge(lemmaId)
+  ↓
+linguistic_knowledge existe et validated ?
+  ├─ Oui → retour DB (0 appel OpenAI)
+  └─ Non → OpenAI → Zod → upsertKnowledge → retour DB
+```
+
+### Fichiers clés
+
+| Fichier | Rôle |
+|---------|------|
+| `build-knowledge.ts` | Orchestration génération unique |
+| `generate-knowledge-llm.ts` | Prompt permanent + appel OpenAI |
+| `parse-knowledge-json.ts` | Validation Zod |
+| `get-knowledge.ts` | Lecture |
+| `upsert-knowledge.ts` | Persistance (admin) |
+
+Déclenchement lazy : **première ouverture fiche Vocabulary uniquement**.
+
+---
+
+## Système Review (SRS)
+
+### Pipeline complet
+
+```
+user_vocabulary + srs_reviews
+        ↓
+getReviewQueue() — mots dus (next_review_at <= now)
+        ↓
+/review — liste + badge navigation
+        ↓
+/review/session — carte → Révéler → Again|Hard|Good|Easy
+        ↓
+POST /api/review/rate
+        ↓
+review_history (insert)
+        ↓
+applySrsFromRating() — SM-2 → update srs_reviews
+```
+
+### Ratings → SM-2
+
+| Rating | Quality SM-2 |
+|--------|-------------|
+| `again` | 1 |
+| `hard` | 3 |
+| `good` | 4 |
+| `easy` | 5 |
+
+Type : `TReviewRating` dans `src/lib/review/rating.ts`
+
+---
+
+## Orchestrateur Reader (contextuel)
+
+### Logique (`src/lib/orchestrator/index.ts`)
 ENTRÉE : { surface: string, sentence: string, textId?: string }
 
-Calculer context_hash = SHA256(surface.toLowerCase() + "::" + sentence.toLowerCase()).slice(0,32)
-Chercher dans explanation_cache WHERE context_hash = hash
-→ TROUVÉ et confidence_score >= 0.8 :
-- Incrémenter usage_count en background (fire and forget)
-- Retourner l'explication directement → 0 appel API Claude
-→ TROUVÉ et confidence_score < 0.8 :
-- Retourner quand même (éviter la latence)
-- Déclencher une re-validation en background
-→ PAS TROUVÉ : aller à l'étape 3
-Appeler l'API Claude (claude-sonnet-4-6) avec :
-
-System prompt : instructions méthode Rossiyani + format JSON strict
-User prompt : le mot + la phrase complète
-
-
-Parser la réponse JSON de Claude
-Résoudre ou créer le lemme dans la table lemmas
-Stocker dans explanation_cache :
-source = 'api', confidence_score = 0.5, usage_count = 1
-Retourner la réponse formatée
+1. Calculer context_hash
+2. Chercher dans explanation_cache
+   → TROUVÉ : retourner directement (0 appel OpenAI)
+   → PAS TROUVÉ : appeler OpenAI via llm.ts
+3. Parser JSON, créer/résoudre lemme, stocker explanation_cache
+4. Retourner l'explication contextuelle
 
 RÈGLE D'ÉVOLUTION :
-Quand usage_count >= 20 sur une même entrée → confidence_score passe à 0.85
-Quand confidence_score >= 0.85 → source passe à 'proprio'
+Quand usage_count >= 20 → confidence_score passe à 0.85, source = 'proprio'
 
-### Prompt système Claude (à placer dans `src/lib/orchestrator/claude.ts`)
+### Prompt système Reader (`src/lib/orchestrator/llm.ts`)
 Tu es l'orchestrateur linguistique de Rossiyani.
 Ta mission : expliquer pourquoi un mot russe a une forme précise dans une phrase précise.
 RÈGLES ABSOLUES :
@@ -490,8 +612,9 @@ NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
-# Anthropic
-ANTHROPIC_API_KEY=sk-ant-...
+# OpenAI
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4.1-mini
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -557,22 +680,24 @@ export function calculateNextReview(input: TSRSInput): TSRSResult {
 
 | Décision | Choix retenu | Raison |
 |----------|-------------|--------|
-| Framework | Next.js 14+ App Router | Server Components, layouts imbriqués, API Routes intégrées |
-| Base de données | Supabase (PostgreSQL) | Auth + RLS + Storage intégrés, pas d'infra à gérer |
+| Framework | Next.js 16 App Router | Server Components, layouts imbriqués, API Routes intégrées |
+| Base de données | Supabase (PostgreSQL) | Auth + RLS + Storage intégrés |
 | Auth | Supabase Auth | Natif avec RLS, session persistante |
 | State global | Zustand | Léger, pas de boilerplate Redux |
-| Data fetching | React Query (TanStack) | Cache client, loading/error states, refetch automatique |
-| Validation | Zod | TypeScript-first, validation API Routes et formulaires |
-| Styles | Tailwind CSS + shadcn/ui | Cohérence, rapidité, composants accessibles |
-| Modèle IA | claude-sonnet-4-6 | Meilleur équilibre coût / qualité pour des explications courtes |
-| SRS | Algorithme SM-2 | Standard éprouvé, simple à implémenter |
+| Data fetching | React Query (TanStack) | Cache client, loading/error states |
+| Validation | Zod | TypeScript-first, validation API Routes |
+| Styles | Tailwind CSS + shadcn/ui | Cohérence, composants accessibles |
+| Modèle IA | OpenAI via `OPENAI_MODEL` | Abstraction LLM, coût maîtrisé |
+| Knowledge | `linguistic_knowledge` | Connaissance permanente partagée |
+| SRS | SM-2 + `review_history` | Historique séparé de l'état courant |
 
 ---
 
 ## Ce que Cursor ne doit JAMAIS faire
 
 - Utiliser Pages Router au lieu de App Router
-- Appeler l'API Anthropic directement depuis un composant React ou un hook
+- Appeler l'API OpenAI directement depuis un composant React ou un hook
+- Appeler le LLM depuis Vocabulary, Review ou Library (données persistées uniquement)
 - Créer ou modifier des tables Supabase sans fichier de migration SQL
 - Utiliser `any` en TypeScript
 - Stocker des données utilisateur sans Row Level Security activé

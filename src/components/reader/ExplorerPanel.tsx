@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  FUNCTIONAL_ROLE_LABELS,
   getFunctionColorHex,
+  getNaturalFunctionalRoleLabel,
+  stripTrailingPunctuationForDisplay,
   type TReaderFunctionColor,
 } from "@/lib/utils/russian";
 import type { TWordExplanationResponse } from "@/types/orchestrator";
@@ -71,10 +72,40 @@ function ExplorerError({ onRetry }: { onRetry: () => void }) {
 }
 
 function ExplorerEmpty() {
+  const legend = [
+    { color: "#3B82F6", label: "Sujet" },
+    { color: "#EF7C5A", label: "Objet" },
+    { color: "#22C55E", label: "Lieu / temps" },
+    { color: "#A78BFA", label: "Possession" },
+    { color: "#F59E0B", label: "Destinataire" },
+  ] as const;
+
   return (
-    <p className="text-sm leading-relaxed text-brand-text-secondary">
-      Cliquez sur un mot pour comprendre son rôle dans la phrase.
-    </p>
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <p className="text-sm font-medium text-brand-text-primary">
+          Cliquez sur un mot
+        </p>
+        <p className="text-[13px] leading-relaxed text-brand-text-secondary">
+          pour comprendre son rôle dans la phrase.
+        </p>
+      </div>
+      <ul className="space-y-2">
+        {legend.map((item) => (
+          <li
+            key={item.label}
+            className="flex items-center gap-2 text-[13px] text-brand-text-secondary"
+          >
+            <span
+              className="size-2 shrink-0 rounded-full"
+              style={{ backgroundColor: item.color }}
+              aria-hidden="true"
+            />
+            {item.label}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -109,30 +140,58 @@ function ExplorerContent({
   const colorHex = getFunctionColorHex(
     explanation.functionColor as TReaderFunctionColor,
   );
-  const roleLabel =
-    FUNCTIONAL_ROLE_LABELS[explanation.functionalRole] ??
-    explanation.functionalRole;
+  const cleanSurface = stripTrailingPunctuationForDisplay(explanation.surface);
+  const roleLabel = getNaturalFunctionalRoleLabel(explanation.functionalRole);
+  const displayLemma =
+    explanation.lemmaStressed ?? explanation.lemma.toLowerCase();
+  const plainLemma = explanation.lemma.toLowerCase();
+  const showSurfaceForm =
+    cleanSurface !== displayLemma && cleanSurface !== plainLemma;
+  const showPlainLemma = Boolean(
+    explanation.lemmaStressed && explanation.lemmaStressed !== plainLemma,
+  );
 
   return (
-    <div className="flex h-full flex-col gap-5">
+    <div className="reader-panel-fade-in flex h-full flex-col gap-5">
       <div>
-        <p className="font-serif text-[28px] leading-tight text-brand-text-primary">
-          {explanation.surface}
+        {showSurfaceForm ? (
+          <p className="text-sm text-brand-text-secondary">{cleanSurface}</p>
+        ) : null}
+        <p
+          className={cn(
+            "font-serif text-[28px] leading-tight text-brand-text-primary",
+            showSurfaceForm && "mt-1",
+          )}
+        >
+          {displayLemma}
         </p>
-        <p className="mt-1 text-sm text-brand-text-muted">{explanation.lemma}</p>
+        {showPlainLemma ? (
+          <p className="mt-1 text-xs text-brand-text-muted">{plainLemma}</p>
+        ) : null}
       </div>
 
       <p className="text-base text-brand-text-secondary">
         {explanation.translation}
       </p>
 
-      <Badge
-        variant="outline"
-        className="w-fit border-brand-border"
-        style={colorHex ? { color: colorHex, borderColor: colorHex } : undefined}
+      <div
+        className="inline-flex w-fit items-center justify-center gap-2 rounded-full px-3 py-1 text-[13px] leading-none"
+        style={
+          colorHex
+            ? {
+                color: colorHex,
+                backgroundColor: `${colorHex}1A`,
+              }
+            : undefined
+        }
       >
+        <span
+          className="size-2 shrink-0 rounded-full"
+          style={colorHex ? { backgroundColor: colorHex } : undefined}
+          aria-hidden="true"
+        />
         {roleLabel}
-      </Badge>
+      </div>
 
       <Separator className="bg-brand-border" />
 

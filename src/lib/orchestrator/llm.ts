@@ -3,6 +3,16 @@ import { z } from "zod";
 
 import type { TLlmExplanationPayload } from "@/lib/orchestrator/types";
 
+const ALLOWED_FUNCTIONAL_ROLES = [
+  "subject",
+  "object_direct",
+  "object_indirect",
+  "possession",
+  "location",
+  "time",
+  "manner",
+] as const;
+
 const SYSTEM_PROMPT = `Tu es l'orchestrateur linguistique de Rossiyani.
 
 Ta mission : expliquer pourquoi un mot russe a une forme précise dans une phrase précise.
@@ -24,18 +34,24 @@ SYSTÈME DE COULEURS FONCTIONNELLES :
 FORMAT DE RÉPONSE JSON strict :
 {
   "lemma": "forme de base du mot",
+  "lemmaStressed": "forme du lemme avec accent tonique ex: пого\u0301да, идти\u0301",
   "translation": "traduction française du lemme",
-  "functionalRole": "subject|object_direct|object_indirect|possession|location|time|manner",
+  "functionalRole": "UN SEUL de ces 7 rôles EXACTEMENT — subject | object_direct | object_indirect | possession | location | time | manner. AUCUNE autre valeur n'est acceptée. Si le mot ne correspond pas exactement à un de ces rôles, choisir le plus proche parmi les 7. Règles de choix : Adjectif épithète qui décrit un nom sujet → subject. Adjectif épithète qui décrit un nom objet → object_direct. Adjectif attribut du sujet → subject. Complément de lieu (avec на, в, у, к...) → location. Complément de temps → time. Adverbe de manière → manner. Objet indirect (avec à, pour, дать кому) → object_indirect. Relation génitif de possession → possession",
   "functionColor": "blue|coral|green|violet|amber",
   "explanation": "2-3 phrases expliquant pourquoi ce mot a cette forme dans cette phrase",
-  "suffix": "la terminaison qui change ex: -у, -ого, -ой",
+  "suffix": "la terminaison grammaticale qui CHANGE selon le rôle. Pour les mots INVARIABLES (adverbes, prépositions, conjonctions, particules, certains noms étrangers) : retourner une chaîne vide \"\". Ne jamais retourner une terminaison arbitraire pour un mot invariable. Pour les mots fléchis : la terminaison exacte sans le radical, ex: а, у, ого — pas de tiret obligatoire",
   "suffixExplanation": "ce que cette terminaison signale en une phrase simple"
-}`;
+}
+
+ACCENT TONIQUE :
+- Utiliser le caractère Unicode ́ (U+0301, combining acute) APRÈS la voyelle accentuée
+- Exemples : пого\u0301да, рабо\u0301та, идти\u0301, челове\u0301к`;
 
 const llmResponseSchema = z.object({
   lemma: z.string().min(1),
+  lemmaStressed: z.string().min(1).optional(),
   translation: z.string().min(1),
-  functionalRole: z.string().min(1),
+  functionalRole: z.enum(ALLOWED_FUNCTIONAL_ROLES),
   functionColor: z.string().min(1),
   explanation: z.string().min(1),
   suffix: z.string(),

@@ -5,7 +5,7 @@
 ## Stack autorisée (rien en dehors de cette liste sans validation explicite)
 
 ### Frontend
-- **Next.js 14+** avec App Router (pas Pages Router)
+- **Next.js 16+** avec App Router (pas Pages Router)
 - **TypeScript** strict — pas de `any`, pas de `as unknown`
 - **Tailwind CSS** pour le styling
 - **shadcn/ui** pour les composants de base
@@ -15,7 +15,7 @@
 ### Backend / API
 - **Next.js API Routes** (`/app/api/`) — toute la logique serveur ici
 - **Supabase JS Client** côté serveur uniquement pour les opérations sensibles
-- **Anthropic SDK** (`@anthropic-ai/sdk`) — uniquement dans `/app/api/`, jamais dans les composants
+- **OpenAI SDK** (`openai`) — uniquement dans `/src/lib/orchestrator/` et `/src/lib/knowledge/`, jamais dans les composants React
 
 ### Base de données
 - **Supabase** (PostgreSQL)
@@ -30,26 +30,45 @@
 
 ---
 
+## Couche LLM — règle d'abstraction
+
+Le projet ne doit **jamais** appeler OpenAI directement depuis un composant, un hook ou une page.
+
+Deux points d'entrée LLM autorisés, chacun avec un rôle distinct :
+
+| Module | Fichier | Rôle |
+|--------|---------|------|
+| Reader (contextuel) | `src/lib/orchestrator/llm.ts` | Explication d'une forme dans une phrase |
+| Knowledge Builder | `src/lib/knowledge/generate-knowledge-llm.ts` | Fiche linguistique permanente d'un lemme |
+
+Toute la logique applicative consomme des **données persistées** (`explanation_cache`, `linguistic_knowledge`), pas le LLM directement.
+
+---
+
 ## Conventions de code
 
 ### Structure des fichiers
 ```
 src/
 ├── app/                    # Pages et API Routes (Next.js App Router)
-│   ├── (auth)/             # Pages nécessitant authentification
-│   ├── api/                # API Routes — toute la logique serveur
-│   └── (public)/           # Pages publiques
+│   ├── (auth)/             # Login, register
+│   ├── (app)/              # Pages protégées (library, reader, vocabulary, review…)
+│   └── api/                # API Routes — toute la logique serveur
 ├── components/
 │   ├── reader/             # Composants du Reader
 │   ├── vocabulary/         # Composants Vocabulary
+│   ├── review/             # Composants Review (queue, session)
 │   ├── practice/           # Composants Practice
-│   ├── lessons/            # Composants Lessons
 │   ├── library/            # Composants Library
+│   ├── layout/             # Navigation principale
 │   └── ui/                 # Composants shadcn/ui et génériques
 ├── lib/
-│   ├── supabase/           # Clients Supabase (server + client)
-│   ├── orchestrator/       # Logique de l'orchestrateur linguistique
-│   └── utils/              # Fonctions utilitaires
+│   ├── supabase/           # Clients Supabase (server + client + admin)
+│   ├── orchestrator/       # Reader — cache + LLM contextuel
+│   ├── knowledge/          # Knowledge Layer — fiches permanentes
+│   ├── review/             # Review queue, session, ratings, SM-2
+│   ├── vocabulary/         # Logique Vocabulary
+│   └── utils/              # Fonctions utilitaires (srs, russian…)
 ├── hooks/                  # Custom React hooks
 ├── stores/                 # Zustand stores
 └── types/                  # Types TypeScript
@@ -84,8 +103,9 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=       # Serveur uniquement, jamais exposé au client
 
-# Anthropic
-ANTHROPIC_API_KEY=               # Serveur uniquement, jamais exposé au client
+# OpenAI
+OPENAI_API_KEY=                  # Serveur uniquement, jamais exposé au client
+OPENAI_MODEL=                    # ex. gpt-4.1-mini (voir .env.example)
 
 # App
 NEXT_PUBLIC_APP_URL=
@@ -98,5 +118,6 @@ NEXT_PUBLIC_APP_URL=
 - `console.log` en production (utiliser un logger structuré)
 - Clés API dans le code ou côté client
 - Requêtes Supabase directes depuis les composants React (passer par les hooks)
-- Appels Anthropic API depuis le frontend
-- Modification des fichiers dans `.cursor/rules/` ou `docs/` (lecture seule pour Cursor)
+- Appels OpenAI API depuis le frontend
+- Appels LLM depuis Vocabulary, Review ou Library (données persistées uniquement)
+- Modification des fichiers dans `.cursor/rules/` ou `docs/` (lecture seule pour Cursor, sauf demande explicite)

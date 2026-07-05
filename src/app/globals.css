@@ -130,3 +130,38 @@
     @apply font-sans;
   }
 }
+
+@media (hover: hover) {
+  .reader-word-clickable:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+}
+
+@keyframes reader-word-pulse {
+  0% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--reader-pulse-color) 30%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.reader-word-pulse {
+  animation: reader-word-pulse 600ms ease-out 1;
+}
+
+.reader-panel-fade-in {
+  animation: reader-panel-fade-in 200ms ease-out forwards;
+}
+
+@keyframes reader-panel-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

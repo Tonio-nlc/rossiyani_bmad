@@ -1,19 +1,27 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function OnboardingPage() {
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="text-2xl font-semibold text-brand-text-primary">
-        Onboarding — bientôt disponible
-      </h1>
-      <p className="mt-4">
-        <Link
-          href="/library"
-          className="font-medium text-brand-primary hover:underline"
-        >
-          Accéder à la bibliothèque →
-        </Link>
-      </p>
-    </div>
-  );
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function OnboardingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("onboarding_completed")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.onboarding_completed) {
+    redirect("/");
+  }
+
+  return <OnboardingFlow />;
 }
