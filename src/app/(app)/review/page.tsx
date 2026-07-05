@@ -1,0 +1,28 @@
+import { redirect } from "next/navigation";
+
+import { ReviewView } from "@/components/review/ReviewView";
+import { getReviewQueue } from "@/lib/review/get-review-queue";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function ReviewPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  try {
+    const queue = await getReviewQueue(user.id);
+    return <ReviewView queue={queue} />;
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Impossible de charger la file de révision";
+
+    return <ReviewView queue={[]} errorMessage={message} />;
+  }
+}
