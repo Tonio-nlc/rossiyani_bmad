@@ -10,7 +10,7 @@ interface VocabularyEntryProps {
 
 export function VocabularyEntry({ entry }: VocabularyEntryProps) {
   return (
-    <div className="bg-brand-surface">
+    <div>
       <VocabularyEntryHeader entry={entry} />
 
       <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 md:px-8 md:py-10">

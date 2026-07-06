@@ -1,6 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import { COLLECTION_COLORS } from "@/lib/library/collections";
-import { cn } from "@/lib/utils";
+import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
+import { COLLECTION_BORDER_COLORS } from "@/lib/library/collections";
 
 interface CollectionCardProps {
   collection: {
@@ -14,49 +13,32 @@ interface CollectionCardProps {
 }
 
 export function CollectionCard({ collection, onClick }: CollectionCardProps) {
-  const accentColor =
-    COLLECTION_COLORS[collection.id] ?? COLLECTION_COLORS.everyday_russian;
-  const initial = collection.name.charAt(0).toUpperCase();
+  const borderColor =
+    COLLECTION_BORDER_COLORS[collection.id] ??
+    COLLECTION_BORDER_COLORS.everyday_russian;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={cn(
-        "group flex w-full flex-col rounded-xl border border-brand-border bg-brand-card p-5 text-left transition-shadow duration-200",
-        "hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30",
-      )}
+      className={CARD_BASE_CLASS}
+      style={{ borderLeftWidth: 3, borderLeftColor: borderColor }}
     >
-      <div
-        className="mb-4 flex size-10 items-center justify-center rounded-full text-sm font-semibold text-white"
-        style={{ backgroundColor: accentColor }}
-      >
-        {initial}
-      </div>
+      <h3 className="text-sm font-bold text-ink">{collection.name}</h3>
 
-      <h3 className="text-base font-semibold text-brand-text-primary">
-        {collection.name}
-      </h3>
-
-      <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-brand-text-secondary">
+      <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-ink-3">
         {collection.description}
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {collection.level !== "Tous niveaux" && (
-          <Badge
-            variant="outline"
-            className="border-brand-border text-brand-text-secondary"
-          >
+          <span className="rounded-[5px] bg-[#F2F0EC] px-2 py-0.5 text-[10px] font-bold text-ink-3">
             {collection.level}
-          </Badge>
+          </span>
         )}
-        <Badge
-          variant="secondary"
-          className="bg-brand-surface text-brand-text-secondary"
-        >
+        <span className="rounded-[5px] bg-[#F2F0EC] px-2 py-0.5 text-[10px] font-bold text-ink-3">
           {collection.textCount} texte{collection.textCount > 1 ? "s" : ""}
-        </Badge>
+        </span>
       </div>
     </button>
   );

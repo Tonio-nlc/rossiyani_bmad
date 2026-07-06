@@ -64,6 +64,15 @@ export const COLLECTION_LABELS: Record<string, string> = {
   culture: "Culture",
 };
 
+export const COLLECTION_BORDER_COLORS: Record<string, string> = {
+  everyday_russian: "#4F46E5",
+  stories: "#10B981",
+  dialogues: "#F59E0B",
+  slow_news: "#EF4444",
+  travel: "#06B6D4",
+  culture: "#8B5CF6",
+};
+
 export const COLLECTION_COLORS: Record<string, string> = {
   everyday_russian: "#1E3A5F",
   stories: "#7C3AED",

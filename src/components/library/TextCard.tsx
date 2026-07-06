@@ -1,6 +1,5 @@
-import { Badge } from "@/components/ui/badge";
 import { COLLECTION_LABELS } from "@/lib/library/collections";
-import { cn } from "@/lib/utils";
+import { CARD_CTA_STYLE, TEXT_CARD_CLASS } from "@/components/ui/card-styles";
 import type { TTextWithProgress } from "@/types/reader";
 
 interface TextCardProps {
@@ -15,53 +14,39 @@ export function TextCard({ text, onClick }: TextCardProps) {
     COLLECTION_LABELS[text.collection] ?? text.collection;
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "group flex w-full flex-col rounded-xl border border-brand-border bg-brand-card p-5 text-left transition-shadow duration-200",
-        "hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30",
-      )}
-    >
-      <div className="mb-4 flex items-center justify-between gap-2">
-        <Badge
-          variant="outline"
-          className="border-brand-border text-brand-text-secondary"
-        >
+    <button type="button" onClick={onClick} className={TEXT_CARD_CLASS}>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <span className="rounded-[5px] bg-accent px-2 py-0.5 text-[10px] font-extrabold text-white">
           {text.level}
-        </Badge>
-        <span className="text-xs text-brand-text-muted">
-          {text.readingTimeMinutes} min
         </span>
+        <span className="text-xs text-ink-3">{text.readingTimeMinutes} min</span>
       </div>
 
-      <h3 className="font-serif text-lg leading-snug text-brand-text-primary">
+      <h3 className="font-serif text-[17px] leading-snug text-ink">
         {text.title}
       </h3>
 
-      <p className="mt-1 text-[13px] text-brand-text-muted">{collectionLabel}</p>
+      <p className="mt-1 text-xs text-ink-3">{collectionLabel}</p>
 
-      <p className="mt-3 text-sm text-brand-text-secondary">
+      <p className="mt-3 text-xs text-ink-2">
         {text.wordCount} mots · {text.readingTimeMinutes} min
       </p>
 
       <div className="mt-4">
         {hasProgress ? (
           <div className="space-y-2">
-            <div className="h-1.5 overflow-hidden rounded-full bg-brand-border">
+            <div className="h-[3px] overflow-hidden rounded-[2px] bg-accent-light">
               <div
-                className="h-full rounded-full bg-brand-primary transition-all"
+                className="h-full rounded-[2px] bg-accent transition-all"
                 style={{ width: `${text.userProgress?.percentRead ?? 0}%` }}
               />
             </div>
-            <p className="text-sm font-medium text-brand-primary">
+            <p style={CARD_CTA_STYLE}>
               {text.userProgress?.percentRead}% · Continuer →
             </p>
           </div>
         ) : (
-          <p className="text-sm text-brand-text-secondary group-hover:text-brand-text-primary">
-            Lire →
-          </p>
+          <p style={CARD_CTA_STYLE}>Lire →</p>
         )}
       </div>
     </button>

@@ -1,82 +1,24 @@
-import { ArrowLeftRight, Pencil } from "lucide-react";
+import { ArrowLeftRight, PenLine } from "lucide-react";
 import Link from "next/link";
 
-const PAGE_CONTAINER_STYLE = {
-  minHeight: "100vh",
-  backgroundColor: "#F0FAF4",
-  padding: "48px 24px",
-  maxWidth: "900px",
-  margin: "0 auto",
-} as const;
-
-const TITLE_STYLE = {
-  fontSize: "2rem",
-  fontWeight: "700",
-  color: "#1C1C1A",
-  marginBottom: "8px",
-} as const;
-
-const SUBTITLE_STYLE = {
-  fontSize: "1rem",
-  color: "#6B6B67",
-  marginBottom: "48px",
-} as const;
-
-const GRID_STYLE = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-  gap: "24px",
-  maxWidth: "900px",
-} as const;
-
-const CARD_STYLE = {
-  backgroundColor: "#FFFFFF",
-  border: "1px solid #E5E3DC",
-  borderRadius: "12px",
-  padding: "32px",
-  cursor: "pointer",
-  display: "block",
-  textDecoration: "none",
-} as const;
-
-const ICON_STYLE = {
-  width: "24px",
-  height: "24px",
-  color: "#1E3A5F",
-  marginBottom: "16px",
-} as const;
-
-const CARD_TITLE_STYLE = {
-  fontSize: "1.125rem",
-  fontWeight: "600",
-  color: "#1C1C1A",
-  marginBottom: "8px",
-} as const;
-
-const CARD_DESCRIPTION_STYLE = {
-  fontSize: "0.875rem",
-  color: "#6B6B67",
-  marginBottom: "24px",
-  lineHeight: "1.5",
-} as const;
-
-const CARD_LINK_STYLE = {
-  fontSize: "0.875rem",
-  color: "#1E3A5F",
-  textDecoration: "none",
-} as const;
+import {
+  CARD_CTA_STYLE,
+  CARD_ICON_BOX_STYLE,
+  EXERCISE_CARD_CLASS,
+} from "@/components/ui/card-styles";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const PRACTICE_MODES = [
   {
     href: "/practice/sentence-builder",
-    icon: Pencil,
+    icon: <PenLine size={18} color="#4F46E5" aria-hidden="true" />,
     title: "Constructeur de phrases",
     description:
       "Composez une phrase en russe. Rossiyani analyse votre grammaire en contexte.",
   },
   {
     href: "/practice/context-translation",
-    icon: ArrowLeftRight,
+    icon: <ArrowLeftRight size={18} color="#4F46E5" aria-hidden="true" />,
     title: "Traduction contextualisée",
     description:
       "Traduisez le sens, pas les mots. Pensez comme un locuteur natif.",
@@ -85,17 +27,30 @@ const PRACTICE_MODES = [
 
 export default function PracticePage() {
   return (
-    <div style={PAGE_CONTAINER_STYLE}>
-      <h1 style={TITLE_STYLE}>Pratique</h1>
-      <p style={SUBTITLE_STYLE}>Renforcez ce que vous avez lu.</p>
+    <div>
+      <PageHeader
+        eyebrow="PRODUCTION"
+        title="Pratique"
+        subtitle="Renforcez ce que vous avez lu."
+      />
 
-      <div style={GRID_STYLE}>
+      <div className="mx-auto grid max-w-[900px] gap-6 px-6 py-10 md:grid-cols-2 md:px-10">
         {PRACTICE_MODES.map((mode) => (
-          <Link key={mode.href} href={mode.href} style={CARD_STYLE}>
-            <mode.icon style={ICON_STYLE} aria-hidden="true" />
-            <h2 style={CARD_TITLE_STYLE}>{mode.title}</h2>
-            <p style={CARD_DESCRIPTION_STYLE}>{mode.description}</p>
-            <span style={CARD_LINK_STYLE}>Ouvrir →</span>
+          <Link
+            key={mode.href}
+            href={mode.href}
+            className={`block ${EXERCISE_CARD_CLASS}`}
+          >
+            <div className="mb-4" style={CARD_ICON_BOX_STYLE}>
+              {mode.icon}
+            </div>
+            <h2 className="text-sm font-bold text-ink">{mode.title}</h2>
+            <p className="mt-2 text-xs leading-relaxed text-ink-3">
+              {mode.description}
+            </p>
+            <span className="mt-6 inline-block" style={CARD_CTA_STYLE}>
+              Ouvrir →
+            </span>
           </Link>
         ))}
       </div>

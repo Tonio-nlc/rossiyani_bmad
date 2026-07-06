@@ -6,7 +6,9 @@ import { useMemo, useState } from "react";
 
 import { CollectionCard } from "@/components/library/CollectionCard";
 import { TextCard } from "@/components/library/TextCard";
-import { Button } from "@/components/ui/button";
+import { FilterPills } from "@/components/ui/FilterPills";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTexts } from "@/hooks/useTexts";
@@ -15,7 +17,7 @@ import {
   COLLECTIONS,
   type TCollection,
 } from "@/lib/library/collections";
-import { cn } from "@/lib/utils";
+import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
 import type { TTextWithProgress } from "@/types/reader";
 
 const LEVEL_FILTERS = ["Tous", "A1", "A2", "B1", "B2"] as const;
@@ -88,48 +90,43 @@ export default function LibraryPage() {
 
   if (error) {
     return (
-      <div className="px-4 py-12 text-center text-brand-text-secondary">
+      <div className="px-10 py-12 text-center text-ink-2">
         Impossible de charger la bibliothèque. Veuillez réessayer.
       </div>
     );
   }
 
   return (
-    <div className="bg-brand-surface">
-      <header className="bg-[#EDE8DF] px-4 py-10 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <p className="text-xs font-medium tracking-[0.2em] text-brand-text-muted uppercase">
-            Vos lectures
-          </p>
-          <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h1 className="text-3xl font-semibold text-brand-text-primary">
-                Bibliothèque
-              </h1>
-              <p className="mt-2 max-w-2xl text-brand-text-secondary">
-                Collections curatées et textes importés — lisez, progressez,
-                retrouvez vos lectures.
-              </p>
-            </div>
-            <BadgePill>{texts.length} textes</BadgePill>
-          </div>
-        </div>
-      </header>
+    <div>
+      <PageHeader
+        eyebrow="VOS LECTURES"
+        title="Bibliothèque"
+        subtitle="Collections curatées et textes importés — lisez, progressez, retrouvez vos lectures."
+        badge={
+          <span className="inline-flex w-fit rounded-full border border-border bg-surface px-3 py-1 text-xs font-bold tracking-[0.12em] text-ink-3 uppercase">
+            {texts.length} textes
+          </span>
+        }
+      />
 
-      <div className="mx-auto max-w-6xl space-y-12 px-4 py-10 md:px-8">
+      <div className="mx-auto max-w-[1080px] space-y-11 px-6 py-10 md:px-10">
         {continueText && (
           <section>
-            <h2 className="text-xl font-semibold text-brand-text-primary">
-              Continuer
-            </h2>
-            <div className="mt-4 rounded-xl border border-brand-border bg-brand-card p-6 md:p-8">
-              <p className="text-xs font-medium tracking-[0.15em] text-brand-primary uppercase">
-                Collection en cours
+            <SectionHeader title="Continuer" />
+            <div className="relative mt-4 overflow-hidden rounded-lg bg-accent-deep p-7">
+              <span
+                className="pointer-events-none absolute -bottom-[18px] -right-1.5 font-serif text-[130px] italic leading-none text-white/[0.06]"
+                aria-hidden="true"
+              >
+                Р
+              </span>
+              <p className="text-[10px] font-bold tracking-[0.12em] text-white/45 uppercase">
+                EN COURS
               </p>
-              <h3 className="mt-3 font-serif text-2xl font-semibold text-brand-text-primary md:text-3xl">
+              <h3 className="mt-3 font-serif text-[26px] leading-tight text-white">
                 {continueText.title}
               </h3>
-              <p className="mt-2 text-sm text-brand-text-secondary">
+              <p className="mt-2 text-xs text-white/40">
                 {COLLECTION_LABELS[continueText.collection] ??
                   continueText.collection}{" "}
                 ·{" "}
@@ -140,25 +137,23 @@ export default function LibraryPage() {
                 }{" "}
                 textes · {continueText.userProgress?.percentRead}% lu
               </p>
-              <Button
+              <button
                 type="button"
                 onClick={() => navigateToReader(continueText.id)}
-                className="mt-6 bg-brand-primary text-white hover:bg-brand-primary/90"
+                className="mt-5 inline-flex items-center justify-center rounded-[10px] bg-white px-4 py-[11px] text-sm font-bold text-accent-deep"
               >
                 Reprendre →
-              </Button>
+              </button>
             </div>
           </section>
         )}
 
-        <section>
-          <h2 className="text-xl font-semibold text-brand-text-primary">
-            Collections
-          </h2>
-          <p className="mt-1 text-brand-text-secondary">
-            Parcours thématiques — le cœur de votre bibliothèque.
-          </p>
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <section className="border-t border-border pt-11">
+          <SectionHeader
+            title="Collections"
+            subtitle="Parcours thématiques — le cœur de votre bibliothèque."
+          />
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {collectionsWithCounts.map((collection) => (
               <CollectionCard
                 key={collection.id}
@@ -169,48 +164,36 @@ export default function LibraryPage() {
           </div>
         </section>
 
-        <section>
+        <section className="border-t border-border pt-11">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-brand-text-primary">
-                Vos textes
-              </h2>
+              <SectionHeader title="Vos textes" />
               {collectionFilter && (
-                <p className="mt-1 text-sm text-brand-text-secondary">
+                <p className="-mt-4 text-sm text-ink-2">
                   Filtre collection :{" "}
                   {COLLECTION_LABELS[collectionFilter] ?? collectionFilter}
                   <button
                     type="button"
                     onClick={() => setCollectionFilter(null)}
-                    className="ml-2 text-brand-primary hover:underline"
+                    className="ml-2 font-semibold text-accent hover:underline"
                   >
                     Effacer
                   </button>
                 </p>
               )}
             </div>
-            <p className="text-sm text-brand-text-muted">
+            <p className="text-sm text-ink-3">
               {filteredTexts.length} résultat
               {filteredTexts.length > 1 ? "s" : ""}
             </p>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {LEVEL_FILTERS.map((level) => (
-              <button
-                key={level}
-                type="button"
-                onClick={() => setLevelFilter(level)}
-                className={cn(
-                  "rounded-full border px-4 py-1.5 text-sm transition-colors",
-                  levelFilter === level
-                    ? "border-brand-primary bg-brand-primary text-white"
-                    : "border-brand-border bg-brand-card text-brand-text-secondary hover:text-brand-text-primary",
-                )}
-              >
-                {level}
-              </button>
-            ))}
+          <div className="mt-4">
+            <FilterPills
+              options={LEVEL_FILTERS}
+              value={levelFilter}
+              onChange={setLevelFilter}
+            />
           </div>
 
           <div className="mt-4">
@@ -219,14 +202,14 @@ export default function LibraryPage() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Rechercher un titre..."
-              className="max-w-md border-brand-border bg-brand-card"
+              className="max-w-md border-border bg-surface"
             />
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {isLoading
               ? Array.from({ length: 6 }).map((_, index) => (
-                  <Skeleton key={index} className="h-56 rounded-xl" />
+                  <Skeleton key={index} className="h-56 rounded-[14px]" />
                 ))
               : filteredTexts.map((text) => (
                   <TextCard
@@ -236,14 +219,14 @@ export default function LibraryPage() {
                   />
                 ))}
 
-            <div className="flex min-h-56 flex-col justify-center rounded-xl border border-dashed border-brand-border bg-brand-card p-5">
-              <div className="mb-4 flex size-10 items-center justify-center rounded-full bg-brand-surface text-brand-text-secondary">
+            <div
+              className={`flex min-h-56 flex-col justify-center border-dashed ${CARD_BASE_CLASS}`}
+            >
+              <div className="mb-4 flex size-[38px] items-center justify-center rounded-lg bg-accent-light text-accent">
                 <MessageSquarePlus className="size-5" aria-hidden="true" />
               </div>
-              <h3 className="text-base font-semibold text-brand-text-primary">
-                Suggérer un texte
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-brand-text-secondary">
+              <h3 className="text-sm font-bold text-ink">Suggérer un texte</h3>
+              <p className="mt-2 text-xs leading-relaxed text-ink-3">
                 Vous cherchez un sujet spécifique ? Faites-le nous savoir.
               </p>
             </div>
@@ -251,13 +234,5 @@ export default function LibraryPage() {
         </section>
       </div>
     </div>
-  );
-}
-
-function BadgePill({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex w-fit rounded-full border border-brand-border bg-brand-card px-3 py-1 text-xs font-medium tracking-[0.12em] text-brand-text-secondary uppercase">
-      {children}
-    </span>
   );
 }

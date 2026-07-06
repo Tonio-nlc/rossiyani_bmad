@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react";
 
 import { VocabularyGrid } from "@/components/vocabulary/VocabularyGrid";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
 import { Input } from "@/components/ui/input";
 import type { TVocabularyFilter, TVocabularyListItem } from "@/types/vocabulary";
-import { cn } from "@/lib/utils";
 
 const FILTERS: { id: TVocabularyFilter; label: string }[] = [
   { id: "all", label: "Tous" },
@@ -41,87 +42,62 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
 
   if (errorMessage) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mx-auto max-w-3xl px-10 py-12">
         <p className="text-sm text-destructive">{errorMessage}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-brand-surface">
-      <header className="border-b border-brand-border bg-brand-card px-4 py-8 md:px-8">
-        <div className="mx-auto max-w-3xl">
-          <h1 className="text-3xl font-semibold text-brand-text-primary">
-            Vocabulary
-          </h1>
-          <p className="mt-2 text-brand-text-secondary">
-            Vos mots sauvegardés en contexte — retrouvez ce que vous avez
-            rencontré en lecture.
-          </p>
-        </div>
-      </header>
+    <div>
+      <PageHeader
+        eyebrow="MÉMOIRE LINGUISTIQUE"
+        title="Vocabulary"
+        subtitle="Vos mots sauvegardés en contexte — retrouvez ce que vous avez rencontré en lecture."
+      />
 
-      <div className="mx-auto max-w-3xl px-4 py-8 md:px-8">
+      <div className="mx-auto max-w-3xl px-6 py-8 md:px-10">
         <div className="space-y-4">
           <Input
             type="search"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder="Rechercher un mot ou une traduction..."
-            className="max-w-xl border-brand-border bg-brand-card"
+            className="max-w-xl border-border bg-surface"
           />
 
-          <div className="hidden flex-wrap gap-2 md:flex">
-            {FILTERS.map((filter) => (
-              <button
-                key={filter.id}
-                type="button"
-                onClick={() => setActiveFilter(filter.id)}
-                className={cn(
-                  "rounded-full border px-4 py-1.5 text-sm transition-colors",
-                  activeFilter === filter.id
-                    ? "border-brand-primary bg-brand-primary text-white"
-                    : "border-brand-border bg-brand-card text-brand-text-secondary hover:text-brand-text-primary",
-                )}
-              >
-                {filter.label}
-              </button>
-            ))}
+          <div className="hidden md:block">
+            <VocabularyFilterPills
+              activeFilter={activeFilter}
+              onChange={setActiveFilter}
+            />
           </div>
 
           <div className="flex gap-2 overflow-x-auto pb-1 md:hidden">
-            {FILTERS.map((filter) => (
-              <button
-                key={filter.id}
-                type="button"
-                onClick={() => setActiveFilter(filter.id)}
-                className={cn(
-                  "shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors",
-                  activeFilter === filter.id
-                    ? "border-brand-primary bg-brand-primary text-white"
-                    : "border-brand-border bg-brand-card text-brand-text-secondary",
-                )}
-              >
-                {filter.label}
-              </button>
-            ))}
+            <VocabularyFilterPills
+              activeFilter={activeFilter}
+              onChange={setActiveFilter}
+              compact
+            />
           </div>
         </div>
 
         <div className="mt-8">
           {words.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-brand-border bg-brand-card p-8 text-center">
-              <p className="text-lg font-medium text-brand-text-primary">
+            <div
+              className={`border-dashed text-center ${CARD_BASE_CLASS}`}
+            >
+              <p className="text-base font-bold text-ink">
                 Aucun mot sauvegardé
               </p>
-              <p className="mt-2 text-sm text-brand-text-secondary">
+              <p className="mt-2 text-sm text-ink-2">
                 Lisez un texte et sauvegardez des mots depuis l&apos;Explorer
                 pour les retrouver ici.
               </p>
             </div>
           ) : filteredWords.length === 0 ? (
-            <div className="rounded-xl border border-brand-border bg-brand-card p-8 text-center">
-              <p className="text-sm text-brand-text-secondary">
+            <div className={`text-center ${CARD_BASE_CLASS}`}>
+              <p className="text-sm text-ink-2">
                 Aucun mot ne correspond à votre recherche ou à ce filtre.
               </p>
             </div>
@@ -130,6 +106,35 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function VocabularyFilterPills({
+  activeFilter,
+  onChange,
+  compact,
+}: {
+  activeFilter: TVocabularyFilter;
+  onChange: (filter: TVocabularyFilter) => void;
+  compact?: boolean;
+}) {
+  return (
+    <div className={compact ? "flex gap-2" : "flex flex-wrap gap-2"}>
+      {FILTERS.map((filter) => (
+        <button
+          key={filter.id}
+          type="button"
+          onClick={() => onChange(filter.id)}
+          className={
+            activeFilter === filter.id
+              ? "shrink-0 rounded-full border border-[#4F46E5] bg-[#4F46E5] px-4 py-1.5 text-sm font-medium text-white transition-colors"
+              : "shrink-0 rounded-full border border-[#E8E4DC] bg-white px-4 py-1.5 text-sm font-medium text-[#5A5A5A] transition-colors hover:text-[#0E0E0E]"
+          }
+        >
+          {filter.label}
+        </button>
+      ))}
     </div>
   );
 }
