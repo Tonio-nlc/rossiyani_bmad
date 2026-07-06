@@ -5,7 +5,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ExplorerPanel,
   ExplorerPanelMobile,
+  EXPLORER_PANEL_TEXT_PADDING_CLOSED_PX,
+  EXPLORER_PANEL_TEXT_PADDING_OPEN_PX,
 } from "@/components/reader/ExplorerPanel";
+import { ReaderHeader } from "@/components/reader/ReaderHeader";
 import { TextBody } from "@/components/reader/TextBody";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useWordExplanation } from "@/hooks/useWordExplanation";
@@ -16,6 +19,7 @@ import type { TText, TUserProgress } from "@/types/reader";
 export interface ReaderContainerProps {
   text: TText;
   userProgress: TUserProgress | null;
+  collectionLabel: string;
 }
 
 async function saveProgress(payload: {
@@ -44,7 +48,11 @@ function createInitialReadIndices(userProgress: TUserProgress | null): Set<numbe
   return indices;
 }
 
-export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
+export function ReaderContainer({
+  text,
+  userProgress,
+  collectionLabel,
+}: ReaderContainerProps) {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [selectedSentence, setSelectedSentence] = useState<string | null>(null);
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
@@ -167,19 +175,20 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
     });
   }, [annotateWord, explanation, selectedWord]);
 
-  const activeExplanation =
-    isLoading || error || !selectedWord ? null : explanation;
+  const panelExplanation = selectedWord ? explanation : null;
+  const panelIsLoading = Boolean(selectedWord && isLoading);
+  const panelError = selectedWord ? error : null;
 
   const activeWordAnnotation =
-    activeExplanation && selectedWord
+    explanation && selectedWord && !isLoading && !error
       ? {
-          functionColor: activeExplanation.functionColor,
-          functionalRole: activeExplanation.functionalRole,
-          lemma: activeExplanation.lemma,
-          translation: activeExplanation.translation,
-          suffix: activeExplanation.suffix,
-          suffixExplanation: activeExplanation.suffixExplanation,
-          lemmaStressed: activeExplanation.lemmaStressed,
+          functionColor: explanation.functionColor,
+          functionalRole: explanation.functionalRole,
+          lemma: explanation.lemma,
+          translation: explanation.translation,
+          suffix: explanation.suffix,
+          suffixExplanation: explanation.suffixExplanation,
+          lemmaStressed: explanation.lemmaStressed,
         }
       : null;
 
@@ -215,62 +224,66 @@ export function ReaderContainer({ text, userProgress }: ReaderContainerProps) {
     };
   }, [percentRead, text.id]);
 
+  const handleCloseExplorer = useCallback(() => {
+    setIsExplorerOpen(false);
+    setSelectedWord(null);
+    setSelectedSentence(null);
+    reset();
+  }, [reset]);
+
   return (
-    <div className="flex min-h-[calc(100vh-57px)] flex-col">
-      <div className="border-b border-brand-border bg-brand-card px-4 py-3 md:px-8">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 text-sm text-brand-text-secondary">
-          <span>
-            {text.level} · {text.readingTimeMinutes} min
-            <span className="text-[13px] text-brand-text-muted">
-              {" "}
-              · {exploredCount} mot{exploredCount > 1 ? "s" : ""} exploré
-              {exploredCount > 1 ? "s" : ""}
-            </span>
-          </span>
-          <span>{percentRead}% lu</span>
-        </div>
-        <div className="mx-auto mt-2 h-1 max-w-6xl overflow-hidden rounded-full bg-brand-border">
-          <div
-            className="h-full bg-brand-primary transition-all duration-300"
-            style={{ width: `${percentRead}%` }}
-          />
+    <div className="flex min-h-[calc(100vh-56px)] flex-col">
+      <ReaderHeader
+        collectionLabel={collectionLabel}
+        title={text.title}
+        level={text.level}
+        readingTimeMinutes={text.readingTimeMinutes}
+        exploredCount={exploredCount}
+        percentRead={percentRead}
+      />
+
+      {/* ExplorerPanel est porté vers document.body (position: fixed) — ne pas le placer dans la colonne texte. */}
+      <div className="flex min-h-0 flex-1 overflow-hidden bg-bg">
+        <div
+          className="min-w-0 flex-1 overflow-y-auto py-6 pl-4 pr-4 md:pl-10 md:pr-6 md:[padding-right:var(--explorer-pr)]"
+          style={
+            {
+              "--explorer-pr": selectedWord
+                ? `${EXPLORER_PANEL_TEXT_PADDING_OPEN_PX}px`
+                : `${EXPLORER_PANEL_TEXT_PADDING_CLOSED_PX}px`,
+            } as Record<string, string>
+          }
+        >
+          <div className="mx-auto w-full max-w-[720px]">
+            <TextBody
+              text={text}
+              annotatedWords={annotatedWords}
+              activeWordAnnotation={activeWordAnnotation}
+              selectedWord={selectedWord ?? undefined}
+              onWordClick={handleWordClick}
+              onSentenceVisible={handleSentenceVisible}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-y-auto bg-brand-surface">
-          <TextBody
-            text={text}
-            annotatedWords={annotatedWords}
-            activeWordAnnotation={activeWordAnnotation}
-            selectedWord={selectedWord ?? undefined}
-            onWordClick={handleWordClick}
-            onSentenceVisible={handleSentenceVisible}
-          />
-        </div>
-
-        <ExplorerPanel
-          explanation={activeExplanation}
-          isLoading={isLoading}
-          error={error}
-          onClose={() => {
-            setIsExplorerOpen(false);
-            setSelectedWord(null);
-            setSelectedSentence(null);
-            reset();
-          }}
-          onSaveWord={handleSaveWord}
-          onRetry={handleRetry}
-          isSaved={isSaved}
-        />
-      </div>
+      <ExplorerPanel
+        explanation={panelExplanation}
+        isLoading={panelIsLoading}
+        error={panelError}
+        isOpen={Boolean(selectedWord)}
+        onClose={handleCloseExplorer}
+        onSaveWord={handleSaveWord}
+        onRetry={handleRetry}
+        isSaved={isSaved}
+      />
 
       <ExplorerPanelMobile
-        explanation={activeExplanation}
-        isLoading={isLoading}
-        error={error}
+        explanation={panelExplanation}
+        isLoading={panelIsLoading}
+        error={panelError}
         isOpen={isExplorerOpen}
-        onClose={() => setIsExplorerOpen(false)}
+        onClose={handleCloseExplorer}
         onSaveWord={handleSaveWord}
         onRetry={handleRetry}
         isSaved={isSaved}

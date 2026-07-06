@@ -8,18 +8,38 @@ const FUNCTION_COLOR_MAP = {
 
 export type TReaderFunctionColor = keyof typeof FUNCTION_COLOR_MAP;
 
-const COMBINING_ACUTE = "\u0301";
+export function toNfc(text: string): string {
+  return text.normalize("NFC");
+}
+
+const TRAILING_PUNCTUATION_RE = /([^\p{L}\p{N}\p{M}]+)$/u;
+const TOKEN_TRIM_RE = /^[^\p{L}\p{N}\p{M}]+|[^\p{L}\p{N}\p{M}]+$/gu;
+
+export function splitTrailingPunctuation(surface: string): {
+  wordPart: string;
+  trailingPunctuation: string;
+} {
+  const trailingMatch = surface.match(TRAILING_PUNCTUATION_RE);
+  const trailingPunctuation = trailingMatch?.[1] ?? "";
+  const wordPart = trailingPunctuation
+    ? surface.slice(0, -trailingPunctuation.length)
+    : surface;
+
+  return { wordPart, trailingPunctuation };
+}
 
 function segmentGraphemes(text: string): string[] {
+  const normalized = toNfc(text);
+
   if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
     const segmenter = new Intl.Segmenter("ru", { granularity: "grapheme" });
-    return [...segmenter.segment(text)].map((part) => part.segment);
+    return [...segmenter.segment(normalized)].map((part) => part.segment);
   }
 
   const graphemes: string[] = [];
 
-  for (const char of text) {
-    if (char === COMBINING_ACUTE && graphemes.length > 0) {
+  for (const char of normalized) {
+    if (/\p{M}/u.test(char) && graphemes.length > 0) {
       graphemes[graphemes.length - 1] += char;
     } else {
       graphemes.push(char);
@@ -79,17 +99,14 @@ export function splitWordByApiSuffix(
   suffix: string;
   trailingPunctuation: string;
 } | null {
+  const nfcSurface = toNfc(surface);
   const normalizedSuffix = apiSuffix.replace(/^-+/, "").trim();
 
   if (!normalizedSuffix) {
     return null;
   }
 
-  const trailingMatch = surface.match(/([^\p{L}\p{N}]+)$/u);
-  const trailingPunctuation = trailingMatch?.[1] ?? "";
-  const wordPart = trailingPunctuation
-    ? surface.slice(0, -trailingPunctuation.length)
-    : surface;
+  const { wordPart, trailingPunctuation } = splitTrailingPunctuation(nfcSurface);
 
   const split = splitWordPartByNormalizedSuffix(wordPart, normalizedSuffix);
 
@@ -108,11 +125,8 @@ export function splitWordStemAndSuffix(surface: string): {
   suffix: string;
   trailingPunctuation: string;
 } {
-  const trailingMatch = surface.match(/([^\p{L}\p{N}]+)$/u);
-  const trailingPunctuation = trailingMatch?.[1] ?? "";
-  const wordPart = trailingPunctuation
-    ? surface.slice(0, -trailingPunctuation.length)
-    : surface;
+  const nfcSurface = toNfc(surface);
+  const { wordPart, trailingPunctuation } = splitTrailingPunctuation(nfcSurface);
 
   const graphemeCount = segmentGraphemes(wordPart).length;
 
@@ -164,11 +178,11 @@ export function splitIntoSentences(content: string): string[] {
 }
 
 export function tokenizeSentence(sentence: string): string[] {
-  return sentence.split(/\s+/).filter(Boolean);
+  return toNfc(sentence).split(/\s+/).filter(Boolean);
 }
 
 export function normalizeToken(token: string): string {
-  return token.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
+  return toNfc(token).replace(TOKEN_TRIM_RE, "");
 }
 
 export const FUNCTIONAL_ROLE_LABELS: Record<string, string> = {

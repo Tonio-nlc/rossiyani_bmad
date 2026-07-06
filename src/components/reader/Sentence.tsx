@@ -68,6 +68,10 @@ function isWordSelected(token: string, selectedWord?: string): boolean {
   );
 }
 
+function resolveTranslation(translationFr: string | undefined): string {
+  return translationFr?.trim() ?? "";
+}
+
 export function Sentence({
   text,
   translationFr,
@@ -79,11 +83,12 @@ export function Sentence({
   onVisible,
 }: SentenceProps) {
   const [showTranslation, setShowTranslation] = useState(false);
-  const paragraphRef = useRef<HTMLParagraphElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const tokens = tokenizeSentence(text);
+  const resolvedTranslation = resolveTranslation(translationFr);
 
   useEffect(() => {
-    if (!paragraphRef.current || !onVisible) {
+    if (!containerRef.current || !onVisible) {
       return;
     }
 
@@ -96,72 +101,73 @@ export function Sentence({
       { threshold: 0.6 },
     );
 
-    observer.observe(paragraphRef.current);
+    observer.observe(containerRef.current);
 
     return () => observer.disconnect();
   }, [onVisible]);
 
   return (
-    <p ref={paragraphRef} className="mb-6 leading-[44px]">
-      {tokens.map((token, index) => {
-        const normalized = normalizeToken(token);
-        const isWord = normalized.length > 0;
+    <div ref={containerRef} className={resolvedTranslation ? "" : "mb-3"}>
+      <p className="mb-1 leading-[44px]">
+        {tokens.map((token, index) => {
+          const normalized = normalizeToken(token);
+          const isWord = normalized.length > 0;
 
-        if (!isWord) {
+          if (!isWord) {
+            return (
+              <span key={`${token}-${index}`} className="text-[26px]">
+                {token}
+              </span>
+            );
+          }
+
+          const sessionAnnotation = getSessionAnnotation(token, annotatedWords);
+          const isSelected = isWordSelected(token, selectedWord);
+          const annotation =
+            sessionAnnotation ??
+            (isSelected ? activeWordAnnotation ?? undefined : undefined);
+          const functionColor = annotation?.functionColor as
+            | TReaderFunctionColor
+            | undefined;
+
           return (
-            <span key={`${token}-${index}`} className="font-serif text-2xl">
-              {token}
+            <span key={`${token}-${index}`}>
+              <Word
+                surface={token}
+                isClickable
+                functionalRole={
+                  annotation?.functionalRole ??
+                  findAnnotatedWord(token, words)?.functionalRole
+                }
+                functionColor={functionColor}
+                suffix={annotation?.suffix}
+                isSelected={isSelected}
+                isAnnotated={Boolean(sessionAnnotation) && !isSelected}
+                onWordClick={(surface) => onWordClick(surface, text)}
+              />
+              {shouldAddSpaceAfterToken(index, tokens) ? " " : ""}
             </span>
           );
-        }
+        })}
+      </p>
 
-        const sessionAnnotation = getSessionAnnotation(token, annotatedWords);
-        const isSelected = isWordSelected(token, selectedWord);
-        const annotation =
-          sessionAnnotation ??
-          (isSelected ? activeWordAnnotation ?? undefined : undefined);
-        const functionColor = annotation?.functionColor as
-          | TReaderFunctionColor
-          | undefined;
-
-        return (
-          <span key={`${token}-${index}`}>
-            <Word
-              surface={token}
-              isClickable
-              functionalRole={
-                annotation?.functionalRole ??
-                findAnnotatedWord(token, words)?.functionalRole
-              }
-              functionColor={functionColor}
-              suffix={annotation?.suffix}
-              isSelected={isSelected}
-              isAnnotated={Boolean(sessionAnnotation) && !isSelected}
-              onWordClick={(surface) => onWordClick(surface, text)}
-            />
-            {shouldAddSpaceAfterToken(index, tokens) ? " " : ""}
-          </span>
-        );
-      })}
-
-      {translationFr && (
-        <span className="mt-3 block leading-normal">
-          {!showTranslation ? (
-            <button
-              type="button"
-              onClick={() => setShowTranslation(true)}
-              className="text-sm text-brand-text-secondary hover:text-brand-text-primary"
-            >
-              Voir la traduction →
-            </button>
-          ) : (
-            <span className="block text-sm italic text-brand-text-muted">
-              {translationFr}
-            </span>
-          )}
-        </span>
-      )}
-    </p>
+      {resolvedTranslation ? (
+        <div className="leading-normal">
+          <button
+            type="button"
+            onClick={() => setShowTranslation((current) => !current)}
+            className="mt-0.5 mb-3 block cursor-pointer select-none text-xs italic text-[#A8A8A8] hover:text-[#5A5A5A]"
+          >
+            {showTranslation ? "masquer" : "voir la traduction →"}
+          </button>
+          {showTranslation ? (
+            <p className="reader-translation-fade-in mt-1 mb-1 text-[13px] italic text-[#A8A8A8]">
+              {resolvedTranslation}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
 

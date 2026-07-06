@@ -6,6 +6,8 @@ import {
   getFunctionColorHex,
   splitWordByApiSuffix,
   splitWordStemAndSuffix,
+  splitTrailingPunctuation,
+  toNfc,
   type TReaderFunctionColor,
 } from "@/lib/utils/russian";
 import { cn } from "@/lib/utils";
@@ -44,21 +46,19 @@ function toFunctionColor(
 }
 
 function resolveWordParts(surface: string, apiSuffix?: string) {
+  const nfcSurface = toNfc(surface);
   const normalizedSuffix =
     apiSuffix === undefined ? undefined : apiSuffix.replace(/^-+/, "").trim();
 
   if (apiSuffix !== undefined && normalizedSuffix === "") {
-    const trailingMatch = surface.match(/([^\p{L}\p{N}]+)$/u);
-    const trailingPunctuation = trailingMatch?.[1] ?? "";
-    const wordPart = trailingPunctuation
-      ? surface.slice(0, -trailingPunctuation.length)
-      : surface;
+    const { wordPart, trailingPunctuation } =
+      splitTrailingPunctuation(nfcSurface);
 
     return { stem: wordPart, suffix: "", trailingPunctuation };
   }
 
   if (normalizedSuffix) {
-    const fromApi = splitWordByApiSuffix(surface, apiSuffix!);
+    const fromApi = splitWordByApiSuffix(nfcSurface, apiSuffix!);
 
     if (fromApi) {
       return fromApi;
@@ -66,14 +66,10 @@ function resolveWordParts(surface: string, apiSuffix?: string) {
   }
 
   if (apiSuffix === undefined) {
-    return splitWordStemAndSuffix(surface);
+    return splitWordStemAndSuffix(nfcSurface);
   }
 
-  const trailingMatch = surface.match(/([^\p{L}\p{N}]+)$/u);
-  const trailingPunctuation = trailingMatch?.[1] ?? "";
-  const wordPart = trailingPunctuation
-    ? surface.slice(0, -trailingPunctuation.length)
-    : surface;
+  const { wordPart, trailingPunctuation } = splitTrailingPunctuation(nfcSurface);
 
   return { stem: wordPart, suffix: "", trailingPunctuation };
 }
@@ -128,7 +124,7 @@ export function Word({
         }
       }}
       className={cn(
-        "word-wrapper inline-flex min-h-[44px] items-center font-serif text-2xl leading-relaxed text-brand-text-primary",
+        "word-wrapper inline-flex min-h-[44px] items-center text-[26px] leading-relaxed text-ink",
         isClickable &&
           "reader-word-clickable cursor-pointer transition-[background-color] duration-150 ease-in-out",
         isClickable && "rounded px-0.5 -mx-0.5",
