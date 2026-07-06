@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, PT_Serif } from "next/font/google";
+import { DM_Sans, DM_Serif_Display, Noto_Serif } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dmSans = DM_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const dmSerifDisplay = DM_Serif_Display({
   subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  variable: "--font-serif",
 });
 
-const ptSerif = PT_Serif({
-  variable: "--font-pt-serif",
-  subsets: ["latin", "cyrillic"],
+const notoSerif = Noto_Serif({
+  subsets: ["cyrillic"],
   weight: ["400", "700"],
+  variable: "--font-russian",
 });
 
 export const metadata: Metadata = {
@@ -31,9 +34,9 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${geistSans.variable} ${geistMono.variable} ${ptSerif.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${dmSerifDisplay.variable} ${notoSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

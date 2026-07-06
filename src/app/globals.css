@@ -8,9 +8,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-serif: var(--font-pt-serif), Georgia, serif;
+  --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: var(--font-serif), Georgia, serif;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -30,7 +29,18 @@
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
+  /* Rossiyani accent — hardcoded to avoid shadcn --accent override */
+  --color-accent: #4f46e5;
+  --color-accent-deep: #3730a3;
+  --color-accent-light: #eef0ff;
+  --color-accent-border: #c7d2fe;
+  --color-ink: #0e0e0e;
+  --color-ink-2: #5a5a5a;
+  --color-ink-3: #a8a8a8;
+  --color-bg: #f8f6f2;
+  --color-surface: #ffffff;
+  --color-border: #e8e4dc;
+  --font-family-russian: var(--font-russian), "Noto Serif", Georgia, serif;
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -51,6 +61,25 @@
 }
 
 :root {
+  /* Rossiyani design tokens */
+  --ink: #0e0e0e;
+  --ink-2: #5a5a5a;
+  --ink-3: #a8a8a8;
+  --bg: #f8f6f2;
+  --surface: #ffffff;
+  --border-ui: #e8e4dc;
+  --rossiyani-accent: #4f46e5;
+  --accent-deep: #3730a3;
+  --accent-light: #eef0ff;
+  --accent-border: #c7d2fe;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --font-sans: "DM Sans", -apple-system, sans-serif;
+  --font-serif: "DM Serif Display", Georgia, serif;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -124,10 +153,15 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--ink);
   }
   html {
     @apply font-sans;
+  }
+  .font-russian {
+    font-family: var(--font-russian), "Noto Serif", Georgia, serif;
   }
 }
 
@@ -157,7 +191,20 @@
   animation: reader-panel-fade-in 200ms ease-out forwards;
 }
 
+.reader-translation-fade-in {
+  animation: reader-translation-fade-in 150ms ease-out forwards;
+}
+
 @keyframes reader-panel-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes reader-translation-fade-in {
   from {
     opacity: 0;
   }

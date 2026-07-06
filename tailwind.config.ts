@@ -5,6 +5,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        ink: {
+          DEFAULT: "#0E0E0E",
+          2: "#5A5A5A",
+          3: "#A8A8A8",
+        },
+        bg: "#F8F6F2",
+        surface: "#FFFFFF",
+        border: "#E8E4DC",
+        accent: {
+          DEFAULT: "#4F46E5",
+          deep: "#3730A3",
+          light: "#EEF0FF",
+          border: "#C7D2FE",
+        },
         role: {
           subject: "#3B82F6",
           object: "#EF7C5A",
@@ -13,14 +27,19 @@ const config: Config = {
           recipient: "#F59E0B",
         },
         brand: {
-          primary: "#1E3A5F",
-          surface: "#FAFAF9",
+          primary: "#4F46E5",
+          surface: "#F8F6F2",
           card: "#FFFFFF",
-          border: "#E5E3DC",
-          "text-primary": "#1C1C1A",
-          "text-secondary": "#6B6B67",
-          "text-muted": "#9C9A93",
+          border: "#E8E4DC",
+          "text-primary": "#0E0E0E",
+          "text-secondary": "#5A5A5A",
+          "text-muted": "#A8A8A8",
         },
+      },
+      borderRadius: {
+        sm: "8px",
+        md: "14px",
+        lg: "18px",
       },
     },
   },
