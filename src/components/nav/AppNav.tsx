@@ -42,7 +42,9 @@ function buildNavItems(reviewDueCount: number): INavItem[] {
       href: "/library",
       label: "Bibliothèque",
       match: (pathname) =>
-        pathname === "/library" || pathname.startsWith("/library/"),
+        pathname === "/library" ||
+        pathname.startsWith("/library/") ||
+        pathname.startsWith("/reader/"),
     },
     {
       href: "/lessons",
@@ -54,7 +56,10 @@ function buildNavItems(reviewDueCount: number): INavItem[] {
       href: "/vocabulary",
       label: "Vocabulaire",
       match: (pathname) =>
-        pathname === "/vocabulary" || pathname.startsWith("/vocabulary/"),
+        pathname === "/vocabulary" ||
+        pathname.startsWith("/vocabulary/") ||
+        pathname === "/review" ||
+        pathname.startsWith("/review/"),
       badge: reviewDueCount,
     },
     {

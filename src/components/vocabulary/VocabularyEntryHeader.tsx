@@ -1,31 +1,29 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-
+import { BackLink } from "@/components/ui/BackLink";
 import type { TVocabularyEntry } from "@/types/vocabulary";
 
 interface VocabularyEntryHeaderProps {
   entry: TVocabularyEntry;
+  returnHref: string;
+  returnLabel: string;
 }
 
-export function VocabularyEntryHeader({ entry }: VocabularyEntryHeaderProps) {
+export function VocabularyEntryHeader({
+  entry,
+  returnHref,
+  returnLabel,
+}: VocabularyEntryHeaderProps) {
   const displayLemma = entry.linguisticData.accent ?? entry.lemma;
 
   return (
-    <header className="border-b border-brand-border bg-brand-card px-4 py-8 md:px-8">
+    <header className="border-b border-border bg-surface px-4 py-6 md:px-8 md:py-8">
       <div className="mx-auto max-w-3xl">
-        <Link
-          href="/vocabulary"
-          className="inline-flex items-center gap-2 text-sm text-brand-text-secondary transition-colors hover:text-brand-text-primary"
-        >
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          Retour
-        </Link>
+        <BackLink href={returnHref} label={returnLabel} />
 
         <div className="mt-6">
-          <p className="font-serif text-3xl text-brand-text-primary md:text-4xl">
+          <p className="font-russian text-3xl text-ink md:text-4xl">
             {displayLemma}
           </p>
-          <p className="mt-2 text-lg text-brand-text-secondary md:text-xl">
+          <p className="mt-2 text-lg text-ink-2 md:text-xl">
             {entry.translation || "Traduction indisponible"}
           </p>
         </div>

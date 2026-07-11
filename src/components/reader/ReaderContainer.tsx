@@ -5,13 +5,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ExplorerPanel,
   ExplorerPanelMobile,
-  EXPLORER_PANEL_TEXT_PADDING_CLOSED_PX,
   EXPLORER_PANEL_TEXT_PADDING_OPEN_PX,
 } from "@/components/reader/ExplorerPanel";
 import { ReaderHeader } from "@/components/reader/ReaderHeader";
 import { TextBody } from "@/components/reader/TextBody";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useWordExplanation } from "@/hooks/useWordExplanation";
+import {
+  clearReaderSelection,
+  loadReaderSelection,
+  saveReaderSelection,
+} from "@/lib/navigation/reader-session";
 import { splitIntoSentences } from "@/lib/utils/russian";
 import { useReaderStore } from "@/stores/readerStore";
 import type { TText, TUserProgress } from "@/types/reader";
@@ -55,13 +59,14 @@ export function ReaderContainer({
 }: ReaderContainerProps) {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [selectedSentence, setSelectedSentence] = useState<string | null>(null);
-  const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [readSentenceIndices, setReadSentenceIndices] = useState<Set<number>>(
     () => createInitialReadIndices(userProgress),
   );
 
   const lastSavedProgress = useRef(userProgress?.percentRead ?? 0);
   const highestSentenceIndex = useRef(userProgress?.lastSentenceIndex ?? 0);
+  const hasRestoredSession = useRef(false);
+  const hasScrolledToProgress = useRef(false);
 
   const {
     explain,
@@ -79,6 +84,26 @@ export function ReaderContainer({
   useEffect(() => {
     initForText(text.id);
   }, [initForText, text.id]);
+
+  useEffect(() => {
+    const index = userProgress?.lastSentenceIndex;
+    if (
+      hasScrolledToProgress.current ||
+      index === undefined ||
+      index === null ||
+      index <= 0
+    ) {
+      return;
+    }
+
+    hasScrolledToProgress.current = true;
+
+    requestAnimationFrame(() => {
+      document
+        .querySelector(`[data-sentence-index="${index}"]`)
+        ?.scrollIntoView({ block: "center" });
+    });
+  }, [text.id, userProgress?.lastSentenceIndex]);
 
   const totalSentences = useMemo(() => {
     if (text.contentAnnotated?.sentences?.length) {
@@ -108,6 +133,23 @@ export function ReaderContainer({
     [explain, reset, text.id],
   );
 
+  useEffect(() => {
+    if (hasRestoredSession.current) {
+      return;
+    }
+
+    hasRestoredSession.current = true;
+
+    const saved = loadReaderSelection(text.id);
+    if (!saved) {
+      return;
+    }
+
+    setSelectedWord(saved.surface);
+    setSelectedSentence(saved.sentence);
+    requestExplanation(saved.surface, saved.sentence);
+  }, [requestExplanation, text.id]);
+
   const handleSentenceVisible = useCallback((sentenceIndex: number) => {
     setReadSentenceIndices((current) => {
       if (current.has(sentenceIndex)) {
@@ -129,10 +171,10 @@ export function ReaderContainer({
     (surface: string, sentence: string) => {
       setSelectedWord(surface);
       setSelectedSentence(sentence);
-      setIsExplorerOpen(true);
+      saveReaderSelection(text.id, { surface, sentence });
       requestExplanation(surface, sentence);
     },
-    [requestExplanation],
+    [requestExplanation, text.id],
   );
 
   const handleRetry = useCallback(() => {
@@ -225,15 +267,16 @@ export function ReaderContainer({
   }, [percentRead, text.id]);
 
   const handleCloseExplorer = useCallback(() => {
-    setIsExplorerOpen(false);
+    clearReaderSelection(text.id);
     setSelectedWord(null);
     setSelectedSentence(null);
     reset();
-  }, [reset]);
+  }, [reset, text.id]);
 
   return (
     <div className="flex min-h-[calc(100vh-56px)] flex-col">
       <ReaderHeader
+        textId={text.id}
         collectionLabel={collectionLabel}
         title={text.title}
         level={text.level}
@@ -245,16 +288,14 @@ export function ReaderContainer({
       {/* ExplorerPanel est porté vers document.body (position: fixed) — ne pas le placer dans la colonne texte. */}
       <div className="flex min-h-0 flex-1 overflow-hidden bg-bg">
         <div
-          className="min-w-0 flex-1 overflow-y-auto py-6 pl-4 pr-4 md:pl-10 md:pr-6 md:[padding-right:var(--explorer-pr)]"
+          className="min-w-0 flex-1 overflow-y-auto px-4 py-4 md:px-10 md:py-6 md:[padding-right:var(--explorer-pr)]"
           style={
             {
-              "--explorer-pr": selectedWord
-                ? `${EXPLORER_PANEL_TEXT_PADDING_OPEN_PX}px`
-                : `${EXPLORER_PANEL_TEXT_PADDING_CLOSED_PX}px`,
+              "--explorer-pr": `${EXPLORER_PANEL_TEXT_PADDING_OPEN_PX}px`,
             } as Record<string, string>
           }
         >
-          <div className="mx-auto w-full max-w-[720px]">
+          <div className="mx-auto w-full max-w-[680px]">
             <TextBody
               text={text}
               annotatedWords={annotatedWords}
@@ -282,7 +323,7 @@ export function ReaderContainer({
         explanation={panelExplanation}
         isLoading={panelIsLoading}
         error={panelError}
-        isOpen={isExplorerOpen}
+        isOpen={Boolean(selectedWord)}
         onClose={handleCloseExplorer}
         onSaveWord={handleSaveWord}
         onRetry={handleRetry}

@@ -232,6 +232,15 @@ CREATE TABLE texts (
 | `001_initial_schema.sql` | Schéma initial (lemmas, explanation_cache, user_vocabulary, srs_reviews…) |
 | `002_linguistic_knowledge.sql` | Knowledge Layer — table `linguistic_knowledge` |
 | `003_review_history.sql` | Historique SRS — table `review_history` |
+| `004_lesson_paths.sql` | Parcours et leçons — tables + seed parcours + leçon 1 |
+| `005_lessons_fondations_2_3.sql` | Leçons Fondations 2–3 |
+| `006_lesson_six_cas_1.sql` | Leçon Les six cas 1 |
+| `007_lessons_six_cas_2_7.sql` | Leçons Les six cas 2–7 |
+| `008_seed_library_texts.sql` | 5 textes bibliothèque A1 (accents + traductions phrase) |
+
+Reconstruction complète : `npm run db:reset:local` (Docker) ou `supabase db push` sur projet vierge.
+Vérification : `npm run db:verify`.
+Scripts : `scripts/db-reset.sh`, `scripts/db-repair-remote-history.sh` (projet existant migré via SQL Editor).
 
 ---
 

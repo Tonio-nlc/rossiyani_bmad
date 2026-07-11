@@ -1,5 +1,7 @@
--- Story 2.3 — Vérification et correction des accents toniques (U+0301)
+-- DEPRECATED — contenu canonique : supabase/migrations/008_seed_library_texts.sql
+-- Conservé pour référence locale uniquement.
 
+-- Story 2.3 — Vérification et correction des accents toniques (U+0301)
 -- 1. Vérification
 SELECT id, title,
   CASE WHEN content LIKE '%́%' THEN 'avec accents'

@@ -1,6 +1,7 @@
--- Sentence-level French translations for Reader "voir la traduction"
--- Run after seed_texts.sql and accent updates
+-- DEPRECATED — contenu canonique : supabase/migrations/008_seed_library_texts.sql
+-- Conservé pour référence locale uniquement.
 
+-- Sentence-level French translations for Reader "voir la traduction"
 UPDATE texts SET content_annotated = '{
   "sentences": [
     {"text": "Са́ша идёт на рабо́ту пешко́м.", "translationFr": "Sacha va au travail à pied."},

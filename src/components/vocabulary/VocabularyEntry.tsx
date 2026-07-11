@@ -1,17 +1,28 @@
-import { ExamplesSection } from "@/components/vocabulary/ExamplesSection";
-import { InformationSection } from "@/components/vocabulary/InformationSection";
-import { ReviewSection } from "@/components/vocabulary/ReviewSection";
-import { VocabularyEntryHeader } from "@/components/vocabulary/VocabularyEntryHeader";
 import type { TVocabularyEntry } from "@/types/vocabulary";
+
+import { VocabularyEntryHeader } from "./VocabularyEntryHeader";
+import { ExamplesSection } from "./ExamplesSection";
+import { InformationSection } from "./InformationSection";
+import { ReviewSection } from "./ReviewSection";
 
 interface VocabularyEntryProps {
   entry: TVocabularyEntry;
+  returnHref: string;
+  returnLabel: string;
 }
 
-export function VocabularyEntry({ entry }: VocabularyEntryProps) {
+export function VocabularyEntry({
+  entry,
+  returnHref,
+  returnLabel,
+}: VocabularyEntryProps) {
   return (
     <div>
-      <VocabularyEntryHeader entry={entry} />
+      <VocabularyEntryHeader
+        entry={entry}
+        returnHref={returnHref}
+        returnLabel={returnLabel}
+      />
 
       <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 md:px-8 md:py-10">
         <InformationSection data={entry.linguisticData} />

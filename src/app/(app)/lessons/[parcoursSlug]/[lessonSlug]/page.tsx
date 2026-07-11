@@ -1,17 +1,22 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { LessonBlockRenderer } from "@/components/lessons/LessonBlockRenderer";
+import { LessonsBreadcrumb } from "@/components/lessons/LessonsBreadcrumb";
+import { LessonsContextBack } from "@/components/lessons/LessonsContextBack";
 import { MarkLessonCompleteButton } from "@/components/lessons/MarkLessonCompleteButton";
 import { getLessonBySlug } from "@/lib/lessons/get-lesson-by-slug";
+import { lessonPathHref } from "@/lib/lessons/lesson-nav";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function LessonPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ parcoursSlug: string; lessonSlug: string }>;
+  searchParams: Promise<{ from?: string; textId?: string }>;
 }) {
   const { parcoursSlug, lessonSlug } = await params;
+  const query = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -29,25 +34,25 @@ export default async function LessonPage({
 
   return (
     <div>
-      <div className="border-b border-border bg-surface px-6 py-4 md:px-10">
-        <nav className="mx-auto max-w-3xl text-[13px] text-ink-3">
-          <Link href="/lessons" className="hover:text-ink-2">
-            Leçons
-          </Link>
-          <span style={{ color: "#A8A8A8", margin: "0 6px" }}>·</span>
-          <Link
-            href={`/lessons/${lesson.path.slug}`}
-            className="hover:text-ink-2"
-          >
-            {lesson.path.title}
-          </Link>
-          <span style={{ color: "#A8A8A8", margin: "0 6px" }}>·</span>
-          <span className="font-russian text-ink">{lesson.title}</span>
-        </nav>
-      </div>
+      <LessonsContextBack from={query.from} textId={query.textId} />
+      <LessonsBreadcrumb
+        maxWidthClass="max-w-3xl"
+        segments={[
+          {
+            label: lesson.path.title,
+            href: lessonPathHref(lesson.path.slug, query.from, query.textId),
+          },
+          { label: lesson.title },
+        ]}
+        from={query.from}
+        textId={query.textId}
+      />
 
-      <article className="mx-auto max-w-3xl px-6 py-10 md:px-10">
-        <h1 className="font-serif text-3xl text-ink">{lesson.title}</h1>
+      <article className="mx-auto max-w-3xl px-4 py-10 md:px-10">
+        <p className="text-[10px] font-bold tracking-[0.08em] text-ink-3 uppercase">
+          Leçon {lesson.orderIndex}
+        </p>
+        <h1 className="mt-2 font-serif text-3xl text-ink">{lesson.title}</h1>
 
         <div className="mt-8">
           <LessonBlockRenderer blocks={lesson.contentBlocks} />

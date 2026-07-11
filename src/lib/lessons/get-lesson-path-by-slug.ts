@@ -67,6 +67,7 @@ export async function getLessonPathBySlug(
     color: row.color,
     orderIndex: row.order_index,
     lessonCount: sortedLessons.length,
+    completedCount: completedIds.size,
     lessons: sortedLessons.map((lesson) => ({
       id: lesson.id,
       slug: lesson.slug,

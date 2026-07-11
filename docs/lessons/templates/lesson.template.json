@@ -1,0 +1,61 @@
+{
+  "pathSlug": "les-six-cas",
+  "slug": "mon-slug-de-lecon",
+  "title": "Pourquoi в школу mais в школе ?",
+  "orderIndex": 8,
+  "contentBlocks": [
+    {
+      "type": "paragraph",
+      "_section": "2 — Intuition",
+      "text": "Remplacez ce texte par une explication simple, sans jargon. L'utilisateur doit saisir l'idée générale avant de voir la règle."
+    },
+    {
+      "type": "example",
+      "_section": "3 — Exemple réel",
+      "russian": "Он идёт в шко́лу.",
+      "translation": "Il va à l'école.",
+      "words": [
+        { "text": "Он", "role": "subject" },
+        { "text": "идёт", "role": null },
+        { "text": "в", "role": null },
+        { "text": "шко́лу", "role": "place" }
+      ],
+      "note": "Expliquez ce qui se passe dans CETTE phrase — pas une règle générale abstraite."
+    },
+    {
+      "type": "paragraph",
+      "_section": "4 — Explication détaillée",
+      "text": "Développez ici le pourquoi. Introduisez le terme grammatical seulement après l'intuition."
+    },
+    {
+      "type": "comparison",
+      "_section": "4 — Explication détaillée (optionnel)",
+      "title": "Direction vs position",
+      "columns": ["Forme", "Sens", "Exemple"],
+      "rows": [
+        { "label": "в + accusatif", "values": ["direction (vers)", "в шко́лу"] },
+        { "label": "в + prépositionnel", "values": ["position (dans)", "в шко́ле"] }
+      ]
+    },
+    {
+      "type": "callout",
+      "_section": "4 — Insight ponctuel (optionnel)",
+      "text": "Astuce ou piège fréquent — pas la synthèse finale."
+    },
+    {
+      "type": "schema",
+      "_section": "5 — Schéma visuel (optionnel — supprimer si inutile)",
+      "svgContent": "<svg viewBox=\"0 0 400 120\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"20\" y=\"40\" width=\"160\" height=\"40\" rx=\"8\" fill=\"#EEF0FF\" stroke=\"#4F46E5\"/><text x=\"100\" y=\"65\" text-anchor=\"middle\" font-size=\"14\" fill=\"#0E0E0E\">в + accusatif → direction</text><rect x=\"220\" y=\"40\" width=\"160\" height=\"40\" rx=\"8\" fill=\"#EEF0FF\" stroke=\"#4F46E5\"/><text x=\"300\" y=\"65\" text-anchor=\"middle\" font-size=\"14\" fill=\"#0E0E0E\">в + prép. → position</text></svg>",
+      "caption": "Légende expliquant ce que le schéma montre."
+    },
+    {
+      "type": "takeaways",
+      "_section": "6 — À retenir (obligatoire, dernier bloc)",
+      "items": [
+        "Première idée clé — courte et actionnable.",
+        "Deuxième idée clé.",
+        "Troisième idée clé."
+      ]
+    }
+  ]
+}

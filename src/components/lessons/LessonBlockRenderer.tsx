@@ -18,7 +18,7 @@ function ParagraphBlock({ text }: { text: string }) {
     <p
       className={cn(
         "text-[15px] leading-[1.7] text-ink-2",
-        hasCyrillic && "font-russian text-ink",
+        hasCyrillic && "font-russian text-[16px] text-ink",
       )}
     >
       {text}
@@ -32,11 +32,21 @@ function ExampleBlock({
   block: Extract<TContentBlock, { type: "example" }>;
 }) {
   return (
-    <div className={cn(CARD_BASE_CLASS, "my-6")}>
+    <div className={cn(CARD_BASE_CLASS, "space-y-3")}>
       <LessonExampleSentence russian={block.russian} words={block.words} />
-      <p className="mt-3 text-sm text-ink-3">{block.translation}</p>
-      <p className="mt-4 text-sm leading-relaxed text-ink-2">{block.note}</p>
+      <p className="text-sm italic text-ink-3">{block.translation}</p>
+      <p className="text-sm leading-relaxed text-ink-2">{block.note}</p>
     </div>
+  );
+}
+
+function ComparisonCell({ value }: { value: string }) {
+  const hasCyrillic = containsCyrillic(value);
+
+  return (
+    <span className={hasCyrillic ? "font-russian text-ink" : undefined}>
+      {value}
+    </span>
   );
 }
 
@@ -46,7 +56,7 @@ function ComparisonBlock({
   block: Extract<TContentBlock, { type: "comparison" }>;
 }) {
   return (
-    <div className="my-6 overflow-x-auto rounded-[14px] border border-border bg-surface">
+    <div className="overflow-x-auto rounded-[14px] border border-border bg-surface">
       {block.title ? (
         <p className="border-b border-border px-4 py-3 text-sm font-bold text-ink">
           {block.title}
@@ -72,7 +82,7 @@ function ComparisonBlock({
               <td className="px-4 py-3 font-medium text-ink">{row.label}</td>
               {row.values.map((value, index) => (
                 <td key={`${row.label}-${index}`} className="px-4 py-3 text-ink-2">
-                  {value}
+                  <ComparisonCell value={value} />
                 </td>
               ))}
             </tr>
@@ -85,16 +95,46 @@ function ComparisonBlock({
 
 function CalloutBlock({ text }: { text: string }) {
   return (
-    <div className="my-6 flex gap-3 rounded-[14px] border border-accent-border bg-accent-light p-4">
-      <Lightbulb className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden="true" />
+    <div className="flex gap-3 rounded-[14px] border border-accent-border bg-accent-light p-4">
+      <Lightbulb
+        className="mt-0.5 size-5 shrink-0 text-accent"
+        aria-hidden="true"
+      />
       <p className="text-sm leading-relaxed text-ink-2">{text}</p>
     </div>
   );
 }
 
-export function LessonBlockRenderer({ blocks }: LessonBlockRendererProps) {
+function TakeawaysBlock({ items }: { items: string[] }) {
   return (
-    <div className="space-y-5">
+    <div className="flex gap-3 rounded-[14px] border border-accent-border bg-accent-light p-4">
+      <Lightbulb
+        className="mt-0.5 size-5 shrink-0 text-accent"
+        aria-hidden="true"
+      />
+      <div className="min-w-0">
+        <p className="text-sm font-bold text-ink">À retenir</p>
+        <ul className="mt-2 list-disc space-y-1.5 pl-4 text-sm leading-relaxed text-ink-2">
+          {items.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export function LessonBlockRenderer({ blocks }: LessonBlockRendererProps) {
+  if (blocks.length === 0) {
+    return (
+      <p className="text-sm text-ink-3">
+        Le contenu de cette leçon sera bientôt disponible.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
       {blocks.map((block, index) => {
         switch (block.type) {
           case "paragraph":
@@ -113,6 +153,8 @@ export function LessonBlockRenderer({ blocks }: LessonBlockRendererProps) {
             );
           case "callout":
             return <CalloutBlock key={index} text={block.text} />;
+          case "takeaways":
+            return <TakeawaysBlock key={index} items={block.items} />;
           default:
             return null;
         }

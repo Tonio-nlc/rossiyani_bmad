@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { BackLink } from "@/components/ui/BackLink";
 import { Button } from "@/components/ui/button";
+import {
+  buildReturnQuery,
+  resolveReaderBackNavigation,
+  type ReturnContext,
+} from "@/lib/navigation/return-context";
 import {
   advanceSession,
   getCurrentItem,
@@ -26,15 +32,30 @@ import { cn } from "@/lib/utils";
 interface ReviewSessionProps {
   items: TReviewSessionItem[];
   errorMessage?: string | null;
+  returnContext?: ReturnContext;
 }
 
-export function ReviewSession({ items, errorMessage }: ReviewSessionProps) {
+export function ReviewSession({
+  items,
+  errorMessage,
+  returnContext = { from: null, textId: null },
+}: ReviewSessionProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [ratedCount, setRatedCount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const backNavigation = resolveReaderBackNavigation(returnContext, {
+    href: "/vocabulary",
+    label: "Vocabulaire",
+  });
+  const reviewListHref = `/review${
+    returnContext.from && returnContext.textId
+      ? buildReturnQuery(returnContext.from, returnContext.textId)
+      : ""
+  }`;
 
   if (errorMessage) {
     return (
@@ -53,12 +74,7 @@ export function ReviewSession({ items, errorMessage }: ReviewSessionProps) {
         <p className="mt-2 text-sm text-brand-text-secondary">
           Revenez plus tard lorsque des mots seront dus.
         </p>
-        <Link
-          href="/review"
-          className="mt-6 inline-block text-sm font-medium text-brand-primary hover:underline"
-        >
-          Retour à Review
-        </Link>
+        <BackLink href={reviewListHref} label="Révision" />
       </div>
     );
   }
@@ -66,19 +82,27 @@ export function ReviewSession({ items, errorMessage }: ReviewSessionProps) {
   if (isComplete) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12 text-center">
-        <h1 className="text-2xl font-semibold text-brand-text-primary">
-          Révision terminée.
-        </h1>
-        <p className="mt-3 text-lg text-brand-text-secondary">
+        <h1 className="text-2xl font-semibold text-ink">Révision terminée.</h1>
+        <p className="mt-3 text-lg text-ink-2">
           {ratedCount} réponse{ratedCount > 1 ? "s" : ""} enregistrée
           {ratedCount > 1 ? "s" : ""}.
         </p>
-        <Link
-          href="/review"
-          className="mt-8 inline-block text-sm font-medium text-brand-primary hover:underline"
-        >
-          Retour à Review
-        </Link>
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <Link
+            href={backNavigation.href}
+            className="text-sm font-medium text-accent hover:underline"
+          >
+            {backNavigation.label}
+          </Link>
+          {returnContext.from === "reader" ? (
+            <Link
+              href={reviewListHref}
+              className="text-sm text-ink-3 hover:text-ink-2"
+            >
+              Voir la file de révision
+            </Link>
+          ) : null}
+        </div>
       </div>
     );
   }
@@ -131,14 +155,9 @@ export function ReviewSession({ items, errorMessage }: ReviewSessionProps) {
 
   return (
     <div className="bg-brand-surface">
-      <header className="border-b border-brand-border bg-brand-card px-4 py-6 md:px-8">
+      <header className="border-b border-border bg-surface px-4 py-6 md:px-8">
         <div className="mx-auto max-w-3xl">
-          <Link
-            href="/review"
-            className="text-sm text-brand-text-secondary transition-colors hover:text-brand-text-primary"
-          >
-            ← Review
-          </Link>
+          <BackLink href={reviewListHref} label="Révision" />
           <div className="mt-4">
             <div className="flex items-center justify-between text-sm text-brand-text-secondary">
               <span>

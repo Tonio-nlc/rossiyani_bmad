@@ -28,13 +28,14 @@ export function TextBody({
     : splitIntoSentences(text.content);
 
   return (
-    <div className="mx-auto w-full max-w-[680px] py-6 font-russian md:py-8">
+    <div className="w-full py-4 font-russian md:py-6">
       {sentences.map((sentenceText, index) => {
         const annotated = annotatedSentences?.[index];
 
         return (
           <Sentence
             key={`${index}-${sentenceText}`}
+            sentenceIndex={index}
             text={sentenceText}
             translationFr={annotated?.translationFr}
             words={

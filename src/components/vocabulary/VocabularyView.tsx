@@ -1,11 +1,19 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { VocabularyGrid } from "@/components/vocabulary/VocabularyGrid";
+import { BackLink } from "@/components/ui/BackLink";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
 import { Input } from "@/components/ui/input";
+import {
+  buildReturnQuery,
+  parseReturnContext,
+  resolveReaderBackNavigation,
+} from "@/lib/navigation/return-context";
 import type { TVocabularyFilter, TVocabularyListItem } from "@/types/vocabulary";
 
 const FILTERS: { id: TVocabularyFilter; label: string }[] = [
@@ -21,6 +29,14 @@ interface VocabularyViewProps {
 }
 
 export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
+  const searchParams = useSearchParams();
+  const returnContext = parseReturnContext(searchParams);
+  const backNavigation = resolveReaderBackNavigation(returnContext);
+  const returnQuery =
+    returnContext.from === "reader" && returnContext.textId
+      ? buildReturnQuery("reader", returnContext.textId)
+      : "";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<TVocabularyFilter>("all");
 
@@ -50,6 +66,17 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
 
   return (
     <div>
+      {returnContext.from === "reader" && returnContext.textId ? (
+        <div className="border-b border-border bg-surface px-4 py-3 md:px-10">
+          <div className="mx-auto max-w-3xl">
+            <BackLink
+              href={backNavigation.href}
+              label={backNavigation.label}
+            />
+          </div>
+        </div>
+      ) : null}
+
       <PageHeader
         eyebrow="MÉMOIRE LINGUISTIQUE"
         title="Vocabulary"
@@ -102,7 +129,7 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
               </p>
             </div>
           ) : (
-            <VocabularyGrid words={filteredWords} />
+            <VocabularyGrid words={filteredWords} returnQuery={returnQuery} />
           )}
         </div>
       </div>

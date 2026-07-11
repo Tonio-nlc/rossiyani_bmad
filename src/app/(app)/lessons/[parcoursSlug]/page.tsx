@@ -1,17 +1,24 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { LessonCard } from "@/components/lessons/LessonCard";
+import { LessonsBreadcrumb } from "@/components/lessons/LessonsBreadcrumb";
+import { LessonsContextBack } from "@/components/lessons/LessonsContextBack";
+import { LessonsEmptyState } from "@/components/lessons/LessonsEmptyState";
+import { LessonsPathProgress } from "@/components/lessons/LessonsPathProgress";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getLessonPathBySlug } from "@/lib/lessons/get-lesson-path-by-slug";
+import { buildLessonsReturnQuery } from "@/lib/lessons/lesson-nav";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function LessonPathPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ parcoursSlug: string }>;
+  searchParams: Promise<{ from?: string; textId?: string }>;
 }) {
   const { parcoursSlug } = await params;
+  const query = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -23,17 +30,16 @@ export default async function LessonPathPage({
     notFound();
   }
 
+  const returnQuery = buildLessonsReturnQuery(query.from, query.textId);
+
   return (
     <div>
-      <div className="border-b border-border bg-surface px-6 py-4 md:px-10">
-        <nav className="mx-auto max-w-[1080px] text-[13px] text-ink-3">
-          <Link href="/lessons" className="hover:text-ink-2">
-            Leçons
-          </Link>
-          <span style={{ color: "#A8A8A8", margin: "0 6px" }}>·</span>
-          <span className="text-ink">{path.title}</span>
-        </nav>
-      </div>
+      <LessonsContextBack from={query.from} textId={query.textId} />
+      <LessonsBreadcrumb
+        segments={[{ label: path.title }]}
+        from={query.from}
+        textId={query.textId}
+      />
 
       <PageHeader
         eyebrow="PARCOURS"
@@ -49,20 +55,34 @@ export default async function LessonPathPage({
         }
       />
 
-      <div className="mx-auto max-w-3xl space-y-4 px-6 py-10 md:px-10">
+      <div className="mx-auto max-w-3xl space-y-6 px-4 py-10 md:px-10">
+        {path.lessons.length > 0 ? (
+          <LessonsPathProgress
+            completedCount={path.completedCount}
+            totalCount={path.lessonCount}
+            pathColor={path.color}
+          />
+        ) : null}
+
         {path.lessons.length === 0 ? (
-          <p className="text-sm text-ink-3">
-            Les leçons de ce parcours arrivent bientôt.
-          </p>
+          <LessonsEmptyState
+            title="Parcours en préparation"
+            description="Les leçons de ce parcours arrivent bientôt. En attendant, explorez les autres parcours disponibles."
+          />
         ) : (
-          path.lessons.map((lesson) => (
-            <LessonCard
-              key={lesson.id}
-              pathSlug={path.slug}
-              lesson={lesson}
-              pathColor={path.color}
-            />
-          ))
+          <div className="space-y-4">
+            {path.lessons.map((lesson) => (
+              <LessonCard
+                key={lesson.id}
+                pathSlug={path.slug}
+                lesson={lesson}
+                pathColor={path.color}
+                returnQuery={returnQuery}
+                from={query.from}
+                textId={query.textId}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>

@@ -1,3 +1,4 @@
+-- Script de maintenance DEV uniquement — ne fait pas partie de la reconstruction migrations.
 -- Vider le cache pour forcer régénération avec nouveau prompt
 -- Conserve user_vocabulary et srs_reviews (données utilisateur)
 

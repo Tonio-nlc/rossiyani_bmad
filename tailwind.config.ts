@@ -19,6 +19,7 @@ const config: Config = {
           light: "#EEF0FF",
           border: "#C7D2FE",
         },
+        green: "#10B981",
         role: {
           subject: "#3B82F6",
           object: "#EF7C5A",

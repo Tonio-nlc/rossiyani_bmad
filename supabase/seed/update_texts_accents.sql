@@ -1,5 +1,7 @@
--- Story 2.2 — Mise à jour des accents toniques (U+0301) dans les textes seed existants
+-- DEPRECATED — contenu canonique : supabase/migrations/008_seed_library_texts.sql
+-- Conservé pour référence locale uniquement.
 
+-- Story 2.2 — Mise à jour des accents toniques (U+0301) dans les textes seed existants
 UPDATE texts SET content = 'А́нна вхо́дит в ваго́н и садится у окна́. По́езд ме́дленно е́дет. Никто́ гро́мко не говори́т. Мно́гие лю́ди смо́трят в телефо́н или чита́ют кни́гу. На сле́дующей ста́нции в ваго́н вхо́дит пожила́я же́нщина. Молодо́й челове́к сра́зу встаёт и отдаёт ей своё ме́сто. Же́нщина улыба́ется и говори́т: Спаси́бо, молодо́й челове́к. А ты ча́сто чита́ешь в тра́нспорте?' WHERE title = 'В метро';
 
 UPDATE texts SET content = 'Са́ша идёт на рабо́ту пешко́м. Сего́дня хоро́шая пого́да. Со́лнце све́тит, не́бо голубо́е. По доро́ге он ви́дит ста́рого дру́га. Они́ здоро́ваются и немно́го разгова́ривают. Пото́м Са́ша продолжа́ет идти́. Он ду́мает о предстоя́щем дне. Рабо́та начина́ется в де́вять часо́в.' WHERE title = 'По доро́ге';

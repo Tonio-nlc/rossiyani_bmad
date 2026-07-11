@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:reset:local": "bash scripts/db-reset.sh local",
+    "db:push": "supabase db push",
+    "db:verify": "bash scripts/db-reset.sh verify"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

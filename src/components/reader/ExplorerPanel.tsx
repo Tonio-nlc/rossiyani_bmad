@@ -40,11 +40,11 @@ const PANEL_BORDER = "#E8E4DC";
 function getDesktopPanelLayout(): CSSProperties {
   return {
     position: "fixed",
-    top: 160,
+    top: "calc(3.5rem + 6.5rem)",
     right: 20,
     width: 320,
     maxWidth: "calc(100vw - 40px)",
-    maxHeight: "calc(100vh - 180px)",
+    maxHeight: "calc(100dvh - 3.5rem - 7.5rem)",
     overflowY: "auto",
     zIndex: 50,
     boxSizing: "border-box",
@@ -327,32 +327,52 @@ export function ExplorerPanelMobile({
   onRetry,
   isSaved,
 }: ExplorerPanelProps) {
-  if (!isOpen) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
+  if (!isMounted || !isOpen) {
     return null;
   }
 
-  return (
-    <div className="fixed inset-x-0 bottom-0 z-50 md:hidden">
+  return createPortal(
+    <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true">
       <button
         type="button"
         aria-label="Fermer l'explorateur"
-        className="absolute inset-0 bg-black/20"
+        className="reader-sheet-backdrop absolute inset-0 bg-black/25"
         onClick={onClose}
       />
       <div
-        className="relative mx-auto flex max-h-[min(65vh,calc(100vh-120px))] w-full flex-col overflow-y-auto"
+        className="reader-sheet-panel absolute inset-x-0 bottom-0 mx-auto flex max-h-[min(70vh,calc(100dvh-4rem))] w-full flex-col overflow-y-auto overscroll-contain"
         style={{
           background: "#FFFFFF",
           borderTop: `1px solid ${PANEL_BORDER}`,
           borderRadius: "16px 16px 0 0",
-          boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08)",
-          padding: "20px 24px",
-          paddingBottom: "calc(20px + env(safe-area-inset-bottom, 0px))",
+          boxShadow: "0 -4px 24px rgba(0, 0, 0, 0.1)",
+          padding: "16px 20px",
+          paddingBottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
         }}
       >
         <div
-          className="mx-auto mb-4 h-1.5 w-12 shrink-0 rounded-full"
+          className="mx-auto mb-3 h-1 w-10 shrink-0 rounded-full"
           style={{ backgroundColor: PANEL_BORDER }}
+          aria-hidden="true"
         />
         <ExplorerPanelHeader showClose onClose={onClose} />
         <ExplorerContent
@@ -364,6 +384,7 @@ export function ExplorerPanelMobile({
           isSaved={isSaved}
         />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

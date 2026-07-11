@@ -124,22 +124,23 @@ export function Word({
         }
       }}
       className={cn(
-        "word-wrapper inline-flex min-h-[44px] items-center text-[26px] leading-relaxed text-ink",
+        "word-wrapper inline text-[24px] leading-[1.65] text-ink md:text-[26px]",
         isClickable &&
-          "reader-word-clickable cursor-pointer transition-[background-color] duration-150 ease-in-out",
-        isClickable && "rounded px-0.5 -mx-0.5",
-        showSelectedBackground && "rounded-[4px]",
+          "reader-word-clickable cursor-pointer rounded-[4px] px-0.5 transition-[box-shadow,background-color] duration-150 ease-in-out",
+        isSelected && "reader-word-selected",
         isAnnotated && !isSelected && "bg-transparent",
       )}
       style={
         showSelectedBackground
           ? { backgroundColor: `${colorHex}1F` }
-          : undefined
+          : isSelected
+            ? { backgroundColor: "rgba(79, 70, 229, 0.1)" }
+            : undefined
       }
     >
       {showColoredSuffix ? (
         <>
-          <span className="word-radical text-brand-text-primary">{stem}</span>
+          <span className="word-radical text-ink">{stem}</span>
           <span
             className="word-suffix transition-colors duration-300 ease-in-out"
             style={{ color: colorHex }}
@@ -147,11 +148,11 @@ export function Word({
             {suffix}
           </span>
           {trailingPunctuation ? (
-            <span className="text-brand-text-primary">{trailingPunctuation}</span>
+            <span className="text-ink">{trailingPunctuation}</span>
           ) : null}
         </>
       ) : (
-        <span className="word-radical text-brand-text-primary">{surface}</span>
+        <span className="word-radical text-ink">{surface}</span>
       )}
     </span>
   );

@@ -12,7 +12,15 @@ interface LessonPathRow {
   lessons: { count: number }[];
 }
 
-function mapPathRow(row: LessonPathRow): TLessonPath {
+export interface TLessonPathsResult {
+  paths: TLessonPath[];
+  error: string | null;
+}
+
+function mapPathRow(
+  row: LessonPathRow,
+  completedByPath: Map<string, number>,
+): TLessonPath {
   return {
     id: row.id,
     slug: row.slug,
@@ -22,10 +30,44 @@ function mapPathRow(row: LessonPathRow): TLessonPath {
     color: row.color,
     orderIndex: row.order_index,
     lessonCount: row.lessons?.[0]?.count ?? 0,
+    completedCount: completedByPath.get(row.id) ?? 0,
   };
 }
 
-export async function getLessonPaths(): Promise<TLessonPath[]> {
+async function getCompletedCountByPath(
+  userId: string,
+): Promise<Map<string, number>> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("user_lesson_progress")
+    .select("lesson_id, lessons!inner(path_id)")
+    .eq("user_id", userId)
+    .eq("completed", true);
+
+  if (error || !data) {
+    return new Map();
+  }
+
+  const counts = new Map<string, number>();
+
+  for (const row of data) {
+    const lesson = row.lessons as { path_id: string } | { path_id: string }[];
+    const pathId = Array.isArray(lesson) ? lesson[0]?.path_id : lesson.path_id;
+
+    if (!pathId) {
+      continue;
+    }
+
+    counts.set(pathId, (counts.get(pathId) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+export async function getLessonPaths(
+  userId: string | null = null,
+): Promise<TLessonPathsResult> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -33,11 +75,21 @@ export async function getLessonPaths(): Promise<TLessonPath[]> {
     .select("*, lessons(count)")
     .order("order_index", { ascending: true });
 
-  if (error || !data) {
-    return [];
+  if (error) {
+    return {
+      paths: [],
+      error: "Impossible de charger les parcours de leçons.",
+    };
   }
 
-  return (data as LessonPathRow[]).map(mapPathRow);
+  const completedByPath = userId ? await getCompletedCountByPath(userId) : new Map();
+
+  return {
+    paths: (data as LessonPathRow[]).map((row) =>
+      mapPathRow(row, completedByPath),
+    ),
+    error: null,
+  };
 }
 
 export function extractLessonSummary(contentBlocks: TContentBlock[]): string {
@@ -57,4 +109,10 @@ export function extractLessonSummary(contentBlocks: TContentBlock[]): string {
   }
 
   return `${text.slice(0, 117)}…`;
+}
+
+export function countCompletedLessons(
+  lessons: { completed: boolean }[],
+): number {
+  return lessons.filter((lesson) => lesson.completed).length;
 }

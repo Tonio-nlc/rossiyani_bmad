@@ -1,3 +1,6 @@
+-- DEPRECATED — contenu canonique : supabase/migrations/008_seed_library_texts.sql
+-- Conservé pour référence locale uniquement ; ne pas exécuter sur une base reconstruite via migrations.
+
 INSERT INTO texts (title, content, level, collection, word_count, reading_time_minutes) VALUES
 
 ('В метро',

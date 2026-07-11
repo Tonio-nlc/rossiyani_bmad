@@ -6,12 +6,13 @@ import { cn } from "@/lib/utils";
 
 interface WordCardProps {
   word: TVocabularyListItem;
+  returnQuery?: string;
 }
 
-export function WordCard({ word }: WordCardProps) {
+export function WordCard({ word, returnQuery = "" }: WordCardProps) {
   return (
     <Link
-      href={`/vocabulary/${word.id}`}
+      href={`/vocabulary/${word.id}${returnQuery}`}
       className={cn(
         "block rounded-xl border border-brand-border bg-brand-card p-5 transition-shadow",
         "hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30",

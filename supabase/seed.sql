@@ -1,0 +1,4 @@
+-- Rossiyani — seed post-migrations
+-- Le contenu essentiel (textes bibliothèque, parcours leçons) est dans supabase/migrations/.
+-- Ce fichier reste vide : supabase db reset n'a pas besoin de seeds manuels supplémentaires.
+-- Scripts utilitaires de dev (non requis pour reconstruire) : supabase/seed/*.sql

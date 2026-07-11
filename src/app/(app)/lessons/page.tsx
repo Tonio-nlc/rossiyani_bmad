@@ -1,24 +1,60 @@
 import { ParcoursCard } from "@/components/lessons/ParcoursCard";
+import { LessonsContextBack } from "@/components/lessons/LessonsContextBack";
+import { LessonsEmptyState } from "@/components/lessons/LessonsEmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getLessonPaths } from "@/lib/lessons/get-lesson-paths";
+import { buildLessonsReturnQuery } from "@/lib/lessons/lesson-nav";
+import { createClient } from "@/lib/supabase/server";
 
-export default async function LessonsPage() {
-  const paths = await getLessonPaths();
+export default async function LessonsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; textId?: string }>;
+}) {
+  const query = await searchParams;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { paths, error } = await getLessonPaths(user?.id ?? null);
+  const returnQuery = buildLessonsReturnQuery(query.from, query.textId);
 
   return (
     <div>
+      <LessonsContextBack from={query.from} textId={query.textId} />
       <PageHeader
         eyebrow="APPRENDRE"
         title="Leçons"
         subtitle="Comprendre la logique du russe — pas mémoriser des règles. Chaque leçon part d'un exemple concret pour expliquer pourquoi le russe fonctionne ainsi."
       />
 
-      <div className="mx-auto max-w-[1080px] px-6 py-10 md:px-10">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {paths.map((path) => (
-            <ParcoursCard key={path.id} path={path} />
-          ))}
-        </div>
+      <div className="mx-auto max-w-[1080px] px-4 py-10 md:px-10">
+        {error ? (
+          <div
+            className="rounded-[14px] border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+            role="alert"
+          >
+            {error}
+          </div>
+        ) : paths.length === 0 ? (
+          <LessonsEmptyState
+            title="Aucun parcours disponible"
+            description="Les parcours de leçons seront bientôt ajoutés. Revenez plus tard."
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {paths.map((path) => (
+              <ParcoursCard
+                key={path.id}
+                path={path}
+                returnQuery={returnQuery}
+                from={query.from}
+                textId={query.textId}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

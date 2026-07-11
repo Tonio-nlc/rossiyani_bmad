@@ -20,6 +20,7 @@ export interface AnnotatedWord {
 
 export interface SentenceProps {
   text: string;
+  sentenceIndex: number;
   translationFr?: string;
   words: AnnotatedWord[];
   annotatedWords: Map<string, WordAnnotation>;
@@ -74,6 +75,7 @@ function resolveTranslation(translationFr: string | undefined): string {
 
 export function Sentence({
   text,
+  sentenceIndex,
   translationFr,
   words,
   annotatedWords,
@@ -107,15 +109,19 @@ export function Sentence({
   }, [onVisible]);
 
   return (
-    <div ref={containerRef} className={resolvedTranslation ? "" : "mb-3"}>
-      <p className="mb-1 leading-[44px]">
+    <div
+      ref={containerRef}
+      data-sentence-index={sentenceIndex}
+      className={resolvedTranslation ? "" : "mb-4"}
+    >
+      <p className="mb-1 font-russian text-[24px] leading-[1.65] md:text-[26px]">
         {tokens.map((token, index) => {
           const normalized = normalizeToken(token);
           const isWord = normalized.length > 0;
 
           if (!isWord) {
             return (
-              <span key={`${token}-${index}`} className="text-[26px]">
+              <span key={`${token}-${index}`} className="text-[24px] md:text-[26px]">
                 {token}
               </span>
             );

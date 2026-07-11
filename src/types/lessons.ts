@@ -27,7 +27,8 @@ export type TContentBlock =
       rows: { label: string; values: string[] }[];
     }
   | { type: "schema"; svgContent: string; caption: string }
-  | { type: "callout"; text: string };
+  | { type: "callout"; text: string }
+  | { type: "takeaways"; items: string[] };
 
 export interface TLessonPath {
   id: string;
@@ -38,6 +39,7 @@ export interface TLessonPath {
   color: string;
   orderIndex: number;
   lessonCount: number;
+  completedCount: number;
 }
 
 export interface TLessonSummary {
