@@ -2,11 +2,16 @@ import Link from "next/link";
 
 import { BackLink } from "@/components/ui/BackLink";
 import { EmptyState } from "@/components/ui/empty-state";
+import { PageBody } from "@/components/ui/PageBody";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { PageSection } from "@/components/ui/PageSection";
+import { BTN_PRIMARY_CLASS } from "@/lib/design/classes";
 import type { ReturnContext } from "@/lib/navigation/return-context";
 import {
   buildReturnQuery,
   resolveReaderBackNavigation,
 } from "@/lib/navigation/return-context";
+import { cn } from "@/lib/utils";
 import type { TReviewQueueItem } from "@/lib/review/types";
 
 interface ReviewViewProps {
@@ -31,66 +36,66 @@ export function ReviewView({
 
   if (errorMessage) {
     return (
-      <div className="mx-auto max-w-content px-4 py-12">
+      <PageBody width="content">
         <p className="text-sm text-destructive">{errorMessage}</p>
-      </div>
+      </PageBody>
     );
   }
 
+  const subtitle =
+    queue.length === 0
+      ? "Revenez lorsque des mots seront dus."
+      : `${queue.length} mot${queue.length > 1 ? "s" : ""} à réviser aujourd'hui.`;
+
   return (
-    <div className="bg-bg">
-      <header className="border-b border-border bg-surface px-4 py-6 md:px-8 md:py-8">
-        <div className="mx-auto max-w-content">
+    <div>
+      <PageHeader
+        eyebrow="MÉMOIRE"
+        title="Révision"
+        subtitle={subtitle}
+        width="content"
+        leading={
           <BackLink
             href={backNavigation.href}
             label={backNavigation.label}
           />
-          <h1 className="mt-4 text-2xl font-bold text-ink md:text-3xl">
-            Révision
-          </h1>
-        </div>
-      </header>
+        }
+      />
 
-      <div className="mx-auto max-w-content px-4 py-8 md:px-8">
-        <p className="text-lg text-ink">
-          {queue.length === 0
-            ? "Aucun mot à réviser"
-            : `${queue.length} mot${queue.length > 1 ? "s" : ""} à réviser`}
-        </p>
-
-        {queue.length > 0 && (
+      <PageBody width="content">
+        {queue.length > 0 ? (
           <Link
             href={`/review/session${sessionQuery}`}
-            className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-deep"
+            className={cn(BTN_PRIMARY_CLASS, "h-10 px-4 text-sm")}
           >
             Commencer la session
           </Link>
-        )}
+        ) : null}
 
-        <div className="my-6 border-t border-border" />
-
-        {queue.length === 0 ? (
-          <EmptyState
-            title="Rien à réviser pour l'instant"
-            description="Revenez plus tard — vos mots apparaîtront ici quand leur révision sera due."
-            dashed={false}
-          />
-        ) : (
-          <ul className="space-y-3">
-            {queue.map((item) => (
-              <li
-                key={item.userVocabularyId}
-                className="rounded-xl border border-border bg-surface px-5 py-4"
-              >
-                <p className="font-russian text-xl text-ink">{item.lemma}</p>
-                {item.translation && (
-                  <p className="mt-1 text-sm text-ink-2">{item.translation}</p>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+        <PageSection spaced={queue.length > 0}>
+          {queue.length === 0 ? (
+            <EmptyState
+              title="Rien à réviser pour l'instant"
+              description="Revenez plus tard — vos mots apparaîtront ici quand leur révision sera due."
+              dashed={false}
+            />
+          ) : (
+            <ul className="space-y-3">
+              {queue.map((item) => (
+                <li
+                  key={item.userVocabularyId}
+                  className="rounded-[14px] border border-border bg-surface px-5 py-4"
+                >
+                  <p className="font-russian text-xl text-ink">{item.lemma}</p>
+                  {item.translation ? (
+                    <p className="mt-1 text-sm text-ink-2">{item.translation}</p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </PageSection>
+      </PageBody>
     </div>
   );
 }

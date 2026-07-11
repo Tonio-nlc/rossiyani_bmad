@@ -5,6 +5,8 @@ import { useState } from "react";
 
 import { BackLink } from "@/components/ui/BackLink";
 import { Button } from "@/components/ui/button";
+import { PageBody } from "@/components/ui/PageBody";
+import { PageHeader } from "@/components/ui/PageHeader";
 import {
   buildReturnQuery,
   resolveReaderBackNavigation,
@@ -59,15 +61,15 @@ export function ReviewSession({
 
   if (errorMessage) {
     return (
-      <div className="mx-auto max-w-content px-4 py-12">
+      <PageBody width="content">
         <p className="text-sm text-destructive">{errorMessage}</p>
-      </div>
+      </PageBody>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-content px-4 py-12 text-center">
+      <PageBody width="content" className="text-center">
         <h1 className="text-2xl font-semibold text-ink">
           Aucun mot à réviser
         </h1>
@@ -75,13 +77,13 @@ export function ReviewSession({
           Revenez plus tard lorsque des mots seront dus.
         </p>
         <BackLink href={reviewListHref} label="Révision" />
-      </div>
+      </PageBody>
     );
   }
 
   if (isComplete) {
     return (
-      <div className="mx-auto max-w-content px-4 py-12 text-center">
+      <PageBody width="content" className="text-center">
         <h1 className="text-2xl font-semibold text-ink">Révision terminée.</h1>
         <p className="mt-3 text-lg text-ink-2">
           {ratedCount} réponse{ratedCount > 1 ? "s" : ""} enregistrée
@@ -103,7 +105,7 @@ export function ReviewSession({
             </Link>
           ) : null}
         </div>
-      </div>
+      </PageBody>
     );
   }
 
@@ -154,28 +156,23 @@ export function ReviewSession({
   }
 
   return (
-    <div className="bg-bg">
-      <header className="border-b border-border bg-surface px-4 py-6 md:px-8">
-        <div className="mx-auto max-w-content">
-          <BackLink href={reviewListHref} label="Révision" />
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-sm text-ink-2">
-              <span>
-                {progress.current} / {progress.total}
-              </span>
-              <span>{progress.percentage}%</span>
-            </div>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-border">
-              <div
-                className="h-full rounded-full bg-accent transition-all duration-300"
-                style={{ width: `${progress.percentage}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
+    <div>
+      <PageHeader
+        eyebrow="SESSION"
+        title="Révision"
+        subtitle={`${progress.current} / ${progress.total} mots · ${progress.percentage}%`}
+        width="content"
+        leading={<BackLink href={reviewListHref} label="Révision" />}
+      />
 
-      <div className="mx-auto max-w-content px-4 py-10 md:px-8">
+      <PageBody width="content">
+        <div className="mb-8 h-2 overflow-hidden rounded-full bg-border">
+          <div
+            className="h-full rounded-full bg-accent transition-all duration-300"
+            style={{ width: `${progress.percentage}%` }}
+          />
+        </div>
+
         <ReviewSessionCard item={currentItem} revealed={revealed} />
 
         {!revealed ? (
@@ -216,7 +213,7 @@ export function ReviewSession({
             )}
           </div>
         )}
-      </div>
+      </PageBody>
     </div>
   );
 }

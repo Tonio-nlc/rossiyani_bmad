@@ -8,6 +8,7 @@ import { ImportErrorBanner } from "@/components/import/ImportErrorBanner";
 import { ImportMethodNotice } from "@/components/import/ImportMethodNotice";
 import { FilterPills } from "@/components/ui/FilterPills";
 import { Input } from "@/components/ui/input";
+import { PageBody } from "@/components/ui/PageBody";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
 import { IMPORT_LIMITS } from "@/lib/import/constants";
@@ -178,7 +179,7 @@ export function ImportPreviewView({ defaultLevel }: ImportPreviewViewProps) {
 
   if (!session) {
     return (
-      <div className="mx-auto max-w-reading px-6 py-10">
+      <div className="mx-auto max-w-reading px-6 pt-12">
         <p className="text-sm text-ink-2">Chargement de la prévisualisation…</p>
       </div>
     );
@@ -192,9 +193,10 @@ export function ImportPreviewView({ defaultLevel }: ImportPreviewViewProps) {
         eyebrow="PRÉVISUALISATION"
         title="Votre texte est prêt"
         subtitle="Vérifiez le découpage avant de lire."
+        width="reading"
       />
 
-      <div className="mx-auto max-w-reading space-y-6 px-6 py-10">
+      <PageBody width="reading" className="space-y-6">
         <section className="space-y-5 rounded-[14px] border border-border bg-surface p-5 md:p-6">
           <div className="space-y-2">
             <label htmlFor="import-title" className="text-sm font-semibold text-ink">
@@ -316,7 +318,7 @@ export function ImportPreviewView({ defaultLevel }: ImportPreviewViewProps) {
         >
           ← Modifier le texte
         </button>
-      </div>
+      </PageBody>
     </div>
   );
 }

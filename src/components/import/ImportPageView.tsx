@@ -12,6 +12,7 @@ import {
   type ImportSourceTab,
 } from "@/components/import/ImportSourceTabs";
 import { BackLink } from "@/components/ui/BackLink";
+import { PageBody } from "@/components/ui/PageBody";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useTexts } from "@/hooks/useTexts";
 import { IMPORT_LIMITS } from "@/lib/import/constants";
@@ -260,9 +261,10 @@ export function ImportPageView() {
         eyebrow="IMPORTER"
         title="Importer un texte"
         subtitle="Analyse un texte russe avec la méthode Rossiyani."
+        width="reading"
       />
 
-      <div className="mx-auto max-w-reading space-y-6 px-6 py-10">
+      <PageBody width="reading" className="space-y-6">
         <ImportSourceTabs value={activeTab} onChange={handleTabChange} />
 
         {activeTab === "paste" ? (
@@ -376,7 +378,7 @@ export function ImportPageView() {
         </button>
 
         <BackLink href="/library" label="Retour à la bibliothèque" />
-      </div>
+      </PageBody>
     </div>
   );
 }

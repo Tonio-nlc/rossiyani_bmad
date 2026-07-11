@@ -1,7 +1,9 @@
 import { ParcoursCard } from "@/components/lessons/ParcoursCard";
 import { LessonsContextBack } from "@/components/lessons/LessonsContextBack";
 import { LessonsEmptyState } from "@/components/lessons/LessonsEmptyState";
+import { PageBody } from "@/components/ui/PageBody";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { CARD_GRID_2COL_CLASS } from "@/lib/design/rhythm";
 import { getLessonPaths } from "@/lib/lessons/get-lesson-paths";
 import { buildLessonsReturnQuery } from "@/lib/lessons/lesson-nav";
 import { createClient } from "@/lib/supabase/server";
@@ -29,7 +31,7 @@ export default async function LessonsPage({
         subtitle="Comprendre la logique du russe — pas mémoriser des règles. Chaque leçon part d'un exemple concret pour expliquer pourquoi le russe fonctionne ainsi."
       />
 
-      <div className="mx-auto max-w-dashboard px-4 py-10 md:px-10">
+      <PageBody width="dashboard">
         {error ? (
           <div
             className="rounded-[14px] border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
@@ -43,7 +45,7 @@ export default async function LessonsPage({
             description="Les parcours de leçons seront bientôt ajoutés. Revenez plus tard."
           />
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className={CARD_GRID_2COL_CLASS}>
             {paths.map((path) => (
               <ParcoursCard
                 key={path.id}
@@ -55,7 +57,7 @@ export default async function LessonsPage({
             ))}
           </div>
         )}
-      </div>
+      </PageBody>
     </div>
   );
 }

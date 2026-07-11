@@ -5,7 +5,6 @@ import { Info, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-import { PracticeBreadcrumb } from "@/components/practice/PracticeBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -92,17 +91,7 @@ export function ContextTranslation() {
   const isLoading = mutation.isPending;
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-3">
-        <PracticeBreadcrumb current="Traduction contextualisée" />
-        <h1 className="text-2xl font-semibold text-ink">
-          Traduire le sens
-        </h1>
-        <p className="text-base text-ink-2">
-          Pensez comme un locuteur natif — pas mot à mot.
-        </p>
-      </header>
-
+    <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <label

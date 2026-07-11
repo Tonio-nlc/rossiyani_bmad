@@ -7,44 +7,49 @@
 
 ## Story 5.1 — Audit global UI ✅
 
-**Objectif** : inventaire complet des incohérences — **aucune correction**.
-
 **Livrable** : [`UI_AUDIT_V1.md`](./UI_AUDIT_V1.md)
 
 ---
 
 ## Story 5.2 — Standardisation du Design System ✅
 
-**Objectif** : un seul Design System — tokens, largeurs, composants canoniques.
-
-**Livrable** : [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
-
-### Réalisé
-
-- Tokens unifiés (`brand-*` supprimé, palette `ink` / `accent`)
-- Grille 680 / 900 / 1080 (`max-w-reading` | `content` | `dashboard`)
-- Composants canoniques : `PillGroup`, `EmptyState`, `CTA_LINK_CLASS`, `card-styles`
-- Migration bulk hex / styles inline → tokens
-- `src/lib/design/layout.ts`, `src/lib/design/classes.ts`
-
-### Hors scope (respecté)
-
-- Repositionnement, redesign, branding, responsive
+**Livrable** : [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) § Tokens, couleurs, composants
 
 ---
 
-## Stories suivantes
+## Story 5.3 — Standardisation layouts & headers ✅
+
+**Objectif** : chaque page donne l'impression d'appartenir au même produit.
+
+**Livrable** : [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) § Layouts
+
+### Réalisé
+
+- `PageHeader`, `PageBody`, `PageSection`, `ContextBar` — primitives layout
+- `src/lib/design/rhythm.ts` — rythme 48px / 64px, grilles
+- Migration : Home, Library, Lessons, Vocabulary, Review, Practice, Import
+- `SectionHeader` + cartes `min-h-56` uniformisées
+- Exceptions documentées : Reader, Explorer, Auth, Onboarding, Home hero, détail leçon
+
+### Hors scope (respecté)
+
+- Branding, icônes, couleurs, polish pixel-perfect, fonctionnalités
+
+---
+
+## Stories suivantes (courtes)
 
 | Story | Périmètre |
 |-------|-----------|
-| **5.3** | Layout & headers (structure, PageHeader responsive) |
-| **5.4** | Branding (favicon, logo, wording FR) |
-| **5.5** | Polish ciblé résiduel (Explorer, Lessons, badge import) |
+| **5.4** | Branding (logos, favicon, wording, FR/EN, identité visuelle) |
+| **5.5** | Polish ciblé — **retours fondateur** après utilisation réelle |
 
-→ **Design Freeze** après 5.3–5.5
+→ **Design Freeze** après 5.4–5.5
+
+La 5.5 sera pilotée par toi en tant qu'utilisateur, pas par un polish théorique.
 
 ---
 
 ## Story 4.7 — Reader polish import (gelée avec Épic Import)
 
-Badge « Importé », encart première ouverture — **reportée** ou absorbée par 5.5 si nécessaire.
+Badge « Importé », encart première ouverture — absorbée par 5.5 si nécessaire.

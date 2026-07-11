@@ -8,13 +8,19 @@ import { useMemo } from "react";
 import { CollectionCard } from "@/components/library/CollectionCard";
 import { TextCard } from "@/components/library/TextCard";
 import { EXERCISE_CARD_CLASS } from "@/components/ui/card-styles";
+import { PageBody } from "@/components/ui/PageBody";
+import { PageSection } from "@/components/ui/PageSection";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import {
   BADGE_SOFT_CLASS,
   BTN_PRIMARY_CLASS,
   CARD_ICON_BOX_CLASS,
   CTA_LINK_CLASS,
 } from "@/lib/design/classes";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+import {
+  CARD_GRID_3COL_CLASS,
+  SECTION_CONTENT_GAP_CLASS,
+} from "@/lib/design/rhythm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHomeData } from "@/hooks/useHomeData";
 import { useTexts } from "@/hooks/useTexts";
@@ -55,19 +61,19 @@ export function HomePage() {
   }
 
   return (
-    <div className="mx-auto max-w-dashboard px-6 pb-12 md:px-10">
+    <PageBody width="dashboard" className="pb-12">
       <HeroSection data={data} isLoading={isLoading} />
 
-      <HomeSection>
+      <PageSection>
         <TodaySection reviewCount={data?.reviewCount ?? 0} isLoading={isLoading} />
-      </HomeSection>
+      </PageSection>
 
-      <HomeSection>
+      <PageSection>
         <SectionHeader
           title="Collections"
           subtitle="Parcours thématiques pour structurer vos lectures."
         />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={cn(CARD_GRID_3COL_CLASS, SECTION_CONTENT_GAP_CLASS)}>
           {collections.map((collection) => (
             <CollectionCard
               key={collection.id}
@@ -76,33 +82,29 @@ export function HomePage() {
             />
           ))}
         </div>
-      </HomeSection>
+      </PageSection>
 
-      <HomeSection>
+      <PageSection>
         <SectionHeader
           title="Activité récente"
           subtitle="Lectures suggérées selon votre niveau et votre historique."
         />
+        <div className={SECTION_CONTENT_GAP_CLASS}>
         <RecentActivitySection
           recentTexts={data?.recentTexts ?? []}
           isLoading={isLoading}
           onTextClick={(textId) => router.push(`/reader/${textId}`)}
         />
-      </HomeSection>
+        </div>
+      </PageSection>
 
-      <HomeSection>
+      <PageSection>
         <VocabularySection
           wordsCount={data?.wordsCount ?? 0}
           isLoading={isLoading}
         />
-      </HomeSection>
-    </div>
-  );
-}
-
-function HomeSection({ children }: { children: React.ReactNode }) {
-  return (
-    <section className="mt-11 border-t border-border pt-11">{children}</section>
+      </PageSection>
+    </PageBody>
   );
 }
 
@@ -119,7 +121,7 @@ function HeroSection({
   isLoading: boolean;
 }) {
   return (
-    <section className="grid gap-8 pt-14 md:grid-cols-2 md:gap-10">
+    <section className="grid gap-8 md:grid-cols-2 md:gap-10">
       <div>
         <p className="mb-4 text-[11px] font-bold tracking-[0.1em] text-accent uppercase">
           ESPACE D&apos;APPRENTISSAGE
@@ -291,7 +293,7 @@ function TodaySection({
         title="Aujourd'hui"
         subtitle="Trois exercices courts pour garder le rythme."
       />
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className={cn("grid gap-4 md:grid-cols-3", SECTION_CONTENT_GAP_CLASS)}>
         {cards.map((card) => (
           <div key={card.title} className={`flex flex-col ${EXERCISE_CARD_CLASS}`}>
             <div className={cn("mb-4", CARD_ICON_BOX_CLASS)}>

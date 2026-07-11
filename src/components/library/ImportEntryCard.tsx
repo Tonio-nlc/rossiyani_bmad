@@ -7,7 +7,7 @@ export function ImportEntryCard() {
   return (
     <Link
       href="/import"
-      className={`flex min-h-56 flex-col justify-center border-dashed ${CARD_BASE_CLASS} transition-transform hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(79,70,229,0.08)]`}
+      className={`flex flex-col justify-center border-dashed ${CARD_BASE_CLASS}`}
     >
       <div className="mb-4 flex size-[38px] items-center justify-center rounded-lg bg-accent-light text-accent">
         <Plus className="size-5" aria-hidden="true" />

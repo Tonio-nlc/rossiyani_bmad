@@ -4,7 +4,6 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-import { PracticeBreadcrumb } from "@/components/practice/PracticeBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,17 +27,7 @@ export function SentenceBuilder() {
   }
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-3">
-        <PracticeBreadcrumb current="Constructeur de phrases" />
-        <h1 className="text-2xl font-semibold text-ink">
-          Composez en russe
-        </h1>
-        <p className="text-base text-ink-2">
-          Formulez une phrase à partir de ce que vous avez lu.
-        </p>
-      </header>
-
+    <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <label

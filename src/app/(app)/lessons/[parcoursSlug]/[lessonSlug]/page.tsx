@@ -40,7 +40,7 @@ export default async function LessonPage({
     <div>
       <LessonsContextBack from={query.from} textId={query.textId} />
       <LessonsBreadcrumb
-        maxWidthClass="max-w-reading"
+        width="reading"
         segments={[
           {
             label: lesson.path.title,

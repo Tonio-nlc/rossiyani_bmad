@@ -4,6 +4,8 @@ import { VocabularyEntryHeader } from "./VocabularyEntryHeader";
 import { ExamplesSection } from "./ExamplesSection";
 import { InformationSection } from "./InformationSection";
 import { ReviewSection } from "./ReviewSection";
+import { PageBody } from "@/components/ui/PageBody";
+import { PageSection } from "@/components/ui/PageSection";
 
 interface VocabularyEntryProps {
   entry: TVocabularyEntry;
@@ -24,11 +26,17 @@ export function VocabularyEntry({
         returnLabel={returnLabel}
       />
 
-      <div className="mx-auto max-w-content space-y-6 px-4 py-8 md:px-8 md:py-10">
-        <InformationSection data={entry.linguisticData} />
-        <ExamplesSection examples={entry.examples} />
-        <ReviewSection review={entry.review} />
-      </div>
+      <PageBody width="content">
+        <PageSection spaced={false}>
+          <InformationSection data={entry.linguisticData} />
+        </PageSection>
+        <PageSection>
+          <ExamplesSection examples={entry.examples} />
+        </PageSection>
+        <PageSection>
+          <ReviewSection review={entry.review} />
+        </PageSection>
+      </PageBody>
     </div>
   );
 }

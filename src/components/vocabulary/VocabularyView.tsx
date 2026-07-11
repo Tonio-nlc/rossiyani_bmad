@@ -1,12 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { VocabularyGrid } from "@/components/vocabulary/VocabularyGrid";
 import { BackLink } from "@/components/ui/BackLink";
+import { ContextBar } from "@/components/ui/ContextBar";
 import { EmptyState } from "@/components/ui/empty-state";
+import { PageBody } from "@/components/ui/PageBody";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PillGroup } from "@/components/ui/pill";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,8 @@ import {
   parseReturnContext,
   resolveReaderBackNavigation,
 } from "@/lib/navigation/return-context";
+import { SECTION_CONTENT_GAP_CLASS } from "@/lib/design/rhythm";
+import { cn } from "@/lib/utils";
 import type { TVocabularyFilter, TVocabularyListItem } from "@/types/vocabulary";
 
 const FILTERS: { value: TVocabularyFilter; label: string }[] = [
@@ -59,32 +62,31 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
 
   if (errorMessage) {
     return (
-      <div className="mx-auto max-w-content px-10 py-12">
+      <PageBody width="content">
         <p className="text-sm text-destructive">{errorMessage}</p>
-      </div>
+      </PageBody>
     );
   }
 
   return (
     <div>
       {returnContext.from === "reader" && returnContext.textId ? (
-        <div className="border-b border-border bg-surface px-4 py-3 md:px-10">
-          <div className="mx-auto max-w-content">
-            <BackLink
-              href={backNavigation.href}
-              label={backNavigation.label}
-            />
-          </div>
-        </div>
+        <ContextBar width="content">
+          <BackLink
+            href={backNavigation.href}
+            label={backNavigation.label}
+          />
+        </ContextBar>
       ) : null}
 
       <PageHeader
         eyebrow="MÉMOIRE LINGUISTIQUE"
         title="Vocabulary"
         subtitle="Vos mots sauvegardés en contexte — retrouvez ce que vous avez rencontré en lecture."
+        width="content"
       />
 
-      <div className="mx-auto max-w-content px-6 py-8 md:px-10">
+      <PageBody width="content">
         <div className="space-y-4">
           <Input
             type="search"
@@ -112,7 +114,7 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
           </div>
         </div>
 
-        <div className="mt-8">
+        <div className={SECTION_CONTENT_GAP_CLASS}>
           {words.length === 0 ? (
             <EmptyState
               title="Aucun mot sauvegardé"
@@ -128,7 +130,7 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
             <VocabularyGrid words={filteredWords} returnQuery={returnQuery} />
           )}
         </div>
-      </div>
+      </PageBody>
     </div>
   );
 }

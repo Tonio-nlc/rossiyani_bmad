@@ -33,7 +33,7 @@ export function TextCard({ text, onClick }: TextCardProps) {
         {text.wordCount} mots · {text.readingTimeMinutes} min
       </p>
 
-      <div className="mt-4">
+      <div className="mt-auto pt-4">
         {hasProgress ? (
           <div className="space-y-2">
             <div className="h-[3px] overflow-hidden rounded-[2px] bg-accent-light">

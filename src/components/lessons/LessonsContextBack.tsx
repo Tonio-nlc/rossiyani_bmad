@@ -3,6 +3,7 @@ import {
   parseReturnContext,
   resolveReaderBackNavigation,
 } from "@/lib/navigation/return-context";
+import { ContextBar } from "@/components/ui/ContextBar";
 
 interface LessonsContextBackProps {
   from?: string;
@@ -25,13 +26,11 @@ export function LessonsContextBack({ from, textId }: LessonsContextBackProps) {
   const backNavigation = resolveReaderBackNavigation(returnContext);
 
   return (
-    <div className="border-b border-border bg-surface px-4 py-3 md:px-10">
-      <div className="mx-auto max-w-dashboard">
-        <BackLink
-          href={backNavigation.href}
-          label={backNavigation.label}
-        />
-      </div>
-    </div>
+    <ContextBar width="dashboard">
+      <BackLink
+        href={backNavigation.href}
+        label={backNavigation.label}
+      />
+    </ContextBar>
   );
 }

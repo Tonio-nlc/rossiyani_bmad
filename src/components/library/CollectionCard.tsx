@@ -31,7 +31,7 @@ export function CollectionCard({ collection, onClick }: CollectionCardProps) {
         {collection.description}
       </p>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
+      <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
         {collection.level !== "Tous niveaux" && (
           <span className={BADGE_META_CLASS}>
             {collection.level}

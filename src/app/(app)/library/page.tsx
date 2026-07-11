@@ -8,7 +8,9 @@ import { CollectionCard } from "@/components/library/CollectionCard";
 import { LibraryImportsSection } from "@/components/library/LibraryImportsSection";
 import { TextCard } from "@/components/library/TextCard";
 import { FilterPills } from "@/components/ui/FilterPills";
+import { PageBody } from "@/components/ui/PageBody";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { PageSection } from "@/components/ui/PageSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,6 +22,11 @@ import {
   type TCollection,
 } from "@/lib/library/collections";
 import { splitLibraryTexts } from "@/lib/library/text-source";
+import {
+  CARD_GRID_3COL_CLASS,
+  SECTION_CONTENT_GAP_CLASS,
+} from "@/lib/design/rhythm";
+import { cn } from "@/lib/utils";
 import type { TTextWithProgress } from "@/types/reader";
 
 const LEVEL_FILTERS = ["Tous", "A1", "A2", "B1", "B2"] as const;
@@ -113,9 +120,11 @@ export default function LibraryPage() {
 
   if (error) {
     return (
-      <div className="px-10 py-12 text-center text-ink-2">
-        Impossible de charger la bibliothèque. Veuillez réessayer.
-      </div>
+      <PageBody width="dashboard">
+        <p className="text-center text-ink-2">
+          Impossible de charger la bibliothèque. Veuillez réessayer.
+        </p>
+      </PageBody>
     );
   }
 
@@ -132,11 +141,11 @@ export default function LibraryPage() {
         }
       />
 
-      <div className="mx-auto max-w-dashboard space-y-11 px-6 py-10 md:px-10">
+      <PageBody width="dashboard">
         {showSavedToast && (
           <div
             role="status"
-            className="rounded-[12px] border border-green/30 bg-green/10 px-4 py-3 text-sm text-ink"
+            className="mb-6 rounded-[12px] border border-green/30 bg-green/10 px-4 py-3 text-sm text-ink"
           >
             <span className="font-semibold text-green">Texte enregistré</span>
             <span className="text-ink-2">
@@ -146,16 +155,21 @@ export default function LibraryPage() {
           </div>
         )}
 
-        <p className="-mt-4 text-sm font-semibold text-accent">
+        <p className="text-sm font-semibold text-accent">
           <Link href="/import" className="hover:underline">
             + Importer un texte
           </Link>
         </p>
 
-        {continueText && (
-          <section>
+        {continueText ? (
+          <PageSection>
             <SectionHeader title="Continuer" />
-            <div className="relative mt-4 overflow-hidden rounded-lg bg-accent-deep p-7">
+            <div
+              className={cn(
+                "relative overflow-hidden rounded-lg bg-accent-deep p-7",
+                SECTION_CONTENT_GAP_CLASS,
+              )}
+            >
               <span
                 className="pointer-events-none absolute -bottom-[18px] -right-1.5 font-serif text-[130px] italic leading-none text-white/[0.06]"
                 aria-hidden="true"
@@ -183,15 +197,15 @@ export default function LibraryPage() {
                 Reprendre →
               </button>
             </div>
-          </section>
-        )}
+          </PageSection>
+        ) : null}
 
-        <section className="border-t border-border pt-11">
+        <PageSection>
           <SectionHeader
             title="Collections Rossiyani"
             subtitle="Parcours thématiques — le cœur de votre bibliothèque."
           />
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className={cn(CARD_GRID_3COL_CLASS, SECTION_CONTENT_GAP_CLASS)}>
             {collectionsWithCounts.map((collection) => (
               <CollectionCard
                 key={collection.id}
@@ -200,41 +214,38 @@ export default function LibraryPage() {
               />
             ))}
           </div>
-        </section>
+        </PageSection>
 
-        <section className="border-t border-border pt-11">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <SectionHeader title="Vos textes" />
-              {collectionFilter && (
-                <p className="-mt-4 text-sm text-ink-2">
-                  Filtre collection :{" "}
-                  {COLLECTION_LABELS[collectionFilter] ?? collectionFilter}
-                  <button
-                    type="button"
-                    onClick={() => setCollectionFilter(null)}
-                    className="ml-2 font-semibold text-accent hover:underline"
-                  >
-                    Effacer
-                  </button>
-                </p>
-              )}
-            </div>
-            <p className="text-sm text-ink-3">
-              {filteredCuratedTexts.length} résultat
-              {filteredCuratedTexts.length > 1 ? "s" : ""}
+        <PageSection>
+          <SectionHeader
+            title="Vos textes"
+            trailing={
+              <p className="text-sm text-ink-3">
+                {filteredCuratedTexts.length} résultat
+                {filteredCuratedTexts.length > 1 ? "s" : ""}
+              </p>
+            }
+          />
+          {collectionFilter ? (
+            <p className={cn("text-sm text-ink-2", SECTION_CONTENT_GAP_CLASS)}>
+              Filtre collection :{" "}
+              {COLLECTION_LABELS[collectionFilter] ?? collectionFilter}
+              <button
+                type="button"
+                onClick={() => setCollectionFilter(null)}
+                className="ml-2 font-semibold text-accent hover:underline"
+              >
+                Effacer
+              </button>
             </p>
-          </div>
+          ) : null}
 
-          <div className="mt-4">
+          <div className={cn("space-y-4", SECTION_CONTENT_GAP_CLASS)}>
             <FilterPills
               options={LEVEL_FILTERS}
               value={levelFilter}
               onChange={setLevelFilter}
             />
-          </div>
-
-          <div className="mt-4">
             <Input
               type="search"
               value={searchQuery}
@@ -244,7 +255,7 @@ export default function LibraryPage() {
             />
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className={cn(CARD_GRID_3COL_CLASS, SECTION_CONTENT_GAP_CLASS)}>
             {isLoading
               ? Array.from({ length: 6 }).map((_, index) => (
                   <Skeleton key={index} className="h-56 rounded-[14px]" />
@@ -257,7 +268,7 @@ export default function LibraryPage() {
                   />
                 ))}
           </div>
-        </section>
+        </PageSection>
 
         <LibraryImportsSection
           imports={importedTexts}
@@ -267,7 +278,7 @@ export default function LibraryPage() {
             void refetch();
           }}
         />
-      </div>
+      </PageBody>
     </div>
   );
 }
