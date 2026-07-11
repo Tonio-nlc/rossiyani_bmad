@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BackLink } from "@/components/ui/BackLink";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { ReturnContext } from "@/lib/navigation/return-context";
 import {
   buildReturnQuery,
@@ -30,7 +31,7 @@ export function ReviewView({
 
   if (errorMessage) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mx-auto max-w-content px-4 py-12">
         <p className="text-sm text-destructive">{errorMessage}</p>
       </div>
     );
@@ -39,7 +40,7 @@ export function ReviewView({
   return (
     <div className="bg-bg">
       <header className="border-b border-border bg-surface px-4 py-6 md:px-8 md:py-8">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-content">
           <BackLink
             href={backNavigation.href}
             label={backNavigation.label}
@@ -50,7 +51,7 @@ export function ReviewView({
         </div>
       </header>
 
-      <div className="mx-auto max-w-3xl px-4 py-8 md:px-8">
+      <div className="mx-auto max-w-content px-4 py-8 md:px-8">
         <p className="text-lg text-ink">
           {queue.length === 0
             ? "Aucun mot à réviser"
@@ -69,12 +70,11 @@ export function ReviewView({
         <div className="my-6 border-t border-border" />
 
         {queue.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border bg-surface p-8 text-center">
-            <p className="text-sm text-ink-2">
-              Revenez plus tard — vos mots apparaîtront ici quand leur révision
-              sera due.
-            </p>
-          </div>
+          <EmptyState
+            title="Rien à réviser pour l'instant"
+            description="Revenez plus tard — vos mots apparaîtront ici quand leur révision sera due."
+            dashed={false}
+          />
         ) : (
           <ul className="space-y-3">
             {queue.map((item) => (

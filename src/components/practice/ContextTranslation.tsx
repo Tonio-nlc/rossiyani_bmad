@@ -95,10 +95,10 @@ export function ContextTranslation() {
     <div className="space-y-8">
       <header className="space-y-3">
         <PracticeBreadcrumb current="Traduction contextualisée" />
-        <h1 className="text-2xl font-semibold text-brand-text-primary">
+        <h1 className="text-2xl font-semibold text-ink">
           Traduire le sens
         </h1>
-        <p className="text-base text-brand-text-secondary">
+        <p className="text-base text-ink-2">
           Pensez comme un locuteur natif — pas mot à mot.
         </p>
       </header>
@@ -107,7 +107,7 @@ export function ContextTranslation() {
         <div className="space-y-2">
           <label
             htmlFor="text"
-            className="text-sm font-medium text-brand-text-primary"
+            className="text-sm font-medium text-ink"
           >
             Phrase ou expression à traduire
           </label>
@@ -119,7 +119,7 @@ export function ContextTranslation() {
             disabled={isLoading}
             required
             maxLength={300}
-            className="min-h-[120px] resize-y border-brand-border bg-brand-card px-3 py-3"
+            className="min-h-[120px] resize-y border-border bg-surface px-3 py-3"
           />
         </div>
 
@@ -141,7 +141,7 @@ export function ContextTranslation() {
           <Button
             type="submit"
             disabled={isLoading || !text.trim()}
-            className="h-11 bg-brand-primary px-6 text-white hover:bg-brand-primary/90"
+            className="h-11 bg-accent px-6 text-white hover:bg-accent/90"
           >
             {isLoading ? (
               <>
@@ -155,7 +155,7 @@ export function ContextTranslation() {
 
           <Link
             href="/practice"
-            className="text-sm font-medium text-brand-text-secondary transition-colors hover:text-brand-text-primary"
+            className="text-sm font-medium text-ink-2 transition-colors hover:text-ink"
           >
             ← Retour à la pratique
           </Link>
@@ -163,19 +163,19 @@ export function ContextTranslation() {
       </form>
 
       {result && (
-        <div className="space-y-5 rounded-xl border border-brand-border bg-brand-card p-6">
+        <div className="space-y-5 rounded-xl border border-border bg-surface p-6">
           <section className="space-y-2">
-            <h2 className="text-base font-semibold text-brand-text-primary">
+            <h2 className="text-base font-semibold text-ink">
               Traduction naturelle :
             </h2>
             <p
-              className="font-serif text-xl text-brand-text-primary"
+              className="font-serif text-xl text-ink"
               style={{ textTransform: "none" }}
             >
               {result.naturalTranslation}
             </p>
             {result.registerNote && activeRegister !== "courant" && (
-              <p className="flex items-start gap-1.5 text-[13px] italic text-brand-text-muted">
+              <p className="flex items-start gap-1.5 text-[13px] italic text-ink-3">
                 <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
                 <span>
                   Registre {REGISTER_DISPLAY[activeRegister]} :{" "}
@@ -186,36 +186,36 @@ export function ContextTranslation() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-base font-semibold text-brand-text-primary">
+            <h2 className="text-base font-semibold text-ink">
               Pourquoi cette construction ?
             </h2>
-            <p className="text-sm leading-relaxed text-brand-text-secondary">
+            <p className="text-sm leading-relaxed text-ink-2">
               {result.explanation}
             </p>
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-base font-semibold text-brand-text-primary">
+            <h2 className="text-base font-semibold text-ink">
               Traduction littérale (à éviter) :
             </h2>
-            <p className="font-serif text-base text-brand-text-secondary">
+            <p className="font-serif text-base text-ink-2">
               {result.literalTranslation}
             </p>
-            <p className="text-sm leading-relaxed text-brand-text-muted">
+            <p className="text-sm leading-relaxed text-ink-3">
               {result.literalNote}
             </p>
           </section>
 
           {result.examples.length > 0 && (
             <section className="space-y-2">
-              <h2 className="text-base font-semibold text-brand-text-primary">
+              <h2 className="text-base font-semibold text-ink">
                 Exemples en contexte
               </h2>
               <ul className="space-y-2">
                 {result.examples.map((example, index) => (
                   <li
                     key={index}
-                    className="font-serif text-sm leading-relaxed text-brand-text-secondary"
+                    className="font-serif text-sm leading-relaxed text-ink-2"
                   >
                     {example}
                   </li>
@@ -228,27 +228,27 @@ export function ContextTranslation() {
 
       {recentTranslations.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold text-brand-text-primary">
+          <h2 className="text-lg font-semibold text-ink">
             Traductions récentes
           </h2>
           <ul className="space-y-3">
             {recentTranslations.map((entry, index) => (
               <li
                 key={`${entry.timestamp.toISOString()}-${index}`}
-                className="rounded-xl border border-brand-border bg-brand-card p-4"
+                className="rounded-xl border border-border bg-surface p-4"
               >
-                <p className="text-sm text-brand-text-secondary">
+                <p className="text-sm text-ink-2">
                   {entry.input}
                 </p>
-                <p className="mt-1 font-serif text-base text-brand-text-primary">
+                <p className="mt-1 font-serif text-base text-ink">
                   → {entry.output}
                 </p>
                 {entry.register !== "courant" && (
-                  <span className="mt-2 inline-block text-[11px] text-brand-text-muted">
+                  <span className="mt-2 inline-block text-[11px] text-ink-3">
                     [{REGISTER_DISPLAY[entry.register]}]
                   </span>
                 )}
-                <p className="mt-2 text-xs text-brand-text-muted">
+                <p className="mt-2 text-xs text-ink-3">
                   {formatTimestamp(entry.timestamp)}
                 </p>
               </li>
@@ -271,7 +271,7 @@ function RegisterSelector({
 }) {
   return (
     <div className="space-y-2">
-      <p className="text-xs text-brand-text-muted">Registre</p>
+      <p className="text-xs text-ink-3">Registre</p>
       <div className="flex flex-wrap gap-2" role="group" aria-label="Registre">
         {REGISTER_OPTIONS.map((option) => {
           const isSelected = value === option.value;
@@ -286,8 +286,8 @@ function RegisterSelector({
               className={cn(
                 "rounded-full border px-3 py-1 text-[13px] transition-all duration-150",
                 isSelected
-                  ? "border-brand-primary bg-brand-card text-brand-text-primary"
-                  : "border-brand-border bg-transparent text-brand-text-muted hover:text-brand-text-secondary",
+                  ? "border-accent bg-surface text-ink"
+                  : "border-border bg-transparent text-ink-3 hover:text-ink-2",
               )}
             >
               {option.label}

@@ -49,7 +49,7 @@ export default async function VocabularyEntryPage({
     );
   } catch {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mx-auto max-w-content px-4 py-12">
         <p className="text-sm text-destructive">
           Impossible de charger cette fiche vocabulaire. Veuillez réessayer.
         </p>

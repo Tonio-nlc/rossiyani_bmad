@@ -29,7 +29,7 @@ export default async function LessonsPage({
         subtitle="Comprendre la logique du russe — pas mémoriser des règles. Chaque leçon part d'un exemple concret pour expliquer pourquoi le russe fonctionne ainsi."
       />
 
-      <div className="mx-auto max-w-[1080px] px-4 py-10 md:px-10">
+      <div className="mx-auto max-w-dashboard px-4 py-10 md:px-10">
         {error ? (
           <div
             className="rounded-[14px] border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"

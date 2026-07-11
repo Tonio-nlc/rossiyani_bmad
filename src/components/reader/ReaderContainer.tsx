@@ -311,7 +311,7 @@ export function ReaderContainer({
             } as Record<string, string>
           }
         >
-          <div className="mx-auto w-full max-w-[680px]">
+          <div className="mx-auto w-full max-w-reading">
             <TextBody
               text={text}
               annotatedWords={annotatedWords}

@@ -59,7 +59,7 @@ export function ReviewSession({
 
   if (errorMessage) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mx-auto max-w-content px-4 py-12">
         <p className="text-sm text-destructive">{errorMessage}</p>
       </div>
     );
@@ -67,11 +67,11 @@ export function ReviewSession({
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-12 text-center">
-        <h1 className="text-2xl font-semibold text-brand-text-primary">
+      <div className="mx-auto max-w-content px-4 py-12 text-center">
+        <h1 className="text-2xl font-semibold text-ink">
           Aucun mot à réviser
         </h1>
-        <p className="mt-2 text-sm text-brand-text-secondary">
+        <p className="mt-2 text-sm text-ink-2">
           Revenez plus tard lorsque des mots seront dus.
         </p>
         <BackLink href={reviewListHref} label="Révision" />
@@ -81,7 +81,7 @@ export function ReviewSession({
 
   if (isComplete) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-12 text-center">
+      <div className="mx-auto max-w-content px-4 py-12 text-center">
         <h1 className="text-2xl font-semibold text-ink">Révision terminée.</h1>
         <p className="mt-3 text-lg text-ink-2">
           {ratedCount} réponse{ratedCount > 1 ? "s" : ""} enregistrée
@@ -154,20 +154,20 @@ export function ReviewSession({
   }
 
   return (
-    <div className="bg-brand-surface">
+    <div className="bg-bg">
       <header className="border-b border-border bg-surface px-4 py-6 md:px-8">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-content">
           <BackLink href={reviewListHref} label="Révision" />
           <div className="mt-4">
-            <div className="flex items-center justify-between text-sm text-brand-text-secondary">
+            <div className="flex items-center justify-between text-sm text-ink-2">
               <span>
                 {progress.current} / {progress.total}
               </span>
               <span>{progress.percentage}%</span>
             </div>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-brand-border">
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-border">
               <div
-                className="h-full rounded-full bg-brand-primary transition-all duration-300"
+                className="h-full rounded-full bg-accent transition-all duration-300"
                 style={{ width: `${progress.percentage}%` }}
               />
             </div>
@@ -175,14 +175,14 @@ export function ReviewSession({
         </div>
       </header>
 
-      <div className="mx-auto max-w-3xl px-4 py-10 md:px-8">
+      <div className="mx-auto max-w-content px-4 py-10 md:px-8">
         <ReviewSessionCard item={currentItem} revealed={revealed} />
 
         {!revealed ? (
           <Button
             type="button"
             onClick={() => setRevealed(true)}
-            className="mt-8 w-full bg-brand-primary text-white hover:bg-brand-primary/90 sm:w-auto"
+            className="mt-8 w-full bg-accent text-white hover:bg-accent/90 sm:w-auto"
           >
             Révéler
           </Button>
@@ -206,7 +206,7 @@ export function ReviewSession({
             </div>
 
             {isSubmitting && (
-              <p className="mt-3 text-sm text-brand-text-muted">
+              <p className="mt-3 text-sm text-ink-3">
                 Enregistrement…
               </p>
             )}
@@ -224,13 +224,13 @@ export function ReviewSession({
 function ratingButtonClassName(rating: TReviewRating): string {
   switch (rating) {
     case "again":
-      return "bg-red-600 text-white hover:bg-red-600/90 disabled:opacity-50";
+      return "bg-destructive text-white hover:bg-destructive/90 disabled:opacity-50";
     case "hard":
-      return "bg-orange-500 text-white hover:bg-orange-500/90 disabled:opacity-50";
+      return "bg-amber text-white hover:bg-amber/90 disabled:opacity-50";
     case "good":
-      return "bg-brand-primary text-white hover:bg-brand-primary/90 disabled:opacity-50";
+      return "bg-accent text-white hover:bg-accent/90 disabled:opacity-50";
     case "easy":
-      return "bg-emerald-600 text-white hover:bg-emerald-600/90 disabled:opacity-50";
+      return "bg-green text-white hover:bg-green/90 disabled:opacity-50";
   }
 }
 
@@ -261,22 +261,22 @@ function ReviewSessionCard({ item, revealed }: ReviewSessionCardProps) {
     : [];
 
   return (
-    <div className="rounded-xl border border-brand-border bg-brand-card p-8 text-center">
-      <p className="font-serif text-4xl text-brand-text-primary md:text-5xl">
+    <div className="rounded-xl border border-border bg-surface p-8 text-center">
+      <p className="font-serif text-4xl text-ink md:text-5xl">
         {item.lemma}
       </p>
 
       {revealed && (
         <div className="mt-8 space-y-6">
           {item.translation && (
-            <p className="text-xl text-brand-text-secondary md:text-2xl">
+            <p className="text-xl text-ink-2 md:text-2xl">
               {item.translation}
             </p>
           )}
 
           {knowledgeRows.length > 0 && (
-            <div className="mx-auto max-w-md border-t border-brand-border pt-6 text-left">
-              <p className="text-xs font-medium tracking-[0.15em] text-brand-text-muted uppercase">
+            <div className="mx-auto max-w-md border-t border-border pt-6 text-left">
+              <p className="text-xs font-medium tracking-[0.15em] text-ink-3 uppercase">
                 Informations principales
               </p>
               <dl className="mt-3 space-y-2">
@@ -285,8 +285,8 @@ function ReviewSessionCard({ item, revealed }: ReviewSessionCardProps) {
                     key={row.label}
                     className="flex items-start justify-between gap-4 text-sm"
                   >
-                    <dt className="text-brand-text-muted">{row.label}</dt>
-                    <dd className="text-brand-text-primary">{row.value}</dd>
+                    <dt className="text-ink-3">{row.label}</dt>
+                    <dd className="text-ink">{row.value}</dd>
                   </div>
                 ))}
               </dl>

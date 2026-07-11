@@ -28,7 +28,7 @@ export function ReaderHeader({
   return (
     <header className="sticky top-14 z-40 border-b border-border bg-surface py-3">
       <div className="px-4 md:px-10">
-        <div className="mx-auto w-full max-w-[680px]">
+        <div className="mx-auto w-full max-w-reading">
           <BackLink href="/library" label="Bibliothèque" />
 
           <nav

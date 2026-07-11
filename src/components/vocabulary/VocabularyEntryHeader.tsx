@@ -16,7 +16,7 @@ export function VocabularyEntryHeader({
 
   return (
     <header className="border-b border-border bg-surface px-4 py-6 md:px-8 md:py-8">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-content">
         <BackLink href={returnHref} label={returnLabel} />
 
         <div className="mt-6">

@@ -6,8 +6,9 @@ import { useSearchParams } from "next/navigation";
 
 import { VocabularyGrid } from "@/components/vocabulary/VocabularyGrid";
 import { BackLink } from "@/components/ui/BackLink";
+import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
+import { PillGroup } from "@/components/ui/pill";
 import { Input } from "@/components/ui/input";
 import {
   buildReturnQuery,
@@ -16,11 +17,11 @@ import {
 } from "@/lib/navigation/return-context";
 import type { TVocabularyFilter, TVocabularyListItem } from "@/types/vocabulary";
 
-const FILTERS: { id: TVocabularyFilter; label: string }[] = [
-  { id: "all", label: "Tous" },
-  { id: "due", label: "À réviser" },
-  { id: "new", label: "Nouveaux" },
-  { id: "learned", label: "Appris" },
+const FILTERS: { value: TVocabularyFilter; label: string }[] = [
+  { value: "all", label: "Tous" },
+  { value: "due", label: "À réviser" },
+  { value: "new", label: "Nouveaux" },
+  { value: "learned", label: "Appris" },
 ];
 
 interface VocabularyViewProps {
@@ -58,7 +59,7 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
 
   if (errorMessage) {
     return (
-      <div className="mx-auto max-w-3xl px-10 py-12">
+      <div className="mx-auto max-w-content px-10 py-12">
         <p className="text-sm text-destructive">{errorMessage}</p>
       </div>
     );
@@ -68,7 +69,7 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
     <div>
       {returnContext.from === "reader" && returnContext.textId ? (
         <div className="border-b border-border bg-surface px-4 py-3 md:px-10">
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto max-w-content">
             <BackLink
               href={backNavigation.href}
               label={backNavigation.label}
@@ -83,7 +84,7 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
         subtitle="Vos mots sauvegardés en contexte — retrouvez ce que vous avez rencontré en lecture."
       />
 
-      <div className="mx-auto max-w-3xl px-6 py-8 md:px-10">
+      <div className="mx-auto max-w-content px-6 py-8 md:px-10">
         <div className="space-y-4">
           <Input
             type="search"
@@ -94,74 +95,40 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
           />
 
           <div className="hidden md:block">
-            <VocabularyFilterPills
-              activeFilter={activeFilter}
+            <PillGroup
+              options={FILTERS}
+              value={activeFilter}
               onChange={setActiveFilter}
             />
           </div>
 
           <div className="flex gap-2 overflow-x-auto pb-1 md:hidden">
-            <VocabularyFilterPills
-              activeFilter={activeFilter}
+            <PillGroup
+              options={FILTERS}
+              value={activeFilter}
               onChange={setActiveFilter}
-              compact
+              className="flex-nowrap"
             />
           </div>
         </div>
 
         <div className="mt-8">
           {words.length === 0 ? (
-            <div
-              className={`border-dashed text-center ${CARD_BASE_CLASS}`}
-            >
-              <p className="text-base font-bold text-ink">
-                Aucun mot sauvegardé
-              </p>
-              <p className="mt-2 text-sm text-ink-2">
-                Lisez un texte et sauvegardez des mots depuis l&apos;Explorer
-                pour les retrouver ici.
-              </p>
-            </div>
+            <EmptyState
+              title="Aucun mot sauvegardé"
+              description="Lisez un texte et sauvegardez des mots depuis l'Explorer pour les retrouver ici."
+            />
           ) : filteredWords.length === 0 ? (
-            <div className={`text-center ${CARD_BASE_CLASS}`}>
-              <p className="text-sm text-ink-2">
-                Aucun mot ne correspond à votre recherche ou à ce filtre.
-              </p>
-            </div>
+            <EmptyState
+              title="Aucun résultat"
+              description="Aucun mot ne correspond à votre recherche ou à ce filtre."
+              dashed={false}
+            />
           ) : (
             <VocabularyGrid words={filteredWords} returnQuery={returnQuery} />
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function VocabularyFilterPills({
-  activeFilter,
-  onChange,
-  compact,
-}: {
-  activeFilter: TVocabularyFilter;
-  onChange: (filter: TVocabularyFilter) => void;
-  compact?: boolean;
-}) {
-  return (
-    <div className={compact ? "flex gap-2" : "flex flex-wrap gap-2"}>
-      {FILTERS.map((filter) => (
-        <button
-          key={filter.id}
-          type="button"
-          onClick={() => onChange(filter.id)}
-          className={
-            activeFilter === filter.id
-              ? "shrink-0 rounded-full border border-[#4F46E5] bg-[#4F46E5] px-4 py-1.5 text-sm font-medium text-white transition-colors"
-              : "shrink-0 rounded-full border border-[#E8E4DC] bg-white px-4 py-1.5 text-sm font-medium text-[#5A5A5A] transition-colors hover:text-[#0E0E0E]"
-          }
-        >
-          {filter.label}
-        </button>
-      ))}
     </div>
   );
 }

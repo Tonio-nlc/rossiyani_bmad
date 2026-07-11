@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { PillGroup } from "@/components/ui/pill";
 
 export type ImportSourceTab = "paste" | "file";
 
@@ -7,39 +7,19 @@ interface ImportSourceTabsProps {
   onChange: (value: ImportSourceTab) => void;
 }
 
-const TABS: { id: ImportSourceTab; label: string }[] = [
-  { id: "paste", label: "Coller un texte" },
-  { id: "file", label: "Importer un .txt" },
+const TABS = [
+  { value: "paste" as const, label: "Coller un texte" },
+  { value: "file" as const, label: "Importer un .txt" },
 ];
 
 export function ImportSourceTabs({ value, onChange }: ImportSourceTabsProps) {
   return (
-    <div
+    <PillGroup
+      options={TABS}
+      value={value}
+      onChange={onChange}
       role="tablist"
-      aria-label="Source du texte"
-      className="flex flex-wrap gap-2"
-    >
-      {TABS.map((tab) => {
-        const selected = value === tab.id;
-
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={selected}
-            onClick={() => onChange(tab.id)}
-            className={cn(
-              "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
-              selected
-                ? "border-accent bg-accent text-white"
-                : "border-border bg-surface text-ink-2 hover:text-ink",
-            )}
-          >
-            {tab.label}
-          </button>
-        );
-      })}
-    </div>
+      ariaLabel="Source du texte"
+    />
   );
 }

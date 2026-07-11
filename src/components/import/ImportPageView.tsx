@@ -262,7 +262,7 @@ export function ImportPageView() {
         subtitle="Analyse un texte russe avec la méthode Rossiyani."
       />
 
-      <div className="mx-auto max-w-[680px] space-y-6 px-6 py-10">
+      <div className="mx-auto max-w-reading space-y-6 px-6 py-10">
         <ImportSourceTabs value={activeTab} onChange={handleTabChange} />
 
         {activeTab === "paste" ? (

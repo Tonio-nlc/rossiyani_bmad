@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { ImportEntryCard } from "@/components/library/ImportEntryCard";
 import { ImportTextCard } from "@/components/library/ImportTextCard";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
 import { IMPORT_LIMITS } from "@/lib/import/constants";
 import type { TTextWithProgress } from "@/types/reader";
 
@@ -63,22 +62,12 @@ export function LibraryImportsSection({
           ))}
         </div>
       ) : imports.length === 0 ? (
-        <div
-          className={`mt-6 flex min-h-56 flex-col items-center justify-center border-dashed text-center ${CARD_BASE_CLASS}`}
-        >
-          <p className="text-sm text-ink-2">
-            Aucun texte importé pour l&apos;instant.
-          </p>
-          <p className="mt-2 max-w-md text-xs leading-relaxed text-ink-3">
-            Collez un extrait de cours, d&apos;article ou de manuel.
-          </p>
-          <Link
-            href="/import"
-            className="mt-5 inline-flex items-center justify-center rounded-[10px] bg-accent px-4 py-[11px] text-sm font-bold text-white"
-          >
-            Importer mon premier texte →
-          </Link>
-        </div>
+        <EmptyState
+          className="mt-6 min-h-56"
+          title="Aucun texte importé pour l'instant"
+          description="Collez un extrait de cours, d'article ou de manuel."
+          action={{ label: "Importer mon premier texte →", href: "/import" }}
+        />
       ) : filteredImports.length === 0 ? (
         <div className="mt-6 space-y-4">
           <p className="text-sm text-ink-3">

@@ -132,7 +132,7 @@ export default function LibraryPage() {
         }
       />
 
-      <div className="mx-auto max-w-[1080px] space-y-11 px-6 py-10 md:px-10">
+      <div className="mx-auto max-w-dashboard space-y-11 px-6 py-10 md:px-10">
         {showSavedToast && (
           <div
             role="status"

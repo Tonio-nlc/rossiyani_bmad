@@ -14,15 +14,15 @@ export function WordCard({ word, returnQuery = "" }: WordCardProps) {
     <Link
       href={`/vocabulary/${word.id}${returnQuery}`}
       className={cn(
-        "block rounded-xl border border-brand-border bg-brand-card p-5 transition-shadow",
-        "hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30",
+        "block rounded-xl border border-border bg-surface p-5 transition-shadow",
+        "hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30",
       )}
     >
-      <p className="font-serif text-xl text-brand-text-primary">{word.lemma}</p>
-      <p className="mt-1 text-base text-brand-text-secondary">
+      <p className="font-serif text-xl text-ink">{word.lemma}</p>
+      <p className="mt-1 text-base text-ink-2">
         {word.translation || "Traduction indisponible"}
       </p>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm text-brand-text-muted">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm text-ink-3">
         <span>Ajouté le {formatAddedDate(word.createdAt)}</span>
         <span>{formatReviewLabel(word.reviewStatus, word.nextReviewAt)}</span>
       </div>

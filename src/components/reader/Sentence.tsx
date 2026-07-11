@@ -162,12 +162,12 @@ export function Sentence({
           <button
             type="button"
             onClick={() => setShowTranslation((current) => !current)}
-            className="mt-0.5 mb-3 block cursor-pointer select-none text-xs italic text-[#A8A8A8] hover:text-[#5A5A5A]"
+            className="mt-0.5 mb-3 block cursor-pointer select-none text-xs italic text-ink-3 hover:text-ink-2"
           >
             {showTranslation ? "masquer" : "voir la traduction →"}
           </button>
           {showTranslation ? (
-            <p className="reader-translation-fade-in mt-1 mb-1 text-[13px] italic text-[#A8A8A8]">
+            <p className="reader-translation-fade-in mt-1 mb-1 text-[13px] italic text-ink-3">
               {resolvedTranslation}
             </p>
           ) : null}

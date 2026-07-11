@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { CARD_BASE_CLASS, CARD_CTA_STYLE } from "@/components/ui/card-styles";
+import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
+import { CTA_LINK_CLASS } from "@/lib/design/classes";
 import { lessonHref } from "@/lib/lessons/lesson-nav";
 import type { TLessonSummary } from "@/types/lessons";
 import { cn } from "@/lib/utils";
@@ -53,7 +54,7 @@ export function LessonCard({
         ) : null}
       </div>
 
-      <span className="text-[13px] font-semibold" style={CARD_CTA_STYLE}>
+      <span className={CTA_LINK_CLASS}>
         {ctaLabel} →
       </span>
     </Link>

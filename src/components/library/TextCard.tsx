@@ -1,5 +1,6 @@
 import { COLLECTION_LABELS } from "@/lib/library/collections";
-import { CARD_CTA_STYLE, TEXT_CARD_CLASS } from "@/components/ui/card-styles";
+import { CTA_LINK_CLASS } from "@/lib/design/classes";
+import { TEXT_CARD_CLASS } from "@/components/ui/card-styles";
 import type { TTextWithProgress } from "@/types/reader";
 
 interface TextCardProps {
@@ -41,12 +42,12 @@ export function TextCard({ text, onClick }: TextCardProps) {
                 style={{ width: `${text.userProgress?.percentRead ?? 0}%` }}
               />
             </div>
-            <p style={CARD_CTA_STYLE}>
+            <p className={CTA_LINK_CLASS}>
               {text.userProgress?.percentRead}% · Continuer →
             </p>
           </div>
         ) : (
-          <p style={CARD_CTA_STYLE}>Lire →</p>
+          <p className={CTA_LINK_CLASS}>Lire →</p>
         )}
       </div>
     </button>

@@ -7,7 +7,7 @@ export function SignOutButton() {
         type="submit"
         variant="outline"
         size="sm"
-        className="border-brand-border text-brand-text-secondary hover:text-brand-text-primary"
+        className="border-border text-ink-2 hover:text-ink"
       >
         Déconnexion
       </Button>

@@ -40,7 +40,7 @@ export default async function LessonPage({
     <div>
       <LessonsContextBack from={query.from} textId={query.textId} />
       <LessonsBreadcrumb
-        maxWidthClass="max-w-3xl"
+        maxWidthClass="max-w-reading"
         segments={[
           {
             label: lesson.path.title,
@@ -52,8 +52,8 @@ export default async function LessonPage({
         textId={query.textId}
       />
 
-      <article className="mx-auto max-w-3xl bg-surface px-4 py-12 md:px-12 md:py-16">
-        <header className="mx-auto mb-16 max-w-[34rem] border-b border-border/70 pb-12 md:mb-20 md:pb-14">
+      <article className="mx-auto max-w-reading bg-surface px-4 py-12 md:px-12 md:py-16">
+        <header className="mx-auto mb-16 max-w-reading border-b border-border/70 pb-12 md:mb-20 md:pb-14">
           <p className="text-[10px] font-bold tracking-[0.1em] text-ink-3 uppercase">
             Leçon {lesson.orderIndex}
           </p>
@@ -66,7 +66,7 @@ export default async function LessonPage({
 
         <LessonEncounteredTexts texts={linkedTexts} />
 
-        <div className="mx-auto mt-16 max-w-[34rem] border-t border-border/70 pt-10 md:mt-20 md:pt-12">
+        <div className="mx-auto mt-16 max-w-reading border-t border-border/70 pt-10 md:mt-20 md:pt-12">
           <MarkLessonCompleteButton
             lessonId={lesson.id}
             initialCompleted={lesson.completed}

@@ -39,7 +39,7 @@ export default async function VocabularyPage() {
 
 function VocabularyPageSkeleton() {
   return (
-    <div className="mx-auto max-w-3xl space-y-4 px-6 py-10">
+    <div className="mx-auto max-w-content space-y-4 px-6 py-10">
       <Skeleton className="h-8 w-48" />
       <Skeleton className="h-10 w-full max-w-xl" />
       <Skeleton className="h-32 w-full" />

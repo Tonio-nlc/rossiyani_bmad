@@ -26,7 +26,7 @@ export function LessonsContextBack({ from, textId }: LessonsContextBackProps) {
 
   return (
     <div className="border-b border-border bg-surface px-4 py-3 md:px-10">
-      <div className="mx-auto max-w-[1080px]">
+      <div className="mx-auto max-w-dashboard">
         <BackLink
           href={backNavigation.href}
           label={backNavigation.label}

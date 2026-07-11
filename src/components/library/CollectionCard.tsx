@@ -1,4 +1,5 @@
 import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
+import { BADGE_META_CLASS } from "@/lib/design/classes";
 import { COLLECTION_BORDER_COLORS } from "@/lib/library/collections";
 
 interface CollectionCardProps {
@@ -32,11 +33,11 @@ export function CollectionCard({ collection, onClick }: CollectionCardProps) {
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {collection.level !== "Tous niveaux" && (
-          <span className="rounded-[5px] bg-[#F2F0EC] px-2 py-0.5 text-[10px] font-bold text-ink-3">
+          <span className={BADGE_META_CLASS}>
             {collection.level}
           </span>
         )}
-        <span className="rounded-[5px] bg-[#F2F0EC] px-2 py-0.5 text-[10px] font-bold text-ink-3">
+        <span className={BADGE_META_CLASS}>
           {collection.textCount} texte{collection.textCount > 1 ? "s" : ""}
         </span>
       </div>

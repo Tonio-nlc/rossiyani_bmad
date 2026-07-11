@@ -178,7 +178,7 @@ export function ImportPreviewView({ defaultLevel }: ImportPreviewViewProps) {
 
   if (!session) {
     return (
-      <div className="mx-auto max-w-[680px] px-6 py-10">
+      <div className="mx-auto max-w-reading px-6 py-10">
         <p className="text-sm text-ink-2">Chargement de la prévisualisation…</p>
       </div>
     );
@@ -194,7 +194,7 @@ export function ImportPreviewView({ defaultLevel }: ImportPreviewViewProps) {
         subtitle="Vérifiez le découpage avant de lire."
       />
 
-      <div className="mx-auto max-w-[680px] space-y-6 px-6 py-10">
+      <div className="mx-auto max-w-reading space-y-6 px-6 py-10">
         <section className="space-y-5 rounded-[14px] border border-border bg-surface p-5 md:p-6">
           <div className="space-y-2">
             <label htmlFor="import-title" className="text-sm font-semibold text-ink">

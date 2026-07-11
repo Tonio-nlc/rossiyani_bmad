@@ -20,6 +20,7 @@ const config: Config = {
           border: "#C7D2FE",
         },
         green: "#10B981",
+        amber: "#F59E0B",
         role: {
           subject: "#3B82F6",
           object: "#EF7C5A",
@@ -27,20 +28,16 @@ const config: Config = {
           possession: "#A78BFA",
           recipient: "#F59E0B",
         },
-        brand: {
-          primary: "#4F46E5",
-          surface: "#F8F6F2",
-          card: "#FFFFFF",
-          border: "#E8E4DC",
-          "text-primary": "#0E0E0E",
-          "text-secondary": "#5A5A5A",
-          "text-muted": "#A8A8A8",
-        },
       },
       borderRadius: {
         sm: "8px",
         md: "14px",
         lg: "18px",
+      },
+      maxWidth: {
+        reading: "680px",
+        content: "900px",
+        dashboard: "1080px",
       },
     },
   },

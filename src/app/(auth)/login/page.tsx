@@ -63,12 +63,12 @@ export default function LoginPage() {
     <div className="w-full max-w-[400px]">
       <RossiyaniLogo />
 
-      <Card className="border-brand-border bg-brand-card shadow-sm">
+      <Card className="border-border bg-surface shadow-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-xl text-brand-text-primary">
+          <CardTitle className="text-xl text-ink">
             Bon retour
           </CardTitle>
-          <CardDescription className="text-brand-text-secondary">
+          <CardDescription className="text-ink-2">
             Continuez votre progression en russe
           </CardDescription>
         </CardHeader>
@@ -78,7 +78,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="text-sm font-medium text-brand-text-primary"
+                className="text-sm font-medium text-ink"
               >
                 Email
               </label>
@@ -97,7 +97,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="text-sm font-medium text-brand-text-primary"
+                className="text-sm font-medium text-ink"
               >
                 Mot de passe
               </label>
@@ -122,17 +122,17 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="h-10 w-full bg-brand-primary text-white hover:bg-brand-primary/90"
+              className="h-10 w-full bg-accent text-white hover:bg-accent/90"
             >
               {isLoading ? "Connexion..." : "Se connecter →"}
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-brand-text-secondary">
+          <p className="mt-6 text-center text-sm text-ink-2">
             Pas encore de compte ?{" "}
             <Link
               href="/register"
-              className="font-medium text-brand-primary hover:underline"
+              className="font-medium text-accent hover:underline"
             >
               S&apos;inscrire
             </Link>

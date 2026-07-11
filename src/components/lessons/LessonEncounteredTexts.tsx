@@ -16,7 +16,7 @@ export function LessonEncounteredTexts({ texts }: LessonEncounteredTextsProps) {
   return (
     <LessonBridgeCard
       title="Tu as déjà rencontré ce phénomène dans"
-      className="mx-auto mt-16 max-w-[34rem] md:mt-20"
+      className="mx-auto mt-16 max-w-reading md:mt-20"
     >
       {texts.map((text) => (
         <LessonBridgeLink

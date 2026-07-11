@@ -12,7 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { CARD_CTA_STYLE, TEXT_CARD_CLASS } from "@/components/ui/card-styles";
+import { CTA_LINK_CLASS } from "@/lib/design/classes";
+import { TEXT_CARD_CLASS } from "@/components/ui/card-styles";
 import { IMPORT_LIMITS } from "@/lib/import/constants";
 import { cn } from "@/lib/utils";
 import type { TTextWithProgress } from "@/types/reader";
@@ -218,12 +219,12 @@ export function ImportTextCard({
                   style={{ width: `${text.userProgress?.percentRead ?? 0}%` }}
                 />
               </div>
-              <button type="button" onClick={onRead} style={CARD_CTA_STYLE}>
+              <button type="button" onClick={onRead} className={CTA_LINK_CLASS}>
                 {text.userProgress?.percentRead}% · Continuer →
               </button>
             </div>
           ) : (
-            <button type="button" onClick={onRead} style={CARD_CTA_STYLE}>
+            <button type="button" onClick={onRead} className={CTA_LINK_CLASS}>
               Lire →
             </button>
           )}

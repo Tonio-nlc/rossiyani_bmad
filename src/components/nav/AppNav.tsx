@@ -77,7 +77,7 @@ export function AppNav({ reviewDueCount, userInitial }: AppNavProps) {
 
   return (
     <header className="sticky top-0 z-50 h-14 border-b border-border bg-surface">
-      <div className="relative mx-auto flex h-14 max-w-[1080px] items-center px-4 md:px-10">
+      <div className="relative mx-auto flex h-14 max-w-dashboard items-center px-4 md:px-10">
         <Link href="/" className="flex items-center gap-2.5">
           <span className="flex size-8 items-center justify-center rounded-[9px] bg-ink">
             <span className="font-serif text-base italic text-white">Р</span>
@@ -171,7 +171,7 @@ function NavLink({
         "relative rounded-[7px] px-3 py-2 text-[13px] font-medium transition-all duration-150",
         isActive
           ? "font-semibold text-ink"
-          : "text-ink-3 hover:bg-[#F2F0EC] hover:text-ink",
+          : "text-ink-3 hover:bg-bg hover:text-ink",
       )}
     >
       <span className="flex items-center gap-1.5">

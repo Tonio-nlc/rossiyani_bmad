@@ -97,12 +97,12 @@ export default function RegisterPage() {
     <div className="w-full max-w-[400px]">
       <RossiyaniLogo />
 
-      <Card className="border-brand-border bg-brand-card shadow-sm">
+      <Card className="border-border bg-surface shadow-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-xl text-brand-text-primary">
+          <CardTitle className="text-xl text-ink">
             Créer un compte
           </CardTitle>
-          <CardDescription className="text-brand-text-secondary">
+          <CardDescription className="text-ink-2">
             Commencez à comprendre le russe
           </CardDescription>
         </CardHeader>
@@ -112,7 +112,7 @@ export default function RegisterPage() {
             <div className="space-y-2">
               <label
                 htmlFor="displayName"
-                className="text-sm font-medium text-brand-text-primary"
+                className="text-sm font-medium text-ink"
               >
                 Prénom
               </label>
@@ -131,7 +131,7 @@ export default function RegisterPage() {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="text-sm font-medium text-brand-text-primary"
+                className="text-sm font-medium text-ink"
               >
                 Email
               </label>
@@ -150,7 +150,7 @@ export default function RegisterPage() {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="text-sm font-medium text-brand-text-primary"
+                className="text-sm font-medium text-ink"
               >
                 Mot de passe
               </label>
@@ -175,17 +175,17 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="h-10 w-full bg-brand-primary text-white hover:bg-brand-primary/90"
+              className="h-10 w-full bg-accent text-white hover:bg-accent/90"
             >
               {isLoading ? "Création en cours..." : "Créer mon compte →"}
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-brand-text-secondary">
+          <p className="mt-6 text-center text-sm text-ink-2">
             Déjà un compte ?{" "}
             <Link
               href="/login"
-              className="font-medium text-brand-primary hover:underline"
+              className="font-medium text-accent hover:underline"
             >
               Se connecter
             </Link>

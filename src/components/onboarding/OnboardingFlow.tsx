@@ -31,7 +31,7 @@ const DEMO_EXPLANATIONS: Record<TDemoWord, IDemoExplanation> = {
   vidit: {
     headline: (
       <>
-        видит <span className="text-brand-text-muted">→</span> видеть
+        видит <span className="text-ink-3">→</span> видеть
       </>
     ),
     role: "fait l'action",
@@ -45,7 +45,7 @@ const DEMO_EXPLANATIONS: Record<TDemoWord, IDemoExplanation> = {
   mashu: {
     headline: (
       <>
-        Машу <span className="text-brand-text-muted">→</span> Маша
+        Машу <span className="text-ink-3">→</span> Маша
       </>
     ),
     role: "reçoit l'action",
@@ -110,19 +110,19 @@ export function OnboardingFlow() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-brand-surface px-6 py-8 md:px-12 md:py-12">
+    <div className="flex min-h-screen flex-col bg-bg px-6 py-8 md:px-12 md:py-12">
       <div className="mb-8 flex items-center gap-1.5">
         <BookOpen
-          className="size-4 text-brand-text-muted"
+          className="size-4 text-ink-3"
           aria-hidden="true"
         />
-        <span className="text-sm font-medium text-brand-text-muted">
+        <span className="text-sm font-medium text-ink-3">
           Rossiyani
         </span>
       </div>
 
       <div className="flex flex-1 items-center justify-center">
-        <div className="w-full max-w-[560px] rounded-2xl border border-brand-border bg-brand-card p-6 shadow-sm md:p-12">
+        <div className="w-full max-w-[560px] rounded-2xl border border-border bg-surface p-6 shadow-sm md:p-12">
           <div
             key={currentStep}
             className="animate-in fade-in duration-200"
@@ -151,7 +151,7 @@ export function OnboardingFlow() {
                 type="button"
                 disabled={isCompleting}
                 onClick={handleComplete}
-                className="h-11 w-full bg-brand-primary text-base text-white hover:bg-brand-primary/90 md:w-auto md:min-w-[220px]"
+                className="h-11 w-full bg-accent text-base text-white hover:bg-accent/90 md:w-auto md:min-w-[220px]"
               >
                 {isCompleting ? "Chargement..." : "Commencer à lire →"}
               </Button>
@@ -159,7 +159,7 @@ export function OnboardingFlow() {
               <Button
                 type="button"
                 onClick={handleNext}
-                className="h-11 w-full bg-brand-primary text-base text-white hover:bg-brand-primary/90 md:w-auto md:min-w-[160px]"
+                className="h-11 w-full bg-accent text-base text-white hover:bg-accent/90 md:w-auto md:min-w-[160px]"
               >
                 Suivant →
               </Button>
@@ -182,10 +182,10 @@ function StepHeader({
 }) {
   return (
     <header className="space-y-3">
-      <h1 className="text-2xl font-semibold leading-tight text-brand-text-primary">
+      <h1 className="text-2xl font-semibold leading-tight text-ink">
         {title}
       </h1>
-      <p className="text-base leading-relaxed text-brand-text-secondary">
+      <p className="text-base leading-relaxed text-ink-2">
         {subtitle}
       </p>
     </header>
@@ -200,13 +200,13 @@ function StepOne() {
         subtitle="En français, l'ordre des mots indique qui fait quoi. En russe, c'est la terminaison du mot qui l'indique."
       />
 
-      <div className="rounded-xl border border-brand-border bg-brand-surface p-4 md:p-6">
+      <div className="rounded-xl border border-border bg-bg p-4 md:p-6">
         <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr] md:items-start">
           <PhraseColumn
             russian={
               <>
                 <RoleSubject>Анна</RoleSubject>{" "}
-                <span className="text-brand-text-primary">видит</span>{" "}
+                <span className="text-ink">видит</span>{" "}
                 <RoleObject />
               </>
             }
@@ -214,7 +214,7 @@ function StepOne() {
           />
 
           <div
-            className="hidden h-full w-px bg-brand-border md:block"
+            className="hidden h-full w-px bg-border md:block"
             aria-hidden="true"
           />
 
@@ -222,7 +222,7 @@ function StepOne() {
             russian={
               <>
                 <RoleObject />{" "}
-                <span className="text-brand-text-primary">видит</span>{" "}
+                <span className="text-ink">видит</span>{" "}
                 <RoleSubject>Анна</RoleSubject>
               </>
             }
@@ -230,7 +230,7 @@ function StepOne() {
           />
         </div>
 
-        <p className="mt-6 text-sm leading-relaxed text-brand-text-secondary">
+        <p className="mt-6 text-sm leading-relaxed text-ink-2">
           Dans les deux cas, c&apos;est <RoleSubject>Анна</RoleSubject> qui voit
           et <RoleObject /> qui est vue — la terminaison &quot;-у&quot; sur Машу
           indique toujours &quot;celui qui est vu&quot;.
@@ -247,7 +247,7 @@ function RoleSubject({ children }: { children: ReactNode }) {
 function RoleObject() {
   return (
     <span>
-      <span className="text-brand-text-primary">Маш</span>
+      <span className="text-ink">Маш</span>
       <span style={{ color: "#EF7C5A" }}>у</span>
     </span>
   );
@@ -262,8 +262,8 @@ function PhraseColumn({
 }) {
   return (
     <div className="space-y-2 text-center md:text-left">
-      <p className="font-serif text-xl text-brand-text-primary">{russian}</p>
-      <p className="text-sm text-brand-text-secondary">{french}</p>
+      <p className="font-serif text-xl text-ink">{russian}</p>
+      <p className="text-sm text-ink-2">{french}</p>
     </div>
   );
 }
@@ -284,7 +284,7 @@ function StepTwo() {
               style={{ backgroundColor: item.color }}
               aria-hidden="true"
             />
-            <span className="text-base text-brand-text-primary">{item.label}</span>
+            <span className="text-base text-ink">{item.label}</span>
           </li>
         ))}
       </ul>
@@ -308,7 +308,7 @@ function StepThree({
         subtitle="Rossiyani vous explique pourquoi ce mot a cette forme dans cette phrase."
       />
 
-      <div className="rounded-xl border border-brand-border bg-brand-surface p-6">
+      <div className="rounded-xl border border-border bg-bg p-6">
         <p className="text-center font-serif text-xl">
           <DemoWordButton
             isActive={selectedWord === "anna"}
@@ -329,28 +329,28 @@ function StepThree({
             onClick={() => onSelectWord("mashu")}
             variant="object"
           >
-            <span className="text-brand-text-primary">Маш</span>
+            <span className="text-ink">Маш</span>
             <span style={{ color: "#EF7C5A" }}>у</span>
           </DemoWordButton>
           .
         </p>
 
-        <p className="mt-3 text-center text-[13px] italic text-brand-text-muted">
+        <p className="mt-3 text-center text-[13px] italic text-ink-3">
           ← Cliquez sur un mot
         </p>
 
         {explanation && (
           <div
             key={selectedWord}
-            className="mt-6 animate-in fade-in rounded-xl border border-brand-border bg-brand-card p-5 duration-150"
+            className="mt-6 animate-in fade-in rounded-xl border border-border bg-surface p-5 duration-150"
           >
-            <p className="font-serif text-lg text-brand-text-primary">
+            <p className="font-serif text-lg text-ink">
               {explanation.headline}
             </p>
-            <p className="mt-1 text-sm font-medium text-brand-text-secondary">
+            <p className="mt-1 text-sm font-medium text-ink-2">
               &quot;{explanation.role}&quot;
             </p>
-            <p className="mt-3 text-sm leading-relaxed text-brand-text-secondary">
+            <p className="mt-3 text-sm leading-relaxed text-ink-2">
               {explanation.body}
             </p>
           </div>
@@ -379,7 +379,7 @@ function DemoWordButton({
         "cursor-pointer rounded-md px-1 transition-opacity hover:opacity-70",
         isActive && "opacity-70",
         variant === "verb" &&
-          "border-b border-dashed border-brand-text-muted text-brand-text-primary",
+          "border-b border-dashed border-ink-3 text-ink",
       )}
       style={variant === "subject" ? { color: "#3B82F6" } : undefined}
     >
@@ -396,13 +396,13 @@ function StepFour() {
         subtitle="Chaque mot sauvegardé garde son contexte — la phrase où vous l'avez rencontré."
       />
 
-      <div className="rounded-xl border border-brand-border bg-brand-card p-5">
-        <p className="font-serif text-xl text-brand-text-primary">ваго́н</p>
-        <p className="mt-1 text-base text-brand-text-secondary">wagon</p>
-        <p className="mt-4 font-serif text-base leading-relaxed text-brand-text-secondary">
+      <div className="rounded-xl border border-border bg-surface p-5">
+        <p className="font-serif text-xl text-ink">ваго́н</p>
+        <p className="mt-1 text-base text-ink-2">wagon</p>
+        <p className="mt-4 font-serif text-base leading-relaxed text-ink-2">
           &quot;Анна входит в вагон и садится у окна.&quot;
         </p>
-        <p className="mt-4 text-sm text-brand-text-muted">
+        <p className="mt-4 text-sm text-ink-3">
           ✓ Sauvegardé · À réviser demain
         </p>
       </div>
@@ -418,7 +418,7 @@ function StepFive() {
         subtitle="Pas par mémoriser. La compréhension vient naturellement — mot après mot, phrase après phrase."
       />
 
-      <blockquote className="rounded-lg bg-[#F0F4FF] px-6 py-6 text-center font-serif text-xl italic text-brand-text-secondary">
+      <blockquote className="rounded-lg bg-accent-light px-6 py-6 text-center font-serif text-xl italic text-ink-2">
         « Comprendre d&apos;abord,
         <br />
         mémoriser ensuite. »
@@ -443,8 +443,8 @@ function ProgressDots({ currentStep }: { currentStep: number }) {
           className={cn(
             "size-2 rounded-full transition-colors",
             index === currentStep
-              ? "bg-brand-primary"
-              : "bg-brand-border",
+              ? "bg-accent"
+              : "bg-border",
           )}
           aria-hidden="true"
         />

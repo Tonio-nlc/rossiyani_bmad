@@ -13,7 +13,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <header className="border-b border-border bg-surface px-10 py-10">
-      <div className="mx-auto max-w-[1080px]">
+      <div className="mx-auto max-w-dashboard">
         <p className="text-[11px] font-bold tracking-[0.1em] text-accent uppercase">
           {eyebrow}
         </p>

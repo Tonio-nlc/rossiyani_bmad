@@ -24,7 +24,7 @@ export function VocabularyEntry({
         returnLabel={returnLabel}
       />
 
-      <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 md:px-8 md:py-10">
+      <div className="mx-auto max-w-content space-y-6 px-4 py-8 md:px-8 md:py-10">
         <InformationSection data={entry.linguisticData} />
         <ExamplesSection examples={entry.examples} />
         <ReviewSection review={entry.review} />

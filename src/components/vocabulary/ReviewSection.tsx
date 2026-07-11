@@ -17,26 +17,26 @@ export function ReviewSection({ review }: ReviewSectionProps) {
   }
 
   return (
-    <section className="rounded-xl border border-brand-border bg-brand-card p-6">
-      <h2 className="text-xl font-semibold text-brand-text-primary">
+    <section className="rounded-xl border border-border bg-surface p-6">
+      <h2 className="text-xl font-semibold text-ink">
         Révision
       </h2>
-      <dl className="mt-4 divide-y divide-brand-border">
+      <dl className="mt-4 divide-y divide-border">
         <div className="flex flex-col gap-1 py-3 first:pt-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-          <dt className="text-sm text-brand-text-muted">Prochaine révision</dt>
-          <dd className="text-base text-brand-text-primary sm:text-right">
+          <dt className="text-sm text-ink-3">Prochaine révision</dt>
+          <dd className="text-base text-ink sm:text-right">
             {formatNextReview(review.nextReviewAt)}
           </dd>
         </div>
         <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-          <dt className="text-sm text-brand-text-muted">Nombre de révisions</dt>
-          <dd className="text-base text-brand-text-primary sm:text-right">
+          <dt className="text-sm text-ink-3">Nombre de révisions</dt>
+          <dd className="text-base text-ink sm:text-right">
             {review.repetitions}
           </dd>
         </div>
         <div className="flex flex-col gap-1 py-3 last:pb-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-          <dt className="text-sm text-brand-text-muted">Niveau actuel</dt>
-          <dd className="text-base text-brand-text-primary sm:text-right">
+          <dt className="text-sm text-ink-3">Niveau actuel</dt>
+          <dd className="text-base text-ink sm:text-right">
             {review.currentLevel}
           </dd>
         </div>

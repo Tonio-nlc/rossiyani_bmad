@@ -55,7 +55,7 @@ export default async function LessonPathPage({
         }
       />
 
-      <div className="mx-auto max-w-3xl space-y-6 px-4 py-10 md:px-10">
+      <div className="mx-auto max-w-content space-y-6 px-4 py-10 md:px-10">
         {path.lessons.length > 0 ? (
           <LessonsPathProgress
             completedCount={path.completedCount}

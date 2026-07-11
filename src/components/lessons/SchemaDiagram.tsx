@@ -11,7 +11,7 @@ export function SchemaDiagram({
 }: SchemaDiagramProps) {
   if (variant === "climax") {
     return (
-      <figure className="mx-auto w-full max-w-[28rem] px-2 md:max-w-[32rem] md:px-0">
+      <figure className="mx-auto w-full max-w-reading px-2 md:px-0">
         <div
           className="flex justify-center py-10 md:py-14 [&_svg]:h-auto [&_svg]:max-w-full"
           dangerouslySetInnerHTML={{ __html: svgContent }}

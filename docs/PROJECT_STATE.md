@@ -42,7 +42,7 @@ Ce document remplace tout résumé Cursor ou tableau PRD obsolète pour décider
 
 | Composant | Statut | Notes |
 |-----------|--------|-------|
-| Design system (tokens, PageHeader, cards) | PROD | `globals.css`, `tailwind.config.ts`, `src/components/ui/` |
+| Design system (tokens, PageHeader, cards) | PROD | [`docs/design/DESIGN_SYSTEM.md`](./design/DESIGN_SYSTEM.md), `src/lib/design/` |
 | Orchestrateur Reader + cache | PROD | `src/lib/orchestrator/`, table `explanation_cache` |
 | Knowledge Layer | PROD | `linguistic_knowledge`, génération LLM à l'ouverture fiche vocabulaire |
 | Base de données | PROD | Migrations `001`–`008` (voir § Base de données) |
@@ -280,13 +280,27 @@ Fichiers `supabase/seed/*.sql` hors migrations : **DEPRECATED** — référence 
 
 ## Prochaine story planifiée
 
-**Story 4.7 — Reader polish import** (optionnel) — puis **Phase C** (branding + polish UI)
+**Story 5.3 — Layout & headers** — homogénéisation structurelle (voir [`docs/design/STORIES.md`](./design/STORIES.md))
 
-### Story 4.6 — Library Mes imports ✅ terminée — **Épic Import V1 clos**
+### Epic 5 — Standardisation UI
 
-Section `#mes-imports`, `ImportTextCard`, rename/delete API, séparation curated/imports.
+| Story | Statut |
+|-------|--------|
+| 5.1 Audit | ✅ [`UI_AUDIT_V1.md`](./design/UI_AUDIT_V1.md) |
+| 5.2 Standardisation DS | ✅ [`DESIGN_SYSTEM.md`](./design/DESIGN_SYSTEM.md) |
+| 5.3 Layout & headers | À faire |
+| 5.4 Branding | À faire |
+| 5.5 Polish ciblé | À faire |
 
-### Story 4.5 — UI Import ✅ terminée
+### Épic Import V1 ✅ gelé
+
+Stories 4.2–4.6 terminées. **Aucune modification** sauf bug critique avant bêta.
+
+### Phase C — Standardisation UI (méthode Freeze)
+
+1. **Epic 5** — Audit (5.1 ✅) → Standardisation DS (5.2 ✅) → Layout (5.3) → Branding (5.4) → Polish ciblé (5.5)
+2. **Design Freeze**
+3. Architecture Audit Freeze → Beta Freeze
 
 Pages `/import` et `/import/preview` — parcours complet branché sur l'API 4.4.
 
@@ -309,7 +323,7 @@ Maquettes & parcours : [`docs/import/UX_V1.md`](./import/UX_V1.md) — pas de Fi
 
 ### Après import (4.3–4.7)
 
-**Phase C** — branding unifié + polish UI → audit → bêta.
+**Phase C** — standardisation UI (Freeze) → audit architecture → bêta.
 
 ### Gel produit — boucle pédagogique
 

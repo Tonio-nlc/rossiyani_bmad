@@ -27,7 +27,7 @@ export const LESSON_SECTION_RHYTHM: Record<
     marginBottom: "mb-14 md:mb-16",
     headerTone: "impact",
     contentSpacing: "space-y-7 md:space-y-8",
-    contentMaxWidth: "max-w-[34rem]",
+    contentMaxWidth: "max-w-reading",
     showSeparator: false,
   },
   intuition: {
@@ -35,7 +35,7 @@ export const LESSON_SECTION_RHYTHM: Record<
     marginBottom: "mb-16 md:mb-20",
     headerTone: "conversation",
     contentSpacing: "space-y-6 md:space-y-7",
-    contentMaxWidth: "max-w-[32rem]",
+    contentMaxWidth: "max-w-reading",
     showSeparator: false,
   },
   exemple: {
@@ -50,7 +50,7 @@ export const LESSON_SECTION_RHYTHM: Record<
     marginBottom: "mb-16 md:mb-20",
     headerTone: "standard",
     contentSpacing: "space-y-6 md:space-y-7",
-    contentMaxWidth: "max-w-[34rem]",
+    contentMaxWidth: "max-w-reading",
     showSeparator: false,
   },
   schema: {
@@ -65,7 +65,7 @@ export const LESSON_SECTION_RHYTHM: Record<
     marginBottom: "mb-4",
     headerTone: "conclusion",
     contentSpacing: "space-y-0",
-    contentMaxWidth: "max-w-[34rem]",
+    contentMaxWidth: "max-w-reading",
     showSeparator: false,
   },
 };

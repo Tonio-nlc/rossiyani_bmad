@@ -7,7 +7,13 @@ import { useMemo } from "react";
 
 import { CollectionCard } from "@/components/library/CollectionCard";
 import { TextCard } from "@/components/library/TextCard";
-import { EXERCISE_CARD_CLASS, CARD_CTA_STYLE, CARD_ICON_BOX_STYLE } from "@/components/ui/card-styles";
+import { EXERCISE_CARD_CLASS } from "@/components/ui/card-styles";
+import {
+  BADGE_SOFT_CLASS,
+  BTN_PRIMARY_CLASS,
+  CARD_ICON_BOX_CLASS,
+  CTA_LINK_CLASS,
+} from "@/lib/design/classes";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHomeData } from "@/hooks/useHomeData";
@@ -16,6 +22,7 @@ import { COLLECTION_LABELS, COLLECTIONS } from "@/lib/library/collections";
 import type { THomeCurrentReading } from "@/types/home";
 import type { THomeRecentText } from "@/types/home";
 import type { TTextWithProgress } from "@/types/reader";
+import { cn } from "@/lib/utils";
 
 export function HomePage() {
   const router = useRouter();
@@ -34,7 +41,7 @@ export function HomePage() {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-[1080px] px-10 py-12 text-center">
+      <div className="mx-auto max-w-dashboard px-10 py-12 text-center">
         <p className="text-ink-2">Impossible de charger l&apos;accueil.</p>
         <button
           type="button"
@@ -48,7 +55,7 @@ export function HomePage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1080px] px-6 pb-12 md:px-10">
+    <div className="mx-auto max-w-dashboard px-6 pb-12 md:px-10">
       <HeroSection data={data} isLoading={isLoading} />
 
       <HomeSection>
@@ -256,7 +263,7 @@ function TodaySection({
       badge: "3 EXERCICES RESTANTS",
       href: "/practice/sentence-builder",
       cta: "Commencer →",
-      icon: <PenLine size={18} color="#4F46E5" aria-hidden="true" />,
+      icon: <PenLine size={18} className="text-accent" aria-hidden="true" />,
     },
     {
       title: "Traduction contextualisée",
@@ -264,7 +271,7 @@ function TodaySection({
       badge: "4 EXERCICES RESTANTS",
       href: "/practice/context-translation",
       cta: "Traduire →",
-      icon: <ArrowLeftRight size={18} color="#4F46E5" aria-hidden="true" />,
+      icon: <ArrowLeftRight size={18} className="text-accent" aria-hidden="true" />,
     },
     {
       title: "Révision vocabulaire",
@@ -274,7 +281,7 @@ function TodaySection({
         : `${reviewCount} MOT${reviewCount > 1 ? "S" : ""} EN ATTENTE`,
       href: "/review",
       cta: "Réviser →",
-      icon: <BookOpen size={18} color="#4F46E5" aria-hidden="true" />,
+      icon: <BookOpen size={18} className="text-accent" aria-hidden="true" />,
     },
   ];
 
@@ -287,15 +294,15 @@ function TodaySection({
       <div className="grid gap-4 md:grid-cols-3">
         {cards.map((card) => (
           <div key={card.title} className={`flex flex-col ${EXERCISE_CARD_CLASS}`}>
-            <div className="mb-4" style={CARD_ICON_BOX_STYLE}>
+            <div className={cn("mb-4", CARD_ICON_BOX_CLASS)}>
               {card.icon}
             </div>
             <h3 className="text-sm font-bold text-ink">{card.title}</h3>
             <p className="mt-2 flex-1 text-xs text-ink-3">{card.description}</p>
-            <span className="mt-4 inline-flex w-fit rounded-[5px] bg-[#F2F0EC] px-2 py-1 text-[10px] font-bold tracking-[0.06em] text-ink-3 uppercase">
+            <span className={cn("mt-4 inline-flex w-fit", BADGE_SOFT_CLASS)}>
               {card.badge}
             </span>
-            <Link href={card.href} className="mt-4 hover:underline" style={CARD_CTA_STYLE}>
+            <Link href={card.href} className={cn("mt-4 hover:underline", CTA_LINK_CLASS)}>
               {card.cta}
             </Link>
           </div>
@@ -405,8 +412,7 @@ function VocabularySection({
 
       <Link
         href="/vocabulary"
-        className="mt-6 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm text-white hover:opacity-90"
-        style={{ backgroundColor: "#4F46E5", fontWeight: 600 }}
+        className={cn(BTN_PRIMARY_CLASS, "mt-6 h-9 px-4 text-sm")}
       >
         Ouvrir Vocabulary →
       </Link>

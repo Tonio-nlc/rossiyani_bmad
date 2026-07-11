@@ -21,7 +21,7 @@ export function LessonsBreadcrumb({
   from,
   textId,
   className,
-  maxWidthClass = "max-w-[1080px]",
+  maxWidthClass = "max-w-dashboard",
 }: LessonsBreadcrumbProps) {
   const lessonsHref = lessonsIndexHref(from, textId);
 
