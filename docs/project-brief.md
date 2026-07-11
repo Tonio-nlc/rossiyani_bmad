@@ -27,6 +27,9 @@ Le russe est une langue de relations : chaque mot change de forme selon son rôl
 
 ## La méthode pédagogique
 
+> **Référence officielle V1** : [docs/METHODE_ROSSIYANI.md](./METHODE_ROSSIYANI.md) — boucle, rôles modules, principes.  
+> **Textes Reader** : [docs/reader/CHARTE_EDITORIALE.md](./reader/CHARTE_EDITORIALE.md) — charte éditoriale V1.
+
 ### Les 4 principes (non-négociables dans tout le produit)
 
 **1. Le contexte avant l'information**
@@ -66,8 +69,9 @@ La mémoire est une conséquence, pas un objectif.
 | **Practice** | Sentence Builder + Traduction contextualisée | P1 |
 | **Lessons** | Expliquer la logique du russe avec schémas | P2 |
 
-**La boucle centrale :**
-Lire (Reader) → Rencontrer (Explorer) → Capturer (Vocabulary) → Réactiver (Practice) → Réviser (SRS) → retour à Lire
+**La boucle centrale** *(détail complet : [METHODE_ROSSIYANI.md](./METHODE_ROSSIYANI.md))* :
+
+Lire → Comprendre → Explorer → Retenir → Réviser → Relire
 
 ---
 
@@ -186,6 +190,7 @@ Chaque texte : titre en russe, niveau CECR, durée de lecture estimée, collecti
 
 ## Référence aux autres documents BMAD
 
+- **`docs/METHODE_ROSSIYANI.md`** — méthode d'apprentissage V1 (boussole produit)
 - `docs/architecture.md` — schéma DB complet + orchestrateur
 - `docs/front-end-spec.md` — composants, UX, design system
 - `docs/prd.md` — toutes les features en détail

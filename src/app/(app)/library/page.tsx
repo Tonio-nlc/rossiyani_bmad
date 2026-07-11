@@ -1,10 +1,11 @@
 "use client";
 
-import { MessageSquarePlus } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { CollectionCard } from "@/components/library/CollectionCard";
+import { LibraryImportsSection } from "@/components/library/LibraryImportsSection";
 import { TextCard } from "@/components/library/TextCard";
 import { FilterPills } from "@/components/ui/FilterPills";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -12,12 +13,13 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTexts } from "@/hooks/useTexts";
+import { consumeImportSavedToast } from "@/lib/import/session-storage";
 import {
   COLLECTION_LABELS,
   COLLECTIONS,
   type TCollection,
 } from "@/lib/library/collections";
-import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
+import { splitLibraryTexts } from "@/lib/library/text-source";
 import type { TTextWithProgress } from "@/types/reader";
 
 const LEVEL_FILTERS = ["Tous", "A1", "A2", "B1", "B2"] as const;
@@ -45,24 +47,45 @@ function getContinueText(texts: TTextWithProgress[]): TTextWithProgress | null {
 
 export default function LibraryPage() {
   const router = useRouter();
-  const { texts, isLoading, error } = useTexts();
+  const { texts, isLoading, error, refetch } = useTexts();
   const [levelFilter, setLevelFilter] =
     useState<(typeof LEVEL_FILTERS)[number]>("Tous");
   const [searchQuery, setSearchQuery] = useState("");
   const [collectionFilter, setCollectionFilter] = useState<string | null>(null);
+  const [showSavedToast, setShowSavedToast] = useState(false);
+
+  const { curatedTexts, importedTexts } = useMemo(
+    () => splitLibraryTexts(texts),
+    [texts],
+  );
+
+  useEffect(() => {
+    if (consumeImportSavedToast()) {
+      setShowSavedToast(true);
+      const timer = window.setTimeout(() => setShowSavedToast(false), 3000);
+      return () => window.clearTimeout(timer);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (window.location.hash === "#mes-imports") {
+      document.getElementById("mes-imports")?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [isLoading]);
 
   const collectionsWithCounts = useMemo<TCollection[]>(
     () =>
       COLLECTIONS.map((collection) => ({
         ...collection,
-        textCount: texts.filter((text) => text.collection === collection.id)
-          .length,
+        textCount: curatedTexts.filter(
+          (text) => text.collection === collection.id,
+        ).length,
       })),
-    [texts],
+    [curatedTexts],
   );
 
-  const filteredTexts = useMemo(() => {
-    return texts.filter((text) => {
+  const filteredCuratedTexts = useMemo(() => {
+    return curatedTexts.filter((text) => {
       const matchesLevel =
         levelFilter === "Tous" || text.level === levelFilter;
       const matchesCollection =
@@ -73,7 +96,7 @@ export default function LibraryPage() {
 
       return matchesLevel && matchesCollection && matchesSearch;
     });
-  }, [texts, levelFilter, collectionFilter, searchQuery]);
+  }, [curatedTexts, levelFilter, collectionFilter, searchQuery]);
 
   const continueText = getContinueText(texts);
 
@@ -104,12 +127,31 @@ export default function LibraryPage() {
         subtitle="Collections curatées et textes importés — lisez, progressez, retrouvez vos lectures."
         badge={
           <span className="inline-flex w-fit rounded-full border border-border bg-surface px-3 py-1 text-xs font-bold tracking-[0.12em] text-ink-3 uppercase">
-            {texts.length} textes
+            {curatedTexts.length} textes Rossiyani
           </span>
         }
       />
 
       <div className="mx-auto max-w-[1080px] space-y-11 px-6 py-10 md:px-10">
+        {showSavedToast && (
+          <div
+            role="status"
+            className="rounded-[12px] border border-green/30 bg-green/10 px-4 py-3 text-sm text-ink"
+          >
+            <span className="font-semibold text-green">Texte enregistré</span>
+            <span className="text-ink-2">
+              {" "}
+              — Retrouvez-le dans Mes imports.
+            </span>
+          </div>
+        )}
+
+        <p className="-mt-4 text-sm font-semibold text-accent">
+          <Link href="/import" className="hover:underline">
+            + Importer un texte
+          </Link>
+        </p>
+
         {continueText && (
           <section>
             <SectionHeader title="Continuer" />
@@ -127,15 +169,11 @@ export default function LibraryPage() {
                 {continueText.title}
               </h3>
               <p className="mt-2 text-xs text-white/40">
-                {COLLECTION_LABELS[continueText.collection] ??
-                  continueText.collection}{" "}
-                ·{" "}
-                {
-                  texts.filter(
-                    (text) => text.collection === continueText.collection,
-                  ).length
-                }{" "}
-                textes · {continueText.userProgress?.percentRead}% lu
+                {continueText.source === "imported"
+                  ? "Import personnel"
+                  : (COLLECTION_LABELS[continueText.collection] ??
+                    continueText.collection)}{" "}
+                · {continueText.userProgress?.percentRead}% lu
               </p>
               <button
                 type="button"
@@ -150,7 +188,7 @@ export default function LibraryPage() {
 
         <section className="border-t border-border pt-11">
           <SectionHeader
-            title="Collections"
+            title="Collections Rossiyani"
             subtitle="Parcours thématiques — le cœur de votre bibliothèque."
           />
           <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -183,8 +221,8 @@ export default function LibraryPage() {
               )}
             </div>
             <p className="text-sm text-ink-3">
-              {filteredTexts.length} résultat
-              {filteredTexts.length > 1 ? "s" : ""}
+              {filteredCuratedTexts.length} résultat
+              {filteredCuratedTexts.length > 1 ? "s" : ""}
             </p>
           </div>
 
@@ -211,27 +249,24 @@ export default function LibraryPage() {
               ? Array.from({ length: 6 }).map((_, index) => (
                   <Skeleton key={index} className="h-56 rounded-[14px]" />
                 ))
-              : filteredTexts.map((text) => (
+              : filteredCuratedTexts.map((text) => (
                   <TextCard
                     key={text.id}
                     text={text}
                     onClick={() => navigateToReader(text.id)}
                   />
                 ))}
-
-            <div
-              className={`flex min-h-56 flex-col justify-center border-dashed ${CARD_BASE_CLASS}`}
-            >
-              <div className="mb-4 flex size-[38px] items-center justify-center rounded-lg bg-accent-light text-accent">
-                <MessageSquarePlus className="size-5" aria-hidden="true" />
-              </div>
-              <h3 className="text-sm font-bold text-ink">Suggérer un texte</h3>
-              <p className="mt-2 text-xs leading-relaxed text-ink-3">
-                Vous cherchez un sujet spécifique ? Faites-le nous savoir.
-              </p>
-            </div>
           </div>
         </section>
+
+        <LibraryImportsSection
+          imports={importedTexts}
+          isLoading={isLoading}
+          searchQuery={searchQuery}
+          onTextsChange={() => {
+            void refetch();
+          }}
+        />
       </div>
     </div>
   );

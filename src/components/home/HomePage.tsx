@@ -360,6 +360,9 @@ function mapRecentTextToCard(text: THomeRecentText): TTextWithProgress {
       lastSentenceIndex: 0,
       completedAt: null,
     },
+    source: "curated",
+    createdAt: null,
+    sentenceCount: 0,
   };
 }
 

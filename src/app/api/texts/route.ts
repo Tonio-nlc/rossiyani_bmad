@@ -34,6 +34,8 @@ function mapTextRow(
   text: TextRow,
   userProgress: TUserProgress | null,
 ): TTextWithProgress {
+  const source = text.source === "imported" ? "imported" : "curated";
+
   return {
     id: text.id,
     title: text.title,
@@ -44,6 +46,9 @@ function mapTextRow(
     wordCount: text.word_count ?? 0,
     readingTimeMinutes: text.reading_time_minutes ?? 0,
     userProgress,
+    source,
+    createdAt: text.created_at ?? null,
+    sentenceCount: text.content_annotated?.sentences?.length ?? 0,
   };
 }
 

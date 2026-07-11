@@ -62,6 +62,7 @@ export const COLLECTION_LABELS: Record<string, string> = {
   slow_news: "Actualités",
   travel: "Voyage",
   culture: "Culture",
+  imported: "Mes imports",
 };
 
 export const COLLECTION_BORDER_COLORS: Record<string, string> = {

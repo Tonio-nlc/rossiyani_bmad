@@ -58,6 +58,39 @@ Type source : `TContentBlock` dans `src/types/lessons.ts`.
 | `translation` | `string` | Traduction française naturelle |
 | `words` | `TLessonExampleWord[]` | Mots à colorer |
 | `note` | `string` | Explication de ce qui se passe **dans cette phrase** |
+| `sourceText` | `TLessonExampleSource` *(optionnel)* | Lien vers un texte Reader (`textTitle`, `sentenceIndex`) |
+
+### `sourceText`
+
+```json
+{
+  "sourceText": {
+    "textTitle": "В булочной",
+    "sentenceIndex": 3
+  }
+}
+```
+
+Utilisé quand l'exemple est tiré d'un texte gold. Voir [TEXT_LESSON_LINKS.md](./TEXT_LESSON_LINKS.md).
+
+---
+
+## Liens leçon ↔ textes (`lessons.related_texts`)
+
+Champ JSONB au niveau de la leçon (pas dans `content_blocks`) :
+
+```json
+[
+  {
+    "textTitle": "В булочной",
+    "goldNumber": 2,
+    "phenomenon": "accusatif objet direct",
+    "sentenceIndices": [3, 4, 5]
+  }
+]
+```
+
+Type : `TLessonRelatedText` dans `src/types/lessons.ts`. Non affiché en UI en V1 — données pour la méthode et futures fonctionnalités.
 
 ### `words[].role`
 

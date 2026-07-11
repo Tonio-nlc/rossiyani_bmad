@@ -1,0 +1,94 @@
+{
+  "pathSlug": "les-six-cas",
+  "slug": "pourquoi-les-cas",
+  "title": "Pourquoi le russe a des cas (et le français non) ?",
+  "orderIndex": 1,
+  "relatedTexts": [
+    {
+      "textTitle": "Первый день в университете",
+      "goldNumber": 1,
+      "phenomenon": "mouvement et position (в + différentes terminaisons)",
+      "sentenceIndices": [4, 6, 7]
+    },
+    {
+      "textTitle": "В булочной",
+      "goldNumber": 2,
+      "phenomenon": "objet direct (accusatif)",
+      "sentenceIndices": [3, 4, 5]
+    },
+    {
+      "textTitle": "Как найти дорогу?",
+      "goldNumber": 9,
+      "phenomenon": "directions et mouvement",
+      "sentenceIndices": [0, 4, 5, 6]
+    }
+  ],
+  "contentBlocks": [
+    {
+      "type": "paragraph",
+      "text": "En français, c'est souvent l'ordre des mots qui indique leur rôle : « Le chat mange la souris » n'a pas le même sens que « La souris mange le chat ». En russe, le rôle d'un mot est porté par sa terminaison — c'est ce qu'on appelle un cas."
+    },
+    {
+      "type": "example",
+      "russian": "Ко́шка ест мы́шку.",
+      "translation": "Le chat mange la souris.",
+      "words": [
+        { "text": "Ко́шка", "role": "subject" },
+        { "text": "ест", "role": null },
+        { "text": "мы́шку", "role": "object" }
+      ],
+      "note": "« ко́шка » porte la terminaison du sujet, « мы́шку » celle de l'objet. C'est la terminaison — pas la position — qui dit qui mange qui."
+    },
+    {
+      "type": "example",
+      "russian": "Мы́шку ест ко́шка.",
+      "translation": "Le chat mange la souris.",
+      "words": [
+        { "text": "Мы́шку", "role": "object" },
+        { "text": "ест", "role": null },
+        { "text": "Ко́шка", "role": "subject" }
+      ],
+      "note": "Même sens exact, ordre inversé. En russe, on peut réorganiser une phrase sans en changer le sens, parce que les terminaisons portent l'information."
+    },
+    {
+      "type": "paragraph",
+      "text": "Tu as déjà rencontré ce système en lisant. Quand Louis veut acheter du pain, le mot « хлеб » joue un rôle précis dans la phrase — pas celui du sujet."
+    },
+    {
+      "type": "example",
+      "russian": "— Я хочу́ ку́пить хлеб.",
+      "translation": "Je veux acheter du pain.",
+      "words": [
+        { "text": "Я", "role": "subject" },
+        { "text": "хочу́", "role": null },
+        { "text": "ку́пить", "role": null },
+        { "text": "хлеб", "role": "object" }
+      ],
+      "note": "Dans « В булочной », Louis est le sujet et le pain est ce qu'il veut acheter — un objet direct. Sa terminaison (ici identique au dictionnaire) indique ce rôle.",
+      "sourceText": { "textTitle": "В булочной", "sentenceIndex": 3 }
+    },
+    {
+      "type": "paragraph",
+      "text": "Quand il demande son chemin, les indications utilisent aussi des formes précises — « прямо », « направо », « слева » s'appuient sur le même principe : chaque mot a un rôle, et la terminaison l'exprime."
+    },
+    {
+      "type": "callout",
+      "text": "Un cas, c'est une terminaison qui répond à la question « quel est le rôle de ce mot ici ? » — sujet, objet, lieu, destinataire, possession… Le russe en a six. Tu les as déjà croisés dans le Reader, à travers les couleurs fonctionnelles : bleu (sujet), corail (objet), vert (lieu), violet (possession), ambre (destinataire)."
+    },
+    {
+      "type": "schema",
+      "svgContent": "<svg viewBox=\"0 0 480 200\" xmlns=\"http://www.w3.org/2000/svg\"><text x=\"240\" y=\"24\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0E0E0E\">LES SIX CAS</text><rect x=\"20\" y=\"40\" width=\"130\" height=\"32\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"85\" y=\"61\" text-anchor=\"middle\" font-size=\"13\" fill=\"#3B82F6\" font-family=\"serif\">Nominatif</text><rect x=\"175\" y=\"40\" width=\"130\" height=\"32\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"240\" y=\"61\" text-anchor=\"middle\" font-size=\"13\" fill=\"#EF7C5A\" font-family=\"serif\">Accusatif</text><rect x=\"330\" y=\"40\" width=\"130\" height=\"32\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"395\" y=\"61\" text-anchor=\"middle\" font-size=\"13\" fill=\"#A78BFA\" font-family=\"serif\">Génitif</text><rect x=\"20\" y=\"88\" width=\"130\" height=\"32\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"85\" y=\"109\" text-anchor=\"middle\" font-size=\"13\" fill=\"#F59E0B\" font-family=\"serif\">Datif</text><rect x=\"175\" y=\"88\" width=\"130\" height=\"32\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"240\" y=\"109\" text-anchor=\"middle\" font-size=\"13\" fill=\"#5A5A5A\" font-family=\"serif\">Instrumental</text><rect x=\"330\" y=\"88\" width=\"130\" height=\"32\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"395\" y=\"109\" text-anchor=\"middle\" font-size=\"13\" fill=\"#22C55E\" font-family=\"serif\">Prépositionnel</text><line x1=\"240\" y1=\"128\" x2=\"240\" y2=\"148\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><rect x=\"155\" y=\"148\" width=\"170\" height=\"36\" rx=\"8\" fill=\"#EEF0FF\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"240\" y=\"171\" text-anchor=\"middle\" font-size=\"13\" fill=\"#0E0E0E\">Chaque terminaison = un rôle</text></svg>",
+      "caption": "Six cas, six questions sur le rôle d'un mot dans la phrase."
+    },
+    {
+      "type": "takeaways",
+      "items": [
+        "En russe, la terminaison porte le rôle du mot — pas sa position dans la phrase.",
+        "Tu as déjà vu ces rôles en lisant, avant de connaître le mot « cas ».",
+        "Les couleurs du Reader correspondent aux cas : sujet, objet, lieu, possession, destinataire.",
+        "Ce parcours va te montrer, cas par cas, comment reconnaître ces terminaisons.",
+        "Comprendre le rôle vaut mieux que mémoriser une table de déclinaison."
+      ]
+    }
+  ]
+}

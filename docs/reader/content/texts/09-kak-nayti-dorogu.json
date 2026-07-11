@@ -1,0 +1,79 @@
+{
+  "title": "Как найти дорогу?",
+  "level": "A1",
+  "collection": "travel",
+  "wordCount": 48,
+  "readingTimeMinutes": 2,
+  "linguisticFocus": "mouvement + indications de direction (sans expliquer les prépositions)",
+  "lessonSeeds": [
+    "où ? / où aller ? — где библиотека",
+    "directions : прямо, направо, слева",
+    "verbes de mouvement : идти, найти",
+    "adverbes de lieu : внутри"
+  ],
+  "preparesNext": "У врача — quotidien étudiant continue",
+  "newVocabulary": [
+    "библиотека",
+    "прохожий",
+    "прямо",
+    "направо",
+    "слева",
+    "найти",
+    "дорога",
+    "ждать",
+    "внутри",
+    "не за что"
+  ],
+  "context": "Après être sortis de la boulangerie, Louis cherche la bibliothèque de l'université.",
+  "characters": ["Анна", "Луи"],
+  "sentences": [
+    {
+      "text": "После булочной Луи́ хочет пойти́ в библиоте́ку.",
+      "translationFr": "Après la boulangerie, Louis veut aller à la bibliothèque."
+    },
+    {
+      "text": "Но он не зна́ет, где она́.",
+      "translationFr": "Mais il ne sait pas où elle est."
+    },
+    {
+      "text": "Он спра́шивает прохо́жего:",
+      "translationFr": "Il demande à un passant :"
+    },
+    {
+      "text": "— Извини́те, где библиоте́ка?",
+      "translationFr": "Excusez-moi, où est la bibliothèque ?"
+    },
+    {
+      "text": "— Иди́те пря́мо.",
+      "translationFr": "Allez tout droit."
+    },
+    {
+      "text": "— Пото́м поверни́те напра́во.",
+      "translationFr": "Ensuite, tournez à droite."
+    },
+    {
+      "text": "— Библиоте́ка бу́дет сле́ва.",
+      "translationFr": "La bibliothèque sera sur votre gauche."
+    },
+    {
+      "text": "— Спаси́бо большо́е!",
+      "translationFr": "Merci beaucoup !"
+    },
+    {
+      "text": "— Не за что.",
+      "translationFr": "De rien."
+    },
+    {
+      "text": "Луи́ находи́т библиоте́ку без пробле́м.",
+      "translationFr": "Louis trouve la bibliothèque sans problème."
+    },
+    {
+      "text": "А́нна уже́ ждёт его́ внутри́.",
+      "translationFr": "Anna l'attend déjà à l'intérieur."
+    },
+    {
+      "text": "— Ты бы́стро нашёл доро́гу!",
+      "translationFr": "Tu as trouvé ton chemin rapidement !"
+    }
+  ]
+}

@@ -7,10 +7,12 @@ import {
   ExplorerPanelMobile,
   EXPLORER_PANEL_TEXT_PADDING_OPEN_PX,
 } from "@/components/reader/ExplorerPanel";
+import { ReaderEncounteredLessons } from "@/components/reader/ReaderEncounteredLessons";
 import { ReaderHeader } from "@/components/reader/ReaderHeader";
 import { TextBody } from "@/components/reader/TextBody";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useWordExplanation } from "@/hooks/useWordExplanation";
+import { resolveExplorerLessonLink } from "@/lib/lessons/lesson-text-links";
 import {
   clearReaderSelection,
   loadReaderSelection,
@@ -19,11 +21,13 @@ import {
 import { splitIntoSentences } from "@/lib/utils/russian";
 import { useReaderStore } from "@/stores/readerStore";
 import type { TText, TUserProgress } from "@/types/reader";
+import type { TLessonLink } from "@/types/lessons";
 
 export interface ReaderContainerProps {
   text: TText;
   userProgress: TUserProgress | null;
   collectionLabel: string;
+  linkedLessons: TLessonLink[];
 }
 
 async function saveProgress(payload: {
@@ -56,6 +60,7 @@ export function ReaderContainer({
   text,
   userProgress,
   collectionLabel,
+  linkedLessons,
 }: ReaderContainerProps) {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [selectedSentence, setSelectedSentence] = useState<string | null>(null);
@@ -266,6 +271,17 @@ export function ReaderContainer({
     };
   }, [percentRead, text.id]);
 
+  const isReadingComplete =
+    totalSentences > 0 && readSentenceIndices.size >= totalSentences;
+
+  const lessonDeepLink = useMemo(() => {
+    if (!explanation?.functionColor) {
+      return null;
+    }
+
+    return resolveExplorerLessonLink(linkedLessons, explanation.functionColor);
+  }, [explanation?.functionColor, linkedLessons]);
+
   const handleCloseExplorer = useCallback(() => {
     clearReaderSelection(text.id);
     setSelectedWord(null);
@@ -304,6 +320,11 @@ export function ReaderContainer({
               onWordClick={handleWordClick}
               onSentenceVisible={handleSentenceVisible}
             />
+            <ReaderEncounteredLessons
+              textId={text.id}
+              lessons={linkedLessons}
+              isComplete={isReadingComplete}
+            />
           </div>
         </div>
       </div>
@@ -317,6 +338,8 @@ export function ReaderContainer({
         onSaveWord={handleSaveWord}
         onRetry={handleRetry}
         isSaved={isSaved}
+        textId={text.id}
+        lessonDeepLink={lessonDeepLink}
       />
 
       <ExplorerPanelMobile
@@ -328,6 +351,8 @@ export function ReaderContainer({
         onSaveWord={handleSaveWord}
         onRetry={handleRetry}
         isSaved={isSaved}
+        textId={text.id}
+        lessonDeepLink={lessonDeepLink}
       />
     </div>
   );

@@ -1,0 +1,84 @@
+{
+  "pathSlug": "les-six-cas",
+  "slug": "accusatif",
+  "title": "Pourquoi certains mots changent quand on les « subit » ?",
+  "orderIndex": 3,
+  "relatedTexts": [
+    {
+      "textTitle": "В булочной",
+      "goldNumber": 2,
+      "phenomenon": "accusatif objet direct (купить хлеб, молоко)",
+      "sentenceIndices": [3, 4, 5, 7]
+    }
+  ],
+  "contentBlocks": [
+    {
+      "type": "paragraph",
+      "text": "L'accusatif marque ce qui reçoit directement l'action — la chose ou la personne qu'on achète, qu'on lit, qu'on mange. C'est le rôle que tu vois en corail dans Rossiyani. Tu l'as rencontré dès « В булочной »."
+    },
+    {
+      "type": "example",
+      "russian": "— Я хочу́ ку́пить хлеб.",
+      "translation": "Je veux acheter du pain.",
+      "words": [
+        { "text": "Я", "role": "subject" },
+        { "text": "хочу́", "role": null },
+        { "text": "ку́пить", "role": null },
+        { "text": "хлеб", "role": "object" }
+      ],
+      "note": "Louis est le sujet. Le pain est ce qu'il veut acheter — l'objet direct. Pour « хлеб » (masculin inanimé), la forme à l'accusatif est identique au nominatif.",
+      "sourceText": { "textTitle": "В булочной", "sentenceIndex": 3 }
+    },
+    {
+      "type": "example",
+      "russian": "— Нет, ещё молоко́.",
+      "translation": "Non, aussi du lait.",
+      "words": [
+        { "text": "ещё", "role": null },
+        { "text": "молоко́", "role": "object" }
+      ],
+      "note": "« молоко » (neutre) reste identique à l'accusatif. L'objet direct ne change pas toujours de terminaison — c'est surtout visible sur les mots féminins en -а.",
+      "sourceText": { "textTitle": "В булочной", "sentenceIndex": 5 }
+    },
+    {
+      "type": "example",
+      "russian": "— Вот ваш хлеб и молоко́.",
+      "translation": "Voici votre pain et votre lait.",
+      "words": [
+        { "text": "хлеб", "role": "object" },
+        { "text": "молоко́", "role": "object" }
+      ],
+      "note": "Le vendeur remet ce qui a été acheté — pain et lait sont toujours des objets directs.",
+      "sourceText": { "textTitle": "В булочной", "sentenceIndex": 7 }
+    },
+    {
+      "type": "comparison",
+      "title": "Nominatif → Accusatif (féminin en -а)",
+      "columns": ["Nominatif", "Accusatif", "Sens"],
+      "rows": [
+        { "label": "кни́га", "values": ["кни́гу", "livre"] },
+        { "label": "рабо́та", "values": ["рабо́ту", "travail"] },
+        { "label": "хлеб", "values": ["хлеб", "pain (inanimé — pas de changement)"] }
+      ]
+    },
+    {
+      "type": "callout",
+      "text": "Astuce : pour les mots masculins inanimés et les mots neutres, l'accusatif est souvent identique au nominatif. C'est pour ça que « хлеб » ne change pas — mais le rôle (objet direct) est bien là, et le Reader le colore en corail quand tu explores."
+    },
+    {
+      "type": "schema",
+      "svgContent": "<svg viewBox=\"0 0 480 280\" xmlns=\"http://www.w3.org/2000/svg\"><text x=\"240\" y=\"28\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0E0E0E\">ACHETER</text><rect x=\"190\" y=\"44\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#EEF0FF\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"240\" y=\"67\" text-anchor=\"middle\" font-size=\"15\" fill=\"#0E0E0E\" font-family=\"serif\">купить</text><line x1=\"120\" y1=\"80\" x2=\"120\" y2=\"108\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><line x1=\"360\" y1=\"80\" x2=\"360\" y2=\"108\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><line x1=\"120\" y1=\"80\" x2=\"360\" y2=\"80\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"120\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\" fill=\"#5A5A5A\">Sujet</text><text x=\"360\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\" fill=\"#5A5A5A\">Objet direct</text><rect x=\"70\" y=\"140\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"120\" y=\"163\" text-anchor=\"middle\" font-size=\"15\" fill=\"#3B82F6\" font-family=\"serif\">я</text><rect x=\"310\" y=\"140\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"360\" y=\"163\" text-anchor=\"middle\" font-size=\"15\" fill=\"#EF7C5A\" font-family=\"serif\">хлеб</text><text x=\"240\" y=\"210\" text-anchor=\"middle\" font-size=\"12\" fill=\"#5A5A5A\">qui achète → quoi est acheté</text></svg>",
+      "caption": "Le nominatif dit qui agit, l'accusatif dit sur quoi ou sur qui porte l'action."
+    },
+    {
+      "type": "takeaways",
+      "items": [
+        "L'accusatif = objet direct — ce qui « subit » l'action (acheter, lire, manger…).",
+        "Tu l'as vu dans « В булочной » : купить хлеб, ещё молоко.",
+        "Les féminins en -а changent souvent (-а → -у) ; les masculins inanimés souvent pas.",
+        "Dans le Reader, l'objet direct apparaît en corail.",
+        "Demande-toi « quoi ? » ou « qui ? » après le verbe pour repérer l'accusatif."
+      ]
+    }
+  ]
+}

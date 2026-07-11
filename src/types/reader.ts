@@ -38,4 +38,7 @@ export interface TUserProgress {
 
 export interface TTextWithProgress extends TText {
   userProgress: TUserProgress | null;
+  source: "curated" | "imported";
+  createdAt: string | null;
+  sentenceCount: number;
 }

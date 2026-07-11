@@ -78,14 +78,17 @@ Ce document remplace tout résumé Cursor ou tableau PRD obsolète pour décider
 
 **Ce qui fonctionne**
 - 5 parcours en base (`lesson_paths`)
-- **10 leçons** avec contenu JSON (`content_blocks`) :
+- **11 leçons** avec contenu JSON (`content_blocks`) :
   - *Fondations du russe* : 3 leçons
-  - *Les six cas* : 7 leçons
+  - *Les six cas* : 8 leçons (pilote + 7 cas) — **réécriture Story 3.3**
+- Liens Reader : `lessons.related_texts` + `example.sourceText` — **UI Story 3.4** (Explorer, fin lecture, fin leçon)
 - Navigation fluide `/lessons` → parcours → leçon avec breadcrumb partagé (`LessonsBreadcrumb`)
 - Retour contextuel Reader (`LessonsContextBack`) via `?from=reader&textId=`
 - Cartes parcours et leçons unifiées (design system : `CARD_BASE_CLASS`, tokens accent/green)
 - Progression utilisateur : barre par parcours, badges « Lu » / « Terminé », `POST /api/lessons/complete`
 - Renderer tous blocs : `paragraph`, `example`, `comparison`, `schema`, `callout`, `takeaways`
+- Hiérarchie éditoriale (Story 2.3) : sections `Question / Intuition / Exemple / Comprendre / Schéma / À retenir` via `LessonSection` + `groupLessonBlocks`
+- Rythme livre pédagogique (Story 2.4) : poids différencié par section, schéma en climax visuel, conclusion chapitre
 - États robustes : parcours vide, leçon inexistante (`not-found`), erreur Supabase, loading skeleton
 
 **Contenu à venir (hors système)**
@@ -94,7 +97,7 @@ Ce document remplace tout résumé Cursor ou tableau PRD obsolète pour décider
   - `russe-du-quotidien`
   - `culture-et-civilisation`
 
-**Fichiers clés** : `src/lib/lessons/`, `src/components/lessons/`, migrations `004`–`007`
+**Fichiers clés** : `src/lib/lessons/`, `src/components/lessons/`, migrations `004`–`007`, `009`, `016`
 
 ---
 
@@ -173,7 +176,7 @@ Ce document remplace tout résumé Cursor ou tableau PRD obsolète pour décider
 
 **Lacunes**
 - 5 collections sur 6 ont **0 texte** (`stories`, `dialogues`, `slow_news`, `travel`, `culture`)
-- Import de textes (`imported_by` en schéma) : **EXP** — pas d'UI ni d'API
+- Import de textes : **V1 complet** ✅ Stories 4.2–4.6 — polish Reader optionnel (4.7)
 - « Suggérer un texte » : **EXP** — pas d'action
 
 **Fichiers clés** : `library/page.tsx`, `useTexts.ts`, `src/lib/library/collections.ts`
@@ -197,12 +200,12 @@ Ce document remplace tout résumé Cursor ou tableau PRD obsolète pour décider
 
 | Entité | Quantité | Source migration |
 |--------|----------|------------------|
-| Textes bibliothèque | 5 | `008_seed_library_texts.sql` |
+| Textes bibliothèque | 11 (10/10 gold ✅) | `008`, `010`–`015` |
 | Parcours leçons | 5 | `004_lesson_paths.sql` |
 | Leçons avec contenu | 10 | `004`–`007` |
-| Collections avec textes | 1 (`everyday_russian`) | — |
+| Collections avec textes | 3 (`everyday_russian`, `dialogues`, `travel`) | — |
 
-Traductions phrase : **5/5 textes** (après migration 008 appliquée sur Supabase distant).
+Traductions phrase : **11/11 textes** (gold 010–015 + 008).
 
 ---
 
@@ -218,6 +221,9 @@ Traductions phrase : **5/5 textes** (après migration 008 appliquée sur Supabas
 | `006` | Leçon Les six cas 1 |
 | `007` | Leçons Les six cas 2–7 |
 | `008` | Seed 5 textes bibliothèque (accents + `content_annotated`) |
+| `009` | Leçon pilote Les six cas |
+| `010`–`015` | Gold Reader #5, #1, #2, #9, #8, #10 |
+| `016` | Les six cas v2 — réécriture éditoriale + `related_texts` |
 
 **Reconstruction** : `supabase db push` sur projet vierge, ou `npm run db:reset:local` (Docker).  
 **Scripts** : `scripts/db-reset.sh`, `scripts/db-repair-remote-history.sh`, `scripts/verify-db-state.mjs`
@@ -252,7 +258,7 @@ Fichiers `supabase/seed/*.sql` hors migrations : **DEPRECATED** — référence 
 
 | Élément | Où | Réalité |
 |---------|-----|---------|
-| Import de textes utilisateur | Schéma `texts.imported_by` | Aucune UI/API |
+| Import de textes utilisateur | **V1 complet** ✅ 4.2–4.6 | 4.7 polish Reader (optionnel) → Phase C |
 | Suggérer un texte | Library | Carte sans action |
 | 5 collections vides | Library / Home | UI catalogue, 0 contenu |
 | 3 parcours leçons vides | Lessons | Fiches parcours sans leçons |
@@ -274,7 +280,78 @@ Fichiers `supabase/seed/*.sql` hors migrations : **DEPRECATED** — référence 
 
 ## Prochaine story planifiée
 
-**Story 2.2 — Production de contenu Lessons** (remplir les parcours vides + compléter les 25 premières leçons)
+**Story 4.7 — Reader polish import** (optionnel) — puis **Phase C** (branding + polish UI)
+
+### Story 4.6 — Library Mes imports ✅ terminée — **Épic Import V1 clos**
+
+Section `#mes-imports`, `ImportTextCard`, rename/delete API, séparation curated/imports.
+
+### Story 4.5 — UI Import ✅ terminée
+
+Pages `/import` et `/import/preview` — parcours complet branché sur l'API 4.4.
+
+### Story 4.4 — API import ✅ terminée
+
+`POST /api/import/preview` + `POST /api/import` — façade HTTP sur `analyzeImport()`.
+
+### Story 4.3 — Pipeline d'analyse ✅ terminée
+
+Moteur pur `src/lib/import/` — `analyzeImport()`, tests `npm run test:import`.
+
+### Story 4.2 — RLS & schéma import ✅ terminée
+
+Migration `017_import_schema_security.sql` : RLS, contraintes, quotas, index.  
+Vérification : `scripts/verify-import-security.mjs` + [`docs/import/RLS_VERIFICATION.md`](./import/RLS_VERIFICATION.md)
+
+### Story 4.1.5 — UX import ✅ validée (gate levée)
+
+Maquettes & parcours : [`docs/import/UX_V1.md`](./import/UX_V1.md) — pas de Figma ; doc suffisante pour développer.
+
+### Après import (4.3–4.7)
+
+**Phase C** — branding unifié + polish UI → audit → bêta.
+
+### Gel produit — boucle pédagogique
+
+Reader ↔ Explorer ↔ Lessons : **ne plus modifier** avant retours utilisateurs beta.
+
+### Story 3.4 — Relier Reader aux Lessons ✅ terminée
+
+| Point d'entrée | Composant |
+|----------------|-----------|
+| Explorer (rôle → leçon) | `ExplorerLessonDeepLink` |
+| Fin de lecture | `ReaderEncounteredLessons` |
+| Fin de leçon | `LessonEncounteredTexts` |
+
+Logique : `get-lessons-for-text.ts`, `get-texts-for-lesson.ts`, `lesson-text-links.ts`
+
+### Story 3.3 — Parcours Les six cas ✅ terminée
+
+| Livrable | Emplacement |
+|----------|-------------|
+| 8 leçons réécrites (pipeline complet) | `docs/lessons/content/six-cas/*.json` |
+| Migration | `016_lessons_six_cas_v2.sql` |
+| Liens textes ↔ leçons | `docs/lessons/TEXT_LESSON_LINKS.md` |
+| Schémas unifiés | `docs/lessons/SCHEMA_STYLE.md` |
+| Exemples Reader intégrés | `sourceText` dans blocs `example` |
+
+**Parcours Les six cas** = modèle de référence pour les autres parcours.
+
+---
+
+## Méthode Rossiyani (Story 2.5)
+
+**Document de référence** : [`docs/METHODE_ROSSIYANI.md`](./METHODE_ROSSIYANI.md)
+
+| Livrable | Contenu |
+|----------|---------|
+| Boucle d'apprentissage | Lire → Comprendre → Explorer → Retenir → Réviser → Relire |
+| Rôles modules | Une question unique par module + dettes produit V1 documentées |
+| Session quotidienne | Scénario 15–20 min |
+| Principes | 8 principes non négociables |
+| Test feature | « À quel moment de la boucle intervient-elle ? » |
+
+Index documentation : [`docs/README.md`](./README.md)
 
 ---
 
@@ -285,6 +362,8 @@ Fichiers `supabase/seed/*.sql` hors migrations : **DEPRECATED** — référence 
 | Modèle pédagogique (6 sections) | `docs/lessons/PIPELINE.md` |
 | Règles éditoriales (15 règles) | `docs/lessons/PIPELINE.md` |
 | Référence technique blocs | `docs/lessons/CONTENT_BLOCKS.md` |
+| Liens textes ↔ leçons | `docs/lessons/TEXT_LESSON_LINKS.md` |
+| Style schémas (six cas) | `docs/lessons/SCHEMA_STYLE.md` |
 | Checklist publication | `docs/lessons/CHECKLIST.md` |
 | Template JSON | `docs/lessons/templates/lesson.template.json` |
 | Template SQL | `docs/lessons/templates/lesson.template.sql` |

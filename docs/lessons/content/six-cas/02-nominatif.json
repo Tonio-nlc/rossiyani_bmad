@@ -1,0 +1,94 @@
+{
+  "pathSlug": "les-six-cas",
+  "slug": "nominatif",
+  "title": "Comment reconnaître le sujet d'une phrase ?",
+  "orderIndex": 2,
+  "relatedTexts": [
+    {
+      "textTitle": "Первый день в университете",
+      "goldNumber": 1,
+      "phenomenon": "sujets : преподаватель, они",
+      "sentenceIndices": [6, 8, 9]
+    },
+    {
+      "textTitle": "Знакомство",
+      "goldNumber": 5,
+      "phenomenon": "sujets implicites dans les présentations",
+      "sentenceIndices": [1, 5, 6]
+    },
+    {
+      "textTitle": "Обычный день студента",
+      "goldNumber": 10,
+      "phenomenon": "routine — sujets Луи, они",
+      "sentenceIndices": [0, 2, 4]
+    }
+  ],
+  "contentBlocks": [
+    {
+      "type": "paragraph",
+      "text": "Le nominatif est le cas de base — celui du dictionnaire, celui qu'on apprend en premier. C'est aussi le cas du sujet : la personne ou la chose qui fait l'action. Dans Rossiyani, c'est le rôle que tu vois en bleu."
+    },
+    {
+      "type": "example",
+      "russian": "Преподава́тель улыба́ется и говори́т:",
+      "translation": "Le professeur sourit et dit :",
+      "words": [
+        { "text": "Преподава́тель", "role": "subject" },
+        { "text": "улыба́ется", "role": null },
+        { "text": "и", "role": null },
+        { "text": "говори́т", "role": null }
+      ],
+      "note": "Dans « Первый день в университете », « преподаватель » est au nominatif : c'est lui qui sourit et parle. C'est la forme que tu trouverais dans un dictionnaire.",
+      "sourceText": { "textTitle": "Первый день в университете", "sentenceIndex": 8 }
+    },
+    {
+      "type": "example",
+      "russian": "Они́ вхо́дят в университе́т вме́сте.",
+      "translation": "Ils entrent ensemble dans l'université.",
+      "words": [
+        { "text": "Они́", "role": "subject" },
+        { "text": "вхо́дят", "role": null },
+        { "text": "в", "role": null },
+        { "text": "университе́т", "role": "place" }
+      ],
+      "note": "« они » est le sujet — Anna et Louis ensemble. Le nominatif pluriel se termine souvent en -и ou -ы.",
+      "sourceText": { "textTitle": "Первый день в университете", "sentenceIndex": 6 }
+    },
+    {
+      "type": "callout",
+      "text": "Repère utile : quand tu cherches un mot dans le panel Explorer, c'est toujours sa forme au nominatif qui s'affiche en gras — c'est la forme de référence pour tous les autres cas."
+    },
+    {
+      "type": "example",
+      "russian": "— Да, я францу́з. А ты ру́сская?",
+      "translation": "Oui, je suis français. Et toi, tu es russe ?",
+      "words": [
+        { "text": "я", "role": "subject" },
+        { "text": "францу́з", "role": null },
+        { "text": "ты", "role": "subject" },
+        { "text": "ру́сская", "role": null }
+      ],
+      "note": "Dans « Знакомство », Louis et Anna se présentent. « я » et « ты » sont les sujets — au nominatif, comme dans le dictionnaire.",
+      "sourceText": { "textTitle": "Знакомство", "sentenceIndex": 6 }
+    },
+    {
+      "type": "paragraph",
+      "text": "Le nominatif est ton point de départ. Les cinq cas suivants existent pour exprimer tout ce que le sujet n'exprime pas : ce qu'il fait subir, à qui, où, avec quoi, ou à qui appartient quoi."
+    },
+    {
+      "type": "schema",
+      "svgContent": "<svg viewBox=\"0 0 480 160\" xmlns=\"http://www.w3.org/2000/svg\"><text x=\"240\" y=\"24\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0E0E0E\">NOMINATIF</text><rect x=\"140\" y=\"40\" width=\"200\" height=\"40\" rx=\"8\" fill=\"#EEF0FF\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"240\" y=\"65\" text-anchor=\"middle\" font-size=\"15\" fill=\"#0E0E0E\" font-family=\"serif\">форма словаря</text><line x1=\"240\" y1=\"80\" x2=\"240\" y2=\"100\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><rect x=\"155\" y=\"100\" width=\"170\" height=\"40\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"240\" y=\"125\" text-anchor=\"middle\" font-size=\"14\" fill=\"#3B82F6\" font-family=\"serif\">qui agit ?</text></svg>",
+      "caption": "Le nominatif répond à « qui ? » ou « quoi ? » — c'est celui qui agit."
+    },
+    {
+      "type": "takeaways",
+      "items": [
+        "Le nominatif est la forme du dictionnaire et le cas du sujet.",
+        "Dans le Reader, le sujet apparaît en bleu.",
+        "Tu l'as déjà vu dans tes textes : преподаватель, они, я, ты…",
+        "Tous les autres cas expriment des rôles différents du sujet.",
+        "Cherche toujours « qui fait l'action ? » pour repérer le nominatif."
+      ]
+    }
+  ]
+}

@@ -1,5 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
-import type { TContentBlock, TLesson } from "@/types/lessons";
+import type {
+  TContentBlock,
+  TLesson,
+  TLessonRelatedText,
+} from "@/types/lessons";
 
 interface LessonRow {
   id: string;
@@ -7,6 +11,7 @@ interface LessonRow {
   title: string;
   order_index: number;
   content_blocks: TContentBlock[];
+  related_texts: TLessonRelatedText[] | null;
   lesson_paths:
     | {
         slug: string;
@@ -36,7 +41,7 @@ export async function getLessonBySlug(
   const { data: lessonRow, error } = await supabase
     .from("lessons")
     .select(
-      "id, slug, title, order_index, content_blocks, lesson_paths!inner(slug, title, color)",
+      "id, slug, title, order_index, content_blocks, related_texts, lesson_paths!inner(slug, title, color)",
     )
     .eq("slug", lessonSlug)
     .eq("lesson_paths.slug", pathSlug)
@@ -68,6 +73,7 @@ export async function getLessonBySlug(
     title: row.title,
     orderIndex: row.order_index,
     contentBlocks: row.content_blocks,
+    relatedTexts: row.related_texts ?? [],
     path: {
       slug: path.slug,
       title: path.title,

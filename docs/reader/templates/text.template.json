@@ -1,0 +1,40 @@
+{
+  "title": "В метро",
+  "level": "A1",
+  "collection": "everyday_russian",
+  "wordCount": 60,
+  "readingTimeMinutes": 3,
+  "linguisticFocus": "Direction avec в + lieu (accusatif) — usage interne, pas dans le texte",
+  "sentences": [
+    {
+      "_section": "1 — Contexte",
+      "text": "А́нна вхо́дит в ваго́н и садится у окна́.",
+      "translationFr": "Anna entre dans le wagon et s'assoit près de la fenêtre."
+    },
+    {
+      "_section": "2 — Développement",
+      "text": "По́езд ме́дленно е́дет.",
+      "translationFr": "Le train avance lentement."
+    },
+    {
+      "_section": "2 — Développement",
+      "text": "Никто́ гро́мко не говори́т.",
+      "translationFr": "Personne ne parle fort."
+    },
+    {
+      "_section": "3 — Tournant",
+      "text": "Молодо́й челове́к сра́зу встаёт и отдаёт ей своё ме́сто.",
+      "translationFr": "Un jeune homme se lève aussitôt et lui cède sa place."
+    },
+    {
+      "_section": "4 — Fin",
+      "text": "Же́нщина улыба́ется и говори́т: Спаси́бо, молодо́й челове́к.",
+      "translationFr": "La femme sourit et dit : Merci, jeune homme."
+    },
+    {
+      "_section": "5 — Ouverture (optionnel)",
+      "text": "А ты ча́сто чита́ешь в тра́нспорте?",
+      "translationFr": "Et toi, tu lis souvent dans les transports ?"
+    }
+  ]
+}

@@ -10,6 +10,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 
+import { ExplorerLessonDeepLink } from "@/components/reader/ExplorerLessonDeepLink";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   getFunctionColorHex,
@@ -18,6 +19,7 @@ import {
   type TReaderFunctionColor,
 } from "@/lib/utils/russian";
 import type { TWordExplanationResponse } from "@/types/orchestrator";
+import type { TLessonLink } from "@/types/lessons";
 import { cn } from "@/lib/utils";
 
 export interface ExplorerPanelProps {
@@ -29,6 +31,8 @@ export interface ExplorerPanelProps {
   onSaveWord: () => void;
   onRetry: () => void;
   isSaved: boolean;
+  textId: string;
+  lessonDeepLink?: TLessonLink | null;
   className?: string;
 }
 
@@ -148,6 +152,8 @@ function ExplorerContent({
   onSaveWord,
   onRetry,
   isSaved,
+  textId,
+  lessonDeepLink,
 }: Pick<
   ExplorerPanelProps,
   | "explanation"
@@ -156,6 +162,8 @@ function ExplorerContent({
   | "onSaveWord"
   | "onRetry"
   | "isSaved"
+  | "textId"
+  | "lessonDeepLink"
 >) {
   if (isLoading) {
     return <ExplorerSkeleton />;
@@ -259,6 +267,10 @@ function ExplorerContent({
         )}
       </section>
 
+      {lessonDeepLink ? (
+        <ExplorerLessonDeepLink lesson={lessonDeepLink} textId={textId} />
+      ) : null}
+
       <button
         type="button"
         onClick={onSaveWord}
@@ -285,6 +297,8 @@ export function ExplorerPanel({
   onSaveWord,
   onRetry,
   isSaved,
+  textId,
+  lessonDeepLink,
   className,
 }: ExplorerPanelProps) {
   const [isMounted, setIsMounted] = useState(false);
@@ -311,6 +325,8 @@ export function ExplorerPanel({
         onSaveWord={onSaveWord}
         onRetry={onRetry}
         isSaved={isSaved}
+        textId={textId}
+        lessonDeepLink={lessonDeepLink}
       />
     </aside>,
     document.body,
@@ -326,6 +342,8 @@ export function ExplorerPanelMobile({
   onSaveWord,
   onRetry,
   isSaved,
+  textId,
+  lessonDeepLink,
 }: ExplorerPanelProps) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -382,6 +400,8 @@ export function ExplorerPanelMobile({
           onSaveWord={onSaveWord}
           onRetry={onRetry}
           isSaved={isSaved}
+          textId={textId}
+          lessonDeepLink={lessonDeepLink}
         />
       </div>
     </div>,

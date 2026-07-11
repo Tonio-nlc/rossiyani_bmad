@@ -174,9 +174,9 @@ Les blocs intermédiaires peuvent alterner `example` et `paragraph` pour approfo
 
 ## Leçons existantes vs nouveau modèle
 
-Les 10 leçons actuelles (Fondations + Six cas) ont été rédigées **avant** ce pipeline. Elles ne suivent pas encore toutes la section 6 (`takeaways`) ni le format question-systématique du titre.
+Les leçons du parcours **Les six cas** ont été réécrites en Story 3.3 (`016_lessons_six_cas_v2.sql`) — pipeline complet, exemples Reader, `takeaways`, schémas unifiés, liens `related_texts`.
 
-**Règle** : toute **nouvelle** leçon suit ce pipeline intégralement. Les leçons existantes peuvent être réécrites lors d'une story contenu dédiée — pas de refactor massif dans cette story.
+**Règle** : toute **nouvelle** leçon suit ce pipeline intégralement. Les leçons Fondations peuvent être réécrites lors d'une story contenu dédiée.
 
 ---
 

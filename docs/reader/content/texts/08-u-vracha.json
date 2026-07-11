@@ -1,0 +1,79 @@
+{
+  "title": "У врача",
+  "level": "A1",
+  "collection": "everyday_russian",
+  "wordCount": 50,
+  "readingTimeMinutes": 2,
+  "linguisticFocus": "exprimer un état (j'ai mal, je me sens...) — sans cours de grammaire",
+  "lessonSeeds": [
+    "У меня болит... — expressions de douleur",
+    "У него... — état chez autrui",
+    "génitif dans certaines constructions (plus tard)",
+    "expressions d'état : чувствовать себя"
+  ],
+  "preparesNext": "Обычный день студента — texte de consolidation",
+  "newVocabulary": [
+    "врач",
+    "горло",
+    "голова",
+    "болеть",
+    "чувствовать себя",
+    "случиться",
+    "отдыхать",
+    "вода",
+    "серьёзный",
+    "осматривать"
+  ],
+  "context": "Le lendemain, Louis ne se sent pas très bien. Anna l'accompagne chez le médecin de l'université.",
+  "characters": ["Анна", "Луи"],
+  "sentences": [
+    {
+      "text": "На сле́дующий день Луи́ чу́вствует себя́ плохо́.",
+      "translationFr": "Le lendemain, Louis ne se sent pas bien."
+    },
+    {
+      "text": "У него́ боли́т го́рло.",
+      "translationFr": "Il a mal à la gorge."
+    },
+    {
+      "text": "А́нна говори́т:",
+      "translationFr": "Anna dit :"
+    },
+    {
+      "text": "— Пойдём к врачу́.",
+      "translationFr": "— Allons chez le médecin."
+    },
+    {
+      "text": "Врач улыба́ется и спрашива́ет:",
+      "translationFr": "Le médecin sourit et demande :"
+    },
+    {
+      "text": "— Что случи́лось?",
+      "translationFr": "— Que s'est-il passé ?"
+    },
+    {
+      "text": "— У меня́ боли́т го́рло и немно́го боли́т голова́.",
+      "translationFr": "— J'ai mal à la gorge et un peu mal à la tête."
+    },
+    {
+      "text": "Врач осма́тривает Луи́.",
+      "translationFr": "Le médecin examine Louis."
+    },
+    {
+      "text": "— Ничего́ серьёзного.",
+      "translationFr": "— Rien de grave."
+    },
+    {
+      "text": "— Вам ну́жно отдыха́ть и пить больше воды́.",
+      "translationFr": "— Vous devez vous reposer et boire plus d'eau."
+    },
+    {
+      "text": "— Спаси́бо, до свида́ния!",
+      "translationFr": "— Merci, au revoir !"
+    },
+    {
+      "text": "Через два дня Луи́ уже́ чу́вствует себя́ хорошо́.",
+      "translationFr": "Deux jours plus tard, Louis se sent déjà bien."
+    }
+  ]
+}

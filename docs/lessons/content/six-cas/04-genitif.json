@@ -1,0 +1,84 @@
+{
+  "pathSlug": "les-six-cas",
+  "slug": "genitif",
+  "title": "Comment exprimer « de » ou « à qui appartient » ?",
+  "orderIndex": 4,
+  "relatedTexts": [
+    {
+      "textTitle": "У врача",
+      "goldNumber": 8,
+      "phenomenon": "expressions avec у (у меня, у него) — semis pour usages futurs du génitif",
+      "sentenceIndices": [1, 6]
+    },
+    {
+      "textTitle": "Обычный день студента",
+      "goldNumber": 10,
+      "phenomenon": "русского языка (génitif dans les noms composés)",
+      "sentenceIndices": [4, 8]
+    }
+  ],
+  "contentBlocks": [
+    {
+      "type": "paragraph",
+      "text": "Le génitif répond d'abord à la question « de qui ? » ou « de quoi ? » — c'est le cas de la possession. C'est le rôle que tu vois en violet dans Rossiyani."
+    },
+    {
+      "type": "example",
+      "russian": "Э́то маши́на бра́та.",
+      "translation": "C'est la voiture du frère.",
+      "words": [
+        { "text": "Э́то", "role": null },
+        { "text": "маши́на", "role": null },
+        { "text": "бра́та", "role": "possession" }
+      ],
+      "note": "« брат » (frère, nominatif) devient « бра́та » au génitif : c'est la voiture qui appartient à lui. En français, on ajoute « du » ; en russe, c'est la terminaison qui porte cette idée."
+    },
+    {
+      "type": "example",
+      "russian": "Э́то кни́га сестры́.",
+      "translation": "C'est le livre de la sœur.",
+      "words": [
+        { "text": "Э́то", "role": null },
+        { "text": "кни́га", "role": null },
+        { "text": "сестры́", "role": "possession" }
+      ],
+      "note": "« сестра́ » devient « сестры́ » : la terminaison -а devient -ы. Chaque genre a sa propre transformation, mais l'idée reste la même."
+    },
+    {
+      "type": "paragraph",
+      "text": "Tu as déjà croisé une construction proche dans « У врача ». Quand Louis dit qu'il a mal, il utilise « у меня » — une expression où le génitif interviendra plus tard dans d'autres contextes."
+    },
+    {
+      "type": "example",
+      "russian": "— У меня́ боли́т го́рло и немно́го боли́т голова́.",
+      "translation": "J'ai mal à la gorge et un peu mal à la tête.",
+      "words": [
+        { "text": "У", "role": null },
+        { "text": "меня́", "role": "possession" },
+        { "text": "боли́т", "role": null },
+        { "text": "го́рло", "role": null }
+      ],
+      "note": "« у меня » exprime une relation de possession ou d'état — « chez moi / à moi ». Rossiyani te le signale en violet ici pour t'habituer à repérer ces constructions avant d'aller plus loin.",
+      "sourceText": { "textTitle": "У врача", "sentenceIndex": 6 }
+    },
+    {
+      "type": "callout",
+      "text": "Le génitif ne sert pas qu'à la possession : il apparaît aussi après des quantités (« beaucoup de »), certaines prépositions (« sans », « près de »), et pour nier l'existence. Rossiyani te le signale en violet quand son rôle est la possession — les autres usages viendront dans des leçons dédiées."
+    },
+    {
+      "type": "schema",
+      "svgContent": "<svg viewBox=\"0 0 480 280\" xmlns=\"http://www.w3.org/2000/svg\"><text x=\"240\" y=\"28\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0E0E0E\">POSSESSION</text><rect x=\"190\" y=\"44\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#EEF0FF\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"240\" y=\"67\" text-anchor=\"middle\" font-size=\"15\" fill=\"#0E0E0E\" font-family=\"serif\">машина</text><line x1=\"240\" y1=\"80\" x2=\"240\" y2=\"108\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><line x1=\"120\" y1=\"108\" x2=\"360\" y2=\"108\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><line x1=\"120\" y1=\"108\" x2=\"120\" y2=\"132\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><line x1=\"360\" y1=\"108\" x2=\"360\" y2=\"132\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"120\" y=\"152\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\" fill=\"#5A5A5A\">Nominatif</text><text x=\"360\" y=\"152\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\" fill=\"#5A5A5A\">Génitif</text><rect x=\"70\" y=\"164\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"120\" y=\"187\" text-anchor=\"middle\" font-size=\"15\" fill=\"#3B82F6\" font-family=\"serif\">брат</text><rect x=\"310\" y=\"164\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"360\" y=\"187\" text-anchor=\"middle\" font-size=\"15\" fill=\"#A78BFA\" font-family=\"serif\">брата</text><text x=\"240\" y=\"230\" text-anchor=\"middle\" font-size=\"12\" fill=\"#5A5A5A\">la voiture de qui ? → du frère</text></svg>",
+      "caption": "Le génitif indique à qui appartient la chose dont on parle."
+    },
+    {
+      "type": "takeaways",
+      "items": [
+        "Le génitif répond à « de qui ? » / « de quoi ? » — la possession.",
+        "En français on ajoute « de » ; en russe, la terminaison change.",
+        "Tu as vu « у меня » dans « У врача » — une construction liée à ce cas.",
+        "Dans le Reader, la possession apparaît en violet.",
+        "Demande-toi « à qui appartient ça ? » pour repérer le génitif."
+      ]
+    }
+  ]
+}

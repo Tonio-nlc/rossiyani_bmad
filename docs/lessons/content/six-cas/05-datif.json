@@ -1,0 +1,80 @@
+{
+  "pathSlug": "les-six-cas",
+  "slug": "datif",
+  "title": "Comment dire « à quelqu'un » en russe ?",
+  "orderIndex": 5,
+  "relatedTexts": [
+    {
+      "textTitle": "Знакомство",
+      "goldNumber": 5,
+      "phenomenon": "мне (datif)",
+      "sentenceIndices": [4]
+    },
+    {
+      "textTitle": "У врача",
+      "goldNumber": 8,
+      "phenomenon": "вам (datif poli)",
+      "sentenceIndices": [9]
+    }
+  ],
+  "contentBlocks": [
+    {
+      "type": "paragraph",
+      "text": "Le datif marque à qui une chose est donnée, dite ou destinée. C'est le rôle que tu vois en ambre dans Rossiyani — souvent après des verbes comme « donner », « dire », « écrire », « montrer »."
+    },
+    {
+      "type": "example",
+      "russian": "— Мне то́же.",
+      "translation": "Moi aussi.",
+      "words": [
+        { "text": "Мне", "role": "recipient" },
+        { "text": "то́же", "role": null }
+      ],
+      "note": "Dans « Знакомство », après « Очень приятно », Louis répond « Мне тоже ». « мне » est au datif — c'est à lui que s'adresse le sentiment, comme en français « à moi aussi ».",
+      "sourceText": { "textTitle": "Знакомство", "sentenceIndex": 4 }
+    },
+    {
+      "type": "example",
+      "russian": "— Вам ну́жно отдыха́ть и пить больше воды́.",
+      "translation": "Vous devez vous reposer et boire plus d'eau.",
+      "words": [
+        { "text": "Вам", "role": "recipient" },
+        { "text": "ну́жно", "role": null },
+        { "text": "отдыха́ть", "role": null }
+      ],
+      "note": "Dans « У врача », le médecin s'adresse à Louis avec « вам » — la forme de politesse au datif. C'est à lui que la recommandation est destinée.",
+      "sourceText": { "textTitle": "У врача", "sentenceIndex": 9 }
+    },
+    {
+      "type": "example",
+      "russian": "Оте́ц даёт де́ньги сы́ну.",
+      "translation": "Le père donne de l'argent à son fils.",
+      "words": [
+        { "text": "Оте́ц", "role": "subject" },
+        { "text": "даёт", "role": null },
+        { "text": "де́ньги", "role": "object" },
+        { "text": "сы́ну", "role": "recipient" }
+      ],
+      "note": "« сын » devient « сы́ну » au datif. L'argent est ce qui est donné (accusatif) ; le fils est celui à qui (datif) — deux rôles, deux cas, dans la même phrase."
+    },
+    {
+      "type": "callout",
+      "text": "Repère utile : si tu peux reformuler en français avec « à » devant une personne (« à moi », « à son fils », « à vous »), c'est très probablement un datif en russe."
+    },
+    {
+      "type": "schema",
+      "svgContent": "<svg viewBox=\"0 0 480 280\" xmlns=\"http://www.w3.org/2000/svg\"><text x=\"240\" y=\"28\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0E0E0E\">DONNER</text><rect x=\"190\" y=\"44\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#EEF0FF\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"240\" y=\"67\" text-anchor=\"middle\" font-size=\"15\" fill=\"#0E0E0E\" font-family=\"serif\">даёт</text><line x1=\"120\" y1=\"80\" x2=\"120\" y2=\"108\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><line x1=\"360\" y1=\"80\" x2=\"360\" y2=\"108\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><line x1=\"120\" y1=\"80\" x2=\"360\" y2=\"80\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"120\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\" fill=\"#5A5A5A\">Objet (quoi ?)</text><text x=\"360\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\" fill=\"#5A5A5A\">Destinataire (à qui ?)</text><rect x=\"70\" y=\"140\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"120\" y=\"163\" text-anchor=\"middle\" font-size=\"15\" fill=\"#EF7C5A\" font-family=\"serif\">деньги</text><rect x=\"310\" y=\"140\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"360\" y=\"163\" text-anchor=\"middle\" font-size=\"15\" fill=\"#F59E0B\" font-family=\"serif\">сыну</text></svg>",
+      "caption": "Le datif répond à « à qui ? » — le destinataire de l'action."
+    },
+    {
+      "type": "takeaways",
+      "items": [
+        "Le datif = destinataire — « à qui ? » quelque chose est dit, donné ou destiné.",
+        "Tu l'as vu dans « Знакомство » (мне) et « У врача » (вам).",
+        "Dans le Reader, le destinataire apparaît en ambre.",
+        "Une même phrase peut avoir un accusatif (quoi) et un datif (à qui).",
+        "Teste avec « à + personne » en français pour repérer le datif."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "title": "Первый день в университете",
+  "level": "A1",
+  "collection": "everyday_russian",
+  "wordCount": 62,
+  "readingTimeMinutes": 3,
+  "linguisticFocus": "mouvement vers un lieu (в + accusatif), salutations en contexte, vocabulaire université",
+  "lessonSeeds": [
+    "в университет (mouvement) vs в университете (position) — leçon future",
+    "в аудитории (position)",
+    "verbes идти, приходить, входить",
+    "expressions salle de classe"
+  ],
+  "newVocabulary": [
+    "университет",
+    "урок",
+    "русский язык",
+    "аудитория",
+    "преподаватель",
+    "садиться",
+    "тетрадь",
+    "писать",
+    "трудный",
+    "интересный"
+  ],
+  "context": "Le lendemain de leur rencontre, Anna retrouve Louis devant l'université.",
+  "characters": ["Анна", "Луи"],
+  "sentences": [
+    {
+      "text": "Луи́ прихо́дит к университе́ту ра́но.",
+      "translationFr": "Louis arrive tôt à l'université."
+    },
+    {
+      "text": "А́нна уже́ там.",
+      "translationFr": "Anna est déjà là."
+    },
+    {
+      "text": "— Приве́т, Луи́!",
+      "translationFr": "Salut, Louis !"
+    },
+    {
+      "text": "— Приве́т, А́нна!",
+      "translationFr": "Salut, Anna !"
+    },
+    {
+      "text": "— Ты идёшь в университе́т?",
+      "translationFr": "Tu vas à l'université ?"
+    },
+    {
+      "text": "— Да, у нас сейча́с уро́к ру́сского языка́.",
+      "translationFr": "Oui, nous avons un cours de russe maintenant."
+    },
+    {
+      "text": "Они́ вхо́дят в университе́т вме́сте.",
+      "translationFr": "Ils entrent ensemble dans l'université."
+    },
+    {
+      "text": "В аудито́рии уже́ есть студе́нты.",
+      "translationFr": "Dans la salle, il y a déjà des étudiants."
+    },
+    {
+      "text": "Преподава́тель улыба́ется и говори́т:",
+      "translationFr": "Le professeur sourit et dit :"
+    },
+    {
+      "text": "— До́брое у́тро! Сади́тесь, пожа́луйста.",
+      "translationFr": "Bonjour ! Asseyez-vous, s'il vous plaît."
+    },
+    {
+      "text": "Луи́ открыва́ет тетра́дь и начина́ет писа́ть.",
+      "translationFr": "Louis ouvre son cahier et commence à écrire."
+    },
+    {
+      "text": "Он ду́мает:",
+      "translationFr": "Il pense :"
+    },
+    {
+      "text": "«Ру́сский язы́к тру́дный, но о́чень интере́сный.»",
+      "translationFr": "«Le russe est difficile, mais très intéressant.»"
+    }
+  ]
+}

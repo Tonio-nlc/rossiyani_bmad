@@ -9,7 +9,9 @@
     "lint": "eslint",
     "db:reset:local": "bash scripts/db-reset.sh local",
     "db:push": "supabase db push",
-    "db:verify": "bash scripts/db-reset.sh verify"
+    "db:verify": "bash scripts/db-reset.sh verify",
+    "test": "tsx --test src/lib/import/**/*.test.ts",
+    "test:import": "tsx --test src/lib/import/**/*.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -40,6 +42,7 @@
     "eslint-config-next": "16.2.10",
     "supabase": "^2.109.0",
     "tailwindcss": "^4",
+    "tsx": "^4.20.3",
     "typescript": "^5"
   }
 }

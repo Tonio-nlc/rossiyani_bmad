@@ -1,0 +1,84 @@
+{
+  "title": "Обычный день студента",
+  "level": "A1",
+  "collection": "everyday_russian",
+  "wordCount": 82,
+  "readingTimeMinutes": 4,
+  "linguisticFocus": "consolidation — aucune nouvelle notion majeure",
+  "lessonSeeds": [],
+  "preparesNext": null,
+  "role": "Texte de consolidation — conclusion de la première séquence pédagogique",
+  "newVocabulary": [
+    "каждое утро",
+    "иногда",
+    "прогресс",
+    "начало"
+  ],
+  "reusedFrom": [
+    "кофе, хлеб, молоко (Первый кофе, В булочной)",
+    "университет, русский язык, урок (Первый день)",
+    "Анна, ждать (fil narratif)",
+    "кафе, дорога, спросить (Как найти дорогу?)",
+    "verbes идти, покупать, понимать, изучать"
+  ],
+  "context": "Quelques semaines plus tard. Louis s'est habitué à sa nouvelle vie en Russie.",
+  "characters": ["Анна", "Луи"],
+  "sentences": [
+    {
+      "text": "Каждое у́тро Луи́ ра́но встаёт.",
+      "translationFr": "Chaque matin, Louis se lève tôt."
+    },
+    {
+      "text": "Он пьёт ко́фе и ест хлеб.",
+      "translationFr": "Il boit un café et mange du pain."
+    },
+    {
+      "text": "Пото́м он идёт в университе́т.",
+      "translationFr": "Ensuite, il va à l'université."
+    },
+    {
+      "text": "А́нна уже́ ждёт его́ у вхо́да.",
+      "translationFr": "Anna l'attend déjà à l'entrée."
+    },
+    {
+      "text": "Вме́сте они́ иду́т на уро́к ру́сского языка́.",
+      "translationFr": "Ensemble, ils vont au cours de russe."
+    },
+    {
+      "text": "После заня́тий они́ иногда́ идут в кафе́.",
+      "translationFr": "Après les cours, ils vont parfois au café."
+    },
+    {
+      "text": "И́ногда они́ покупа́ют хлеб и молоко́ по доро́ге домо́й.",
+      "translationFr": "Parfois, ils achètent du pain et du lait sur le chemin du retour."
+    },
+    {
+      "text": "Е́сли ну́жно, Луи́ уже́ мо́жет спроси́ть доро́гу.",
+      "translationFr": "Si nécessaire, Louis peut maintenant demander son chemin."
+    },
+    {
+      "text": "Он всё ещё изуча́ет ру́сский язы́к ка́ждый день.",
+      "translationFr": "Il continue d'étudier le russe chaque jour."
+    },
+    {
+      "text": "И ка́ждый день он понима́ет немно́го бо́льше.",
+      "translationFr": "Et chaque jour, il comprend un peu plus."
+    },
+    {
+      "text": "А́нна улыба́ется:",
+      "translationFr": "Anna sourit :"
+    },
+    {
+      "text": "— Ты де́лаешь большо́й прогре́сс.",
+      "translationFr": "— Tu fais de grands progrès."
+    },
+    {
+      "text": "Луи́ то́же улыба́ется.",
+      "translationFr": "Louis sourit lui aussi."
+    },
+    {
+      "text": "Он зна́ет, что э́то то́лько нача́ло.",
+      "translationFr": "Il sait que ce n'est que le début."
+    }
+  ]
+}

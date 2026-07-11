@@ -11,6 +11,34 @@ export interface TLessonExampleWord {
   role: TLessonWordRole;
 }
 
+export interface TLessonExampleSource {
+  textTitle: string;
+  sentenceIndex: number;
+}
+
+export interface TLessonRelatedText {
+  textTitle: string;
+  goldNumber?: number;
+  phenomenon: string;
+  sentenceIndices?: number[];
+}
+
+export interface TLessonLink {
+  lessonId: string;
+  lessonSlug: string;
+  lessonTitle: string;
+  pathSlug: string;
+  pathTitle: string;
+  pathColor: string;
+  orderIndex: number;
+}
+
+export interface TTextLink {
+  textId: string;
+  textTitle: string;
+  goldNumber?: number;
+}
+
 export type TContentBlock =
   | { type: "paragraph"; text: string }
   | {
@@ -19,6 +47,7 @@ export type TContentBlock =
       translation: string;
       words: TLessonExampleWord[];
       note: string;
+      sourceText?: TLessonExampleSource;
     }
   | {
       type: "comparison";
@@ -61,6 +90,7 @@ export interface TLesson {
   title: string;
   orderIndex: number;
   contentBlocks: TContentBlock[];
+  relatedTexts: TLessonRelatedText[];
   path: {
     slug: string;
     title: string;

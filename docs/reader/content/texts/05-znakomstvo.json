@@ -1,0 +1,72 @@
+{
+  "title": "Знакомство",
+  "level": "A1",
+  "collection": "dialogues",
+  "wordCount": 48,
+  "readingTimeMinutes": 2,
+  "linguisticFocus": "звать, présentations simples, verbe être implicite",
+  "newVocabulary": [
+    "звать",
+    "приятно",
+    "тоже",
+    "француз",
+    "русская",
+    "Москва",
+    "говорить",
+    "изучать",
+    "тогда",
+    "удача"
+  ],
+  "context": "Deux étudiants se rencontrent pour la première fois à l'université.",
+  "characters": ["Анна", "Луи"],
+  "sentences": [
+    {
+      "text": "— Привет!",
+      "translationFr": "Salut !"
+    },
+    {
+      "text": "— Привет! Меня́ зову́т А́нна. А тебя́?",
+      "translationFr": "Salut ! Je m'appelle Anna. Et toi ?"
+    },
+    {
+      "text": "— Меня́ зову́т Луи́.",
+      "translationFr": "Je m'appelle Louis."
+    },
+    {
+      "text": "— О́чень прия́тно!",
+      "translationFr": "Enchantée !"
+    },
+    {
+      "text": "— Мне то́же.",
+      "translationFr": "Moi aussi."
+    },
+    {
+      "text": "— Ты францу́з?",
+      "translationFr": "Tu es français ?"
+    },
+    {
+      "text": "— Да, я францу́з. А ты ру́сская?",
+      "translationFr": "Oui, je suis français. Et toi, tu es russe ?"
+    },
+    {
+      "text": "— Да, я из Москвы́.",
+      "translationFr": "Oui, je viens de Moscou."
+    },
+    {
+      "text": "— Ты говори́шь по-францу́зски?",
+      "translationFr": "Tu parles français ?"
+    },
+    {
+      "text": "— Нет, но я изуча́ю францу́зский.",
+      "translationFr": "Non, mais j'apprends le français."
+    },
+    {
+      "text": "— А я изуча́ю ру́сский.",
+      "translationFr": "Et moi, j'apprends le russe."
+    },
+    {
+      "text": "— Тогда́ уда́чи нам!",
+      "translationFr": "Alors, bonne chance à nous !"
+    }
+  ]
+}

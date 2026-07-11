@@ -1,0 +1,81 @@
+{
+  "pathSlug": "les-six-cas",
+  "slug": "instrumental",
+  "title": "Comment dire « avec » en russe ?",
+  "orderIndex": 6,
+  "relatedTexts": [
+    {
+      "textTitle": "В булочной",
+      "goldNumber": 2,
+      "phenomenon": "instrumental moyen (платит картой)",
+      "sentenceIndices": [8]
+    },
+    {
+      "textTitle": "Обычный день студента",
+      "goldNumber": 10,
+      "phenomenon": "вместе (compagnie implicite)",
+      "sentenceIndices": [4, 5]
+    }
+  ],
+  "contentBlocks": [
+    {
+      "type": "paragraph",
+      "text": "L'instrumental répond à la question « avec quoi ? » ou « avec qui ? ». Il exprime l'outil utilisé pour faire une action, ou la personne qui accompagne quelqu'un."
+    },
+    {
+      "type": "example",
+      "russian": "Луи́ платит ка́ртой.",
+      "translation": "Louis paie par carte.",
+      "words": [
+        { "text": "Луи́", "role": "subject" },
+        { "text": "платит", "role": null },
+        { "text": "ка́ртой", "role": null }
+      ],
+      "note": "Dans « В булочной », Louis paie avec sa carte. « карта » devient « картой » à l'instrumental — c'est l'outil du paiement. La terminaison -ой est typique du féminin à ce cas.",
+      "sourceText": { "textTitle": "В булочной", "sentenceIndex": 8 }
+    },
+    {
+      "type": "example",
+      "russian": "Вме́сте они́ иду́т на уро́к ру́сского языка́.",
+      "translation": "Ensemble, ils vont au cours de russe.",
+      "words": [
+        { "text": "Вме́сте", "role": null },
+        { "text": "они́", "role": "subject" },
+        { "text": "иду́т", "role": null }
+      ],
+      "note": "Dans « Обычный день студента », Anna et Louis vont ensemble au cours. « вместе » exprime la compagnie — l'autre grand usage de l'instrumental, souvent avec la préposition « с ».",
+      "sourceText": { "textTitle": "Обычный день студента", "sentenceIndex": 4 }
+    },
+    {
+      "type": "example",
+      "russian": "Он идёт в кино́ с сестро́й.",
+      "translation": "Il va au cinéma avec sa sœur.",
+      "words": [
+        { "text": "Он", "role": "subject" },
+        { "text": "идёт", "role": null },
+        { "text": "с", "role": null },
+        { "text": "сестро́й", "role": null }
+      ],
+      "note": "« сестра » devient « сестрой » après « с » (avec) : c'est le sens de compagnie — aller quelque part avec quelqu'un."
+    },
+    {
+      "type": "callout",
+      "text": "L'instrumental n'a pas encore de couleur dédiée dans le Reader — les cinq couleurs actuelles couvrent sujet, objet, lieu, possession et destinataire. Rossiyani préfère ne pas improviser une couleur plutôt que d'en choisir une incohérente."
+    },
+    {
+      "type": "schema",
+      "svgContent": "<svg viewBox=\"0 0 480 280\" xmlns=\"http://www.w3.org/2000/svg\"><text x=\"240\" y=\"28\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0E0E0E\">INSTRUMENTAL</text><rect x=\"190\" y=\"44\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#EEF0FF\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"240\" y=\"67\" text-anchor=\"middle\" font-size=\"15\" fill=\"#0E0E0E\" font-family=\"serif\">платит</text><line x1=\"120\" y1=\"80\" x2=\"120\" y2=\"108\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><line x1=\"360\" y1=\"80\" x2=\"360\" y2=\"108\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><line x1=\"120\" y1=\"80\" x2=\"360\" y2=\"80\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"120\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\" fill=\"#5A5A5A\">Sujet</text><text x=\"360\" y=\"128\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\" fill=\"#5A5A5A\">Avec quoi ?</text><rect x=\"70\" y=\"140\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"120\" y=\"163\" text-anchor=\"middle\" font-size=\"15\" fill=\"#3B82F6\" font-family=\"serif\">Луи</text><rect x=\"310\" y=\"140\" width=\"100\" height=\"36\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"360\" y=\"163\" text-anchor=\"middle\" font-size=\"15\" fill=\"#5A5A5A\" font-family=\"serif\">картой</text><text x=\"240\" y=\"210\" text-anchor=\"middle\" font-size=\"12\" fill=\"#5A5A5A\">moyen ou compagnie</text></svg>",
+      "caption": "L'instrumental indique avec quoi ou avec qui l'action se fait."
+    },
+    {
+      "type": "takeaways",
+      "items": [
+        "L'instrumental = « avec quoi ? » (outil) ou « avec qui ? » (compagnie).",
+        "Tu l'as vu dans « В булочной » : платит картой.",
+        "Après « с » (avec), un nom de personne prend souvent l'instrumental.",
+        "Pas encore de couleur Reader dédiée — repère la terminaison -ой, -ом, -ей…",
+        "Teste avec « avec + chose/personne » en français."
+      ]
+    }
+  ]
+}

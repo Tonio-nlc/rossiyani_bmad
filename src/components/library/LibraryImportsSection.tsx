@@ -1,0 +1,107 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { ImportEntryCard } from "@/components/library/ImportEntryCard";
+import { ImportTextCard } from "@/components/library/ImportTextCard";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
+import { IMPORT_LIMITS } from "@/lib/import/constants";
+import type { TTextWithProgress } from "@/types/reader";
+
+interface LibraryImportsSectionProps {
+  imports: TTextWithProgress[];
+  isLoading: boolean;
+  searchQuery: string;
+  onTextsChange: () => void;
+}
+
+export function LibraryImportsSection({
+  imports,
+  isLoading,
+  searchQuery,
+  onTextsChange,
+}: LibraryImportsSectionProps) {
+  const router = useRouter();
+
+  const filteredImports = imports.filter((text) => {
+    if (searchQuery.trim() === "") {
+      return true;
+    }
+
+    return text.title
+      .toLowerCase()
+      .includes(searchQuery.trim().toLowerCase());
+  });
+
+  return (
+    <section id="mes-imports" className="border-t border-border pt-11">
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <SectionHeader
+          title="Mes imports"
+          subtitle="Vos textes personnels — visibles par vous seul."
+        />
+        <span className="inline-flex w-fit rounded-full border border-border bg-surface px-3 py-1 text-xs font-bold text-ink-3">
+          {imports.length} / {IMPORT_LIMITS.maxImportsPerUser}
+        </span>
+      </div>
+
+      {searchQuery.trim() && (
+        <p className="mb-4 text-sm text-ink-3">
+          {filteredImports.length} import
+          {filteredImports.length > 1 ? "s" : ""} correspondant
+          {filteredImports.length > 1 ? "s" : ""} à la recherche
+        </p>
+      )}
+
+      {isLoading ? (
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <Skeleton key={index} className="h-56 rounded-[14px]" />
+          ))}
+        </div>
+      ) : imports.length === 0 ? (
+        <div
+          className={`mt-6 flex min-h-56 flex-col items-center justify-center border-dashed text-center ${CARD_BASE_CLASS}`}
+        >
+          <p className="text-sm text-ink-2">
+            Aucun texte importé pour l&apos;instant.
+          </p>
+          <p className="mt-2 max-w-md text-xs leading-relaxed text-ink-3">
+            Collez un extrait de cours, d&apos;article ou de manuel.
+          </p>
+          <Link
+            href="/import"
+            className="mt-5 inline-flex items-center justify-center rounded-[10px] bg-accent px-4 py-[11px] text-sm font-bold text-white"
+          >
+            Importer mon premier texte →
+          </Link>
+        </div>
+      ) : filteredImports.length === 0 ? (
+        <div className="mt-6 space-y-4">
+          <p className="text-sm text-ink-3">
+            Aucun import ne correspond à votre recherche.
+          </p>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <ImportEntryCard />
+          </div>
+        </div>
+      ) : (
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredImports.map((text) => (
+            <ImportTextCard
+              key={text.id}
+              text={text}
+              onRead={() => router.push(`/reader/${text.id}`)}
+              onRenamed={() => onTextsChange()}
+              onDeleted={() => onTextsChange()}
+            />
+          ))}
+          <ImportEntryCard />
+        </div>
+      )}
+    </section>
+  );
+}

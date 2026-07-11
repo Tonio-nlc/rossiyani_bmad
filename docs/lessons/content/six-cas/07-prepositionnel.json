@@ -1,0 +1,91 @@
+{
+  "pathSlug": "les-six-cas",
+  "slug": "prepositionnel",
+  "title": "Pourquoi в университет mais в аудитории ?",
+  "orderIndex": 7,
+  "relatedTexts": [
+    {
+      "textTitle": "Первый день в университете",
+      "goldNumber": 1,
+      "phenomenon": "в университет (direction) vs в аудитории (position)",
+      "sentenceIndices": [4, 6, 7]
+    },
+    {
+      "textTitle": "Как найти дорогу?",
+      "goldNumber": 9,
+      "phenomenon": "lieu et position (внутри, слева)",
+      "sentenceIndices": [6, 10]
+    }
+  ],
+  "contentBlocks": [
+    {
+      "type": "paragraph",
+      "text": "Le prépositionnel s'utilise toujours après une préposition — jamais seul. Il exprime le lieu où l'on se trouve (pas où l'on va) ou le sujet dont on parle. C'est le rôle que tu vois en vert dans Rossiyani quand il indique un lieu."
+    },
+    {
+      "type": "example",
+      "russian": "В аудито́рии уже́ есть студе́нты.",
+      "translation": "Dans la salle, il y a déjà des étudiants.",
+      "words": [
+        { "text": "В", "role": null },
+        { "text": "аудито́рии", "role": "place" },
+        { "text": "студе́нты", "role": "subject" }
+      ],
+      "note": "Dans « Первый день в университете », les étudiants sont déjà dans la salle — pas de mouvement. « в аудитории » utilise le prépositionnel : on est à l'intérieur.",
+      "sourceText": { "textTitle": "Первый день в университете", "sentenceIndex": 7 }
+    },
+    {
+      "type": "example",
+      "russian": "— Ты идёшь в университе́т?",
+      "translation": "Tu vas à l'université ?",
+      "words": [
+        { "text": "Ты", "role": "subject" },
+        { "text": "идёшь", "role": null },
+        { "text": "в", "role": null },
+        { "text": "университе́т", "role": "place" }
+      ],
+      "note": "Quelques phrases avant, « в университет » marquait une direction — un mouvement vers l'université. Même préposition « в », mais terminaison différente selon qu'on va vers ou qu'on est déjà dedans.",
+      "sourceText": { "textTitle": "Первый день в университете", "sentenceIndex": 4 }
+    },
+    {
+      "type": "example",
+      "russian": "А́нна уже́ ждёт его́ внутри́.",
+      "translation": "Anna l'attend déjà à l'intérieur.",
+      "words": [
+        { "text": "А́нна", "role": "subject" },
+        { "text": "ждёт", "role": null },
+        { "text": "внутри́", "role": "place" }
+      ],
+      "note": "Dans « Как найти дорогу? », Anna attend Louis à l'intérieur de la bibliothèque — une position fixe, pas un déplacement.",
+      "sourceText": { "textTitle": "Как найти дорогу?", "sentenceIndex": 10 }
+    },
+    {
+      "type": "comparison",
+      "title": "Direction vs position avec « в »",
+      "columns": ["Situation", "Cas", "Exemple"],
+      "rows": [
+        { "label": "Mouvement vers", "values": ["Accusatif", "в университет"] },
+        { "label": "Position dans", "values": ["Prépositionnel", "в аудитории"] }
+      ]
+    },
+    {
+      "type": "callout",
+      "text": "Le piège classique : « в » (et « на ») peut demander soit l'accusatif (direction) soit le prépositionnel (position). La différence ne se voit pas sur la préposition, mais sur la terminaison du mot qui suit — exactement ce que tu as vécu en lisant le premier jour à l'université."
+    },
+    {
+      "type": "schema",
+      "svgContent": "<svg viewBox=\"0 0 480 160\" xmlns=\"http://www.w3.org/2000/svg\"><text x=\"240\" y=\"24\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#0E0E0E\">в + lieu</text><rect x=\"30\" y=\"44\" width=\"190\" height=\"48\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"125\" y=\"66\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\" fill=\"#EF7C5A\">Accusatif</text><text x=\"125\" y=\"84\" text-anchor=\"middle\" font-size=\"14\" fill=\"#0E0E0E\" font-family=\"serif\">в университет → vers</text><line x1=\"240\" y1=\"68\" x2=\"240\" y2=\"68\" stroke=\"#4F46E5\" stroke-width=\"2\"/><rect x=\"260\" y=\"44\" width=\"190\" height=\"48\" rx=\"8\" fill=\"#FFFFFF\" stroke=\"#E8E4DC\" stroke-width=\"1.5\"/><text x=\"355\" y=\"66\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\" fill=\"#22C55E\">Prépositionnel</text><text x=\"355\" y=\"84\" text-anchor=\"middle\" font-size=\"14\" fill=\"#0E0E0E\" font-family=\"serif\">в аудитории → dans</text><line x1=\"240\" y1=\"100\" x2=\"240\" y2=\"120\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><rect x=\"155\" y=\"120\" width=\"170\" height=\"32\" rx=\"8\" fill=\"#EEF0FF\" stroke=\"#4F46E5\" stroke-width=\"1.5\"/><text x=\"240\" y=\"141\" text-anchor=\"middle\" font-size=\"12\" fill=\"#0E0E0E\">même préposition, terminaison différente</text></svg>",
+      "caption": "Direction (vers) et position (dans) — la terminaison tranche."
+    },
+    {
+      "type": "takeaways",
+      "items": [
+        "Le prépositionnel = lieu où l'on est déjà, ou sujet de conversation (о…).",
+        "Tu l'as vécu dans « Первый день » : в университет (vers) vs в аудитории (dans).",
+        "« в » et « на » changent de cas selon mouvement ou position.",
+        "Dans le Reader, le lieu apparaît en vert.",
+        "Demande-toi : « est-ce qu'on va vers, ou est-ce qu'on y est déjà ? »"
+      ]
+    }
+  ]
+}
