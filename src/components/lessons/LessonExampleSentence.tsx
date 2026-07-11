@@ -1,6 +1,7 @@
 "use client";
 
 import { lessonRoleToFunctionColor } from "@/lib/lessons/lesson-colors";
+import { LESSON_EXAMPLE_RUSSIAN_CLASS } from "@/lib/design/lesson-composition";
 import {
   getFunctionColorHex,
   normalizeToken,
@@ -32,7 +33,7 @@ export function LessonExampleSentence({
   const tokens = tokenizeSentence(russian);
 
   return (
-    <p className="font-russian text-[22px] leading-relaxed text-ink">
+    <p className={LESSON_EXAMPLE_RUSSIAN_CLASS}>
       {tokens.map((token, index) => {
         const normalized = normalizeToken(token);
 

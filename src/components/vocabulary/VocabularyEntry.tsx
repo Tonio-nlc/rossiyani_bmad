@@ -27,13 +27,13 @@ export function VocabularyEntry({
       />
 
       <PageBody width="content">
-        <PageSection spaced={false}>
+        <PageSection gap="none">
           <InformationSection data={entry.linguisticData} />
         </PageSection>
-        <PageSection>
+        <PageSection gap="default">
           <ExamplesSection examples={entry.examples} />
         </PageSection>
-        <PageSection>
+        <PageSection gap="default">
           <ReviewSection review={entry.review} />
         </PageSection>
       </PageBody>

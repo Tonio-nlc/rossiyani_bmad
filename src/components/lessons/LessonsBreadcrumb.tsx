@@ -16,6 +16,7 @@ interface LessonsBreadcrumbProps {
   textId?: string;
   className?: string;
   width?: LayoutWidth;
+  variant?: "default" | "lesson";
 }
 
 export function LessonsBreadcrumb({
@@ -24,21 +25,31 @@ export function LessonsBreadcrumb({
   textId,
   className,
   width = "dashboard",
+  variant = "default",
 }: LessonsBreadcrumbProps) {
   const lessonsHref = lessonsIndexHref(from, textId);
 
   return (
     <ContextBar width={width} className={className}>
       <nav aria-label="Fil d'Ariane">
-        <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-ink-3">
+        <ol
+          className={cn(
+            "flex flex-wrap items-center gap-x-1 gap-y-0.5",
+            variant === "lesson"
+              ? "text-[11px] text-ink-3"
+              : "text-[13px] text-ink-3",
+          )}
+        >
           <li>
             <Link href={lessonsHref} className="hover:text-ink-2">
               Leçons
             </Link>
           </li>
           {segments.map((segment, index) => (
-            <li key={`${segment.label}-${index}`} className="flex items-center gap-1.5">
-              <span aria-hidden="true">·</span>
+            <li key={`${segment.label}-${index}`} className="flex items-center gap-1">
+              <span aria-hidden="true" className="text-ink-3/60">
+                /
+              </span>
               {segment.href ? (
                 <Link href={segment.href} className="hover:text-ink-2">
                   {segment.label}

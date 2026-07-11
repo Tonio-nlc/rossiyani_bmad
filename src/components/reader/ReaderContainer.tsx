@@ -10,6 +10,7 @@ import {
 import { ReaderEncounteredLessons } from "@/components/reader/ReaderEncounteredLessons";
 import { ReaderHeader } from "@/components/reader/ReaderHeader";
 import { TextBody } from "@/components/reader/TextBody";
+import { READER_COLUMN_CLASS } from "@/lib/design/reader-composition";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useWordExplanation } from "@/hooks/useWordExplanation";
 import { resolveExplorerLessonLink } from "@/lib/lessons/lesson-text-links";
@@ -304,14 +305,14 @@ export function ReaderContainer({
       {/* ExplorerPanel est porté vers document.body (position: fixed) — ne pas le placer dans la colonne texte. */}
       <div className="flex min-h-0 flex-1 overflow-hidden bg-bg">
         <div
-          className="min-w-0 flex-1 overflow-y-auto px-4 py-4 md:px-10 md:py-6 md:[padding-right:var(--explorer-pr)]"
+          className="min-w-0 flex-1 overflow-y-auto px-4 py-3 md:px-8 md:py-4 md:[padding-right:var(--explorer-pr)]"
           style={
             {
               "--explorer-pr": `${EXPLORER_PANEL_TEXT_PADDING_OPEN_PX}px`,
             } as Record<string, string>
           }
         >
-          <div className="mx-auto w-full max-w-reading">
+          <div className={READER_COLUMN_CLASS}>
             <TextBody
               text={text}
               annotatedWords={annotatedWords}

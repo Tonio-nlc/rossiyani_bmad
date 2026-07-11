@@ -10,8 +10,7 @@ import { TextCard } from "@/components/library/TextCard";
 import { FilterPills } from "@/components/ui/FilterPills";
 import { PageBody } from "@/components/ui/PageBody";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { PageSection } from "@/components/ui/PageSection";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Section } from "@/components/ui/Section";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTexts } from "@/hooks/useTexts";
@@ -22,10 +21,8 @@ import {
   type TCollection,
 } from "@/lib/library/collections";
 import { splitLibraryTexts } from "@/lib/library/text-source";
-import {
-  CARD_GRID_3COL_CLASS,
-  SECTION_CONTENT_GAP_CLASS,
-} from "@/lib/design/rhythm";
+import { CARD_PROMO_CLASS } from "@/lib/design/classes";
+import { CARD_GRID_3COL_CLASS, SUBSECTION_GAP_CLASS } from "@/lib/design/rhythm";
 import { cn } from "@/lib/utils";
 import type { TTextWithProgress } from "@/types/reader";
 
@@ -134,6 +131,7 @@ export default function LibraryPage() {
         eyebrow="VOS LECTURES"
         title="Bibliothèque"
         subtitle="Collections curatées et textes importés — lisez, progressez, retrouvez vos lectures."
+        width="dashboard"
         badge={
           <span className="inline-flex w-fit rounded-full border border-border bg-surface px-3 py-1 text-xs font-bold tracking-[0.12em] text-ink-3 uppercase">
             {curatedTexts.length} textes Rossiyani
@@ -142,18 +140,15 @@ export default function LibraryPage() {
       />
 
       <PageBody width="dashboard">
-        {showSavedToast && (
+        {showSavedToast ? (
           <div
             role="status"
-            className="mb-6 rounded-[12px] border border-green/30 bg-green/10 px-4 py-3 text-sm text-ink"
+            className="mb-4 rounded-[12px] border border-green/30 bg-green/10 px-4 py-3 text-sm text-ink"
           >
             <span className="font-semibold text-green">Texte enregistré</span>
-            <span className="text-ink-2">
-              {" "}
-              — Retrouvez-le dans Mes imports.
-            </span>
+            <span className="text-ink-2"> — Retrouvez-le dans Mes imports.</span>
           </div>
-        )}
+        ) : null}
 
         <p className="text-sm font-semibold text-accent">
           <Link href="/import" className="hover:underline">
@@ -162,16 +157,10 @@ export default function LibraryPage() {
         </p>
 
         {continueText ? (
-          <PageSection>
-            <SectionHeader title="Continuer" />
-            <div
-              className={cn(
-                "relative overflow-hidden rounded-lg bg-accent-deep p-7",
-                SECTION_CONTENT_GAP_CLASS,
-              )}
-            >
+          <Section title="Continuer" gap="after-hero">
+            <div className={CARD_PROMO_CLASS}>
               <span
-                className="pointer-events-none absolute -bottom-[18px] -right-1.5 font-serif text-[130px] italic leading-none text-white/[0.06]"
+                className="pointer-events-none absolute -bottom-3 -right-1 font-serif text-[5rem] italic leading-none text-white/[0.06]"
                 aria-hidden="true"
               >
                 Р
@@ -179,10 +168,10 @@ export default function LibraryPage() {
               <p className="text-[10px] font-bold tracking-[0.12em] text-white/45 uppercase">
                 EN COURS
               </p>
-              <h3 className="mt-3 font-serif text-[26px] leading-tight text-white">
+              <h3 className="mt-2 font-serif text-xl leading-tight text-white">
                 {continueText.title}
               </h3>
-              <p className="mt-2 text-xs text-white/40">
+              <p className="mt-1.5 text-xs text-white/40">
                 {continueText.source === "imported"
                   ? "Import personnel"
                   : (COLLECTION_LABELS[continueText.collection] ??
@@ -192,20 +181,20 @@ export default function LibraryPage() {
               <button
                 type="button"
                 onClick={() => navigateToReader(continueText.id)}
-                className="mt-5 inline-flex items-center justify-center rounded-[10px] bg-white px-4 py-[11px] text-sm font-bold text-accent-deep"
+                className="mt-4 inline-flex items-center justify-center rounded-[10px] bg-white px-4 py-2.5 text-sm font-bold text-accent-deep"
               >
                 Reprendre →
               </button>
             </div>
-          </PageSection>
+          </Section>
         ) : null}
 
-        <PageSection>
-          <SectionHeader
-            title="Collections Rossiyani"
-            subtitle="Parcours thématiques — le cœur de votre bibliothèque."
-          />
-          <div className={cn(CARD_GRID_3COL_CLASS, SECTION_CONTENT_GAP_CLASS)}>
+        <Section
+          title="Collections Rossiyani"
+          description="Parcours thématiques — le cœur de votre bibliothèque."
+          gap={continueText ? "default" : "after-hero"}
+        >
+          <div className={CARD_GRID_3COL_CLASS}>
             {collectionsWithCounts.map((collection) => (
               <CollectionCard
                 key={collection.id}
@@ -214,20 +203,19 @@ export default function LibraryPage() {
               />
             ))}
           </div>
-        </PageSection>
+        </Section>
 
-        <PageSection>
-          <SectionHeader
-            title="Vos textes"
-            trailing={
-              <p className="text-sm text-ink-3">
-                {filteredCuratedTexts.length} résultat
-                {filteredCuratedTexts.length > 1 ? "s" : ""}
-              </p>
-            }
-          />
+        <Section
+          title="Vos textes"
+          trailing={
+            <p className="text-sm text-ink-3">
+              {filteredCuratedTexts.length} résultat
+              {filteredCuratedTexts.length > 1 ? "s" : ""}
+            </p>
+          }
+        >
           {collectionFilter ? (
-            <p className={cn("text-sm text-ink-2", SECTION_CONTENT_GAP_CLASS)}>
+            <p className="text-sm text-ink-2">
               Filtre collection :{" "}
               {COLLECTION_LABELS[collectionFilter] ?? collectionFilter}
               <button
@@ -240,7 +228,7 @@ export default function LibraryPage() {
             </p>
           ) : null}
 
-          <div className={cn("space-y-4", SECTION_CONTENT_GAP_CLASS)}>
+          <div className={cn("space-y-3", collectionFilter && SUBSECTION_GAP_CLASS)}>
             <FilterPills
               options={LEVEL_FILTERS}
               value={levelFilter}
@@ -255,10 +243,10 @@ export default function LibraryPage() {
             />
           </div>
 
-          <div className={cn(CARD_GRID_3COL_CLASS, SECTION_CONTENT_GAP_CLASS)}>
+          <div className={cn(CARD_GRID_3COL_CLASS, SUBSECTION_GAP_CLASS)}>
             {isLoading
               ? Array.from({ length: 6 }).map((_, index) => (
-                  <Skeleton key={index} className="h-56 rounded-[14px]" />
+                  <Skeleton key={index} className="h-44 rounded-[14px]" />
                 ))
               : filteredCuratedTexts.map((text) => (
                   <TextCard
@@ -268,7 +256,7 @@ export default function LibraryPage() {
                   />
                 ))}
           </div>
-        </PageSection>
+        </Section>
 
         <LibraryImportsSection
           imports={importedTexts}

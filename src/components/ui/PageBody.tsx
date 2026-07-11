@@ -1,6 +1,6 @@
 import {
+  PAGE_AFTER_HEADER_CLASS,
   PAGE_BODY_SHELL_CLASS,
-  PAGE_BODY_TOP_CLASS,
   pageBodyWidthClass,
   type LayoutWidth,
 } from "@/lib/design/rhythm";
@@ -12,9 +12,7 @@ interface PageBodyProps {
   className?: string;
 }
 
-/**
- * Zone de contenu sous PageHeader — pt-12 (48px), largeur officielle.
- */
+/** Zone sous PageHeader — 64px, largeur officielle. */
 export function PageBody({
   children,
   width = "dashboard",
@@ -24,7 +22,7 @@ export function PageBody({
     <div
       className={cn(
         PAGE_BODY_SHELL_CLASS,
-        PAGE_BODY_TOP_CLASS,
+        PAGE_AFTER_HEADER_CLASS,
         pageBodyWidthClass(width),
         className,
       )}

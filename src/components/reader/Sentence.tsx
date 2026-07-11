@@ -4,6 +4,12 @@ import { useEffect, useRef, useState } from "react";
 
 import { Word } from "@/components/reader/Word";
 import {
+  SENTENCE_RHYTHM_CLASS,
+  SENTENCE_TEXT_CLASS,
+  SENTENCE_TRANSLATION_TEXT_CLASS,
+  SENTENCE_TRANSLATION_TOGGLE_CLASS,
+} from "@/lib/design/reader-composition";
+import {
   normalizeToken,
   shouldAddSpaceAfterToken,
   tokenizeSentence,
@@ -11,6 +17,7 @@ import {
 } from "@/lib/utils/russian";
 import type { WordAnnotation } from "@/stores/readerStore";
 import type { TAnnotatedWord } from "@/types/reader";
+import { cn } from "@/lib/utils";
 
 export interface AnnotatedWord {
   surface: string;
@@ -109,22 +116,18 @@ export function Sentence({
   }, [onVisible]);
 
   return (
-    <div
+    <article
       ref={containerRef}
       data-sentence-index={sentenceIndex}
-      className={resolvedTranslation ? "" : "mb-4"}
+      className={cn("reader-sentence-block", SENTENCE_RHYTHM_CLASS)}
     >
-      <p className="mb-1 font-russian text-[24px] leading-[1.65] md:text-[26px]">
+      <p className={SENTENCE_TEXT_CLASS}>
         {tokens.map((token, index) => {
           const normalized = normalizeToken(token);
           const isWord = normalized.length > 0;
 
           if (!isWord) {
-            return (
-              <span key={`${token}-${index}`} className="text-[24px] md:text-[26px]">
-                {token}
-              </span>
-            );
+            return <span key={`${token}-${index}`}>{token}</span>;
           }
 
           const sessionAnnotation = getSessionAnnotation(token, annotatedWords);
@@ -158,22 +161,22 @@ export function Sentence({
       </p>
 
       {resolvedTranslation ? (
-        <div className="leading-normal">
+        <div>
           <button
             type="button"
             onClick={() => setShowTranslation((current) => !current)}
-            className="mt-0.5 mb-3 block cursor-pointer select-none text-xs italic text-ink-3 hover:text-ink-2"
+            className={SENTENCE_TRANSLATION_TOGGLE_CLASS}
           >
-            {showTranslation ? "masquer" : "voir la traduction →"}
+            {showTranslation ? "masquer la traduction" : "voir la traduction →"}
           </button>
           {showTranslation ? (
-            <p className="reader-translation-fade-in mt-1 mb-1 text-[13px] italic text-ink-3">
+            <p className={SENTENCE_TRANSLATION_TEXT_CLASS}>
               {resolvedTranslation}
             </p>
           ) : null}
         </div>
       ) : null}
-    </div>
+    </article>
   );
 }
 

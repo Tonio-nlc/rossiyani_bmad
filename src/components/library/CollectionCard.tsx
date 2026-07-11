@@ -1,4 +1,4 @@
-import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
+import { CARD_COLLECTION_CLASS } from "@/components/ui/card-styles";
 import { BADGE_META_CLASS } from "@/lib/design/classes";
 import { COLLECTION_BORDER_COLORS } from "@/lib/library/collections";
 
@@ -22,7 +22,7 @@ export function CollectionCard({ collection, onClick }: CollectionCardProps) {
     <button
       type="button"
       onClick={onClick}
-      className={CARD_BASE_CLASS}
+      className={CARD_COLLECTION_CLASS}
       style={{ borderLeftWidth: 3, borderLeftColor: borderColor }}
     >
       <h3 className="text-sm font-bold text-ink">{collection.name}</h3>
@@ -31,7 +31,7 @@ export function CollectionCard({ collection, onClick }: CollectionCardProps) {
         {collection.description}
       </p>
 
-      <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
+      <div className="mt-auto flex flex-wrap items-center gap-2 pt-3">
         {collection.level !== "Tous niveaux" && (
           <span className={BADGE_META_CLASS}>
             {collection.level}

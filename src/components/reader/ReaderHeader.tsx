@@ -1,6 +1,11 @@
 import Link from "next/link";
 
-import { BackLink } from "@/components/ui/BackLink";
+import {
+  READER_BREADCRUMB_CLASS,
+  READER_COLUMN_CLASS,
+  READER_HEADER_SHELL_CLASS,
+  READER_TITLE_CLASS,
+} from "@/lib/design/reader-composition";
 import { buildReturnQuery } from "@/lib/navigation/return-context";
 
 interface ReaderHeaderProps {
@@ -26,45 +31,34 @@ export function ReaderHeader({
   const readerReturn = buildReturnQuery("reader", textId);
 
   return (
-    <header className="sticky top-14 z-40 border-b border-border bg-surface py-3">
-      <div className="px-4 md:px-10">
-        <div className="mx-auto w-full max-w-reading">
-          <BackLink href="/library" label="Bibliothèque" />
-
-          <nav
-            className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-ink-3"
-            aria-label="Fil d'Ariane"
-          >
-            <Link href="/" className="hover:text-ink-2">
-              Accueil
-            </Link>
-            <span aria-hidden="true">·</span>
+    <header className={READER_HEADER_SHELL_CLASS}>
+      <div className="px-4 md:px-8">
+        <div className={READER_COLUMN_CLASS}>
+          <nav className={READER_BREADCRUMB_CLASS} aria-label="Fil d'Ariane">
             <Link href="/library" className="hover:text-ink-2">
               Bibliothèque
             </Link>
-            <span aria-hidden="true">·</span>
+            <span aria-hidden="true" className="text-ink-3/60">
+              /
+            </span>
             <span>{collectionLabel}</span>
-            <span aria-hidden="true">·</span>
-            <span className="font-russian text-ink">{title}</span>
           </nav>
 
-          <h1 className="mt-2 font-russian text-[22px] font-bold leading-tight text-ink">
-            {title}
-          </h1>
+          <h1 className={READER_TITLE_CLASS}>{title}</h1>
 
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-3 text-[13px] text-ink-2">
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-ink-3">
             <span className="flex flex-wrap items-center gap-2">
-              <span className="rounded-[5px] border border-border px-2 py-0.5 text-[11px] font-bold text-ink">
+              <span className="rounded-[5px] border border-border px-1.5 py-0.5 text-[10px] font-semibold text-ink-2">
                 {level}
               </span>
               <span>
                 {readingTimeMinutes} min · {exploredLabel}
               </span>
             </span>
-            <span className="shrink-0 font-medium text-ink">{percentRead}% lu</span>
+            <span className="shrink-0 text-ink-2">{percentRead}% lu</span>
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
+          <div className="mt-4 flex flex-wrap gap-1.5 border-t border-border/60 pt-3">
             <ReaderContextLink
               href={`/vocabulary${readerReturn}`}
               label="Vocabulaire"
@@ -88,7 +82,7 @@ function ReaderContextLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="rounded-full border border-border bg-bg px-3 py-1 text-[12px] font-medium text-ink-2 transition-colors hover:border-accent-border hover:text-ink"
+      className="rounded-full border border-border/80 bg-bg/80 px-2.5 py-0.5 text-[11px] font-medium text-ink-3 transition-colors hover:border-accent-border hover:text-ink-2"
     >
       {label}
     </Link>

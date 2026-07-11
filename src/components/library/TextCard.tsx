@@ -16,7 +16,7 @@ export function TextCard({ text, onClick }: TextCardProps) {
 
   return (
     <button type="button" onClick={onClick} className={TEXT_CARD_CLASS}>
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <div className="mb-2 flex items-center justify-between gap-2">
         <span className="rounded-[5px] bg-accent px-2 py-0.5 text-[10px] font-extrabold text-white">
           {text.level}
         </span>
@@ -33,7 +33,7 @@ export function TextCard({ text, onClick }: TextCardProps) {
         {text.wordCount} mots · {text.readingTimeMinutes} min
       </p>
 
-      <div className="mt-auto pt-4">
+      <div className="mt-auto pt-3">
         {hasProgress ? (
           <div className="space-y-2">
             <div className="h-[3px] overflow-hidden rounded-[2px] bg-accent-light">

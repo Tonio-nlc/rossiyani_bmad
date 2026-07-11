@@ -1,38 +1,34 @@
+import {
+  LESSON_SCHEMA_CAPTION_CLASS,
+  LESSON_SCHEMA_PADDING_CLASS,
+  LESSON_SCHEMA_SHELL_CLASS,
+} from "@/lib/design/lesson-composition";
+import { cn } from "@/lib/utils";
+
 interface SchemaDiagramProps {
   svgContent: string;
   caption: string;
   variant?: "default" | "climax";
 }
 
+/** Schéma = illustration intégrée dans le flux de lecture */
 export function SchemaDiagram({
   svgContent,
   caption,
   variant = "default",
 }: SchemaDiagramProps) {
-  if (variant === "climax") {
-    return (
-      <figure className="mx-auto w-full max-w-reading px-2 md:px-0">
-        <div
-          className="flex justify-center py-10 md:py-14 [&_svg]:h-auto [&_svg]:max-w-full"
-          dangerouslySetInnerHTML={{ __html: svgContent }}
-        />
-        {caption ? (
-          <figcaption className="mx-auto mt-8 max-w-[24rem] text-center text-[11px] leading-relaxed tracking-[0.04em] text-ink-3">
-            {caption}
-          </figcaption>
-        ) : null}
-      </figure>
-    );
-  }
-
   return (
-    <figure>
+    <figure className={cn(variant === "climax" && "mx-auto w-full max-w-reading")}>
       <div
-        className="flex justify-center overflow-x-auto rounded-[14px] border border-border bg-bg p-4 md:p-6 [&_svg]:h-auto [&_svg]:max-w-full"
+        className={cn(
+          LESSON_SCHEMA_SHELL_CLASS,
+          LESSON_SCHEMA_PADDING_CLASS,
+          "flex justify-center overflow-x-auto [&_svg]:h-auto [&_svg]:max-w-full",
+        )}
         dangerouslySetInnerHTML={{ __html: svgContent }}
       />
       {caption ? (
-        <figcaption className="mt-3 text-center text-xs leading-relaxed text-ink-3">
+        <figcaption className={LESSON_SCHEMA_CAPTION_CLASS}>
           {caption}
         </figcaption>
       ) : null}

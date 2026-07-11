@@ -37,3 +37,7 @@ export const BADGE_META_CLASS =
 
 /** Skeleton aligné cartes */
 export const SKELETON_CARD_CLASS = "rounded-[14px]";
+
+/** Encart promo « En cours » (Home / Library) */
+export const CARD_PROMO_CLASS =
+  "relative overflow-hidden rounded-lg bg-accent-deep p-5";

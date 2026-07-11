@@ -72,7 +72,7 @@ export function ReviewView({
           </Link>
         ) : null}
 
-        <PageSection spaced={queue.length > 0}>
+        <PageSection gap={queue.length > 0 ? "default" : "none"}>
           {queue.length === 0 ? (
             <EmptyState
               title="Rien à réviser pour l'instant"

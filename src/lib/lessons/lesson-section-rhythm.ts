@@ -1,10 +1,16 @@
 import type { TLessonSectionId } from "@/lib/lessons/group-lesson-sections";
+import {
+  LESSON_PARAGRAPH_GAP_CLASS,
+  LESSON_SECTION_GAP_CLASS,
+  LESSON_SUBCONTENT_GAP_CLASS,
+} from "@/lib/design/lesson-composition";
 
 export type TLessonSectionHeaderTone =
   | "chapter"
   | "impact"
   | "conversation"
   | "standard"
+  | "step"
   | "hidden"
   | "climax"
   | "conclusion";
@@ -18,51 +24,54 @@ export interface TLessonSectionRhythm {
   showSeparator: boolean;
 }
 
+/** Échelle unique : section 40px · sous-contenu 24px · paragraphes 16px */
 export const LESSON_SECTION_RHYTHM: Record<
   TLessonSectionId,
   TLessonSectionRhythm
 > = {
   question: {
-    marginTop: "mt-2",
-    marginBottom: "mb-14 md:mb-16",
+    marginTop: "mt-0",
+    marginBottom: "mb-0",
     headerTone: "impact",
-    contentSpacing: "space-y-7 md:space-y-8",
+    contentSpacing: LESSON_PARAGRAPH_GAP_CLASS,
     contentMaxWidth: "max-w-reading",
     showSeparator: false,
   },
   intuition: {
-    marginTop: "mt-10 md:mt-12",
-    marginBottom: "mb-16 md:mb-20",
+    marginTop: LESSON_SECTION_GAP_CLASS,
+    marginBottom: "mb-0",
     headerTone: "conversation",
-    contentSpacing: "space-y-6 md:space-y-7",
+    contentSpacing: LESSON_PARAGRAPH_GAP_CLASS,
     contentMaxWidth: "max-w-reading",
     showSeparator: false,
   },
   exemple: {
-    marginTop: "mt-14 md:mt-16",
-    marginBottom: "mb-16 md:mb-20",
+    marginTop: LESSON_SECTION_GAP_CLASS,
+    marginBottom: "mb-0",
     headerTone: "standard",
-    contentSpacing: "space-y-8 md:space-y-10",
+    contentSpacing: LESSON_SUBCONTENT_GAP_CLASS,
+    contentMaxWidth: "max-w-reading",
     showSeparator: false,
   },
   comprendre: {
-    marginTop: "mt-14 md:mt-16",
-    marginBottom: "mb-16 md:mb-20",
-    headerTone: "standard",
-    contentSpacing: "space-y-6 md:space-y-7",
+    marginTop: LESSON_SECTION_GAP_CLASS,
+    marginBottom: "mb-0",
+    headerTone: "step",
+    contentSpacing: LESSON_PARAGRAPH_GAP_CLASS,
     contentMaxWidth: "max-w-reading",
     showSeparator: false,
   },
   schema: {
-    marginTop: "mt-20 md:mt-24",
-    marginBottom: "mb-20 md:mb-24",
-    headerTone: "climax",
+    marginTop: LESSON_SECTION_GAP_CLASS,
+    marginBottom: "mb-0",
+    headerTone: "hidden",
     contentSpacing: "space-y-0",
+    contentMaxWidth: "max-w-reading",
     showSeparator: false,
   },
   retenir: {
-    marginTop: "mt-24 md:mt-28",
-    marginBottom: "mb-4",
+    marginTop: "mt-16 md:mt-20",
+    marginBottom: "mb-0",
     headerTone: "conclusion",
     contentSpacing: "space-y-0",
     contentMaxWidth: "max-w-reading",

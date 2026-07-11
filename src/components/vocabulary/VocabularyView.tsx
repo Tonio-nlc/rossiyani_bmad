@@ -16,7 +16,7 @@ import {
   parseReturnContext,
   resolveReaderBackNavigation,
 } from "@/lib/navigation/return-context";
-import { SECTION_CONTENT_GAP_CLASS } from "@/lib/design/rhythm";
+import { SUBSECTION_GAP_CLASS } from "@/lib/design/rhythm";
 import { cn } from "@/lib/utils";
 import type { TVocabularyFilter, TVocabularyListItem } from "@/types/vocabulary";
 
@@ -82,12 +82,12 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
       <PageHeader
         eyebrow="MÉMOIRE LINGUISTIQUE"
         title="Vocabulary"
-        subtitle="Vos mots sauvegardés en contexte — retrouvez ce que vous avez rencontré en lecture."
+        subtitle="Vos mots sauvegardés en contexte."
         width="content"
       />
 
       <PageBody width="content">
-        <div className="space-y-4">
+        <div className="space-y-3">
           <Input
             type="search"
             value={searchQuery}
@@ -114,7 +114,7 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
           </div>
         </div>
 
-        <div className={SECTION_CONTENT_GAP_CLASS}>
+        <div className={SUBSECTION_GAP_CLASS}>
           {words.length === 0 ? (
             <EmptyState
               title="Aucun mot sauvegardé"

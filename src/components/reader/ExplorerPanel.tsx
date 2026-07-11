@@ -1,10 +1,8 @@
 "use client";
 
 /**
- * ATTENTION: ce panel doit rester en position: fixed, hors du flux du document.
- * Ne jamais le faire participer au layout de la colonne de texte. Toute modification
- * de son positionnement doit être testée en cliquant sur plusieurs mots successifs
- * pour vérifier qu'il ne bouge pas et ne pousse pas le texte.
+ * Panneau Explorer — composition éditoriale secondaire (Story 5.4).
+ * Position fixed hors flux ; max 520px, scroll interne.
  */
 
 import { useEffect, useState } from "react";
@@ -12,7 +10,12 @@ import { createPortal } from "react-dom";
 
 import { ExplorerLessonDeepLink } from "@/components/reader/ExplorerLessonDeepLink";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BTN_SECONDARY_CLASS } from "@/lib/design/classes";
+import { BTN_PRIMARY_CLASS, BTN_SECONDARY_CLASS } from "@/lib/design/classes";
+import {
+  EXPLORER_PANEL_MAX_HEIGHT_CLASS,
+  EXPLORER_PANEL_WIDTH_CLASS,
+  EXPLORER_SPACE,
+} from "@/lib/design/reader-composition";
 import {
   getFunctionColorHex,
   getNaturalFunctionalRoleLabel,
@@ -40,75 +43,102 @@ export interface ExplorerPanelProps {
 export const EXPLORER_PANEL_TEXT_PADDING_OPEN_PX = 360;
 export const EXPLORER_PANEL_TEXT_PADDING_CLOSED_PX = 48;
 
-const DESKTOP_PANEL_CLASS =
-  "fixed z-50 box-border max-h-[calc(100dvh-3.5rem-7.5rem)] w-[320px] max-w-[calc(100vw-40px)] overflow-y-auto rounded-2xl border border-border bg-surface px-6 py-5 shadow-[0_4px_24px_rgba(0,0,0,0.08)] max-md:hidden";
+const DESKTOP_SHELL_CLASS = cn(
+  "fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_4px_24px_rgba(0,0,0,0.08)] max-md:hidden",
+  EXPLORER_PANEL_WIDTH_CLASS,
+  EXPLORER_PANEL_MAX_HEIGHT_CLASS,
+  "max-w-[calc(100vw-40px)]",
+);
 
-function PanelDivider() {
-  return <div className="my-5 h-px shrink-0 bg-border" />;
-}
-
-function ExplorerPanelHeader({
+function ExplorerPanelChrome({
   showClose,
   onClose,
+  children,
 }: {
   showClose: boolean;
   onClose?: () => void;
+  children: React.ReactNode;
 }) {
   return (
-    <div className="mb-5 shrink-0 border-b border-border pb-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-[13px] font-bold text-ink-3">Explorer</h2>
-        {showClose && onClose ? (
-          <button
-            type="button"
-            onClick={onClose}
-            className="cursor-pointer text-[13px] font-bold text-ink-3 hover:text-ink-2"
-          >
-            Fermer
-          </button>
-        ) : null}
+    <>
+      <div className="shrink-0 border-b border-border px-5 py-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[11px] font-bold tracking-[0.08em] text-ink-3 uppercase">
+            Explorer
+          </h2>
+          {showClose && onClose ? (
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-[11px] font-semibold text-ink-3 hover:text-ink-2"
+            >
+              Fermer
+            </button>
+          ) : null}
+        </div>
       </div>
-    </div>
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
+    </>
   );
 }
 
 function ExplorerSkeleton() {
   return (
-    <div className="space-y-5">
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-1/3" />
-        <Skeleton className="h-9 w-3/4" />
-        <Skeleton className="h-5 w-1/2" />
+    <div className="reader-panel-fade-in space-y-4">
+      <Skeleton className="h-8 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
+      <Skeleton className="h-6 w-28 rounded-full" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-5/6" />
+      <div className="flex justify-end pt-2">
+        <Skeleton className="h-9 w-36 rounded-[10px]" />
       </div>
-      <Skeleton className="h-7 w-28 rounded-full" />
-      <PanelDivider />
-      <div className="space-y-2">
-        <Skeleton className="h-3 w-24" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
-      </div>
-      <PanelDivider />
-      <div className="space-y-2">
-        <Skeleton className="h-3 w-28" />
-        <Skeleton className="h-6 w-16" />
-      </div>
-      <Skeleton className="h-11 w-full rounded-[10px]" />
     </div>
   );
 }
 
 function ExplorerError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-[14px] leading-[1.65] text-ink">
+    <div className="reader-panel-fade-in flex flex-col gap-4">
+      <p className="text-sm leading-relaxed text-ink">
         Impossible d&apos;obtenir une explication.
       </p>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={onRetry}
+          className={cn(BTN_SECONDARY_CLASS, "px-4 py-2 text-sm")}
+        >
+          Réessayer
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ExplorerSaveButton({
+  isSaved,
+  disabled,
+  onClick,
+}: {
+  isSaved: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div className={cn("flex justify-end", EXPLORER_SPACE.afterBridge)}>
       <button
         type="button"
-        onClick={onRetry}
-        className={cn(BTN_SECONDARY_CLASS, "w-fit px-4 py-2 text-[14px]")}
+        onClick={onClick}
+        disabled={disabled}
+        className={cn(
+          BTN_PRIMARY_CLASS,
+          "px-4 py-2.5 text-sm",
+          isSaved && "cursor-default bg-green hover:bg-green",
+          disabled && !isSaved && "opacity-50",
+        )}
       >
-        Réessayer
+        {isSaved ? "✓ Sauvegardé" : "Sauvegarder"}
       </button>
     </div>
   );
@@ -159,102 +189,82 @@ function ExplorerContent({
 
   return (
     <div className="reader-panel-fade-in flex flex-col">
-      <section>
-        {showSurfaceForm ? (
-          <p className="text-[13px] text-ink-3">{cleanSurface}</p>
-        ) : null}
-        <p
-          className={cn(
-            "font-russian text-[28px] font-bold leading-tight text-ink",
-            showSurfaceForm && "mt-1",
-          )}
-        >
-          {displayLemma}
-        </p>
-        <p className="mt-1 text-[15px] font-normal text-ink-2">
-          {explanation.translation}
-        </p>
+      {showSurfaceForm ? (
+        <p className="text-xs text-ink-3">{cleanSurface}</p>
+      ) : null}
+      <p
+        className={cn(
+          "font-russian text-[26px] font-bold leading-tight text-ink",
+          showSurfaceForm && "mt-1",
+        )}
+      >
+        {displayLemma}
+      </p>
 
-        <div className="mt-4">
+      <p className={cn("text-[15px] text-ink-2", EXPLORER_SPACE.afterWord)}>
+        {explanation.translation}
+      </p>
+
+      <div className={EXPLORER_SPACE.afterTranslation}>
+        <span
+          className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+          style={
+            colorHex
+              ? {
+                  color: colorHex,
+                  backgroundColor: `${colorHex}26`,
+                }
+              : undefined
+          }
+        >
           <span
-            className="inline-flex items-center gap-2 rounded-[20px] px-3 py-1 text-xs font-semibold"
+            className="size-1.5 shrink-0 rounded-full"
+            style={colorHex ? { backgroundColor: colorHex } : undefined}
+            aria-hidden="true"
+          />
+          {roleLabel}
+        </span>
+      </div>
+
+      <p
+        className={cn(
+          "text-sm leading-[1.65] text-ink",
+          EXPLORER_SPACE.afterBadge,
+        )}
+      >
+        {explanation.explanation}
+      </p>
+
+      {explanation.suffix ? (
+        <div className={EXPLORER_SPACE.afterExplanation}>
+          <span
+            className="inline-flex rounded-md px-2 py-0.5 text-[13px] font-bold"
             style={
               colorHex
                 ? {
                     color: colorHex,
-                    backgroundColor: `${colorHex}26`,
+                    backgroundColor: `${colorHex}1F`,
                   }
                 : undefined
             }
           >
-            <span
-              className="size-2 shrink-0 rounded-full"
-              style={colorHex ? { backgroundColor: colorHex } : undefined}
-              aria-hidden="true"
-            />
-            {roleLabel}
+            {explanation.suffix}
           </span>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
+            {explanation.suffixExplanation}
+          </p>
         </div>
-      </section>
-
-      <PanelDivider />
-
-      <section>
-        <h3 className="text-[11px] font-bold tracking-[0.06em] text-ink-3">
-          Explication
-        </h3>
-        <p className="mt-2 text-[14px] font-normal leading-[1.65] text-ink">
-          {explanation.explanation}
-        </p>
-      </section>
-
-      <PanelDivider />
-
-      <section>
-        <h3 className="text-[11px] font-bold tracking-[0.06em] text-ink-3">
-          La terminaison
-        </h3>
-        {explanation.suffix ? (
-          <div className="mt-2 space-y-2">
-            <span
-              className="inline-flex rounded-[6px] px-2.5 py-[3px] text-[13px] font-bold"
-              style={
-                colorHex
-                  ? {
-                      color: colorHex,
-                      backgroundColor: `${colorHex}1F`,
-                    }
-                  : undefined
-              }
-            >
-              {explanation.suffix}
-            </span>
-            <p className="text-[13px] font-normal text-ink-2">
-              {explanation.suffixExplanation}
-            </p>
-          </div>
-        ) : (
-          <p className="mt-2 text-[13px] text-ink-3">—</p>
-        )}
-      </section>
+      ) : null}
 
       {lessonDeepLink ? (
         <ExplorerLessonDeepLink lesson={lessonDeepLink} textId={textId} />
       ) : null}
 
-      <button
-        type="button"
-        onClick={onSaveWord}
+      <ExplorerSaveButton
+        isSaved={isSaved}
         disabled={isSaved || !explanation.lemmaId}
-        className={cn(
-          "mt-5 box-border w-full rounded-[10px] p-3 text-[14px] font-bold text-white transition-colors",
-          isSaved
-            ? "cursor-default bg-green"
-            : "bg-accent hover:bg-accent-deep disabled:cursor-not-allowed disabled:opacity-50",
-        )}
-      >
-        {isSaved ? "✓ Sauvegardé" : "Sauvegarder ce mot"}
-      </button>
+        onClick={onSaveWord}
+      />
     </div>
   );
 }
@@ -284,24 +294,25 @@ export function ExplorerPanel({
 
   return createPortal(
     <aside
-      className={cn(DESKTOP_PANEL_CLASS, className)}
+      className={cn(DESKTOP_SHELL_CLASS, className)}
       style={{
-        top: "calc(3.5rem + 6.5rem)",
+        top: "calc(3.5rem + 7rem)",
         right: 20,
       }}
       aria-label="Explorer"
     >
-      <ExplorerPanelHeader showClose onClose={onClose} />
-      <ExplorerContent
-        explanation={explanation}
-        isLoading={isLoading}
-        error={error}
-        onSaveWord={onSaveWord}
-        onRetry={onRetry}
-        isSaved={isSaved}
-        textId={textId}
-        lessonDeepLink={lessonDeepLink}
-      />
+      <ExplorerPanelChrome showClose onClose={onClose}>
+        <ExplorerContent
+          explanation={explanation}
+          isLoading={isLoading}
+          error={error}
+          onSaveWord={onSaveWord}
+          onRetry={onRetry}
+          isSaved={isSaved}
+          textId={textId}
+          lessonDeepLink={lessonDeepLink}
+        />
+      </ExplorerPanelChrome>
     </aside>,
     document.body,
   );
@@ -350,22 +361,29 @@ export function ExplorerPanelMobile({
         className="reader-sheet-backdrop absolute inset-0 bg-black/25"
         onClick={onClose}
       />
-      <div className="reader-sheet-panel absolute inset-x-0 bottom-0 mx-auto flex max-h-[min(70vh,calc(100dvh-4rem))] w-full flex-col overflow-y-auto overscroll-contain rounded-t-2xl border-t border-border bg-surface px-5 py-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))] shadow-[0_-4px_24px_rgba(0,0,0,0.1)]">
+      <div
+        className={cn(
+          "reader-sheet-panel absolute inset-x-0 bottom-0 mx-auto flex w-full flex-col overflow-hidden rounded-t-2xl border-t border-border bg-surface shadow-[0_-4px_24px_rgba(0,0,0,0.1)]",
+          EXPLORER_PANEL_MAX_HEIGHT_CLASS,
+          "max-h-[min(520px,calc(100dvh-4rem))]",
+        )}
+      >
         <div
-          className="mx-auto mb-3 h-1 w-10 shrink-0 rounded-full bg-border"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-border"
           aria-hidden="true"
         />
-        <ExplorerPanelHeader showClose onClose={onClose} />
-        <ExplorerContent
-          explanation={explanation}
-          isLoading={isLoading}
-          error={error}
-          onSaveWord={onSaveWord}
-          onRetry={onRetry}
-          isSaved={isSaved}
-          textId={textId}
-          lessonDeepLink={lessonDeepLink}
-        />
+        <ExplorerPanelChrome showClose onClose={onClose}>
+          <ExplorerContent
+            explanation={explanation}
+            isLoading={isLoading}
+            error={error}
+            onSaveWord={onSaveWord}
+            onRetry={onRetry}
+            isSaved={isSaved}
+            textId={textId}
+            lessonDeepLink={lessonDeepLink}
+          />
+        </ExplorerPanelChrome>
       </div>
     </div>,
     document.body,

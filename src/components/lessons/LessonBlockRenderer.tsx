@@ -4,7 +4,15 @@ import type { ReactNode } from "react";
 import { LessonExampleSentence } from "@/components/lessons/LessonExampleSentence";
 import { LessonSection } from "@/components/lessons/LessonSection";
 import { SchemaDiagram } from "@/components/lessons/SchemaDiagram";
-import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
+import {
+  LESSON_CARD_SHELL_CLASS,
+  LESSON_EXAMPLE_CARD_CLASS,
+  LESSON_EXAMPLE_NOTE_CLASS,
+  LESSON_EXAMPLE_TRANSLATION_CLASS,
+  LESSON_PROSE_CLASS,
+  LESSON_QUESTION_CLASS,
+  LESSON_TAKEAWAY_ITEM_CLASS,
+} from "@/lib/design/lesson-composition";
 import { containsCyrillic } from "@/lib/lessons/lesson-colors";
 import {
   groupLessonBlocks,
@@ -41,35 +49,34 @@ function ParagraphBlock({ text, sectionId, inListGroup }: ParagraphBlockProps) {
   return (
     <p
       className={cn(
-        isQuestion &&
-          "font-serif text-[1.35rem] leading-[1.45] text-ink md:text-[1.5rem] md:leading-[1.4]",
+        isQuestion && LESSON_QUESTION_CLASS,
         !isQuestion &&
           isConversational &&
           !isKeyPhrase &&
           !isTransition &&
           !isListLead &&
-          "text-[15px] leading-[1.85] text-ink-2",
+          LESSON_PROSE_CLASS,
         !isQuestion &&
           !isConversational &&
           isKeyPhrase &&
-          "border-l border-accent-border/70 pl-4 text-[14px] font-medium leading-[1.6] text-ink",
+          "max-w-reading border-l border-accent-border/70 pl-4 text-[14px] font-medium leading-[1.65] text-ink",
         !isQuestion &&
           !isConversational &&
           !isKeyPhrase &&
           isTransition &&
-          "pt-2 text-[15px] font-medium leading-[1.75] text-ink",
+          cn(LESSON_PROSE_CLASS, "font-medium text-ink"),
         !isQuestion &&
           !isConversational &&
           !isKeyPhrase &&
           !isTransition &&
           isListLead &&
-          "text-[15px] font-medium leading-[1.75] text-ink",
+          cn(LESSON_PROSE_CLASS, "font-medium text-ink"),
         !isQuestion &&
           !isConversational &&
           !isKeyPhrase &&
           !isTransition &&
           !isListLead &&
-          "text-[15px] leading-[1.8] text-ink-2",
+          LESSON_PROSE_CLASS,
         hasCyrillic && "font-russian text-[16px] text-ink",
       )}
     >
@@ -84,14 +91,10 @@ function ExampleBlock({
   block: Extract<TContentBlock, { type: "example" }>;
 }) {
   return (
-    <div className={cn(CARD_BASE_CLASS, "space-y-4 bg-bg/40 px-6 py-6 md:px-7")}>
+    <div className={LESSON_EXAMPLE_CARD_CLASS}>
       <LessonExampleSentence russian={block.russian} words={block.words} />
-      <p className="text-sm italic leading-relaxed text-ink-3">
-        {block.translation}
-      </p>
-      <p className="border-t border-border/70 pt-4 text-sm leading-[1.75] text-ink-2">
-        {block.note}
-      </p>
+      <p className={LESSON_EXAMPLE_TRANSLATION_CLASS}>{block.translation}</p>
+      <p className={LESSON_EXAMPLE_NOTE_CLASS}>{block.note}</p>
     </div>
   );
 }
@@ -112,20 +115,25 @@ function ComparisonBlock({
   block: Extract<TContentBlock, { type: "comparison" }>;
 }) {
   return (
-    <div className="overflow-x-auto rounded-[14px] border border-border/80 bg-surface/80">
+    <div
+      className={cn(
+        LESSON_CARD_SHELL_CLASS,
+        "overflow-x-auto bg-surface/80",
+      )}
+    >
       {block.title ? (
-        <p className="border-b border-border/70 px-4 py-3 text-sm font-bold text-ink">
+        <p className="border-b border-border/70 px-4 py-2.5 text-sm font-bold text-ink">
           {block.title}
         </p>
       ) : null}
       <table className="w-full min-w-[320px] text-left text-sm">
         <thead>
           <tr className="border-b border-border/70 bg-bg/60">
-            <th className="px-4 py-3 text-xs font-bold text-ink-3"> </th>
+            <th className="px-4 py-2.5 text-xs font-bold text-ink-3"> </th>
             {block.columns.map((column) => (
               <th
                 key={column}
-                className="px-4 py-3 text-xs font-bold text-ink-3"
+                className="px-4 py-2.5 text-xs font-bold text-ink-3"
               >
                 {column}
               </th>
@@ -135,9 +143,9 @@ function ComparisonBlock({
         <tbody>
           {block.rows.map((row) => (
             <tr key={row.label} className="border-b border-border/60 last:border-0">
-              <td className="px-4 py-3 font-medium text-ink">{row.label}</td>
+              <td className="px-4 py-2.5 font-medium text-ink">{row.label}</td>
               {row.values.map((value, index) => (
-                <td key={`${row.label}-${index}`} className="px-4 py-3 text-ink-2">
+                <td key={`${row.label}-${index}`} className="px-4 py-2.5 text-ink-2">
                   <ComparisonCell value={value} />
                 </td>
               ))}
@@ -151,8 +159,13 @@ function ComparisonBlock({
 
 function CalloutBlock({ text }: { text: string }) {
   return (
-    <div className="rounded-[14px] border border-accent-border/60 bg-accent-light/70 px-5 py-4">
-      <p className="text-sm leading-[1.75] text-ink-2">{text}</p>
+    <div
+      className={cn(
+        LESSON_CARD_SHELL_CLASS,
+        "border-accent-border/60 bg-accent-light/70 px-4 py-3",
+      )}
+    >
+      <p className={cn(LESSON_PROSE_CLASS, "text-sm")}>{text}</p>
     </div>
   );
 }
@@ -166,12 +179,9 @@ function TakeawaysBlock({
 }) {
   if (variant === "conclusion") {
     return (
-      <ul className="space-y-4 border-l-2 border-accent/20 pl-5 md:pl-6">
+      <ul className="space-y-4 border-l-2 border-accent/25 pl-5 md:pl-6">
         {items.map((item, index) => (
-          <li
-            key={index}
-            className="font-serif text-[1.05rem] leading-[1.55] text-ink md:text-[1.125rem]"
-          >
+          <li key={index} className={LESSON_TAKEAWAY_ITEM_CLASS}>
             {item}
           </li>
         ))}
@@ -180,7 +190,12 @@ function TakeawaysBlock({
   }
 
   return (
-    <div className="flex gap-3 rounded-[14px] border border-accent-border bg-accent-light p-4">
+    <div
+      className={cn(
+        LESSON_CARD_SHELL_CLASS,
+        "flex gap-3 border-accent-border bg-accent-light p-4",
+      )}
+    >
       <Lightbulb
         className="mt-0.5 size-5 shrink-0 text-accent"
         aria-hidden="true"

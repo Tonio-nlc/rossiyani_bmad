@@ -28,7 +28,7 @@ export function TextBody({
     : splitIntoSentences(text.content);
 
   return (
-    <div className="w-full py-4 font-russian md:py-6">
+    <div className="w-full py-2 md:py-3">
       {sentences.map((sentenceText, index) => {
         const annotated = annotatedSentences?.[index];
 

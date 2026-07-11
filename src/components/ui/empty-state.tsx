@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
-import { CARD_BASE_CLASS } from "@/components/ui/card-styles";
+import { EMPTY_STATE_SHELL_CLASS } from "@/components/ui/card-styles";
 import { BTN_PRIMARY_CLASS } from "@/lib/design/classes";
 import { cn } from "@/lib/utils";
 
@@ -18,9 +18,6 @@ interface EmptyStateProps {
   className?: string;
 }
 
-/**
- * État vide canonique — une seule implémentation.
- */
 export function EmptyState({
   title,
   description,
@@ -32,13 +29,13 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        CARD_BASE_CLASS,
-        "flex flex-col items-center justify-center text-center",
+        EMPTY_STATE_SHELL_CLASS,
+        "items-center justify-center text-center",
         dashed && "border-dashed",
         className,
       )}
     >
-      {icon ? <div className="mb-4">{icon}</div> : null}
+      {icon ? <div className="mb-3">{icon}</div> : null}
       <p className="text-base font-bold text-ink">{title}</p>
       {description ? (
         <p className="mt-2 max-w-md text-sm leading-relaxed text-ink-2">
@@ -47,14 +44,14 @@ export function EmptyState({
       ) : null}
       {action ? (
         action.href ? (
-          <Link href={action.href} className={cn(BTN_PRIMARY_CLASS, "mt-5")}>
+          <Link href={action.href} className={cn(BTN_PRIMARY_CLASS, "mt-4")}>
             {action.label}
           </Link>
         ) : (
           <button
             type="button"
             onClick={action.onClick}
-            className={cn(BTN_PRIMARY_CLASS, "mt-5")}
+            className={cn(BTN_PRIMARY_CLASS, "mt-4")}
           >
             {action.label}
           </button>

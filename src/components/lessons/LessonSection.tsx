@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
 
+import {
+  LESSON_ENDING_CLASS,
+  LESSON_STEP_EYEBROW_CLASS,
+  LESSON_STEP_SECTION_CLASS,
+  LESSON_STEP_TITLE_CLASS,
+} from "@/lib/design/lesson-composition";
 import type { TLessonSectionHeaderTone } from "@/lib/lessons/lesson-section-rhythm";
 import type { TLessonSectionId } from "@/lib/lessons/group-lesson-sections";
 import { cn } from "@/lib/utils";
@@ -33,8 +39,8 @@ function SectionHeader({
 
   if (tone === "impact") {
     return (
-      <header className="mb-8 md:mb-10">
-        <p className="text-[10px] font-bold tracking-[0.12em] text-accent uppercase">
+      <header className="mb-6">
+        <p className="text-[11px] font-bold tracking-[0.08em] text-accent uppercase">
           {eyebrow}
         </p>
       </header>
@@ -43,21 +49,30 @@ function SectionHeader({
 
   if (tone === "conversation") {
     return (
-      <header className="mb-6 md:mb-8">
-        <p className="text-[10px] font-bold tracking-[0.12em] text-ink-3 uppercase">
+      <header className="mb-5">
+        <p className="text-[11px] font-bold tracking-[0.08em] text-ink-3 uppercase">
           {eyebrow}
         </p>
       </header>
     );
   }
 
+  if (tone === "step") {
+    return (
+      <header className={cn(LESSON_STEP_SECTION_CLASS, "mb-6")}>
+        <p className={LESSON_STEP_EYEBROW_CLASS}>{eyebrow}</p>
+        <h2 className={LESSON_STEP_TITLE_CLASS}>{title}</h2>
+      </header>
+    );
+  }
+
   if (tone === "conclusion") {
     return (
-      <header className="mb-8 md:mb-10">
-        <p className="text-[10px] font-bold tracking-[0.14em] text-ink-3 uppercase">
+      <header className="mb-6">
+        <p className="text-[11px] font-bold tracking-[0.1em] text-ink-3 uppercase">
           {eyebrow}
         </p>
-        <h2 className="mt-3 font-serif text-2xl text-ink md:text-[1.75rem]">
+        <h2 className="mt-2 font-serif text-xl leading-snug text-ink md:text-[1.35rem]">
           {title}
         </h2>
       </header>
@@ -65,11 +80,13 @@ function SectionHeader({
   }
 
   return (
-    <header className="mb-7 md:mb-8">
-      <p className="text-[10px] font-bold tracking-[0.1em] text-ink-3 uppercase">
+    <header className="mb-5">
+      <p className="text-[11px] font-bold tracking-[0.08em] text-ink-3 uppercase">
         {eyebrow}
       </p>
-      <h2 className="mt-2 font-serif text-lg text-ink md:text-xl">{title}</h2>
+      <h2 className="mt-1.5 font-serif text-lg leading-snug text-ink md:text-xl">
+        {title}
+      </h2>
     </header>
   );
 }
@@ -93,7 +110,7 @@ export function LessonSection({
         "relative",
         marginTop,
         marginBottom,
-        isConclusion && "border-t border-border pt-14 md:pt-16",
+        isConclusion && LESSON_ENDING_CLASS,
         sectionId === "schema" && "isolate",
       )}
     >
@@ -103,15 +120,14 @@ export function LessonSection({
         className={cn(
           contentSpacing,
           contentMaxWidth,
-          sectionId === "schema" && "mx-auto w-full",
-          sectionId !== "schema" && contentMaxWidth && "mx-auto w-full",
+          contentMaxWidth && "mx-auto w-full",
         )}
       >
         {children}
       </div>
 
       {showSeparator ? (
-        <div className="mt-12 border-b border-border/60" aria-hidden="true" />
+        <div className="mt-10 border-b border-border/60" aria-hidden="true" />
       ) : null}
     </section>
   );

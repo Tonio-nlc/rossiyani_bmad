@@ -1,28 +1,38 @@
 import Link from "next/link";
 
+import { BADGE_MUTED_CLASS } from "@/lib/design/classes";
+import { EXPLORER_SPACE } from "@/lib/design/reader-composition";
 import { lessonHref } from "@/lib/lessons/lesson-nav";
 import type { TLessonLink } from "@/types/lessons";
+import { cn } from "@/lib/utils";
 
 interface ExplorerLessonDeepLinkProps {
   lesson: TLessonLink;
   textId: string;
 }
 
+/** Carte secondaire discrète — badge → titre → contexte → CTA */
 export function ExplorerLessonDeepLink({
   lesson,
   textId,
 }: ExplorerLessonDeepLinkProps) {
   return (
-    <section className="mt-5 rounded-[10px] border border-border/60 bg-bg/50 px-4 py-3.5">
-      <p className="text-[11px] font-bold tracking-[0.04em] text-ink-3">
-        📖 Approfondir ce concept
-      </p>
-      <p className="mt-2 text-[13px] font-medium leading-snug text-ink">
+    <section
+      className={cn(
+        EXPLORER_SPACE.afterSuffix,
+        "rounded-[10px] border border-border bg-bg/60 p-4",
+      )}
+    >
+      <span className={cn(BADGE_MUTED_CLASS, "inline-flex")}>
+        Approfondir
+      </span>
+      <p className="mt-3 text-sm font-semibold leading-snug text-ink">
         {lesson.lessonTitle}
       </p>
+      <p className="mt-1 text-xs text-ink-3">{lesson.pathTitle}</p>
       <Link
         href={lessonHref(lesson.pathSlug, lesson.lessonSlug, "reader", textId)}
-        className="mt-2 inline-block text-[13px] font-semibold text-accent hover:underline"
+        className="mt-3 inline-block text-[13px] font-semibold text-accent hover:underline"
       >
         Ouvrir la leçon →
       </Link>

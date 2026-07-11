@@ -7,20 +7,18 @@ import { useMemo } from "react";
 
 import { CollectionCard } from "@/components/library/CollectionCard";
 import { TextCard } from "@/components/library/TextCard";
-import { EXERCISE_CARD_CLASS } from "@/components/ui/card-styles";
+import { CARD_HUB_CLASS } from "@/components/ui/card-styles";
 import { PageBody } from "@/components/ui/PageBody";
-import { PageSection } from "@/components/ui/PageSection";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Section } from "@/components/ui/Section";
 import {
   BADGE_SOFT_CLASS,
   BTN_PRIMARY_CLASS,
   CARD_ICON_BOX_CLASS,
+  CARD_PROMO_CLASS,
   CTA_LINK_CLASS,
 } from "@/lib/design/classes";
-import {
-  CARD_GRID_3COL_CLASS,
-  SECTION_CONTENT_GAP_CLASS,
-} from "@/lib/design/rhythm";
+import { CARD_GRID_3COL_CLASS } from "@/lib/design/rhythm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHomeData } from "@/hooks/useHomeData";
 import { useTexts } from "@/hooks/useTexts";
@@ -47,8 +45,10 @@ export function HomePage() {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-dashboard px-10 py-12 text-center">
-        <p className="text-ink-2">Impossible de charger l&apos;accueil.</p>
+      <PageBody width="dashboard">
+        <p className="text-center text-ink-2">
+          Impossible de charger l&apos;accueil.
+        </p>
         <button
           type="button"
           onClick={() => refetch()}
@@ -56,55 +56,64 @@ export function HomePage() {
         >
           Réessayer
         </button>
-      </div>
+      </PageBody>
     );
   }
 
   return (
-    <PageBody width="dashboard" className="pb-12">
-      <HeroSection data={data} isLoading={isLoading} />
+    <div>
+      <PageHeader
+        eyebrow="ESPACE D'APPRENTISSAGE"
+        title="Rossiyani"
+        subtitle="Reprenez votre lecture, pratiquez un peu, explorez vos collections."
+        width="dashboard"
+      />
 
-      <PageSection>
-        <TodaySection reviewCount={data?.reviewCount ?? 0} isLoading={isLoading} />
-      </PageSection>
+      <PageBody width="dashboard">
+        <HeroSection data={data} isLoading={isLoading} />
 
-      <PageSection>
-        <SectionHeader
+        <Section
+          title="Aujourd'hui"
+          description="Trois exercices courts pour garder le rythme."
+          gap="after-hero"
+        >
+          <TodayCards reviewCount={data?.reviewCount ?? 0} isLoading={isLoading} />
+        </Section>
+
+        <Section
           title="Collections"
-          subtitle="Parcours thématiques pour structurer vos lectures."
-        />
-        <div className={cn(CARD_GRID_3COL_CLASS, SECTION_CONTENT_GAP_CLASS)}>
-          {collections.map((collection) => (
-            <CollectionCard
-              key={collection.id}
-              collection={collection}
-              onClick={() => router.push(`/library?collection=${collection.id}`)}
-            />
-          ))}
-        </div>
-      </PageSection>
+          description="Parcours thématiques pour structurer vos lectures."
+        >
+          <div className={CARD_GRID_3COL_CLASS}>
+            {collections.map((collection) => (
+              <CollectionCard
+                key={collection.id}
+                collection={collection}
+                onClick={() => router.push(`/library?collection=${collection.id}`)}
+              />
+            ))}
+          </div>
+        </Section>
 
-      <PageSection>
-        <SectionHeader
+        <Section
           title="Activité récente"
-          subtitle="Lectures suggérées selon votre niveau et votre historique."
-        />
-        <div className={SECTION_CONTENT_GAP_CLASS}>
-        <RecentActivitySection
-          recentTexts={data?.recentTexts ?? []}
-          isLoading={isLoading}
-          onTextClick={(textId) => router.push(`/reader/${textId}`)}
-        />
-        </div>
-      </PageSection>
+          description="Lectures suggérées selon votre niveau et votre historique."
+        >
+          <RecentActivitySection
+            recentTexts={data?.recentTexts ?? []}
+            isLoading={isLoading}
+            onTextClick={(textId) => router.push(`/reader/${textId}`)}
+          />
+        </Section>
 
-      <PageSection>
-        <VocabularySection
-          wordsCount={data?.wordsCount ?? 0}
-          isLoading={isLoading}
-        />
-      </PageSection>
-    </PageBody>
+        <Section title="Mémoire linguistique">
+          <VocabularyBlock
+            wordsCount={data?.wordsCount ?? 0}
+            isLoading={isLoading}
+          />
+        </Section>
+      </PageBody>
+    </div>
   );
 }
 
@@ -121,25 +130,14 @@ function HeroSection({
   isLoading: boolean;
 }) {
   return (
-    <section className="grid gap-8 md:grid-cols-2 md:gap-10">
-      <div>
-        <p className="mb-4 text-[11px] font-bold tracking-[0.1em] text-accent uppercase">
-          ESPACE D&apos;APPRENTISSAGE
-        </p>
-        <h1 className="font-serif text-[52px] leading-none tracking-[-1px] text-ink">
-          Rossiyani
-        </h1>
-        <p className="mt-4 max-w-[380px] text-[15px] leading-[1.65] text-ink-2">
-          Reprenez votre lecture, pratiquez un peu, explorez vos collections —
-          sans tableau de bord, juste votre progression.
-        </p>
-
-        <div className="mt-6 flex flex-wrap gap-2">
+    <section className="grid items-stretch gap-4 md:grid-cols-2 md:gap-6">
+      <div className="flex flex-col justify-center gap-3">
+        <div className="flex flex-wrap gap-2">
           {isLoading ? (
             <>
-              <Skeleton className="h-8 w-36 rounded-full" />
-              <Skeleton className="h-8 w-32 rounded-full" />
-              <Skeleton className="h-8 w-36 rounded-full" />
+              <Skeleton className="h-7 w-32 rounded-full" />
+              <Skeleton className="h-7 w-28 rounded-full" />
+              <Skeleton className="h-7 w-32 rounded-full" />
             </>
           ) : (
             <>
@@ -157,7 +155,7 @@ function HeroSection({
       </div>
 
       {isLoading ? (
-        <Skeleton className="min-h-[280px] rounded-lg" />
+        <Skeleton className="min-h-[200px] rounded-lg" />
       ) : (
         <CurrentReadingCard current={data?.currentReading ?? null} />
       )}
@@ -178,8 +176,8 @@ function StatPill({
     <span
       className={
         isStreak
-          ? "inline-flex rounded-full border border-accent-border bg-accent-light px-3 py-1.5 text-xs font-medium text-accent"
-          : "inline-flex rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-ink-2"
+          ? "inline-flex rounded-full border border-accent-border bg-accent-light px-3 py-1 text-xs font-medium text-accent"
+          : "inline-flex rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-ink-2"
       }
     >
       {label}
@@ -193,9 +191,9 @@ function CurrentReadingCard({
   current: THomeCurrentReading | null;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-lg bg-accent-deep p-7">
+    <div className={CARD_PROMO_CLASS}>
       <span
-        className="pointer-events-none absolute -bottom-[18px] -right-1.5 font-serif text-[130px] italic leading-none text-white/[0.06]"
+        className="pointer-events-none absolute -bottom-3 -right-1 font-serif text-[5rem] italic leading-none text-white/[0.06]"
         aria-hidden="true"
       >
         Р
@@ -206,16 +204,15 @@ function CurrentReadingCard({
           <p className="text-[10px] font-bold tracking-[0.12em] text-white/45 uppercase">
             EN COURS
           </p>
-          <h2 className="mt-3 font-serif text-[26px] leading-tight text-white">
+          <h2 className="mt-2 font-serif text-xl leading-tight text-white md:text-2xl">
             {current.text.title}
           </h2>
-          <p className="mt-2 text-xs text-white/40">
+          <p className="mt-1.5 text-xs text-white/40">
             {COLLECTION_LABELS[current.text.collection] ??
               current.text.collection}{" "}
-            · {current.text.level} · {current.percentRead}% lu ·{" "}
-            {current.text.readingTimeMinutes} min
+            · {current.text.level} · {current.percentRead}% lu
           </p>
-          <div className="mt-5 h-[3px] overflow-hidden rounded-[2px] bg-white/12">
+          <div className="mt-4 h-[3px] overflow-hidden rounded-[2px] bg-white/12">
             <div
               className="h-full rounded-[2px] bg-white/65 transition-all"
               style={{ width: `${current.percentRead}%` }}
@@ -223,7 +220,7 @@ function CurrentReadingCard({
           </div>
           <Link
             href={`/reader/${current.text.id}`}
-            className="mt-5 inline-flex w-full items-center justify-center rounded-[10px] bg-white px-3 py-[11px] text-sm font-bold text-accent-deep"
+            className="mt-4 inline-flex items-center justify-center rounded-[10px] bg-white px-4 py-2.5 text-sm font-bold text-accent-deep"
           >
             Reprendre →
           </Link>
@@ -233,15 +230,15 @@ function CurrentReadingCard({
           <p className="text-[10px] font-bold tracking-[0.12em] text-white/45 uppercase">
             COMMENCER
           </p>
-          <h2 className="mt-3 font-serif text-[26px] leading-tight text-white">
-            Commencer votre première lecture
+          <h2 className="mt-2 font-serif text-xl leading-tight text-white md:text-2xl">
+            Première lecture
           </h2>
-          <p className="mt-2 text-xs text-white/40">
-            Choisissez un texte dans la bibliothèque pour démarrer.
+          <p className="mt-1.5 text-xs text-white/40">
+            Choisissez un texte dans la bibliothèque.
           </p>
           <Link
             href="/library"
-            className="mt-5 inline-flex w-full items-center justify-center rounded-[10px] bg-white px-3 py-[11px] text-sm font-bold text-accent-deep"
+            className="mt-4 inline-flex items-center justify-center rounded-[10px] bg-white px-4 py-2.5 text-sm font-bold text-accent-deep"
           >
             Explorer la bibliothèque →
           </Link>
@@ -251,7 +248,7 @@ function CurrentReadingCard({
   );
 }
 
-function TodaySection({
+function TodayCards({
   reviewCount,
   isLoading,
 }: {
@@ -288,29 +285,21 @@ function TodaySection({
   ];
 
   return (
-    <>
-      <SectionHeader
-        title="Aujourd'hui"
-        subtitle="Trois exercices courts pour garder le rythme."
-      />
-      <div className={cn("grid gap-4 md:grid-cols-3", SECTION_CONTENT_GAP_CLASS)}>
-        {cards.map((card) => (
-          <div key={card.title} className={`flex flex-col ${EXERCISE_CARD_CLASS}`}>
-            <div className={cn("mb-4", CARD_ICON_BOX_CLASS)}>
-              {card.icon}
-            </div>
-            <h3 className="text-sm font-bold text-ink">{card.title}</h3>
-            <p className="mt-2 flex-1 text-xs text-ink-3">{card.description}</p>
-            <span className={cn("mt-4 inline-flex w-fit", BADGE_SOFT_CLASS)}>
-              {card.badge}
-            </span>
-            <Link href={card.href} className={cn("mt-4 hover:underline", CTA_LINK_CLASS)}>
-              {card.cta}
-            </Link>
-          </div>
-        ))}
-      </div>
-    </>
+    <div className={CARD_GRID_3COL_CLASS}>
+      {cards.map((card) => (
+        <div key={card.title} className={CARD_HUB_CLASS}>
+          <div className={cn("mb-3", CARD_ICON_BOX_CLASS)}>{card.icon}</div>
+          <h3 className="text-sm font-bold text-ink">{card.title}</h3>
+          <p className="mt-1.5 flex-1 text-xs text-ink-3">{card.description}</p>
+          <span className={cn("mt-3 inline-flex w-fit", BADGE_SOFT_CLASS)}>
+            {card.badge}
+          </span>
+          <Link href={card.href} className={cn("mt-3 hover:underline", CTA_LINK_CLASS)}>
+            {card.cta}
+          </Link>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -325,24 +314,24 @@ function RecentActivitySection({
 }) {
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-3">
-        <Skeleton className="h-48 rounded-[14px]" />
-        <Skeleton className="h-48 rounded-[14px]" />
-        <Skeleton className="h-48 rounded-[14px]" />
+      <div className={CARD_GRID_3COL_CLASS}>
+        <Skeleton className="h-44 rounded-[14px]" />
+        <Skeleton className="h-44 rounded-[14px]" />
+        <Skeleton className="h-44 rounded-[14px]" />
       </div>
     );
   }
 
   if (recentTexts.length === 0) {
     return (
-      <div className="rounded-[14px] border border-border bg-surface p-6 text-sm text-ink-2">
+      <div className="rounded-[14px] border border-border bg-surface p-5 text-sm text-ink-2">
         Aucune lecture récente pour le moment.
       </div>
     );
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className={CARD_GRID_3COL_CLASS}>
       {recentTexts.map((text) => (
         <TextCard
           key={text.id}
@@ -375,7 +364,7 @@ function mapRecentTextToCard(text: THomeRecentText): TTextWithProgress {
   };
 }
 
-function VocabularySection({
+function VocabularyBlock({
   wordsCount,
   isLoading,
 }: {
@@ -383,14 +372,8 @@ function VocabularySection({
   isLoading: boolean;
 }) {
   return (
-    <div className="rounded-[14px] border border-border bg-surface p-6 md:p-8">
-      <p className="text-[11px] font-bold tracking-[0.1em] text-accent uppercase">
-        MÉMOIRE LINGUISTIQUE
-      </p>
-      <h2 className="mt-3 text-base font-bold text-ink">
-        Vos mots, expressions et phrases
-      </h2>
-      <p className="mt-2 text-sm text-ink-2">
+    <div className="rounded-[14px] border border-border bg-surface p-5">
+      <p className="mt-1 text-sm text-ink-2">
         {isLoading ? (
           <Skeleton className="inline-block h-4 w-48" />
         ) : (
@@ -401,7 +384,7 @@ function VocabularySection({
         )}
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         {["MOTS", "EXPRESSIONS", "PHRASES"].map((pill) => (
           <span
             key={pill}
@@ -414,7 +397,7 @@ function VocabularySection({
 
       <Link
         href="/vocabulary"
-        className={cn(BTN_PRIMARY_CLASS, "mt-6 h-9 px-4 text-sm")}
+        className={cn(BTN_PRIMARY_CLASS, "mt-4 h-9 px-4 text-sm")}
       >
         Ouvrir Vocabulary →
       </Link>

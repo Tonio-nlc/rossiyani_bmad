@@ -1,7 +1,7 @@
 import { ArrowLeftRight, PenLine } from "lucide-react";
 import Link from "next/link";
 
-import { EXERCISE_CARD_CLASS } from "@/components/ui/card-styles";
+import { CARD_HUB_CLASS } from "@/components/ui/card-styles";
 import { PageBody } from "@/components/ui/PageBody";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CARD_ICON_BOX_CLASS, CTA_LINK_CLASS } from "@/lib/design/classes";
@@ -41,14 +41,14 @@ export default function PracticePage() {
             <Link
               key={mode.href}
               href={mode.href}
-              className={EXERCISE_CARD_CLASS}
+              className={CARD_HUB_CLASS}
             >
-              <div className={cn("mb-4", CARD_ICON_BOX_CLASS)}>{mode.icon}</div>
+              <div className={cn("mb-3", CARD_ICON_BOX_CLASS)}>{mode.icon}</div>
               <h2 className="text-sm font-bold text-ink">{mode.title}</h2>
-              <p className="mt-2 flex-1 text-xs leading-relaxed text-ink-3">
+              <p className="mt-1.5 flex-1 text-xs leading-relaxed text-ink-3">
                 {mode.description}
               </p>
-              <span className={cn("mt-6", CTA_LINK_CLASS)}>Ouvrir →</span>
+              <span className={cn("mt-4", CTA_LINK_CLASS)}>Ouvrir →</span>
             </Link>
           ))}
         </div>

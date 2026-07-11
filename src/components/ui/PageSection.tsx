@@ -1,27 +1,29 @@
-import { PAGE_SECTION_GAP_CLASS } from "@/lib/design/rhythm";
+import { HERO_TO_SECTION_CLASS, SECTION_GAP_CLASS } from "@/lib/design/rhythm";
 import { cn } from "@/lib/utils";
+
+export type PageSectionGap = "default" | "after-hero" | "none";
 
 interface PageSectionProps {
   children: React.ReactNode;
   className?: string;
   id?: string;
-  /** false pour la première section (pas de mt-16) */
-  spaced?: boolean;
+  gap?: PageSectionGap;
 }
 
-/**
- * Section de page — marge haute 64px entre sections (spaced).
- */
 export function PageSection({
   children,
   className,
   id,
-  spaced = true,
+  gap = "default",
 }: PageSectionProps) {
   return (
     <section
       id={id}
-      className={cn(spaced && PAGE_SECTION_GAP_CLASS, className)}
+      className={cn(
+        gap === "after-hero" && HERO_TO_SECTION_CLASS,
+        gap === "default" && SECTION_GAP_CLASS,
+        className,
+      )}
     >
       {children}
     </section>

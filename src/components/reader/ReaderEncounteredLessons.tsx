@@ -4,6 +4,7 @@ import {
   LessonBridgeCard,
   LessonBridgeLink,
 } from "@/components/lessons/LessonBridgeCard";
+import { READER_CONCLUSION_CLASS } from "@/lib/design/reader-composition";
 import { lessonHref } from "@/lib/lessons/lesson-nav";
 import type { TLessonLink } from "@/types/lessons";
 
@@ -25,7 +26,7 @@ export function ReaderEncounteredLessons({
   return (
     <LessonBridgeCard
       title="Tu viens de rencontrer"
-      className="mt-10 md:mt-14"
+      className={READER_CONCLUSION_CLASS}
     >
       {lessons.map((lesson) => (
         <LessonBridgeLink
