@@ -83,7 +83,7 @@ export function useVocabulary() {
     saveWord: saveMutation.mutate,
     saveWordAsync: saveMutation.mutateAsync,
     isSaving: saveMutation.isPending,
-    isLoading: savedQuery.isLoading,
+    isLoading: savedQuery.isPending,
     error: savedQuery.error ?? saveMutation.error,
   };
 }

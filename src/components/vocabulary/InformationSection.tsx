@@ -1,3 +1,4 @@
+import { CARD_SHELL_CLASS } from "@/components/ui/card-styles";
 import {
   formatAspectLabel,
   formatGenderLabel,
@@ -48,7 +49,7 @@ export function InformationSection({ data }: InformationSectionProps) {
   }
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-6">
+    <section className={CARD_SHELL_CLASS}>
       <h2 className="text-xl font-semibold text-ink">
         Informations
       </h2>

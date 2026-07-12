@@ -22,8 +22,37 @@ const notoSerif = Noto_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Rossiyani",
-  description: "Environnement de lecture intelligent pour apprendre le russe",
+  title: {
+    default: "Rossiyani",
+    template: "%s · Rossiyani",
+  },
+  description:
+    "Environnement de lecture intelligent pour apprendre le russe",
+  applicationName: "Rossiyani",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-touch-icon.svg", type: "image/svg+xml" }],
+  },
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: "Rossiyani",
+    title: "Rossiyani",
+    description:
+      "Environnement de lecture intelligent pour apprendre le russe",
+  },
+  twitter: {
+    card: "summary",
+    title: "Rossiyani",
+    description:
+      "Environnement de lecture intelligent pour apprendre le russe",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Rossiyani",
+    statusBarStyle: "default",
+  },
 };
 
 export default function RootLayout({

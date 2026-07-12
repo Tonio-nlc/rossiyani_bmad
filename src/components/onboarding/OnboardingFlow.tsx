@@ -34,7 +34,7 @@ const DEMO_EXPLANATIONS: Record<TDemoWord, IDemoExplanation> = {
         видит <span className="text-ink-3">→</span> видеть
       </>
     ),
-    role: "fait l'action",
+    role: "exprime l'action",
     body: (
       <>
         La terminaison -ит indique la 3e personne du singulier au présent.
@@ -226,14 +226,14 @@ function StepOne() {
                 <RoleSubject>Анна</RoleSubject>
               </>
             }
-            french="Macha voit Anna"
+            french="Anna voit Macha"
           />
         </div>
 
         <p className="mt-6 text-sm leading-relaxed text-ink-2">
           Dans les deux cas, c&apos;est <RoleSubject>Анна</RoleSubject> qui voit
           et <RoleObject /> qui est vue — la terminaison &quot;-у&quot; sur Машу
-          indique toujours &quot;celui qui est vu&quot;.
+          indique toujours &quot;celle qui est vue&quot;.
         </p>
       </div>
     </div>
@@ -314,6 +314,7 @@ function StepThree({
             isActive={selectedWord === "anna"}
             onClick={() => onSelectWord("anna")}
             variant="subject"
+            ariaLabel="Анна — fait l'action, le sujet"
           >
             Анна
           </DemoWordButton>{" "}
@@ -321,6 +322,7 @@ function StepThree({
             isActive={selectedWord === "vidit"}
             onClick={() => onSelectWord("vidit")}
             variant="verb"
+            ariaLabel="видит — exprime l'action, le verbe"
           >
             видит
           </DemoWordButton>{" "}
@@ -328,12 +330,15 @@ function StepThree({
             isActive={selectedWord === "mashu"}
             onClick={() => onSelectWord("mashu")}
             variant="object"
+            ariaLabel="Машу — reçoit l'action, l'objet"
           >
             <span className="text-ink">Маш</span>
             <span style={{ color: "#EF7C5A" }}>у</span>
           </DemoWordButton>
           .
         </p>
+
+        <p className="mt-2 text-center text-sm text-ink-2">Anna voit Macha.</p>
 
         <p className="mt-3 text-center text-[13px] italic text-ink-3">
           ← Cliquez sur un mot
@@ -365,16 +370,19 @@ function DemoWordButton({
   onClick,
   isActive,
   variant,
+  ariaLabel,
 }: {
   children: ReactNode;
   onClick: () => void;
   isActive: boolean;
   variant: "subject" | "verb" | "object";
+  ariaLabel: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      aria-label={ariaLabel}
       className={cn(
         "cursor-pointer rounded-md px-1 transition-opacity hover:opacity-70",
         isActive && "opacity-70",
@@ -401,6 +409,9 @@ function StepFour() {
         <p className="mt-1 text-base text-ink-2">wagon</p>
         <p className="mt-4 font-serif text-base leading-relaxed text-ink-2">
           &quot;Анна входит в вагон и садится у окна.&quot;
+        </p>
+        <p className="mt-1 text-sm italic text-ink-3">
+          « Anna entre dans le wagon et s&apos;assoit près de la fenêtre. »
         </p>
         <p className="mt-4 text-sm text-ink-3">
           ✓ Sauvegardé · À réviser demain

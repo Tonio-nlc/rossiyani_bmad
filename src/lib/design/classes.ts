@@ -7,6 +7,10 @@
 export const CTA_LINK_CLASS =
   "text-[13px] font-semibold text-accent";
 
+/** Coque input canonique — Story 5.6 */
+export const INPUT_SHELL_CLASS =
+  "h-10 rounded-[10px] border-border bg-surface px-3 text-sm text-ink placeholder:text-ink-3 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/20";
+
 /** Icône dans carte exercice / collection */
 export const CARD_ICON_BOX_CLASS =
   "flex size-[38px] items-center justify-center rounded-lg bg-accent-light text-accent";

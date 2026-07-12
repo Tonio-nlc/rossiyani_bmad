@@ -21,8 +21,9 @@ Chaque chantier est **gelé** une fois terminé. On n'y revient plus, sauf bug c
 | **Design System tokens (5.2)** | ✅ |
 | **Layouts hub (5.3)** | ✅ |
 | **Reader layout (5.4)** | ✅ |
-| **Lessons layout (5.5)** | ✅ |
-| → **Design Freeze** | Après 5.6 |
+| **Lessons layout (5.5)** | ✅ **gelé** |
+| **UI Freeze (5.6)** | ✅ |
+| **Release Candidate** | **Prochaine** |
 
 ---
 
@@ -165,7 +166,7 @@ Home · Library · Lessons (liste) · Vocabulary · Practice
 |------|-------|
 | Reader | **5.4** ✅ |
 | Lessons détail | **5.5** ✅ |
-| Branding + UI Freeze + QA | **5.6** |
+| Branding + UI Freeze + QA | **5.6** ✅ |
 | Auth · Onboarding | Exceptions figées |
 
 ---
@@ -496,4 +497,15 @@ Pas de polish global. Chaque story = une famille de problèmes.
 - [x] Liens Reader = appendice (`LESSON_APPENDIX_CLASS`)
 - [x] Largeur 680px partout (`LESSON_COLUMN_CLASS`)
 - [x] Doc § Lesson Composition
+- [x] `npm run build` ✅
+
+### 5.6 ✅ Branding, Cohérence & UI Freeze
+
+- [x] Branding complet (favicon, manifest, OG, logo unique)
+- [x] Navbar = Auth (même marque)
+- [x] Terminologie documentée (FR bêta → EN v1)
+- [x] États Error/Empty canoniques
+- [x] Inputs et boutons uniformisés
+- [x] Cartes vocabulaire alignées `CARD_SHELL_CLASS`
+- [x] [`UI_FREEZE.md`](./UI_FREEZE.md) — gel actif
 - [x] `npm run build` ✅

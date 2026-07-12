@@ -22,9 +22,12 @@ export function useHomeData() {
     staleTime: 60_000,
   });
 
+  // isPending (pas isLoading) : aligne SSR et hydratation — voir useTexts.
+  const isLoading = query.isPending;
+
   return {
     data: query.data ?? null,
-    isLoading: query.isLoading,
+    isLoading,
     error: query.error,
     refetch: query.refetch,
   };

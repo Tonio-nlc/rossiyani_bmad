@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { VocabularyGrid } from "@/components/vocabulary/VocabularyGrid";
 import { BackLink } from "@/components/ui/BackLink";
 import { ContextBar } from "@/components/ui/ContextBar";
+import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageBody } from "@/components/ui/PageBody";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -62,9 +63,17 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
 
   if (errorMessage) {
     return (
-      <PageBody width="content">
-        <p className="text-sm text-destructive">{errorMessage}</p>
-      </PageBody>
+      <div>
+        <PageHeader
+          eyebrow="MÉMOIRE LINGUISTIQUE"
+          title="Vocabulaire"
+          subtitle="Vos mots sauvegardés en contexte."
+          width="content"
+        />
+        <PageBody width="content">
+          <ErrorState description={errorMessage} />
+        </PageBody>
+      </div>
     );
   }
 
@@ -81,7 +90,7 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
 
       <PageHeader
         eyebrow="MÉMOIRE LINGUISTIQUE"
-        title="Vocabulary"
+        title="Vocabulaire"
         subtitle="Vos mots sauvegardés en contexte."
         width="content"
       />
@@ -118,7 +127,7 @@ export function VocabularyView({ words, errorMessage }: VocabularyViewProps) {
           {words.length === 0 ? (
             <EmptyState
               title="Aucun mot sauvegardé"
-              description="Lisez un texte et sauvegardez des mots depuis l'Explorer pour les retrouver ici."
+              description="Lisez un texte et sauvegardez des mots depuis l'explorateur pour les retrouver ici."
             />
           ) : filteredWords.length === 0 ? (
             <EmptyState

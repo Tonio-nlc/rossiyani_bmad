@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CARD_SHELL_CLASS } from "@/components/ui/card-styles";
 import { formatReviewLabel } from "@/lib/vocabulary/format-review-label";
 import type { TVocabularyListItem } from "@/types/vocabulary";
 import { cn } from "@/lib/utils";
@@ -14,8 +15,8 @@ export function WordCard({ word, returnQuery = "" }: WordCardProps) {
     <Link
       href={`/vocabulary/${word.id}${returnQuery}`}
       className={cn(
-        "block rounded-xl border border-border bg-surface p-5 transition-shadow",
-        "hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30",
+        CARD_SHELL_CLASS,
+        "block hover:shadow-sm",
       )}
     >
       <p className="font-serif text-xl text-ink">{word.lemma}</p>

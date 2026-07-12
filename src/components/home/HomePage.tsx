@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import { CollectionCard } from "@/components/library/CollectionCard";
 import { TextCard } from "@/components/library/TextCard";
 import { CARD_HUB_CLASS } from "@/components/ui/card-styles";
+import { ErrorState } from "@/components/ui/error-state";
 import { PageBody } from "@/components/ui/PageBody";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Section } from "@/components/ui/Section";
@@ -45,18 +46,20 @@ export function HomePage() {
 
   if (error) {
     return (
-      <PageBody width="dashboard">
-        <p className="text-center text-ink-2">
-          Impossible de charger l&apos;accueil.
-        </p>
-        <button
-          type="button"
-          onClick={() => refetch()}
-          className="mt-4 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-ink"
-        >
-          Réessayer
-        </button>
-      </PageBody>
+      <div>
+        <PageHeader
+          eyebrow="ESPACE D'APPRENTISSAGE"
+          title="Rossiyani"
+          subtitle="Reprenez votre lecture, pratiquez un peu, explorez vos collections."
+          width="dashboard"
+        />
+        <PageBody width="dashboard">
+          <ErrorState
+            description="Impossible de charger l'accueil."
+            onRetry={() => refetch()}
+          />
+        </PageBody>
+      </div>
     );
   }
 

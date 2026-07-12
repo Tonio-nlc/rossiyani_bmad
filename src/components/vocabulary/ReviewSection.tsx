@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+import { CARD_SHELL_CLASS } from "@/components/ui/card-styles";
 import type { TVocabularyReviewInfo } from "@/types/vocabulary";
 
 interface ReviewSectionProps {
@@ -17,7 +18,7 @@ export function ReviewSection({ review }: ReviewSectionProps) {
   }
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-6">
+    <section className={CARD_SHELL_CLASS}>
       <h2 className="text-xl font-semibold text-ink">
         Révision
       </h2>

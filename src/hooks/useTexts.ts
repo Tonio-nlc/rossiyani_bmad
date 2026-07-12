@@ -38,9 +38,13 @@ export function useTexts(filters: TTextFilters = {}) {
     queryFn: () => fetchTexts(filters),
   });
 
+  // isPending (pas isLoading) : aligne SSR et hydratation.
+  // En SSR, fetchStatus = "idle" → isLoading serait false alors que isPending = true.
+  const isLoading = query.isPending;
+
   return {
     texts: query.data ?? [],
-    isLoading: query.isLoading,
+    isLoading,
     error: query.error,
     refetch: query.refetch,
   };

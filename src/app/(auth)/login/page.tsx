@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ensureUserProfile } from "@/lib/auth/ensure-user-profile";
 import { translateAuthError } from "@/lib/auth/errors";
 import { createClient } from "@/lib/supabase/client";
 
@@ -43,25 +44,53 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: validation.data.email,
-      password: validation.data.password,
-    });
+    try {
+      const supabase = createClient();
+      const { data, error: signInError } = await supabase.auth.signInWithPassword(
+        {
+          email: validation.data.email,
+          password: validation.data.password,
+        },
+      );
 
-    if (signInError) {
-      setError(translateAuthError(signInError.message));
+      if (signInError) {
+        setError(translateAuthError(signInError.message));
+        return;
+      }
+
+      if (!data.user) {
+        setError("Une erreur est survenue, veuillez réessayer");
+        return;
+      }
+
+      const { profile, error: profileError } = await ensureUserProfile(
+        supabase,
+        data.user,
+      );
+
+      if (profileError || !profile) {
+        setError(
+          translateAuthError(
+            profileError ?? "Impossible de charger votre profil",
+          ),
+        );
+        return;
+      }
+
+      router.refresh();
+      router.push(profile.onboarding_completed ? "/" : "/onboarding");
+    } catch {
+      setError(
+        "Une erreur réseau est survenue. Vérifiez votre connexion et réessayez.",
+      );
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    router.refresh();
-    router.push("/");
   }
 
   return (
     <div className="w-full max-w-[400px]">
-      <RossiyaniLogo />
+      <RossiyaniLogo className="mb-8" />
 
       <Card className="border-border bg-surface shadow-sm">
         <CardHeader className="text-center">

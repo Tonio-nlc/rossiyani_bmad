@@ -30,14 +30,9 @@ export function splitTrailingPunctuation(surface: string): {
 
 function segmentGraphemes(text: string): string[] {
   const normalized = toNfc(text);
-
-  if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
-    const segmenter = new Intl.Segmenter("ru", { granularity: "grapheme" });
-    return [...segmenter.segment(normalized)].map((part) => part.segment);
-  }
-
   const graphemes: string[] = [];
 
+  // Segmentation déterministe — évite les écarts SSR/client de Intl.Segmenter.
   for (const char of normalized) {
     if (/\p{M}/u.test(char) && graphemes.length > 0) {
       graphemes[graphemes.length - 1] += char;

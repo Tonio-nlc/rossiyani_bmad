@@ -133,9 +133,13 @@ export default function LibraryPage() {
         subtitle="Collections curatées et textes importés — lisez, progressez, retrouvez vos lectures."
         width="dashboard"
         badge={
-          <span className="inline-flex w-fit rounded-full border border-border bg-surface px-3 py-1 text-xs font-bold tracking-[0.12em] text-ink-3 uppercase">
-            {curatedTexts.length} textes Rossiyani
-          </span>
+          isLoading ? (
+            <Skeleton className="h-6 w-36 rounded-full" />
+          ) : (
+            <span className="inline-flex w-fit rounded-full border border-border bg-surface px-3 py-1 text-xs font-bold tracking-[0.12em] text-ink-3 uppercase">
+              {curatedTexts.length} textes Rossiyani
+            </span>
+          )
         }
       />
 
@@ -208,10 +212,14 @@ export default function LibraryPage() {
         <Section
           title="Vos textes"
           trailing={
-            <p className="text-sm text-ink-3">
-              {filteredCuratedTexts.length} résultat
-              {filteredCuratedTexts.length > 1 ? "s" : ""}
-            </p>
+            isLoading ? (
+              <Skeleton className="h-4 w-24" />
+            ) : (
+              <p className="text-sm text-ink-3">
+                {filteredCuratedTexts.length} résultat
+                {filteredCuratedTexts.length > 1 ? "s" : ""}
+              </p>
+            )
           }
         >
           {collectionFilter ? (

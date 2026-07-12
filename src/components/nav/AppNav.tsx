@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+import { RossiyaniBrandMark } from "@/components/brand/RossiyaniBrandMark";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -79,9 +80,7 @@ export function AppNav({ reviewDueCount, userInitial }: AppNavProps) {
     <header className="sticky top-0 z-50 h-14 border-b border-border bg-surface">
       <div className="relative mx-auto flex h-14 max-w-dashboard items-center px-4 md:px-10">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-[9px] bg-ink">
-            <span className="font-serif text-base italic text-white">Р</span>
-          </span>
+          <RossiyaniBrandMark size="md" />
           <span className="text-[15px] font-bold text-ink">Rossiyani</span>
         </Link>
 

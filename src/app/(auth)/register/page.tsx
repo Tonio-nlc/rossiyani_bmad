@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ensureUserProfile } from "@/lib/auth/ensure-user-profile";
 import { translateAuthError } from "@/lib/auth/errors";
 import { createClient } from "@/lib/supabase/client";
 
@@ -47,55 +48,52 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    const supabase = createClient();
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: validation.data.email,
-      password: validation.data.password,
-    });
+    try {
+      const supabase = createClient();
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: validation.data.email,
+        password: validation.data.password,
+      });
 
-    if (signUpError) {
-      setError(translateAuthError(signUpError.message));
-      setIsLoading(false);
-      return;
-    }
-
-    if (!data.user) {
-      setError("Une erreur est survenue, veuillez réessayer");
-      setIsLoading(false);
-      return;
-    }
-
-    const { data: existingProfile } = await supabase
-      .from("user_profiles")
-      .select("onboarding_completed")
-      .eq("id", data.user.id)
-      .maybeSingle();
-
-    if (!existingProfile) {
-      const { error: profileError } = await supabase
-        .from("user_profiles")
-        .insert({
-          id: data.user.id,
-          display_name: validation.data.displayName,
-          onboarding_completed: false,
-        });
-
-      if (profileError) {
-        setError(translateAuthError(profileError.message));
-        setIsLoading(false);
+      if (signUpError) {
+        setError(translateAuthError(signUpError.message));
         return;
       }
-    }
 
-    router.refresh();
-    router.push(
-      existingProfile?.onboarding_completed ? "/" : "/onboarding",
-    );
+      if (!data.user) {
+        setError("Une erreur est survenue, veuillez réessayer");
+        return;
+      }
+
+      const { profile, error: profileError } = await ensureUserProfile(
+        supabase,
+        data.user,
+        { displayName: validation.data.displayName },
+      );
+
+      if (profileError || !profile) {
+        setError(
+          translateAuthError(
+            profileError ?? "Impossible de créer votre profil",
+          ),
+        );
+        return;
+      }
+
+      router.refresh();
+      router.push(profile.onboarding_completed ? "/" : "/onboarding");
+    } catch {
+      setError(
+        "Une erreur réseau est survenue. Vérifiez votre connexion et réessayez.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <div className="w-full max-w-[400px]">
-      <RossiyaniLogo />
+      <RossiyaniLogo className="mb-8" />
 
       <Card className="border-border bg-surface shadow-sm">
         <CardHeader className="text-center">

@@ -86,7 +86,7 @@ export async function getUserVocabulary(
     .order("saved_at", { ascending: false });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error("Impossible de charger le vocabulaire");
   }
 
   return (data as VocabularyRow[]).map(mapVocabularyRow);
