@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { Word } from "@/components/reader/Word";
 import {
   SENTENCE_RHYTHM_CLASS,
   SENTENCE_TEXT_CLASS,
   SENTENCE_TRANSLATION_TEXT_CLASS,
-  SENTENCE_TRANSLATION_TOGGLE_CLASS,
 } from "@/lib/design/reader-composition";
 import {
   normalizeToken,
@@ -16,6 +15,7 @@ import {
   type TReaderFunctionColor,
 } from "@/lib/utils/russian";
 import type { WordAnnotation } from "@/stores/readerStore";
+import { useReaderStore } from "@/stores/readerStore";
 import type { TAnnotatedWord } from "@/types/reader";
 import { cn } from "@/lib/utils";
 
@@ -91,7 +91,7 @@ export function Sentence({
   onWordClick,
   onVisible,
 }: SentenceProps) {
-  const [showTranslation, setShowTranslation] = useState(false);
+  const showTranslations = useReaderStore((state) => state.showTranslations);
   const containerRef = useRef<HTMLDivElement>(null);
   const tokens = tokenizeSentence(text);
   const resolvedTranslation = resolveTranslation(translationFr);
@@ -160,21 +160,8 @@ export function Sentence({
         })}
       </p>
 
-      {resolvedTranslation ? (
-        <div>
-          <button
-            type="button"
-            onClick={() => setShowTranslation((current) => !current)}
-            className={SENTENCE_TRANSLATION_TOGGLE_CLASS}
-          >
-            {showTranslation ? "masquer la traduction" : "voir la traduction →"}
-          </button>
-          {showTranslation ? (
-            <p className={SENTENCE_TRANSLATION_TEXT_CLASS}>
-              {resolvedTranslation}
-            </p>
-          ) : null}
-        </div>
+      {showTranslations && resolvedTranslation ? (
+        <p className={SENTENCE_TRANSLATION_TEXT_CLASS}>{resolvedTranslation}</p>
       ) : null}
     </article>
   );

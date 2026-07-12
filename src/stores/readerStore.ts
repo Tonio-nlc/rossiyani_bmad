@@ -16,10 +16,12 @@ interface ReaderStore {
   textId: string | null;
   annotatedWords: Map<string, WordAnnotation>;
   exploredCount: number;
+  showTranslations: boolean;
   initForText: (textId: string) => void;
   annotateWord: (surface: string, annotation: WordAnnotation) => void;
   getAnnotation: (surface: string) => WordAnnotation | undefined;
   resetAnnotations: () => void;
+  setShowTranslations: (show: boolean) => void;
 }
 
 const STORAGE_PREFIX = "rossiyani_annotations_";
@@ -73,6 +75,7 @@ export const useReaderStore = create<ReaderStore>((set, get) => ({
   textId: null,
   annotatedWords: new Map(),
   exploredCount: 0,
+  showTranslations: false,
 
   initForText: (textId) => {
     const annotatedWords = loadAnnotationsFromStorage(textId);
@@ -117,5 +120,9 @@ export const useReaderStore = create<ReaderStore>((set, get) => ({
     }
 
     set({ annotatedWords: new Map(), exploredCount: 0 });
+  },
+
+  setShowTranslations: (show) => {
+    set({ showTranslations: show });
   },
 }));

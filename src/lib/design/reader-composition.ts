@@ -20,14 +20,12 @@ export const EXPLORER_SPACE = {
   afterBridge: "mt-6",
 } as const;
 
-/** Rythme phrase */
+/** Rythme phrase — 20px entre blocs (traduction → phrase suivante) */
 export const SENTENCE_RHYTHM_CLASS = "mb-5 last:mb-0";
 export const SENTENCE_TEXT_CLASS =
   "font-russian text-[24px] leading-[1.55] text-ink md:text-[26px] md:leading-[1.55]";
-export const SENTENCE_TRANSLATION_TOGGLE_CLASS =
-  "mt-2 block cursor-pointer select-none text-xs italic text-ink-3 hover:text-ink-2";
 export const SENTENCE_TRANSLATION_TEXT_CLASS =
-  "reader-translation-fade-in mt-1.5 text-[13px] leading-relaxed italic text-ink-3";
+  "mt-2 text-[13px] leading-relaxed italic text-ink-3";
 
 /** Fin de lecture — conclusion */
 export const READER_CONCLUSION_CLASS =

@@ -336,34 +336,19 @@ export function ExplorerPanelMobile({
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isOpen]);
-
   if (!isMounted || !isOpen) {
     return null;
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true">
-      <button
-        type="button"
-        aria-label="Fermer l'explorateur"
-        className="reader-sheet-backdrop absolute inset-0 bg-black/25"
-        onClick={onClose}
-      />
+    <div
+      className="pointer-events-none fixed inset-0 z-50 md:hidden"
+      role="dialog"
+      aria-modal="true"
+    >
       <div
         className={cn(
-          "reader-sheet-panel absolute inset-x-0 bottom-0 mx-auto flex w-full flex-col overflow-hidden rounded-t-2xl border-t border-border bg-surface shadow-[0_-4px_24px_rgba(0,0,0,0.1)]",
+          "reader-sheet-panel pointer-events-auto absolute inset-x-0 bottom-0 mx-auto flex w-full flex-col overflow-hidden rounded-t-2xl border-t border-border bg-surface shadow-[0_-4px_24px_rgba(0,0,0,0.1)]",
           EXPLORER_PANEL_MAX_HEIGHT_CLASS,
           "max-h-[min(520px,calc(100dvh-4rem))]",
         )}

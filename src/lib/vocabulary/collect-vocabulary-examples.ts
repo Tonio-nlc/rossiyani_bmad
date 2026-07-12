@@ -41,6 +41,10 @@ function mapAnnotatedExamples(
     }
 
     for (const sentence of annotated.sentences) {
+      if (!sentence.words?.length) {
+        continue;
+      }
+
       const containsLemma = sentence.words.some(
         (word) => word.lemmaId === lemmaId,
       );
