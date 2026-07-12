@@ -11,6 +11,32 @@ export interface TVocabularyListItem {
 
 export type TVocabularyFilter = "all" | "due" | "new" | "learned";
 
+export interface TVocabularyLinguisticProfile {
+  lemma: string;
+  displayLemma: string;
+  translation: string;
+  partOfSpeech: string | null;
+  gender: string | null;
+  aspect: string | null;
+  movementType: string | null;
+  government: string[];
+  register: string | null;
+  semanticCategory: string | null;
+  notes: string | null;
+  tags: string[];
+}
+
+export interface TVocabularyContextEncounter {
+  surface: string;
+  sentence: string;
+  explanation: string;
+  suffix: string;
+  suffixExplanation: string;
+  functionalRole: string;
+  functionColor: string | null;
+  roleLabel: string;
+}
+
 export interface TVocabularyLinguisticData {
   lemma: string;
   translation: string;
@@ -49,7 +75,10 @@ export interface TVocabularyExample {
 
 export interface TVocabularyEntry {
   lemma: string;
+  displayLemma: string;
   translation: string;
+  linguisticProfile: TVocabularyLinguisticProfile;
+  contextEncounter: TVocabularyContextEncounter | null;
   linguisticData: TVocabularyLinguisticData;
   userVocabulary: TVocabularyUserRecord;
   review: TVocabularyReviewInfo | null;

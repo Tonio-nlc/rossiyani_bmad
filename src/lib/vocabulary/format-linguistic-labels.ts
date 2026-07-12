@@ -48,6 +48,21 @@ export function formatAspectLabel(
   return ASPECT_LABELS[aspect] ?? aspect;
 }
 
+const MOVEMENT_LABELS: Record<string, string> = {
+  unidirectionnel: "unidirectionnel",
+  multidirectionnel: "multidirectionnel",
+};
+
+export function formatMovementLabel(
+  movementType: string | null | undefined,
+): string | null {
+  if (!movementType) {
+    return null;
+  }
+
+  return MOVEMENT_LABELS[movementType] ?? movementType;
+}
+
 export function formatReviewLevel(repetitions: number): string {
   if (repetitions === 0) {
     return "Nouveau";

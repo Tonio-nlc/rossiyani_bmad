@@ -3,7 +3,19 @@ import { buildKnowledge } from "@/lib/knowledge/build-knowledge";
 import { collectVocabularyExamples } from "@/lib/vocabulary/collect-vocabulary-examples";
 import { extractTranslation } from "@/lib/vocabulary/extract-translation";
 import { formatReviewLevel } from "@/lib/vocabulary/format-linguistic-labels";
+import { parseExplanationCachePayload } from "@/lib/vocabulary/parse-explanation-cache";
+import { resolveDisplayLemma } from "@/lib/vocabulary/resolve-display-lemma";
+import { getNaturalFunctionalRoleLabel } from "@/lib/utils/russian";
 import { createClient } from "@/lib/supabase/server";
+import type { TLinguisticKnowledge } from "@/types/knowledge";
+
+interface ExplanationCacheRelation {
+  explanation_fr: string;
+  surface_word: string;
+  sentence_example: string;
+  functional_role: string;
+  function_color: string | null;
+}
 
 interface VocabularyEntryRow {
   id: string;
@@ -13,8 +25,8 @@ interface VocabularyEntryRow {
   notes: string | null;
   lemmas: { form: string } | { form: string }[] | null;
   explanation_cache:
-    | { explanation_fr: string }
-    | { explanation_fr: string }[]
+    | ExplanationCacheRelation
+    | ExplanationCacheRelation[]
     | null;
   srs_reviews:
     | {
@@ -34,26 +46,62 @@ interface VocabularyEntryRow {
     | null;
 }
 
-function getExplanationFr(
-  cacheRelation: VocabularyEntryRow["explanation_cache"],
-): string | undefined {
-  if (!cacheRelation) {
-    return undefined;
-  }
-
-  if (Array.isArray(cacheRelation)) {
-    return cacheRelation[0]?.explanation_fr;
-  }
-
-  return cacheRelation.explanation_fr;
-}
-
 function toNullableString(value: string | null | undefined): string | null {
   if (!value || value === "unknown") {
     return null;
   }
 
   return value;
+}
+
+function getExplanationCacheRelation(
+  cacheRelation: VocabularyEntryRow["explanation_cache"],
+): ExplanationCacheRelation | null {
+  if (!cacheRelation) {
+    return null;
+  }
+
+  return Array.isArray(cacheRelation) ? cacheRelation[0] ?? null : cacheRelation;
+}
+
+function parseGovernment(government: string | null | undefined): string[] {
+  if (!government) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(government) as unknown;
+
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === "string");
+    }
+  } catch {
+    return [government];
+  }
+
+  return [];
+}
+
+function buildLinguisticProfile(
+  lemma: string,
+  displayLemma: string,
+  translation: string,
+  knowledge: TLinguisticKnowledge,
+) {
+  return {
+    lemma,
+    displayLemma,
+    translation,
+    partOfSpeech: toNullableString(knowledge.partOfSpeech),
+    gender: toNullableString(knowledge.gender),
+    aspect: toNullableString(knowledge.aspect),
+    movementType: toNullableString(knowledge.movementType),
+    government: parseGovernment(knowledge.government),
+    register: toNullableString(knowledge.register),
+    semanticCategory: toNullableString(knowledge.semanticCategory),
+    notes: toNullableString(knowledge.notes),
+    tags: knowledge.tags ?? [],
+  };
 }
 
 async function resolveTranslation(
@@ -78,6 +126,57 @@ async function resolveTranslation(
   return extractTranslation(data?.explanation_fr);
 }
 
+async function resolveContextEncounter(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  lemmaId: string,
+  linkedCache: ExplanationCacheRelation | null,
+) {
+  const cacheRow =
+    linkedCache ??
+    (
+      await supabase
+        .from("explanation_cache")
+        .select(
+          "explanation_fr, surface_word, sentence_example, functional_role, function_color",
+        )
+        .eq("lemma_id", lemmaId)
+        .order("usage_count", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+    ).data;
+
+  if (!cacheRow) {
+    return null;
+  }
+
+  const payload = parseExplanationCachePayload(cacheRow.explanation_fr);
+
+  if (!payload?.explanation) {
+    return null;
+  }
+
+  return {
+    surface: cacheRow.surface_word,
+    sentence: cacheRow.sentence_example,
+    explanation: payload.explanation,
+    suffix: payload.suffix,
+    suffixExplanation: payload.suffixExplanation,
+    functionalRole: cacheRow.functional_role,
+    functionColor: cacheRow.function_color,
+    roleLabel: getNaturalFunctionalRoleLabel(cacheRow.functional_role),
+  };
+}
+
+function resolveLemmaStressed(
+  linkedCache: ExplanationCacheRelation | null,
+): string | undefined {
+  if (!linkedCache) {
+    return undefined;
+  }
+
+  return parseExplanationCachePayload(linkedCache.explanation_fr)?.lemmaStressed;
+}
+
 export async function getVocabularyEntry(
   userId: string,
   lemmaId: string,
@@ -94,7 +193,13 @@ export async function getVocabularyEntry(
       text_id,
       notes,
       lemmas ( form ),
-      explanation_cache ( explanation_fr ),
+      explanation_cache (
+        explanation_fr,
+        surface_word,
+        sentence_example,
+        functional_role,
+        function_color
+      ),
       srs_reviews ( repetitions, next_review_at, ease_factor, interval_days, last_review_at )
     `,
     )
@@ -118,27 +223,44 @@ export async function getVocabularyEntry(
     return null;
   }
 
+  const linkedCache = getExplanationCacheRelation(row.explanation_cache);
   const knowledge = await buildKnowledge(lemmaId);
 
   const srsRelation = row.srs_reviews;
   const srsReview = Array.isArray(srsRelation) ? srsRelation[0] : srsRelation;
-  const explanationFr = getExplanationFr(row.explanation_cache);
+  const explanationFr = linkedCache?.explanation_fr;
 
-  const [translation, examples] = await Promise.all([
+  const [translation, examples, contextEncounter] = await Promise.all([
     resolveTranslation(supabase, lemmaId, explanationFr),
     collectVocabularyExamples(supabase, lemmaId, lemma.form),
+    resolveContextEncounter(supabase, lemmaId, linkedCache),
   ]);
+
+  const displayLemma = resolveDisplayLemma(
+    lemma.form,
+    resolveLemmaStressed(linkedCache),
+  );
+
+  const linguisticProfile = buildLinguisticProfile(
+    lemma.form,
+    displayLemma,
+    translation,
+    knowledge,
+  );
 
   return {
     lemma: lemma.form,
+    displayLemma,
     translation,
+    linguisticProfile,
+    contextEncounter,
     linguisticData: {
       lemma: lemma.form,
       translation,
-      pos: toNullableString(knowledge.partOfSpeech),
-      gender: toNullableString(knowledge.gender),
-      aspect: toNullableString(knowledge.aspect),
-      accent: toNullableString(knowledge.stress),
+      pos: linguisticProfile.partOfSpeech,
+      gender: linguisticProfile.gender,
+      aspect: linguisticProfile.aspect,
+      accent: displayLemma,
       addedAt: row.saved_at,
     },
     userVocabulary: {

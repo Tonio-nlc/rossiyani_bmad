@@ -13,12 +13,10 @@ export function VocabularyEntryHeader({
   returnHref,
   returnLabel,
 }: VocabularyEntryHeaderProps) {
-  const displayLemma = entry.linguisticData.accent ?? entry.lemma;
-
   return (
     <PageHeader
       eyebrow="VOCABULAIRE"
-      title={displayLemma}
+      title={entry.displayLemma}
       subtitle={entry.translation || "Traduction indisponible"}
       width="content"
       leading={<BackLink href={returnHref} label={returnLabel} />}
