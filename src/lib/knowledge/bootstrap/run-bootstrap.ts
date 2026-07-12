@@ -17,6 +17,14 @@ import type {
   TBootstrapReport,
 } from "@/lib/knowledge/bootstrap/types";
 import { summarizeNormalizationEvents } from "@/lib/knowledge/normalize-knowledge-payload";
+import {
+  formatQualityIssueBullet,
+} from "@/lib/knowledge/quality/quality-analyzer";
+import {
+  buildQualityAggregateReport,
+  writeQualityReport,
+} from "@/lib/knowledge/quality/quality-report";
+import type { TKnowledgeQualityLemmaEntry } from "@/lib/knowledge/quality/quality-types";
 
 export interface TBootstrapProgress {
   index: number;
@@ -76,6 +84,41 @@ function mergeNormalizationSummary(
   }
 }
 
+function formatQualityLogLines(
+  index: number,
+  total: number,
+  form: string,
+  statusLabel: string,
+  durationMs: number,
+  qualityReport?: TKnowledgeQualityLemmaEntry["report"],
+): string {
+  const prefix = `[${index + 1}/${total}]`;
+
+  if (!qualityReport) {
+    return `${prefix} ${form} — ${statusLabel} — ${formatSeconds(durationMs)}`;
+  }
+
+  const bullets = qualityReport.issues
+    .slice(0, 5)
+    .map((issue) => `  • ${formatQualityIssueBullet(issue)}`)
+    .join("\n");
+
+  const lines = [
+    `${prefix} ${form}`,
+    statusLabel,
+    `Quality ${qualityReport.score}`,
+    qualityReport.status,
+  ];
+
+  if (bullets) {
+    lines.push(bullets);
+  }
+
+  lines.push(formatSeconds(durationMs));
+
+  return lines.join("\n");
+}
+
 export async function runKnowledgeBootstrap(
   options: TBootstrapOptions,
   callbacks: TBootstrapRunCallbacks = {},
@@ -94,6 +137,7 @@ export async function runKnowledgeBootstrap(
   }
 
   const results: TBootstrapItemResult[] = [];
+  const qualityEntries: TKnowledgeQualityLemmaEntry[] = [];
   const totals = initialTotals();
   const normalization = initialNormalization();
   totals.candidates = candidates.length;
@@ -108,6 +152,7 @@ export async function runKnowledgeBootstrap(
     let status: TBootstrapItemResult["status"] = "error";
     let error: string | undefined;
     let normalizationCount = 0;
+    let qualityReport: TBootstrapItemResult["qualityReport"];
 
     try {
       if (options.dryRun) {
@@ -123,8 +168,17 @@ export async function runKnowledgeBootstrap(
             candidate.form,
           );
           normalizationCount = result.normalizationEvents.length;
+          qualityReport = result.qualityReport;
           mergeNormalizationSummary(normalization, result.normalizationEvents);
           status = "generated";
+
+          qualityEntries.push({
+            form: candidate.form,
+            lemmaId: candidate.lemmaId,
+            score: result.qualityReport.score,
+            status: result.qualityReport.status,
+            report: result.qualityReport,
+          });
         }
       }
     } catch (caught) {
@@ -158,6 +212,7 @@ export async function runKnowledgeBootstrap(
       durationMs,
       error,
       normalizationCount: normalizationCount > 0 ? normalizationCount : undefined,
+      qualityReport,
     };
 
     results.push(result);
@@ -183,7 +238,14 @@ export async function runKnowledgeBootstrap(
                 : "✗ error";
 
     callbacks.onItemLog?.(
-      `[${index + 1}/${candidates.length}] ${candidate.form} — ${statusLabel} — ${formatSeconds(durationMs)}`,
+      formatQualityLogLines(
+        index,
+        candidates.length,
+        candidate.form,
+        statusLabel,
+        durationMs,
+        qualityReport,
+      ),
     );
 
     callbacks.onProgress?.({
@@ -226,6 +288,10 @@ export async function runKnowledgeBootstrap(
   };
 
   writeBootstrapReport(report);
+
+  if (qualityEntries.length > 0) {
+    writeQualityReport(buildQualityAggregateReport(qualityEntries));
+  }
 
   return report;
 }

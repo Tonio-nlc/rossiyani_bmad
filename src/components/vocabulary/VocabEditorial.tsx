@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { displayRussianGraphemes } from "@/lib/russian/display-russian";
 import {
   LESSON_STEP_EYEBROW_CLASS,
   LESSON_STEP_SECTION_CLASS,
@@ -67,6 +68,26 @@ export function VocabChipRow({ chips }: { chips: string[] }) {
   );
 }
 
+function RussianGraphemeText({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
+  const graphemes = displayRussianGraphemes(text);
+
+  return (
+    <span className={cn("font-russian", className)}>
+      {graphemes.map((grapheme, index) => (
+        <span key={`${index}-${grapheme}`} className="inline">
+          {grapheme}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export function VocabRussianDisplay({
   children,
   size = "lg",
@@ -80,6 +101,14 @@ export function VocabRussianDisplay({
       : size === "lg"
         ? "text-2xl leading-tight"
         : "text-lg leading-relaxed";
+
+  if (typeof children === "string") {
+    return (
+      <p className={cn("text-ink", sizeClass)}>
+        <RussianGraphemeText text={children} />
+      </p>
+    );
+  }
 
   return (
     <p className={cn("font-russian text-ink", sizeClass)}>{children}</p>
@@ -102,7 +131,7 @@ const CYRILLIC_RE = /[\u0400-\u04FF]/;
 
 function ExploreItem({ item }: { item: string }) {
   if (CYRILLIC_RE.test(item)) {
-    return <span className="font-russian">{item}</span>;
+    return <RussianGraphemeText text={item} className="text-[15px] leading-relaxed text-ink-2" />;
   }
 
   return <>{item}</>;

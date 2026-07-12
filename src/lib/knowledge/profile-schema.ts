@@ -126,6 +126,10 @@ export const pedagogySchema = z
   .object({
     summary: optionalText,
     takeaway: optionalText,
+    takeaways: z.array(requiredText).optional(),
+    commonPatterns: z.array(requiredText).optional(),
+    nextForms: z.array(requiredText).optional(),
+    understandingPoints: z.array(requiredText).optional(),
     commonErrors: z.array(errorPairSchema).optional(),
     confusions: z.array(requiredText).optional(),
     tips: z.array(requiredText).optional(),

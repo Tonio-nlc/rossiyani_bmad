@@ -138,6 +138,10 @@ function printSummary(report: Awaited<ReturnType<typeof runKnowledgeBootstrap>>)
   );
   console.log("");
   console.log("Rapport : docs/knowledge/bootstrap-report.md");
+
+  if (report.totals.generated > 0) {
+    console.log("Qualité : docs/knowledge/quality-report.md");
+  }
 }
 
 async function main() {

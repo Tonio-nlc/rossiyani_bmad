@@ -1,12 +1,26 @@
 import Link from "next/link";
 
-import { LESSON_APPENDIX_CLASS } from "@/lib/design/lesson-composition";
-import type { TVocabularyExample } from "@/types/vocabulary";
+import { displayRussianGraphemes } from "@/lib/russian/display-russian";
+import type { TLearningCardExample } from "@/types/learning-card";
 
 import { VocabSection } from "./VocabEditorial";
 
 interface ExamplesSectionProps {
-  examples: TVocabularyExample[];
+  examples: TLearningCardExample[];
+}
+
+function RussianExampleText({ text }: { text: string }) {
+  const graphemes = displayRussianGraphemes(text);
+
+  return (
+    <span className="font-russian">
+      {graphemes.map((grapheme, index) => (
+        <span key={`${index}-${grapheme}`} className="inline">
+          {grapheme}
+        </span>
+      ))}
+    </span>
+  );
 }
 
 export function ExamplesSection({ examples }: ExamplesSectionProps) {
@@ -14,19 +28,13 @@ export function ExamplesSection({ examples }: ExamplesSectionProps) {
     return null;
   }
 
-  const displayed = examples.slice(0, 4);
-
   return (
-    <VocabSection
-      eyebrow="Pour voir"
-      title="Illustrations"
-      className={LESSON_APPENDIX_CLASS}
-    >
+    <VocabSection eyebrow="Pour voir" title="Exemples">
       <ul className="space-y-5">
-        {displayed.map((example) => (
+        {examples.map((example) => (
           <li key={example.id} className="space-y-2">
-            <p className="font-russian text-base leading-relaxed text-ink-2">
-              {example.sentenceRu}
+            <p className="text-base leading-relaxed text-ink-2">
+              <RussianExampleText text={example.sentenceRu} />
             </p>
             {example.translationFr ? (
               <p className="text-sm italic text-ink-3">{example.translationFr}</p>

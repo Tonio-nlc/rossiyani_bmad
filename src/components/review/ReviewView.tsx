@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BackLink } from "@/components/ui/BackLink";
+import { RussianText } from "@/components/reader/RussianText";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageBody } from "@/components/ui/PageBody";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -86,7 +87,9 @@ export function ReviewView({
                   key={item.userVocabularyId}
                   className="rounded-[14px] border border-border bg-surface px-5 py-4"
                 >
-                  <p className="font-russian text-xl text-ink">{item.lemma}</p>
+                  <p className="text-xl text-ink">
+                    <RussianText>{item.lemma}</RussianText>
+                  </p>
                   {item.translation ? (
                     <p className="mt-1 text-sm text-ink-2">{item.translation}</p>
                   ) : null}

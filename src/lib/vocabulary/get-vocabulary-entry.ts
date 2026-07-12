@@ -1,6 +1,7 @@
 import type { TVocabularyEntry } from "@/types/vocabulary";
 import { buildKnowledge } from "@/lib/knowledge/build-knowledge";
 import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
+import { composeLearningCard } from "@/lib/knowledge/pedagogy/compose-learning-card";
 import { collectVocabularyExamples } from "@/lib/vocabulary/collect-vocabulary-examples";
 import { extractTranslation } from "@/lib/vocabulary/extract-translation";
 import { formatReviewLevel } from "@/lib/vocabulary/format-linguistic-labels";
@@ -243,11 +244,20 @@ export async function getVocabularyEntry(
     knowledge,
   );
 
+  const learningCard = composeLearningCard({
+    profile: linguisticProfile,
+    displayLemma,
+    translation,
+    encounter: contextEncounter,
+    examples,
+  });
+
   return {
     lemma: lemma.form,
     displayLemma,
     translation,
     linguisticProfile,
+    learningCard,
     contextEncounter,
     linguisticData: {
       lemma: lemma.form,

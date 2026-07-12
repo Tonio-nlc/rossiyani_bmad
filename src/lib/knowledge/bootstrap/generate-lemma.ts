@@ -4,6 +4,7 @@ import {
   upsertKnowledge,
 } from "@/lib/knowledge/upsert-knowledge";
 import type { TNormalizationEvent } from "@/lib/knowledge/normalize-knowledge-payload";
+import type { TKnowledgeQualityReport } from "@/lib/knowledge/quality/quality-types";
 import { KNOWLEDGE_PROFILE_VERSION } from "@/types/knowledge";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -123,6 +124,7 @@ export async function generateAndUpsertKnowledge(
 ): Promise<{
   knowledge: Awaited<ReturnType<typeof upsertKnowledge>>;
   normalizationEvents: TNormalizationEvent[];
+  qualityReport: TKnowledgeQualityReport;
 }> {
   const generated = await withTimeout(
     generateKnowledgeFromLlm(lemmaForm),
@@ -137,6 +139,7 @@ export async function generateAndUpsertKnowledge(
   return {
     knowledge,
     normalizationEvents: generated.normalizationEvents,
+    qualityReport: generated.qualityReport,
   };
 }
 

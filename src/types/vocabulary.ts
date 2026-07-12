@@ -6,6 +6,7 @@ import type {
   TKnowledgeSyntax,
   TLinguisticProfile,
 } from "@/types/knowledge";
+import type { TLearningCard } from "@/types/learning-card";
 
 export type TVocabularyReviewStatus = "new" | "due" | "learned";
 
@@ -98,6 +99,7 @@ export interface TVocabularyEntry {
   displayLemma: string;
   translation: string;
   linguisticProfile: TVocabularyLinguisticProfile;
+  learningCard: TLearningCard;
   contextEncounter: TVocabularyContextEncounter | null;
   linguisticData: TVocabularyLinguisticData;
   userVocabulary: TVocabularyUserRecord;

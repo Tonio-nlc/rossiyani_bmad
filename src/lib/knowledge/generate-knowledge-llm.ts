@@ -1,20 +1,23 @@
 import OpenAI from "openai";
 
+import { analyzeKnowledgeQuality } from "@/lib/knowledge/quality/quality-analyzer";
 import {
   parseKnowledgeLlmJsonWithMeta,
   type TParseKnowledgeResult,
 } from "@/lib/knowledge/profile-schema";
+import type { TKnowledgeQualityReport } from "@/lib/knowledge/quality/quality-types";
 import type { TKnowledgeLlmPayload } from "@/types/knowledge";
 import type { TNormalizationEvent } from "@/lib/knowledge/normalize-knowledge-payload";
 
 export interface TKnowledgeGenerationResult {
   payload: TKnowledgeLlmPayload;
   normalizationEvents: TNormalizationEvent[];
+  qualityReport: TKnowledgeQualityReport;
 }
 
 const SYSTEM_PROMPT = `Tu es le générateur de connaissances linguistiques permanentes de Rossiyani.
 
-Ta mission : produire le profil linguistique COMPLET d'un lemme russe — comme le ferait un professeur de russe, pas un dictionnaire.
+Ta mission : produire une fiche d'enseignement pour un lemme russe — ce qu'un lecteur doit comprendre pour continuer à lire, pas une encyclopédie.
 
 RÈGLES ABSOLUES :
 1. Répondre UNIQUEMENT en JSON valide — aucun texte avant ou après
@@ -31,14 +34,15 @@ STRUCTURE — quatre couches + paradigmes :
 A) morphology — forme du mot (genre, animacité, aspect, paire aspectuelle, conjugaison, déclinaison, paradigmes, préverbes, etc.)
 B) syntax — fonctionnement en phrase (government, cas requis, constructions, transitivité, etc.)
 C) semantics — sens (coreMeaning, extendedMeaning, register, collocations, faux amis, synonymes, antonymes)
-D) pedagogy — couche pédagogique Rossiyani :
-   - summary : une phrase très courte
-   - takeaway : une seule idée à retenir
-   - commonErrors : [{ wrong, correct }]
-   - confusions : mots souvent confondus (formes russes)
-   - tips : conseils courts
-   - progression : A1 | A2 | B1 | B2 | C1 | C2
-   - relatedConcepts : concepts grammaticaux liés
+D) pedagogy — séquence pédagogique Rossiyani (PRIORITAIRE) :
+   - takeaways : 3 à 5 points maximum — ce qu'il faut retenir pour lire
+   - commonPatterns : formulations fréquentes en russe (ex. « Что случилось ? »)
+   - nextForms : max 5 formes que le lecteur rencontrera bientôt
+   - understandingPoints : 3 à 5 explications courtes (pourquoi cette forme, ce cas, cet aspect…)
+   - commonErrors : [{ wrong, correct }] — max 3
+   - takeaway : une seule idée synthétique (doublon du premier takeaway si besoin)
+   - summary : une phrase très courte (optionnel)
+   - confusions, tips, progression, relatedConcepts : secondaire — remplir brièvement ou []
 
 E) paradigms — formes structurées :
    - forms : paradigme principal (conjugaison présent, déclinaison, etc.)
@@ -129,6 +133,10 @@ FORMAT JSON strict :
   "pedagogy": {
     "summary": "",
     "takeaway": "",
+    "takeaways": [],
+    "commonPatterns": [],
+    "nextForms": [],
+    "understandingPoints": [],
     "commonErrors": [],
     "confusions": [],
     "tips": [],
@@ -176,8 +184,14 @@ export async function generateKnowledgeFromLlm(
     debug,
   });
 
+  const qualityReport = analyzeKnowledgeQuality({
+    lemmaForm,
+    payload: parsed.payload,
+  });
+
   return {
     payload: parsed.payload,
     normalizationEvents: parsed.normalizationEvents,
+    qualityReport,
   };
 }

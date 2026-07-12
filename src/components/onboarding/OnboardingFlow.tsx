@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
+import { RussianText } from "@/components/reader/RussianText";
 import { cn } from "@/lib/utils";
 
 const TOTAL_STEPS = 5;
@@ -241,12 +242,16 @@ function StepOne() {
 }
 
 function RoleSubject({ children }: { children: ReactNode }) {
-  return <span style={{ color: "#3B82F6" }}>{children}</span>;
+  return (
+    <span className="font-russian" style={{ color: "#3B82F6" }}>
+      {children}
+    </span>
+  );
 }
 
 function RoleObject() {
   return (
-    <span>
+    <span className="font-russian">
       <span className="text-ink">Маш</span>
       <span style={{ color: "#EF7C5A" }}>у</span>
     </span>
@@ -262,7 +267,7 @@ function PhraseColumn({
 }) {
   return (
     <div className="space-y-2 text-center md:text-left">
-      <p className="font-serif text-xl text-ink">{russian}</p>
+      <p className="text-xl text-ink font-russian">{russian}</p>
       <p className="text-sm text-ink-2">{french}</p>
     </div>
   );
@@ -309,7 +314,7 @@ function StepThree({
       />
 
       <div className="rounded-xl border border-border bg-bg p-6">
-        <p className="text-center font-serif text-xl">
+        <p className="text-center text-xl font-russian">
           <DemoWordButton
             isActive={selectedWord === "anna"}
             onClick={() => onSelectWord("anna")}
@@ -349,7 +354,7 @@ function StepThree({
             key={selectedWord}
             className="mt-6 animate-in fade-in rounded-xl border border-border bg-surface p-5 duration-150"
           >
-            <p className="font-serif text-lg text-ink">
+            <p className="text-lg text-ink font-russian">
               {explanation.headline}
             </p>
             <p className="mt-1 text-sm font-medium text-ink-2">
@@ -405,11 +410,11 @@ function StepFour() {
       />
 
       <div className="rounded-xl border border-border bg-surface p-5">
-        <p className="font-serif text-xl text-ink">ваго́н</p>
+        <RussianText className="text-xl text-ink">ваго́н</RussianText>
         <p className="mt-1 text-base text-ink-2">wagon</p>
-        <p className="mt-4 font-serif text-base leading-relaxed text-ink-2">
-          &quot;Анна входит в вагон и садится у окна.&quot;
-        </p>
+        <RussianText className="mt-4 text-base leading-relaxed text-ink-2">
+          «Анна входит в вагон и садится у окна.»
+        </RussianText>
         <p className="mt-1 text-sm italic text-ink-3">
           « Anna entre dans le wagon et s&apos;assoit près de la fenêtre. »
         </p>

@@ -32,6 +32,8 @@ export interface TBootstrapOptions {
   only?: TBootstrapPriority;
 }
 
+import type { TKnowledgeQualityReport } from "@/lib/knowledge/quality/quality-types";
+
 export interface TBootstrapItemResult {
   lemmaId: string;
   form: string;
@@ -47,6 +49,7 @@ export interface TBootstrapItemResult {
   durationMs: number;
   error?: string;
   normalizationCount?: number;
+  qualityReport?: TKnowledgeQualityReport;
 }
 
 export interface TBootstrapNormalizationSummary {

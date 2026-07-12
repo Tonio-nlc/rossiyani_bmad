@@ -28,7 +28,7 @@ export function splitTrailingPunctuation(surface: string): {
   return { wordPart, trailingPunctuation };
 }
 
-function segmentGraphemes(text: string): string[] {
+export function segmentGraphemes(text: string): string[] {
   const normalized = toNfc(text);
   const graphemes: string[] = [];
 

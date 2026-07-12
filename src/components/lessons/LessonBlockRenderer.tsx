@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { LessonExampleSentence } from "@/components/lessons/LessonExampleSentence";
 import { LessonSection } from "@/components/lessons/LessonSection";
 import { SchemaDiagram } from "@/components/lessons/SchemaDiagram";
+import { RussianText } from "@/components/reader/RussianText";
 import {
   LESSON_CARD_SHELL_CLASS,
   LESSON_EXAMPLE_CARD_CLASS,
@@ -77,10 +78,10 @@ function ParagraphBlock({ text, sectionId, inListGroup }: ParagraphBlockProps) {
           !isTransition &&
           !isListLead &&
           LESSON_PROSE_CLASS,
-        hasCyrillic && "font-russian text-[16px] text-ink",
+        hasCyrillic && "text-[16px] text-ink",
       )}
     >
-      {text}
+      {hasCyrillic ? <RussianText>{text}</RussianText> : text}
     </p>
   );
 }
@@ -103,8 +104,8 @@ function ComparisonCell({ value }: { value: string }) {
   const hasCyrillic = containsCyrillic(value);
 
   return (
-    <span className={hasCyrillic ? "font-russian text-ink" : undefined}>
-      {value}
+    <span className={hasCyrillic ? "text-ink" : undefined}>
+      {hasCyrillic ? <RussianText>{value}</RussianText> : value}
     </span>
   );
 }

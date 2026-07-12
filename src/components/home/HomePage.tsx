@@ -120,11 +120,6 @@ export function HomePage() {
   );
 }
 
-function formatStreakLabel(streak: number): string {
-  const unit = streak === 1 ? "JOUR" : "JOURS";
-  return `🔥 ${streak} ${unit} DE SUITE`;
-}
-
 function HeroSection({
   data,
   isLoading,
@@ -134,57 +129,101 @@ function HeroSection({
 }) {
   return (
     <section className="grid items-stretch gap-4 md:grid-cols-2 md:gap-6">
-      <div className="flex flex-col justify-center gap-3">
-        <div className="flex flex-wrap gap-2">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-7 w-32 rounded-full" />
-              <Skeleton className="h-7 w-28 rounded-full" />
-              <Skeleton className="h-7 w-32 rounded-full" />
-            </>
-          ) : (
-            <>
-              <StatPill
-                label={formatStreakLabel(data?.streak ?? 1)}
-                variant="streak"
-              />
-              <StatPill
-                label={`${data?.wordsExploredTotal ?? 0} MOTS EXPLORÉS`}
-              />
-              <StatPill label={`${data?.wordsToday ?? 0} MOTS AUJOURD'HUI`} />
-            </>
-          )}
-        </div>
-      </div>
-
       {isLoading ? (
-        <Skeleton className="min-h-[200px] rounded-lg" />
+        <>
+          <Skeleton className="min-h-[220px] rounded-[14px]" />
+          <Skeleton className="min-h-[220px] rounded-lg" />
+        </>
       ) : (
-        <CurrentReadingCard current={data?.currentReading ?? null} />
+        <>
+          <ProgressCard
+            streak={data?.streak ?? 1}
+            wordsExploredTotal={data?.wordsExploredTotal ?? 0}
+            wordsToday={data?.wordsToday ?? 0}
+          />
+          <CurrentReadingCard current={data?.currentReading ?? null} />
+        </>
       )}
     </section>
   );
 }
 
-function StatPill({
+function ProgressCard({
+  streak,
+  wordsExploredTotal,
+  wordsToday,
+}: {
+  streak: number;
+  wordsExploredTotal: number;
+  wordsToday: number;
+}) {
+  return (
+    <div className={cn(CARD_HUB_CLASS, "h-full min-h-[220px]")}>
+      <p className="text-[10px] font-bold tracking-[0.12em] text-ink-3 uppercase">
+        Votre progression
+      </p>
+
+      <div className="mt-4 flex flex-1 flex-col gap-3">
+        <ProgressStat
+          label="Jour de suite"
+          value={streak}
+          unit={streak === 1 ? "jour" : "jours"}
+          highlight
+          prefix="🔥"
+        />
+        <ProgressStat
+          label="Mots explorés"
+          value={wordsExploredTotal}
+          unit={wordsExploredTotal === 1 ? "mot" : "mots"}
+        />
+        <ProgressStat
+          label="Mots aujourd'hui"
+          value={wordsToday}
+          unit={wordsToday === 1 ? "mot" : "mots"}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ProgressStat({
   label,
-  variant = "default",
+  value,
+  unit,
+  prefix,
+  highlight = false,
 }: {
   label: string;
-  variant?: "default" | "streak";
+  value: number;
+  unit: string;
+  prefix?: string;
+  highlight?: boolean;
 }) {
-  const isStreak = variant === "streak";
-
   return (
-    <span
-      className={
-        isStreak
-          ? "inline-flex rounded-full border border-accent-border bg-accent-light px-3 py-1 text-xs font-medium text-accent"
-          : "inline-flex rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-ink-2"
-      }
+    <div
+      className={cn(
+        "flex items-center justify-between gap-4 rounded-lg border px-3 py-3",
+        highlight
+          ? "border-accent-border bg-accent-light"
+          : "border-border bg-bg",
+      )}
     >
-      {label}
-    </span>
+      <span className="text-sm font-medium text-ink-2">
+        {prefix ? `${prefix} ` : ""}
+        {label}
+      </span>
+      <span className="shrink-0 text-right">
+        <span
+          className={cn(
+            "text-2xl font-bold leading-none",
+            highlight ? "text-accent" : "text-ink",
+          )}
+        >
+          {value}
+        </span>
+        <span className="ml-1 text-xs text-ink-3">{unit}</span>
+      </span>
+    </div>
   );
 }
 
@@ -194,7 +233,7 @@ function CurrentReadingCard({
   current: THomeCurrentReading | null;
 }) {
   return (
-    <div className={CARD_PROMO_CLASS}>
+    <div className={cn(CARD_PROMO_CLASS, "flex h-full min-h-[220px] flex-col")}>
       <span
         className="pointer-events-none absolute -bottom-3 -right-1 font-serif text-[5rem] italic leading-none text-white/[0.06]"
         aria-hidden="true"
@@ -223,7 +262,7 @@ function CurrentReadingCard({
           </div>
           <Link
             href={`/reader/${current.text.id}`}
-            className="mt-4 inline-flex items-center justify-center rounded-[10px] bg-white px-4 py-2.5 text-sm font-bold text-accent-deep"
+            className="mt-auto inline-flex w-fit items-center justify-center rounded-[10px] bg-white px-4 py-2.5 text-sm font-bold text-accent-deep"
           >
             Reprendre →
           </Link>
@@ -241,7 +280,7 @@ function CurrentReadingCard({
           </p>
           <Link
             href="/library"
-            className="mt-4 inline-flex items-center justify-center rounded-[10px] bg-white px-4 py-2.5 text-sm font-bold text-accent-deep"
+            className="mt-auto inline-flex w-fit items-center justify-center rounded-[10px] bg-white px-4 py-2.5 text-sm font-bold text-accent-deep"
           >
             Explorer la bibliothèque →
           </Link>

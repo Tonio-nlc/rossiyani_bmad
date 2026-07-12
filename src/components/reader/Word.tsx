@@ -10,6 +10,7 @@ import {
   toNfc,
   type TReaderFunctionColor,
 } from "@/lib/utils/russian";
+import { displayRussian } from "@/lib/russian/display-russian";
 import { cn } from "@/lib/utils";
 
 export interface WordProps {
@@ -140,19 +141,19 @@ export function Word({
     >
       {showColoredSuffix ? (
         <>
-          <span className="word-radical text-ink">{stem}</span>
+          <span className="word-radical text-ink">{displayRussian(stem)}</span>
           <span
             className="word-suffix transition-colors duration-300 ease-in-out"
             style={{ color: colorHex }}
           >
-            {suffix}
+            {displayRussian(suffix)}
           </span>
           {trailingPunctuation ? (
             <span className="text-ink">{trailingPunctuation}</span>
           ) : null}
         </>
       ) : (
-        <span className="word-radical text-ink">{surface}</span>
+        <span className="word-radical text-ink">{displayRussian(surface)}</span>
       )}
     </span>
   );

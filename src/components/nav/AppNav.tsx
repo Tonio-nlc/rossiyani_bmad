@@ -192,20 +192,32 @@ function NavLink({
 }
 
 function ProfileMenu({ userInitial }: { userInitial: string }) {
+  const profileMenuItemClassName = cn(
+    "p-0 text-ink-2",
+    "focus:bg-bg focus:text-ink data-[highlighted]:bg-bg data-[highlighted]:text-ink",
+    "focus:**:text-ink data-[highlighted]:**:text-ink",
+  );
+
+  const profileMenuTriggerClassName = cn(
+    "hidden size-8 items-center justify-center rounded-full bg-accent-light text-xs font-bold text-accent outline-none transition-colors md:inline-flex",
+    "hover:bg-bg data-popup-open:bg-accent-light",
+    "focus-visible:ring-2 focus-visible:ring-accent/30",
+  );
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="hidden size-8 items-center justify-center rounded-full bg-accent-light text-xs font-bold text-accent outline-none focus-visible:ring-2 focus-visible:ring-accent/30 md:inline-flex"
+        className={profileMenuTriggerClassName}
         aria-label="Menu profil"
       >
         {userInitial}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-40">
-        <DropdownMenuItem className="p-0">
+        <DropdownMenuItem className={profileMenuItemClassName}>
           <form action="/api/auth/signout" method="post" className="w-full">
             <button
               type="submit"
-              className="w-full px-2 py-1.5 text-left text-sm"
+              className="w-full rounded-md px-2 py-1.5 text-left text-sm text-inherit"
             >
               Se déconnecter
             </button>

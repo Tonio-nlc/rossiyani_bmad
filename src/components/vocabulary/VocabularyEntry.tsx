@@ -1,10 +1,11 @@
 import type { TVocabularyEntry } from "@/types/vocabulary";
 
-import { EncounterSummarySection } from "./EncounterSummarySection";
+import { EncounterSection } from "./EncounterSection";
 import { ExamplesSection } from "./ExamplesSection";
-import { ExploreWordSection } from "./ExploreWordSection";
-import { FormInContextSection } from "./FormInContextSection";
-import { ImportantVariantsSection } from "./ImportantVariantsSection";
+import { NextFormsSection } from "./NextFormsSection";
+import { ReferenceAccordion } from "./ReferenceAccordion";
+import { TakeawaySection } from "./TakeawaySection";
+import { UnderstandingSection } from "./UnderstandingSection";
 import { VocabularyEntryHeader } from "./VocabularyEntryHeader";
 import { PageBody } from "@/components/ui/PageBody";
 import { PageSection } from "@/components/ui/PageSection";
@@ -20,10 +21,12 @@ export function VocabularyEntry({
   returnHref,
   returnLabel,
 }: VocabularyEntryProps) {
+  const { learningCard } = entry;
+
   return (
     <div>
       <VocabularyEntryHeader
-        entry={entry}
+        header={learningCard.header}
         returnHref={returnHref}
         returnLabel={returnLabel}
       />
@@ -31,23 +34,21 @@ export function VocabularyEntry({
       <PageBody width="content">
         <PageSection gap="default">
           <div className="space-y-2">
-            {entry.contextEncounter ? (
-              <EncounterSummarySection
-                encounter={entry.contextEncounter}
-                profile={entry.linguisticProfile}
-                displayLemma={entry.displayLemma}
-              />
+            {learningCard.encounter ? (
+              <EncounterSection encounter={learningCard.encounter} />
             ) : null}
 
-            {entry.contextEncounter ? (
-              <FormInContextSection encounter={entry.contextEncounter} />
+            {learningCard.understanding ? (
+              <UnderstandingSection understanding={learningCard.understanding} />
             ) : null}
 
-            <ExploreWordSection profile={entry.linguisticProfile} />
+            <TakeawaySection takeaways={learningCard.takeaways} />
 
-            <ImportantVariantsSection profile={entry.linguisticProfile} />
+            <NextFormsSection nextForms={learningCard.nextForms} />
 
-            <ExamplesSection examples={entry.examples} />
+            <ExamplesSection examples={learningCard.examples} />
+
+            <ReferenceAccordion reference={learningCard.reference} />
           </div>
         </PageSection>
       </PageBody>

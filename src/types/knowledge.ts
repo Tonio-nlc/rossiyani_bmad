@@ -108,6 +108,10 @@ export interface TKnowledgeSemantics {
 export interface TKnowledgePedagogy {
   summary?: string | null;
   takeaway?: string | null;
+  takeaways?: string[];
+  commonPatterns?: string[];
+  nextForms?: string[];
+  understandingPoints?: string[];
   commonErrors?: TKnowledgeErrorPair[];
   confusions?: string[];
   tips?: string[];

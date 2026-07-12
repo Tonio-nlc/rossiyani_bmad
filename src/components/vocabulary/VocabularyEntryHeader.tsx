@@ -1,4 +1,5 @@
 import { BackLink } from "@/components/ui/BackLink";
+import { displayRussianGraphemes } from "@/lib/russian/display-russian";
 import {
   PAGE_BODY_SHELL_CLASS,
   PAGE_HEADER_EYEBROW_CLASS,
@@ -7,23 +8,34 @@ import {
   PAGE_HEADER_TITLE_CLASS,
   pageBodyWidthClass,
 } from "@/lib/design/rhythm";
-import { getPosLabel } from "@/lib/vocabulary/vocabulary-pedagogy";
-import type { TVocabularyEntry } from "@/types/vocabulary";
+import type { TLearningCardHeader } from "@/types/learning-card";
 import { cn } from "@/lib/utils";
 
 interface VocabularyEntryHeaderProps {
-  entry: TVocabularyEntry;
+  header: TLearningCardHeader;
   returnHref: string;
   returnLabel: string;
 }
 
+function HeaderLemma({ lemma }: { lemma: string }) {
+  const graphemes = displayRussianGraphemes(lemma);
+
+  return (
+    <span className="font-russian">
+      {graphemes.map((grapheme, index) => (
+        <span key={`${index}-${grapheme}`} className="inline">
+          {grapheme}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export function VocabularyEntryHeader({
-  entry,
+  header,
   returnHref,
   returnLabel,
 }: VocabularyEntryHeaderProps) {
-  const posLabel = getPosLabel(entry.linguisticProfile.partOfSpeech);
-
   return (
     <header className={PAGE_HEADER_SHELL_CLASS}>
       <div
@@ -37,15 +49,12 @@ export function VocabularyEntryHeader({
           <BackLink href={returnHref} label={returnLabel} />
         </div>
         <p className={PAGE_HEADER_EYEBROW_CLASS}>VOCABULAIRE</p>
-        <h1 className={cn(PAGE_HEADER_TITLE_CLASS, "mt-4 font-russian")}>
-          {entry.displayLemma}
+        <h1 className={cn(PAGE_HEADER_TITLE_CLASS, "mt-4")}>
+          <HeaderLemma lemma={header.lemma} />
         </h1>
         <p className={PAGE_HEADER_SUBTITLE_CLASS}>
-          {entry.translation || "Traduction indisponible"}
+          {header.subtitle ?? header.translation ?? "Traduction indisponible"}
         </p>
-        {posLabel ? (
-          <p className="mt-1 text-sm text-ink-3">{posLabel}</p>
-        ) : null}
       </div>
     </header>
   );
