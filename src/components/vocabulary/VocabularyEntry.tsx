@@ -1,10 +1,11 @@
 import type { TVocabularyEntry } from "@/types/vocabulary";
 
-import { VocabularyEntryHeader } from "./VocabularyEntryHeader";
+import { EncounterSummarySection } from "./EncounterSummarySection";
 import { ExamplesSection } from "./ExamplesSection";
+import { ExploreWordSection } from "./ExploreWordSection";
 import { FormInContextSection } from "./FormInContextSection";
-import { LinguisticProfileSection } from "./LinguisticProfileSection";
-import { ReviewSection } from "./ReviewSection";
+import { ImportantVariantsSection } from "./ImportantVariantsSection";
+import { VocabularyEntryHeader } from "./VocabularyEntryHeader";
 import { PageBody } from "@/components/ui/PageBody";
 import { PageSection } from "@/components/ui/PageSection";
 
@@ -29,13 +30,24 @@ export function VocabularyEntry({
 
       <PageBody width="content">
         <PageSection gap="default">
-          <div className="space-y-8">
+          <div className="space-y-2">
+            {entry.contextEncounter ? (
+              <EncounterSummarySection
+                encounter={entry.contextEncounter}
+                profile={entry.linguisticProfile}
+                displayLemma={entry.displayLemma}
+              />
+            ) : null}
+
             {entry.contextEncounter ? (
               <FormInContextSection encounter={entry.contextEncounter} />
             ) : null}
-            <LinguisticProfileSection profile={entry.linguisticProfile} />
+
+            <ExploreWordSection profile={entry.linguisticProfile} />
+
+            <ImportantVariantsSection profile={entry.linguisticProfile} />
+
             <ExamplesSection examples={entry.examples} />
-            <ReviewSection review={entry.review} />
           </div>
         </PageSection>
       </PageBody>

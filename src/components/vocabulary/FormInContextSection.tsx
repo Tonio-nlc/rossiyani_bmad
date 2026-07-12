@@ -3,7 +3,15 @@ import {
   stripTrailingPunctuationForDisplay,
   type TReaderFunctionColor,
 } from "@/lib/utils/russian";
+import { splitPedagogicalBlocks } from "@/lib/vocabulary/vocabulary-pedagogy";
 import type { TVocabularyContextEncounter } from "@/types/vocabulary";
+
+import {
+  VocabRussianDisplay,
+  VocabSection,
+  VocabShortBlock,
+  VocabStep,
+} from "./VocabEditorial";
 
 interface FormInContextSectionProps {
   encounter: TVocabularyContextEncounter;
@@ -14,18 +22,19 @@ export function FormInContextSection({ encounter }: FormInContextSectionProps) {
     encounter.functionColor as TReaderFunctionColor | undefined,
   );
   const cleanSurface = stripTrailingPunctuationForDisplay(encounter.surface);
+  const explanationBlocks = splitPedagogicalBlocks(encounter.explanation);
+  const suffixBlocks = splitPedagogicalBlocks(encounter.suffixExplanation);
 
   return (
-    <section className="space-y-4 rounded-xl border border-border bg-surface p-5 md:p-6">
-      <h2 className="text-lg font-semibold text-ink">
-        Comprendre cette forme
-      </h2>
+    <VocabSection eyebrow="Dans la phrase" title="Comprendre cette forme">
+      <VocabStep>
+        <VocabRussianDisplay size="lg">{cleanSurface}</VocabRussianDisplay>
+      </VocabStep>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <p className="font-russian text-2xl text-ink">{cleanSurface}</p>
-        {encounter.suffix ? (
+      {encounter.suffix ? (
+        <VocabStep>
           <span
-            className="rounded-md px-1.5 py-0.5 font-russian text-lg"
+            className="inline-block rounded-md px-2 py-1 font-russian text-xl"
             style={
               colorHex
                 ? { color: colorHex, backgroundColor: `${colorHex}1F` }
@@ -34,38 +43,54 @@ export function FormInContextSection({ encounter }: FormInContextSectionProps) {
           >
             {encounter.suffix}
           </span>
-        ) : null}
-      </div>
-
-      <p
-        className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
-        style={
-          colorHex
-            ? { color: colorHex, backgroundColor: `${colorHex}26` }
-            : { color: "var(--ink-2)" }
-        }
-      >
-        <span
-          className="size-1.5 shrink-0 rounded-full"
-          style={colorHex ? { backgroundColor: colorHex } : undefined}
-          aria-hidden="true"
-        />
-        {encounter.roleLabel}
-      </p>
-
-      <p className="text-[15px] leading-[1.7] text-ink">{encounter.explanation}</p>
-
-      {encounter.suffixExplanation ? (
-        <p className="text-sm leading-relaxed text-ink-2">
-          {encounter.suffixExplanation}
-        </p>
+        </VocabStep>
       ) : null}
 
-      <blockquote className="border-l-2 border-border pl-4">
-        <p className="font-russian text-base leading-relaxed text-ink-2">
-          {encounter.sentence}
+      <VocabStep>
+        <p
+          className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+          style={
+            colorHex
+              ? { color: colorHex, backgroundColor: `${colorHex}26` }
+              : { color: "var(--ink-2)" }
+          }
+        >
+          <span
+            className="size-1.5 shrink-0 rounded-full"
+            style={colorHex ? { backgroundColor: colorHex } : undefined}
+            aria-hidden="true"
+          />
+          {encounter.roleLabel}
         </p>
-      </blockquote>
-    </section>
+      </VocabStep>
+
+      {explanationBlocks.length > 0 ? (
+        <VocabStep showArrow={suffixBlocks.length > 0}>
+          <div className="space-y-3">
+            {explanationBlocks.map((block) => (
+              <VocabShortBlock key={block}>{block}</VocabShortBlock>
+            ))}
+          </div>
+        </VocabStep>
+      ) : null}
+
+      {suffixBlocks.length > 0 ? (
+        <VocabStep>
+          <div className="space-y-2">
+            {suffixBlocks.map((block) => (
+              <VocabShortBlock key={block}>{block}</VocabShortBlock>
+            ))}
+          </div>
+        </VocabStep>
+      ) : null}
+
+      <VocabStep showArrow={false}>
+        <blockquote className="border-l-2 border-border pl-4">
+          <p className="font-russian text-base leading-relaxed text-ink-2">
+            {encounter.sentence}
+          </p>
+        </blockquote>
+      </VocabStep>
+    </VocabSection>
   );
 }

@@ -1,4 +1,11 @@
 export { buildKnowledge } from "@/lib/knowledge/build-knowledge";
+export { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
+export {
+  buildProfileExploreBlocks,
+  buildProfileFromKnowledge,
+  buildProfileTraitChips,
+  extractProfileVariants,
+} from "@/lib/knowledge/profile-views";
 export {
   ensureKnowledgeExists,
   getKnowledgeByLemmaId,

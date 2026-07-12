@@ -1,5 +1,6 @@
 import type { TVocabularyEntry } from "@/types/vocabulary";
 import { buildKnowledge } from "@/lib/knowledge/build-knowledge";
+import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
 import { collectVocabularyExamples } from "@/lib/vocabulary/collect-vocabulary-examples";
 import { extractTranslation } from "@/lib/vocabulary/extract-translation";
 import { formatReviewLevel } from "@/lib/vocabulary/format-linguistic-labels";
@@ -64,43 +65,37 @@ function getExplanationCacheRelation(
   return Array.isArray(cacheRelation) ? cacheRelation[0] ?? null : cacheRelation;
 }
 
-function parseGovernment(government: string | null | undefined): string[] {
-  if (!government) {
-    return [];
-  }
-
-  try {
-    const parsed = JSON.parse(government) as unknown;
-
-    if (Array.isArray(parsed)) {
-      return parsed.filter((item): item is string => typeof item === "string");
-    }
-  } catch {
-    return [government];
-  }
-
-  return [];
-}
-
-function buildLinguisticProfile(
+function buildVocabularyLinguisticProfile(
   lemma: string,
   displayLemma: string,
   translation: string,
   knowledge: TLinguisticKnowledge,
 ) {
+  const profile = buildLinguisticProfile(knowledge);
+
   return {
     lemma,
     displayLemma,
     translation,
-    partOfSpeech: toNullableString(knowledge.partOfSpeech),
-    gender: toNullableString(knowledge.gender),
-    aspect: toNullableString(knowledge.aspect),
-    movementType: toNullableString(knowledge.movementType),
-    government: parseGovernment(knowledge.government),
-    register: toNullableString(knowledge.register),
-    semanticCategory: toNullableString(knowledge.semanticCategory),
-    notes: toNullableString(knowledge.notes),
-    tags: knowledge.tags ?? [],
+    partOfSpeech: profile.partOfSpeech,
+    gender: profile.gender,
+    aspect: profile.aspect,
+    movementType: profile.movementType,
+    morphology: profile.morphology,
+    syntax: profile.syntax,
+    semantics: profile.semantics,
+    pedagogy: profile.pedagogy,
+    paradigms: profile.paradigms,
+    profile,
+    government: profile.syntax.government ?? [],
+    register: toNullableString(
+      profile.semantics.register ?? knowledge.register,
+    ),
+    semanticCategory: toNullableString(
+      profile.semantics.semanticCategory ?? knowledge.semanticCategory,
+    ),
+    notes: toNullableString(profile.pedagogy.takeaway ?? knowledge.notes),
+    tags: profile.pedagogy.relatedConcepts ?? knowledge.tags ?? [],
   };
 }
 
@@ -241,7 +236,7 @@ export async function getVocabularyEntry(
     resolveLemmaStressed(linkedCache),
   );
 
-  const linguisticProfile = buildLinguisticProfile(
+  const linguisticProfile = buildVocabularyLinguisticProfile(
     lemma.form,
     displayLemma,
     translation,

@@ -1,0 +1,1847 @@
+{
+  "results": [
+    {
+      "lemmaForm": "окно",
+      "usedCandidate": "extracted",
+      "jsonParseError": null,
+      "zodSuccess": false,
+      "zodIssues": [
+        {
+          "path": "morphology.animacy",
+          "code": "invalid_value",
+          "message": "Invalid option: expected one of \"animate\"|\"inanimate\""
+        },
+        {
+          "path": "morphology.plural",
+          "code": "invalid_type",
+          "message": "Invalid input: expected object, received string",
+          "expected": "object"
+        }
+      ],
+      "zodIssueSummary": "morphology.animacy: Invalid option: expected one of \"animate\"|\"inanimate\" | morphology.plural: Invalid input: expected object, received string",
+      "sampleFields": {
+        "partOfSpeech": "noun",
+        "gender": "n",
+        "aspect": null,
+        "movementType": null,
+        "difficulty": "A1",
+        "pedagogyProgression": "A1",
+        "morphologyMovement": null,
+        "morphologyGender": "n"
+      },
+      "fullRaw": "{\n  \"partOfSpeech\": \"noun\",\n  \"gender\": \"n\",\n  \"aspect\": null,\n  \"movementType\": null,\n  \"government\": [],\n  \"semanticCategory\": \"objet\",\n  \"register\": \"neutre\",\n  \"difficulty\": \"A1\",\n  \"notes\": \"Nom neutre désignant une ouverture aménagée dans un mur pour laisser passer la lumière et l'air.\",\n  \"tags\": [\"fenêtre\", \"architecture\", \"objet\"],\n  \"morphology\": {\n    \"gender\": \"n\",\n    \"animacy\": \"inanimé\",\n    \"declensionClass\": \"2ème déclinaison (nom neutre en -o)\",\n    \"plural\": \"окна\",\n    \"irregularities\": [],\n    \"caseParadigm\": [\n      { \"label\": \"nominatif singulier\", \"form\": \"окно\" },\n      { \"label\": \"génitif singulier\", \"form\": \"окна\" },\n      { \"label\": \"datif singulier\", \"form\": \"окну\" },\n      { \"label\": \"accusatif singulier\", \"form\": \"окно\" },\n      { \"label\": \"instrumental singulier\", \"form\": \"окном\" },\n      { \"label\": \"prépositionnel singulier\", \"form\": \"окне\" },\n      { \"label\": \"nominatif pluriel\", \"form\": \"окна\" },\n      { \"label\": \"génitif pluriel\", \"form\": \"окон\" },\n      { \"label\": \"datif pluriel\", \"form\": \"окнам\" },\n      { \"label\": \"accusatif pluriel\", \"form\": \"окна\" },\n      { \"label\": \"instrumental pluriel\", \"form\": \"окнами\" },\n      { \"label\": \"prépositionnel pluriel\", \"form\": \"окнах\" }\n    ],\n    \"aspect\": null,\n    \"aspectPair\": null,\n    \"conjugationClass\": null,\n    \"conjugationParadigm\": [],\n    \"tense\": null,\n    \"person\": null,\n    \"voice\": null,\n    \"movementType\": null,\n    \"preverbs\": [],\n    \"agreement\": null,\n    \"comparative\": null,\n    \"superlative\": null,\n    \"shortForm\": null,\n    \"declension\": \"2ème déclinaison\",\n    \"pronounType\": null,\n    \"pronounParadigm\": [],\n    \"specialForms\": [],\n    \"governedCases\": [],\n    \"variants\": [],\n    \"nuances\": []\n  },\n  \"syntax\": {\n    \"government\": [],\n    \"requiredCase\": null,\n    \"compatibleCases\": [\"nominatif\", \"génitif\", \"datif\", \"accusatif\", \"instrumental\", \"prépositionnel\"],\n    \"constructionPatterns\": [\n      \"sujet\",\n      \"complément d'objet direct inanimé\",\n      \"complément de lieu\",\n      \"complément avec préposition\"\n    ],\n    \"requiresInfinitive\": false,\n    \"takesObject\": false,\n    \"movementPattern\": null,\n    \"reflexive\": false,\n    \"impersonal\": false,\n    \"transitivity\": null\n  },\n  \"semantics\": {\n    \"semanticCategory\": \"Objet architectural\",\n    \"coreMeaning\": \"Ouverture vitrée dans un mur permettant la lumière et l'air.\",\n    \"extendedMeaning\": \"Peut servir de métaphore pour « fenêtre » dans un sens figuré (accès à une information ou une perspective).\",\n    \"register\": \"Standard\",\n    \"frequency\": \"Très fréquent\",\n    \"collocations\": [\n      \"открыть окно\",\n      \"закрыть окно\",\n      \"стекло окна\",\n      \"окно на улицу\",\n      \"микроокно (informatique : une 'petite fenêtre')\"\n    ],\n    \"falseFriends\": [],\n    \"synonyms\": [\"форточка (petite fenêtre)\"],\n    \"antonyms\": []\n  },\n  \"pedagogy\": {\n    \"summary\": \"Nom neutre courant signifiant « fenêtre ».\",\n    \"takeaway\": \"окно est un nom neutre de la 2ème déclinaison avec un paradigme standard.\",\n    \"commonErrors\": [\n      { \"wrong\": \"окно (féminin)\", \"correct\": \"окно (neutre)\" },\n      { \"wrong\": \"окна (singulier)\", \"correct\": \"окно (singulier)\" },\n      { \"wrong\": \"accuser с окном\", \"correct\": \"accuser без окна ou с окном selon le contexte\" }\n    ],\n    \"confusions\": [\"окно vs окно́ (prononciation et accentuation)\"],\n    \"tips\": [\n      \"Se rappeler que les noms en -о sont neutres.\",\n      \"Attention à la déclinaison du pluriel qui change en -а/-ов.\"\n    ],\n    \"progression\": \"A1\",\n    \"relatedConcepts\": [\"noms neutres\", \"2ème déclinaison\", \"animé/inanimé\", \"cas russes\"]\n  },\n  \"paradigms\": {\n    \"forms\": [\n      { \"label\": \"nominatif singulier\", \"form\": \"окно\" },\n      { \"label\": \"accusatif singulier\", \"form\": \"окно\" },\n      { \"label\": \"génitif singulier\", \"form\": \"окна\" },\n      { \"label\": \"datif singulier\", \"form\": \"окну\" },\n      { \"label\": \"instrumental singulier\", \"form\": \"окном\" },\n      { \"label\": \"prépositionnel singulier\", \"form\": \"окне\" },\n      { \"label\": \"nominatif pluriel\", \"form\": \"окна\" },\n      { \"label\": \"accusatif pluriel\", \"form\": \"окна\" },\n      { \"label\": \"génitif pluriel\", \"form\": \"окон\" },\n      { \"label\": \"datif pluriel\", \"form\": \"окнам\" },\n      { \"label\": \"instrumental pluriel\", \"form\": \"окнами\" },\n      { \"label\": \"prépositionnel pluriel\", \"form\": \"окнах\" }\n    ],\n    \"cases\": [\n      { \"label\": \"nominatif singulier\", \"form\": \"окно\" },\n      { \"label\": \"génitif singulier\", \"form\": \"окна\" },\n      { \"label\": \"datif singulier\", \"form\": \"окну\" },\n      { \"label\": \"accusatif singulier\", \"form\": \"окно\" },\n      { \"label\": \"instrumental singulier\", \"form\": \"окном\" },\n      { \"label\": \"prépositionnel singulier\", \"form\": \"окне\" },\n      { \"label\": \"nominatif pluriel\", \"form\": \"окна\" },\n      { \"label\": \"génitif pluriel\", \"form\": \"окон\" },\n      { \"label\": \"datif pluriel\", \"form\": \"окнам\" },\n      { \"label\": \"accusatif pluriel\", \"form\": \"окна\" },\n      { \"label\": \"instrumental pluriel\", \"form\": \"окнами\" },\n      { \"label\": \"prépositionnel pluriel\", \"form\": \"окнах\" }\n    ],\n    \"conjugation\": []\n  }\n}",
+      "fullParsed": {
+        "partOfSpeech": "noun",
+        "gender": "n",
+        "aspect": null,
+        "movementType": null,
+        "government": [],
+        "semanticCategory": "objet",
+        "register": "neutre",
+        "difficulty": "A1",
+        "notes": "Nom neutre désignant une ouverture aménagée dans un mur pour laisser passer la lumière et l'air.",
+        "tags": [
+          "fenêtre",
+          "architecture",
+          "objet"
+        ],
+        "morphology": {
+          "gender": "n",
+          "animacy": "inanimé",
+          "declensionClass": "2ème déclinaison (nom neutre en -o)",
+          "plural": "окна",
+          "irregularities": [],
+          "caseParadigm": [
+            {
+              "label": "nominatif singulier",
+              "form": "окно"
+            },
+            {
+              "label": "génitif singulier",
+              "form": "окна"
+            },
+            {
+              "label": "datif singulier",
+              "form": "окну"
+            },
+            {
+              "label": "accusatif singulier",
+              "form": "окно"
+            },
+            {
+              "label": "instrumental singulier",
+              "form": "окном"
+            },
+            {
+              "label": "prépositionnel singulier",
+              "form": "окне"
+            },
+            {
+              "label": "nominatif pluriel",
+              "form": "окна"
+            },
+            {
+              "label": "génitif pluriel",
+              "form": "окон"
+            },
+            {
+              "label": "datif pluriel",
+              "form": "окнам"
+            },
+            {
+              "label": "accusatif pluriel",
+              "form": "окна"
+            },
+            {
+              "label": "instrumental pluriel",
+              "form": "окнами"
+            },
+            {
+              "label": "prépositionnel pluriel",
+              "form": "окнах"
+            }
+          ],
+          "aspect": null,
+          "aspectPair": null,
+          "conjugationClass": null,
+          "conjugationParadigm": [],
+          "tense": null,
+          "person": null,
+          "voice": null,
+          "movementType": null,
+          "preverbs": [],
+          "agreement": null,
+          "comparative": null,
+          "superlative": null,
+          "shortForm": null,
+          "declension": "2ème déclinaison",
+          "pronounType": null,
+          "pronounParadigm": [],
+          "specialForms": [],
+          "governedCases": [],
+          "variants": [],
+          "nuances": []
+        },
+        "syntax": {
+          "government": [],
+          "requiredCase": null,
+          "compatibleCases": [
+            "nominatif",
+            "génitif",
+            "datif",
+            "accusatif",
+            "instrumental",
+            "prépositionnel"
+          ],
+          "constructionPatterns": [
+            "sujet",
+            "complément d'objet direct inanimé",
+            "complément de lieu",
+            "complément avec préposition"
+          ],
+          "requiresInfinitive": false,
+          "takesObject": false,
+          "movementPattern": null,
+          "reflexive": false,
+          "impersonal": false,
+          "transitivity": null
+        },
+        "semantics": {
+          "semanticCategory": "Objet architectural",
+          "coreMeaning": "Ouverture vitrée dans un mur permettant la lumière et l'air.",
+          "extendedMeaning": "Peut servir de métaphore pour « fenêtre » dans un sens figuré (accès à une information ou une perspective).",
+          "register": "Standard",
+          "frequency": "Très fréquent",
+          "collocations": [
+            "открыть окно",
+            "закрыть окно",
+            "стекло окна",
+            "окно на улицу",
+            "микроокно (informatique : une 'petite fenêtre')"
+          ],
+          "falseFriends": [],
+          "synonyms": [
+            "форточка (petite fenêtre)"
+          ],
+          "antonyms": []
+        },
+        "pedagogy": {
+          "summary": "Nom neutre courant signifiant « fenêtre ».",
+          "takeaway": "окно est un nom neutre de la 2ème déclinaison avec un paradigme standard.",
+          "commonErrors": [
+            {
+              "wrong": "окно (féminin)",
+              "correct": "окно (neutre)"
+            },
+            {
+              "wrong": "окна (singulier)",
+              "correct": "окно (singulier)"
+            },
+            {
+              "wrong": "accuser с окном",
+              "correct": "accuser без окна ou с окном selon le contexte"
+            }
+          ],
+          "confusions": [
+            "окно vs окно́ (prononciation et accentuation)"
+          ],
+          "tips": [
+            "Se rappeler que les noms en -о sont neutres.",
+            "Attention à la déclinaison du pluriel qui change en -а/-ов."
+          ],
+          "progression": "A1",
+          "relatedConcepts": [
+            "noms neutres",
+            "2ème déclinaison",
+            "animé/inanimé",
+            "cas russes"
+          ]
+        },
+        "paradigms": {
+          "forms": [
+            {
+              "label": "nominatif singulier",
+              "form": "окно"
+            },
+            {
+              "label": "accusatif singulier",
+              "form": "окно"
+            },
+            {
+              "label": "génitif singulier",
+              "form": "окна"
+            },
+            {
+              "label": "datif singulier",
+              "form": "окну"
+            },
+            {
+              "label": "instrumental singulier",
+              "form": "окном"
+            },
+            {
+              "label": "prépositionnel singulier",
+              "form": "окне"
+            },
+            {
+              "label": "nominatif pluriel",
+              "form": "окна"
+            },
+            {
+              "label": "accusatif pluriel",
+              "form": "окна"
+            },
+            {
+              "label": "génitif pluriel",
+              "form": "окон"
+            },
+            {
+              "label": "datif pluriel",
+              "form": "окнам"
+            },
+            {
+              "label": "instrumental pluriel",
+              "form": "окнами"
+            },
+            {
+              "label": "prépositionnel pluriel",
+              "form": "окнах"
+            }
+          ],
+          "cases": [
+            {
+              "label": "nominatif singulier",
+              "form": "окно"
+            },
+            {
+              "label": "génitif singulier",
+              "form": "окна"
+            },
+            {
+              "label": "datif singulier",
+              "form": "окну"
+            },
+            {
+              "label": "accusatif singulier",
+              "form": "окно"
+            },
+            {
+              "label": "instrumental singulier",
+              "form": "окном"
+            },
+            {
+              "label": "prépositionnel singulier",
+              "form": "окне"
+            },
+            {
+              "label": "nominatif pluriel",
+              "form": "окна"
+            },
+            {
+              "label": "génitif pluriel",
+              "form": "окон"
+            },
+            {
+              "label": "datif pluriel",
+              "form": "окнам"
+            },
+            {
+              "label": "accusatif pluriel",
+              "form": "окна"
+            },
+            {
+              "label": "instrumental pluriel",
+              "form": "окнами"
+            },
+            {
+              "label": "prépositionnel pluriel",
+              "form": "окнах"
+            }
+          ],
+          "conjugation": []
+        }
+      }
+    },
+    {
+      "lemmaForm": "ехать",
+      "usedCandidate": "extracted",
+      "jsonParseError": null,
+      "zodSuccess": false,
+      "zodIssues": [
+        {
+          "path": "government.0",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received object",
+          "expected": "string"
+        },
+        {
+          "path": "morphology.aspectPair",
+          "code": "invalid_type",
+          "message": "Invalid input: expected object, received string",
+          "expected": "object"
+        },
+        {
+          "path": "morphology.conjugationClass",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received number",
+          "expected": "string"
+        },
+        {
+          "path": "morphology.specialForms.0",
+          "code": "invalid_type",
+          "message": "Invalid input: expected object, received string",
+          "expected": "object"
+        },
+        {
+          "path": "morphology.specialForms.1",
+          "code": "invalid_type",
+          "message": "Invalid input: expected object, received string",
+          "expected": "object"
+        },
+        {
+          "path": "morphology.governedCases.0",
+          "code": "invalid_type",
+          "message": "Invalid input: expected object, received string",
+          "expected": "object"
+        },
+        {
+          "path": "syntax.government.0",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received object",
+          "expected": "string"
+        },
+        {
+          "path": "semantics.falseFriends.0",
+          "code": "invalid_type",
+          "message": "Invalid input: expected object, received string",
+          "expected": "object"
+        }
+      ],
+      "zodIssueSummary": "government.0: Invalid input: expected string, received object | morphology.aspectPair: Invalid input: expected object, received string | morphology.conjugationClass: Invalid input: expected string, received number | morphology.specialForms.0: Invalid input: expected object, received string | morphology.specialForms.1: Invalid input: expected object, received string | morphology.governedCases.0: Invalid input: expected object, received string | syntax.government.0: Invalid input: expected string, received object | semantics.falseFriends.0: Invalid input: expected object, received string",
+      "sampleFields": {
+        "partOfSpeech": "verb",
+        "gender": null,
+        "aspect": "imperfective",
+        "movementType": "unidirectionnel",
+        "difficulty": "A2",
+        "pedagogyProgression": "A2",
+        "morphologyMovement": "unidirectionnel",
+        "morphologyGender": null
+      },
+      "fullRaw": "```json\n{\n  \"partOfSpeech\": \"verb\",\n  \"gender\": null,\n  \"aspect\": \"imperfective\",\n  \"movementType\": \"unidirectionnel\",\n  \"government\": [\n    {\n      \"governingWord\": \"ехать\",\n      \"requiredCase\": \"accusative\",\n      \"construction\": \"ехать + куда? (accusatif)\",\n      \"notes\": \"verbe de mouvement avec complément de lieu au cas accusatif\"\n    }\n  ],\n  \"semanticCategory\": \"mouvement\",\n  \"register\": \"standard\",\n  \"difficulty\": \"A2\",\n  \"notes\": \"verbe de mouvement imparfaitif unidirectionnel signifiant 'aller en véhicule'\",\n  \"tags\": [\"verbe de mouvement\", \"imparfaitif\", \"transport\"],\n  \"morphology\": {\n    \"gender\": null,\n    \"animacy\": null,\n    \"declensionClass\": null,\n    \"plural\": null,\n    \"irregularities\": [\n      \"forme avec suffixe -ать\",\n      \"imparfaitif avec aspect pair совершеный 'поехать'\"\n    ],\n    \"caseParadigm\": [],\n    \"aspect\": \"imperfective\",\n    \"aspectPair\": \"поехать\",\n    \"conjugationClass\": 2,\n    \"conjugationParadigm\": [\n      { \"label\": \"я\", \"form\": \"еду\" },\n      { \"label\": \"ты\", \"form\": \"едешь\" },\n      { \"label\": \"он/она/оно\", \"form\": \"едет\" },\n      { \"label\": \"мы\", \"form\": \"едем\" },\n      { \"label\": \"вы\", \"form\": \"едете\" },\n      { \"label\": \"они\", \"form\": \"едут\" }\n    ],\n    \"tense\": null,\n    \"person\": null,\n    \"voice\": \"active\",\n    \"movementType\": \"unidirectionnel\",\n    \"preverbs\": [],\n    \"agreement\": null,\n    \"comparative\": null,\n    \"superlative\": null,\n    \"shortForm\": null,\n    \"declension\": null,\n    \"pronounType\": null,\n    \"pronounParadigm\": [],\n    \"specialForms\": [\n      \"imperfectif unidirectionnel\",\n      \"imperatif: 'едь', 'езжайте'\"\n    ],\n    \"governedCases\": [\"accusative\"],\n    \"variants\": [],\n    \"nuances\": [\n      \"mouvement en véhicule ou par transport\",\n      \"direction précise de déplacement\"\n    ]\n  },\n  \"syntax\": {\n    \"government\": [\n      { \"governedCase\": \"accusative\", \"type\": \"complément de lieu\" }\n    ],\n    \"requiredCase\": \"accusative\",\n    \"compatibleCases\": [\"accusative\"],\n    \"constructionPatterns\": [\n      \"ехать + куда? (complément de lieu au accusatif)\",\n      \"ехать + на + instrumentale pour moyen de transport\"\n    ],\n    \"requiresInfinitive\": false,\n    \"takesObject\": false,\n    \"movementPattern\": \"unidirectionnel\",\n    \"reflexive\": false,\n    \"impersonal\": false,\n    \"transitivity\": \"intransitif\"\n  },\n  \"semantics\": {\n    \"semanticCategory\": \"déplacement / transport\",\n    \"coreMeaning\": \"aller en véhicule ou par transport sur un chemin défini\",\n    \"extendedMeaning\": \"expression d’un déplacement avec intention ou direction précise en véhicule\",\n    \"register\": \"neutre, standard\",\n    \"frequency\": \"très fréquent\",\n    \"collocations\": [\n      \"ехать домой\",\n      \"ехать на работу\",\n      \"ехать поездом\",\n      \"ехать на автобусе\"\n    ],\n    \"falseFriends\": [\"идти (aller à pied)\"],\n    \"synonyms\": [\"путешествовать (voyager)\", \"двигаться (se déplacer)\"],\n    \"antonyms\": [\"стоять (rester)\", \"останавливаться (s’arrêter)\"]\n  },\n  \"pedagogy\": {\n    \"summary\": \"Verbe imparfaitif de mouvement unidirectionnel indiquant 'aller en véhicule'.\",\n    \"takeaway\": \"Emplois pour décrire déplacement précis et unique en moyen de transport.\",\n    \"commonErrors\": [\n      { \"wrong\": \"использовать ехать вместо идти для пешего движения\", \"correct\": \"использовать идти для ходьбы\" },\n      { \"wrong\": \"применение разных предлогов с ехать без учёта направления\", \"correct\": \"ехать требует аккузатива для направления\" }\n    ],\n    \"confusions\": [\"ехать vs ехать / идти (aller à pied)\"],\n    \"tips\": [\n      \"verbe imparfaitif a un parfaitif paire поехать\",\n      \"faire attention aux prépositions utilisées avec ехать\",\n      \"différencier поехать (perfectif) pour action achevée\"\n    ],\n    \"progression\": \"A2\",\n    \"relatedConcepts\": [\"verbes de mouvement unidirectionnels\", \"aspect verbal\", \"conjugaison 2ème classe\"]\n  },\n  \"paradigms\": {\n    \"forms\": [],\n    \"cases\": [],\n    \"conjugation\": [\n      { \"label\": \"1ère personne singulier\", \"form\": \"еду\" },\n      { \"label\": \"2ème personne singulier\", \"form\": \"едешь\" },\n      { \"label\": \"3ème personne singulier\", \"form\": \"едет\" },\n      { \"label\": \"1ère personne pluriel\", \"form\": \"едем\" },\n      { \"label\": \"2ème personne pluriel\", \"form\": \"едете\" },\n      { \"label\": \"3ème personne pluriel\", \"form\": \"едут\" },\n      { \"label\": \"impératif singulier\", \"form\": \"едь\" },\n      { \"label\": \"impératif pluriel\", \"form\": \"езжайте\" }\n    ]\n  }\n}\n```",
+      "fullParsed": {
+        "partOfSpeech": "verb",
+        "gender": null,
+        "aspect": "imperfective",
+        "movementType": "unidirectionnel",
+        "government": [
+          {
+            "governingWord": "ехать",
+            "requiredCase": "accusative",
+            "construction": "ехать + куда? (accusatif)",
+            "notes": "verbe de mouvement avec complément de lieu au cas accusatif"
+          }
+        ],
+        "semanticCategory": "mouvement",
+        "register": "standard",
+        "difficulty": "A2",
+        "notes": "verbe de mouvement imparfaitif unidirectionnel signifiant 'aller en véhicule'",
+        "tags": [
+          "verbe de mouvement",
+          "imparfaitif",
+          "transport"
+        ],
+        "morphology": {
+          "gender": null,
+          "animacy": null,
+          "declensionClass": null,
+          "plural": null,
+          "irregularities": [
+            "forme avec suffixe -ать",
+            "imparfaitif avec aspect pair совершеный 'поехать'"
+          ],
+          "caseParadigm": [],
+          "aspect": "imperfective",
+          "aspectPair": "поехать",
+          "conjugationClass": 2,
+          "conjugationParadigm": [
+            {
+              "label": "я",
+              "form": "еду"
+            },
+            {
+              "label": "ты",
+              "form": "едешь"
+            },
+            {
+              "label": "он/она/оно",
+              "form": "едет"
+            },
+            {
+              "label": "мы",
+              "form": "едем"
+            },
+            {
+              "label": "вы",
+              "form": "едете"
+            },
+            {
+              "label": "они",
+              "form": "едут"
+            }
+          ],
+          "tense": null,
+          "person": null,
+          "voice": "active",
+          "movementType": "unidirectionnel",
+          "preverbs": [],
+          "agreement": null,
+          "comparative": null,
+          "superlative": null,
+          "shortForm": null,
+          "declension": null,
+          "pronounType": null,
+          "pronounParadigm": [],
+          "specialForms": [
+            "imperfectif unidirectionnel",
+            "imperatif: 'едь', 'езжайте'"
+          ],
+          "governedCases": [
+            "accusative"
+          ],
+          "variants": [],
+          "nuances": [
+            "mouvement en véhicule ou par transport",
+            "direction précise de déplacement"
+          ]
+        },
+        "syntax": {
+          "government": [
+            {
+              "governedCase": "accusative",
+              "type": "complément de lieu"
+            }
+          ],
+          "requiredCase": "accusative",
+          "compatibleCases": [
+            "accusative"
+          ],
+          "constructionPatterns": [
+            "ехать + куда? (complément de lieu au accusatif)",
+            "ехать + на + instrumentale pour moyen de transport"
+          ],
+          "requiresInfinitive": false,
+          "takesObject": false,
+          "movementPattern": "unidirectionnel",
+          "reflexive": false,
+          "impersonal": false,
+          "transitivity": "intransitif"
+        },
+        "semantics": {
+          "semanticCategory": "déplacement / transport",
+          "coreMeaning": "aller en véhicule ou par transport sur un chemin défini",
+          "extendedMeaning": "expression d’un déplacement avec intention ou direction précise en véhicule",
+          "register": "neutre, standard",
+          "frequency": "très fréquent",
+          "collocations": [
+            "ехать домой",
+            "ехать на работу",
+            "ехать поездом",
+            "ехать на автобусе"
+          ],
+          "falseFriends": [
+            "идти (aller à pied)"
+          ],
+          "synonyms": [
+            "путешествовать (voyager)",
+            "двигаться (se déplacer)"
+          ],
+          "antonyms": [
+            "стоять (rester)",
+            "останавливаться (s’arrêter)"
+          ]
+        },
+        "pedagogy": {
+          "summary": "Verbe imparfaitif de mouvement unidirectionnel indiquant 'aller en véhicule'.",
+          "takeaway": "Emplois pour décrire déplacement précis et unique en moyen de transport.",
+          "commonErrors": [
+            {
+              "wrong": "использовать ехать вместо идти для пешего движения",
+              "correct": "использовать идти для ходьбы"
+            },
+            {
+              "wrong": "применение разных предлогов с ехать без учёта направления",
+              "correct": "ехать требует аккузатива для направления"
+            }
+          ],
+          "confusions": [
+            "ехать vs ехать / идти (aller à pied)"
+          ],
+          "tips": [
+            "verbe imparfaitif a un parfaitif paire поехать",
+            "faire attention aux prépositions utilisées avec ехать",
+            "différencier поехать (perfectif) pour action achevée"
+          ],
+          "progression": "A2",
+          "relatedConcepts": [
+            "verbes de mouvement unidirectionnels",
+            "aspect verbal",
+            "conjugaison 2ème classe"
+          ]
+        },
+        "paradigms": {
+          "forms": [],
+          "cases": [],
+          "conjugation": [
+            {
+              "label": "1ère personne singulier",
+              "form": "еду"
+            },
+            {
+              "label": "2ème personne singulier",
+              "form": "едешь"
+            },
+            {
+              "label": "3ème personne singulier",
+              "form": "едет"
+            },
+            {
+              "label": "1ère personne pluriel",
+              "form": "едем"
+            },
+            {
+              "label": "2ème personne pluriel",
+              "form": "едете"
+            },
+            {
+              "label": "3ème personne pluriel",
+              "form": "едут"
+            },
+            {
+              "label": "impératif singulier",
+              "form": "едь"
+            },
+            {
+              "label": "impératif pluriel",
+              "form": "езжайте"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "lemmaForm": "хлеб",
+      "usedCandidate": "extracted",
+      "jsonParseError": null,
+      "zodSuccess": false,
+      "zodIssues": [
+        {
+          "path": "morphology.animacy",
+          "code": "invalid_value",
+          "message": "Invalid option: expected one of \"animate\"|\"inanimate\""
+        },
+        {
+          "path": "morphology.plural",
+          "code": "invalid_type",
+          "message": "Invalid input: expected object, received string",
+          "expected": "object"
+        },
+        {
+          "path": "paradigms.cases.0.form",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received undefined",
+          "expected": "string"
+        },
+        {
+          "path": "paradigms.cases.1.form",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received undefined",
+          "expected": "string"
+        },
+        {
+          "path": "paradigms.cases.2.form",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received undefined",
+          "expected": "string"
+        },
+        {
+          "path": "paradigms.cases.3.form",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received undefined",
+          "expected": "string"
+        },
+        {
+          "path": "paradigms.cases.4.form",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received undefined",
+          "expected": "string"
+        },
+        {
+          "path": "paradigms.cases.5.form",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received undefined",
+          "expected": "string"
+        }
+      ],
+      "zodIssueSummary": "morphology.animacy: Invalid option: expected one of \"animate\"|\"inanimate\" | morphology.plural: Invalid input: expected object, received string | paradigms.cases.0.form: Invalid input: expected string, received undefined | paradigms.cases.1.form: Invalid input: expected string, received undefined | paradigms.cases.2.form: Invalid input: expected string, received undefined | paradigms.cases.3.form: Invalid input: expected string, received undefined | paradigms.cases.4.form: Invalid input: expected string, received undefined | paradigms.cases.5.form: Invalid input: expected string, received undefined",
+      "sampleFields": {
+        "partOfSpeech": "noun",
+        "gender": "m",
+        "aspect": null,
+        "movementType": null,
+        "difficulty": "A1",
+        "pedagogyProgression": "A1",
+        "morphologyMovement": null,
+        "morphologyGender": "m"
+      },
+      "fullRaw": "{\n  \"partOfSpeech\": \"noun\",\n  \"gender\": \"m\",\n  \"aspect\": null,\n  \"movementType\": null,\n  \"government\": [],\n  \"semanticCategory\": \"aliment\",\n  \"register\": \"neutre\",\n  \"difficulty\": \"A1\",\n  \"notes\": \"nom masculin désignant le pain\",\n  \"tags\": [\"aliment\", \"pain\", \"nourriture\", \"nom masculin\"],\n  \"morphology\": {\n    \"gender\": \"m\",\n    \"animacy\": \"inan\",\n    \"declensionClass\": \"2e déclinaison\",\n    \"plural\": \"хлебы (rare/poétique) mais généralement collectif\",\n    \"irregularities\": [],\n    \"caseParadigm\": [\n      {\"label\": \"nominatif singulier\", \"form\": \"хлеб\"},\n      {\"label\": \"génitif singulier\", \"form\": \"хлеба\"},\n      {\"label\": \"datif singulier\", \"form\": \"хлебу\"},\n      {\"label\": \"accusatif singulier\", \"form\": \"хлеб\"},\n      {\"label\": \"instrumental singulier\", \"form\": \"хлебом\"},\n      {\"label\": \"locatif singulier\", \"form\": \"хлебе\"},\n      {\"label\": \"vocatif singulier\", \"form\": \"хлеб\"},\n      {\"label\": \"nominatif pluriel\", \"form\": \"хлеба\"},\n      {\"label\": \"génitif pluriel\", \"form\": \"хлебов\"},\n      {\"label\": \"datif pluriel\", \"form\": \"хлебам\"},\n      {\"label\": \"accusatif pluriel\", \"form\": \"хлеба\"},\n      {\"label\": \"instrumental pluriel\", \"form\": \"хлебами\"},\n      {\"label\": \"locatif pluriel\", \"form\": \"хлебах\"},\n      {\"label\": \"vocatif pluriel\", \"form\": \"хлеба\"}\n    ],\n    \"aspect\": null,\n    \"aspectPair\": null,\n    \"conjugationClass\": null,\n    \"conjugationParadigm\": [],\n    \"tense\": null,\n    \"person\": null,\n    \"voice\": null,\n    \"movementType\": null,\n    \"preverbs\": [],\n    \"agreement\": null,\n    \"comparative\": null,\n    \"superlative\": null,\n    \"shortForm\": null,\n    \"declension\": \"forte\",\n    \"pronounType\": null,\n    \"pronounParadigm\": [],\n    \"specialForms\": [],\n    \"governedCases\": [],\n    \"variants\": [\"хлеба (rare au singulier for partitif)\"],\n    \"nuances\": []\n  },\n  \"syntax\": {\n    \"government\": [],\n    \"requiredCase\": null,\n    \"compatibleCases\": [\"nominatif\", \"génitif\", \"datif\", \"accusatif\", \"instrumental\", \"locatif\"],\n    \"constructionPatterns\": [\n      \"sujet (nominatif)\",\n      \"objet direct (accusatif)\",\n      \"complément avec prépositions régissant les cas\"\n    ],\n    \"requiresInfinitive\": false,\n    \"takesObject\": false,\n    \"movementPattern\": null,\n    \"reflexive\": false,\n    \"impersonal\": false,\n    \"transitivity\": null\n  },\n  \"semantics\": {\n    \"semanticCategory\": \"aliment\",\n    \"coreMeaning\": \"aliment de base obtenu par cuisson de pâte à base de farine\",\n    \"extendedMeaning\": \"peut désigner métaphoriquement la subsistance, la nourriture en général\",\n    \"register\": \"neutre\",\n    \"frequency\": \"très fréquent\",\n    \"collocations\": [\"ломоть хлеба\", \"кусок хлеба\", \"покупать хлеб\", \"хлеб и соль\"],\n    \"falseFriends\": [],\n    \"synonyms\": [\"батон\", \"булка (pain de mie, petit pain)\"],\n    \"antonyms\": []\n  },\n  \"pedagogy\": {\n    \"summary\": \"Nom masculin signifiant le pain, aliment de base.\",\n    \"takeaway\": \"Хлеб est un nom de la deuxième déclinaison, masculin inanimé, très fréquent en russe.\",\n    \"commonErrors\": [\n      {\"wrong\": \"féminiser хлеб en disant 'хлеба' au singulier pour sujet\", \"correct\": \"utiliser toujours le genre masculin 'хлеб'\"},\n      {\"wrong\": \"confondre l'accusatif et le nominatif au singulier (хлеб / хлеба)\", \"correct\": \"accusatif singulier = nominatif singulier, хлеб\"}\n    ],\n    \"confusions\": [\"батон\", \"булка\"],\n    \"tips\": [\n      \"Le mot est inanimé, donc l'accusatif singulier est comme le nominatif.\",\n      \"Attention à ne pas confondre avec les diminutifs qui désignent d'autres types de pain.\"\n    ],\n    \"progression\": \"A1\",\n    \"relatedConcepts\": [\"déclinaisons russes\", \"genre des noms\", \"animacité\"]\n  },\n  \"paradigms\": {\n    \"forms\": [\n      {\"label\": \"singulier nominatif\", \"form\": \"хлеб\"},\n      {\"label\": \"singulier génitif\", \"form\": \"хлеба\"},\n      {\"label\": \"singulier datif\", \"form\": \"хлебу\"},\n      {\"label\": \"singulier accusatif\", \"form\": \"хлеб\"},\n      {\"label\": \"singulier instrumental\", \"form\": \"хлебом\"},\n      {\"label\": \"singulier locatif\", \"form\": \"хлебе\"},\n      {\"label\": \"pluriel nominatif\", \"form\": \"хлеба\"},\n      {\"label\": \"pluriel génitif\", \"form\": \"хлебов\"},\n      {\"label\": \"pluriel datif\", \"form\": \"хлебам\"},\n      {\"label\": \"pluriel accusatif\", \"form\": \"хлеба\"},\n      {\"label\": \"pluriel instrumental\", \"form\": \"хлебами\"},\n      {\"label\": \"pluriel locatif\", \"form\": \"хлебах\"}\n    ],\n    \"cases\": [\n      {\"label\": \"nominatif\", \"forms\": [\"хлеб\", \"хлеба\"]},\n      {\"label\": \"génitif\", \"forms\": [\"хлеба\", \"хлебов\"]},\n      {\"label\": \"datif\", \"forms\": [\"хлебу\", \"хлебам\"]},\n      {\"label\": \"accusatif\", \"forms\": [\"хлеб\", \"хлеба\"]},\n      {\"label\": \"instrumental\", \"forms\": [\"хлебом\", \"хлебами\"]},\n      {\"label\": \"locatif\", \"forms\": [\"хлебе\", \"хлебах\"]}\n    ],\n    \"conjugation\": []\n  }\n}",
+      "fullParsed": {
+        "partOfSpeech": "noun",
+        "gender": "m",
+        "aspect": null,
+        "movementType": null,
+        "government": [],
+        "semanticCategory": "aliment",
+        "register": "neutre",
+        "difficulty": "A1",
+        "notes": "nom masculin désignant le pain",
+        "tags": [
+          "aliment",
+          "pain",
+          "nourriture",
+          "nom masculin"
+        ],
+        "morphology": {
+          "gender": "m",
+          "animacy": "inan",
+          "declensionClass": "2e déclinaison",
+          "plural": "хлебы (rare/poétique) mais généralement collectif",
+          "irregularities": [],
+          "caseParadigm": [
+            {
+              "label": "nominatif singulier",
+              "form": "хлеб"
+            },
+            {
+              "label": "génitif singulier",
+              "form": "хлеба"
+            },
+            {
+              "label": "datif singulier",
+              "form": "хлебу"
+            },
+            {
+              "label": "accusatif singulier",
+              "form": "хлеб"
+            },
+            {
+              "label": "instrumental singulier",
+              "form": "хлебом"
+            },
+            {
+              "label": "locatif singulier",
+              "form": "хлебе"
+            },
+            {
+              "label": "vocatif singulier",
+              "form": "хлеб"
+            },
+            {
+              "label": "nominatif pluriel",
+              "form": "хлеба"
+            },
+            {
+              "label": "génitif pluriel",
+              "form": "хлебов"
+            },
+            {
+              "label": "datif pluriel",
+              "form": "хлебам"
+            },
+            {
+              "label": "accusatif pluriel",
+              "form": "хлеба"
+            },
+            {
+              "label": "instrumental pluriel",
+              "form": "хлебами"
+            },
+            {
+              "label": "locatif pluriel",
+              "form": "хлебах"
+            },
+            {
+              "label": "vocatif pluriel",
+              "form": "хлеба"
+            }
+          ],
+          "aspect": null,
+          "aspectPair": null,
+          "conjugationClass": null,
+          "conjugationParadigm": [],
+          "tense": null,
+          "person": null,
+          "voice": null,
+          "movementType": null,
+          "preverbs": [],
+          "agreement": null,
+          "comparative": null,
+          "superlative": null,
+          "shortForm": null,
+          "declension": "forte",
+          "pronounType": null,
+          "pronounParadigm": [],
+          "specialForms": [],
+          "governedCases": [],
+          "variants": [
+            "хлеба (rare au singulier for partitif)"
+          ],
+          "nuances": []
+        },
+        "syntax": {
+          "government": [],
+          "requiredCase": null,
+          "compatibleCases": [
+            "nominatif",
+            "génitif",
+            "datif",
+            "accusatif",
+            "instrumental",
+            "locatif"
+          ],
+          "constructionPatterns": [
+            "sujet (nominatif)",
+            "objet direct (accusatif)",
+            "complément avec prépositions régissant les cas"
+          ],
+          "requiresInfinitive": false,
+          "takesObject": false,
+          "movementPattern": null,
+          "reflexive": false,
+          "impersonal": false,
+          "transitivity": null
+        },
+        "semantics": {
+          "semanticCategory": "aliment",
+          "coreMeaning": "aliment de base obtenu par cuisson de pâte à base de farine",
+          "extendedMeaning": "peut désigner métaphoriquement la subsistance, la nourriture en général",
+          "register": "neutre",
+          "frequency": "très fréquent",
+          "collocations": [
+            "ломоть хлеба",
+            "кусок хлеба",
+            "покупать хлеб",
+            "хлеб и соль"
+          ],
+          "falseFriends": [],
+          "synonyms": [
+            "батон",
+            "булка (pain de mie, petit pain)"
+          ],
+          "antonyms": []
+        },
+        "pedagogy": {
+          "summary": "Nom masculin signifiant le pain, aliment de base.",
+          "takeaway": "Хлеб est un nom de la deuxième déclinaison, masculin inanimé, très fréquent en russe.",
+          "commonErrors": [
+            {
+              "wrong": "féminiser хлеб en disant 'хлеба' au singulier pour sujet",
+              "correct": "utiliser toujours le genre masculin 'хлеб'"
+            },
+            {
+              "wrong": "confondre l'accusatif et le nominatif au singulier (хлеб / хлеба)",
+              "correct": "accusatif singulier = nominatif singulier, хлеб"
+            }
+          ],
+          "confusions": [
+            "батон",
+            "булка"
+          ],
+          "tips": [
+            "Le mot est inanimé, donc l'accusatif singulier est comme le nominatif.",
+            "Attention à ne pas confondre avec les diminutifs qui désignent d'autres types de pain."
+          ],
+          "progression": "A1",
+          "relatedConcepts": [
+            "déclinaisons russes",
+            "genre des noms",
+            "animacité"
+          ]
+        },
+        "paradigms": {
+          "forms": [
+            {
+              "label": "singulier nominatif",
+              "form": "хлеб"
+            },
+            {
+              "label": "singulier génitif",
+              "form": "хлеба"
+            },
+            {
+              "label": "singulier datif",
+              "form": "хлебу"
+            },
+            {
+              "label": "singulier accusatif",
+              "form": "хлеб"
+            },
+            {
+              "label": "singulier instrumental",
+              "form": "хлебом"
+            },
+            {
+              "label": "singulier locatif",
+              "form": "хлебе"
+            },
+            {
+              "label": "pluriel nominatif",
+              "form": "хлеба"
+            },
+            {
+              "label": "pluriel génitif",
+              "form": "хлебов"
+            },
+            {
+              "label": "pluriel datif",
+              "form": "хлебам"
+            },
+            {
+              "label": "pluriel accusatif",
+              "form": "хлеба"
+            },
+            {
+              "label": "pluriel instrumental",
+              "form": "хлебами"
+            },
+            {
+              "label": "pluriel locatif",
+              "form": "хлебах"
+            }
+          ],
+          "cases": [
+            {
+              "label": "nominatif",
+              "forms": [
+                "хлеб",
+                "хлеба"
+              ]
+            },
+            {
+              "label": "génitif",
+              "forms": [
+                "хлеба",
+                "хлебов"
+              ]
+            },
+            {
+              "label": "datif",
+              "forms": [
+                "хлебу",
+                "хлебам"
+              ]
+            },
+            {
+              "label": "accusatif",
+              "forms": [
+                "хлеб",
+                "хлеба"
+              ]
+            },
+            {
+              "label": "instrumental",
+              "forms": [
+                "хлебом",
+                "хлебами"
+              ]
+            },
+            {
+              "label": "locatif",
+              "forms": [
+                "хлебе",
+                "хлебах"
+              ]
+            }
+          ],
+          "conjugation": []
+        }
+      }
+    },
+    {
+      "lemmaForm": "идти",
+      "usedCandidate": "extracted",
+      "jsonParseError": null,
+      "zodSuccess": false,
+      "zodIssues": [
+        {
+          "path": "government.0",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received object",
+          "expected": "string"
+        },
+        {
+          "path": "morphology.aspectPair",
+          "code": "invalid_type",
+          "message": "Invalid input: expected object, received string",
+          "expected": "object"
+        },
+        {
+          "path": "morphology.conjugationClass",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received number",
+          "expected": "string"
+        },
+        {
+          "path": "morphology.governedCases.0",
+          "code": "invalid_type",
+          "message": "Invalid input: expected object, received string",
+          "expected": "object"
+        },
+        {
+          "path": "syntax.government.0",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received object",
+          "expected": "string"
+        },
+        {
+          "path": "syntax.government.1",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received object",
+          "expected": "string"
+        },
+        {
+          "path": "semantics.falseFriends.0.wrong",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received undefined",
+          "expected": "string"
+        },
+        {
+          "path": "semantics.falseFriends.0.correct",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received undefined",
+          "expected": "string"
+        }
+      ],
+      "zodIssueSummary": "government.0: Invalid input: expected string, received object | morphology.aspectPair: Invalid input: expected object, received string | morphology.conjugationClass: Invalid input: expected string, received number | morphology.governedCases.0: Invalid input: expected object, received string | syntax.government.0: Invalid input: expected string, received object | syntax.government.1: Invalid input: expected string, received object | semantics.falseFriends.0.wrong: Invalid input: expected string, received undefined | semantics.falseFriends.0.correct: Invalid input: expected string, received undefined",
+      "sampleFields": {
+        "partOfSpeech": "verb",
+        "gender": null,
+        "aspect": "imperfective",
+        "movementType": "unidirectionnel",
+        "difficulty": "B1",
+        "pedagogyProgression": "B1",
+        "morphologyMovement": "unidirectionnel",
+        "morphologyGender": null
+      },
+      "fullRaw": "```json\n{\n  \"partOfSpeech\": \"verb\",\n  \"gender\": null,\n  \"aspect\": \"imperfective\",\n  \"movementType\": \"unidirectionnel\",\n  \"government\": [\n    {\n      \"governingWord\": \"direct object\",\n      \"case\": \"accusative\",\n      \"example\": null\n    }\n  ],\n  \"semanticCategory\": \"mouvement\",\n  \"register\": \"standard\",\n  \"difficulty\": \"B1\",\n  \"notes\": \"Verbe de mouvement unidirectionnel imparfaitif signifiant 'aller à pied'.\",\n  \"tags\": [\"verbe de mouvement\", \"imparfaitif\", \"unidirectionnel\", \"aller à pied\"],\n  \"morphology\": {\n    \"gender\": null,\n    \"animacy\": null,\n    \"declensionClass\": null,\n    \"plural\": null,\n    \"irregularities\": [\"radical alternations : иду, идёшь, идут\"],\n    \"caseParadigm\": [],\n    \"aspect\": \"imperfective\",\n    \"aspectPair\": \"пойти\",\n    \"conjugationClass\": 1,\n    \"conjugationParadigm\": [\n      { \"label\": \"1ère personne singulier\", \"form\": \"иду\" },\n      { \"label\": \"2ème personne singulier\", \"form\": \"идёшь\" },\n      { \"label\": \"3ème personne singulier\", \"form\": \"идёт\" },\n      { \"label\": \"1ère personne pluriel\", \"form\": \"идём\" },\n      { \"label\": \"2ème personne pluriel\", \"form\": \"идёте\" },\n      { \"label\": \"3ème personne pluriel\", \"form\": \"идут\" }\n    ],\n    \"tense\": null,\n    \"person\": null,\n    \"voice\": \"active\",\n    \"movementType\": \"unidirectionnel\",\n    \"preverbs\": [],\n    \"agreement\": null,\n    \"comparative\": null,\n    \"superlative\": null,\n    \"shortForm\": null,\n    \"declension\": null,\n    \"pronounType\": null,\n    \"pronounParadigm\": [],\n    \"specialForms\": [],\n    \"governedCases\": [\"accusative\"],\n    \"variants\": [\"ходить\"],\n    \"nuances\": [\n      \"идти décrit un déplacement à pied dans une direction précise et unique\",\n      \"verbe imperfectif avec aspect pair parfait идти/пойти\"\n    ]\n  },\n  \"syntax\": {\n    \"government\": [\n      { \"role\": \"objet direct\", \"case\": \"accusative\" },\n      { \"role\": \"adverbe de lieu\", \"case\": null }\n    ],\n    \"requiredCase\": \"accusative\",\n    \"compatibleCases\": [\"accusative\", \"instrumental (rare)\"],\n    \"constructionPatterns\": [\n      \"идти + lieu au cas locatif ou accusatif\",\n      \"идти + à pied\",\n      \"идти + durée au nominatif\"\n    ],\n    \"requiresInfinitive\": false,\n    \"takesObject\": false,\n    \"movementPattern\": \"unidirectionnel à pied\",\n    \"reflexive\": false,\n    \"impersonal\": false,\n    \"transitivity\": \"intransitif\"\n  },\n  \"semantics\": {\n    \"semanticCategory\": \"mouvement\",\n    \"coreMeaning\": \"se déplacer à pied en une direction précise\",\n    \"extendedMeaning\": \"démarche ou déplacement général à pied, sens concret et parfois figuré (exemple : le temps passe, le processus va)\",\n    \"register\": \"courant, standard\",\n    \"frequency\": \"fréquent\",\n    \"collocations\": [\n      \"идти домой\",\n      \"идти в школу\",\n      \"идти по улице\",\n      \"идти быстро/медленно\"\n    ],\n    \"falseFriends\": [\n      { \"word\": \"ходить\", \"explanation\": \"verbe de mouvement multidirectionnel ou itératif\" }\n    ],\n    \"synonyms\": [\n      \"направляться (plus formel)\",\n      \"быть в пути (expression)\"\n    ],\n    \"antonyms\": [\n      \"стоять (rester immobile)\",\n      \"остановиться (s'arrêter)\"\n    ]\n  },\n  \"pedagogy\": {\n    \"summary\": \"Verbe de mouvement imparfaitif unidirectionnel signifiant 'aller à pied'.\",\n    \"takeaway\": \"Utiliser идти pour un déplacement unique dans une direction.\",\n    \"commonErrors\": [\n      { \"wrong\": \"использовать идти при движении многократном\", \"correct\": \"utiliser ходить\" },\n      { \"wrong\": \"не менять форму по лицам\", \"correct\": \"conjuguer иди-ду, идёшь, идут\" }\n    ],\n    \"confusions\": [\n      \"идти / ходить\",\n      \"идти / ехать (mouvement en véhicule)\",\n      \"идти / пойти\"\n    ],\n    \"tips\": [\n      \"идти implique un seul trajet précis, ходить revient à dire aller et revenir habituellement\",\n      \"conjuguer avec changement radical (иду, идёшь)\",\n      \"pensez à l'aspect : идти (imperfectif), пойти (perfectif)\"\n    ],\n    \"progression\": \"B1\",\n    \"relatedConcepts\": [\n      \"verbes de mouvement russes\",\n      \"aspect perfectif/imperfectif\",\n      \"conjugaison des verbes en -ти\",\n      \"mouvement unidirectionnel vs multidirectionnel\"\n    ]\n  },\n  \"paradigms\": {\n    \"forms\": [\n      { \"label\": \"infinitif\", \"form\": \"идти\" },\n      { \"label\": \"participe présent actif\", \"form\": \"идущий\" },\n      { \"label\": \"participe passé actif\", \"form\": \"идший\" },\n      { \"label\": \"gérondif\", \"form\": \"идя\" }\n    ],\n    \"cases\": [],\n    \"conjugation\": [\n      { \"label\": \"je (1ère pers. sg.)\", \"form\": \"иду\" },\n      { \"label\": \"tu (2ème pers. sg.)\", \"form\": \"идёшь\" },\n      { \"label\": \"il/elle (3ème pers. sg.)\", \"form\": \"идёт\" },\n      { \"label\": \"nous (1ère pers. pl.)\", \"form\": \"идём\" },\n      { \"label\": \"vous (2ème pers. pl.)\", \"form\": \"идёте\" },\n      { \"label\": \"ils/elles (3ème pers. pl.)\", \"form\": \"идут\" }\n    ]\n  }\n}\n```",
+      "fullParsed": {
+        "partOfSpeech": "verb",
+        "gender": null,
+        "aspect": "imperfective",
+        "movementType": "unidirectionnel",
+        "government": [
+          {
+            "governingWord": "direct object",
+            "case": "accusative",
+            "example": null
+          }
+        ],
+        "semanticCategory": "mouvement",
+        "register": "standard",
+        "difficulty": "B1",
+        "notes": "Verbe de mouvement unidirectionnel imparfaitif signifiant 'aller à pied'.",
+        "tags": [
+          "verbe de mouvement",
+          "imparfaitif",
+          "unidirectionnel",
+          "aller à pied"
+        ],
+        "morphology": {
+          "gender": null,
+          "animacy": null,
+          "declensionClass": null,
+          "plural": null,
+          "irregularities": [
+            "radical alternations : иду, идёшь, идут"
+          ],
+          "caseParadigm": [],
+          "aspect": "imperfective",
+          "aspectPair": "пойти",
+          "conjugationClass": 1,
+          "conjugationParadigm": [
+            {
+              "label": "1ère personne singulier",
+              "form": "иду"
+            },
+            {
+              "label": "2ème personne singulier",
+              "form": "идёшь"
+            },
+            {
+              "label": "3ème personne singulier",
+              "form": "идёт"
+            },
+            {
+              "label": "1ère personne pluriel",
+              "form": "идём"
+            },
+            {
+              "label": "2ème personne pluriel",
+              "form": "идёте"
+            },
+            {
+              "label": "3ème personne pluriel",
+              "form": "идут"
+            }
+          ],
+          "tense": null,
+          "person": null,
+          "voice": "active",
+          "movementType": "unidirectionnel",
+          "preverbs": [],
+          "agreement": null,
+          "comparative": null,
+          "superlative": null,
+          "shortForm": null,
+          "declension": null,
+          "pronounType": null,
+          "pronounParadigm": [],
+          "specialForms": [],
+          "governedCases": [
+            "accusative"
+          ],
+          "variants": [
+            "ходить"
+          ],
+          "nuances": [
+            "идти décrit un déplacement à pied dans une direction précise et unique",
+            "verbe imperfectif avec aspect pair parfait идти/пойти"
+          ]
+        },
+        "syntax": {
+          "government": [
+            {
+              "role": "objet direct",
+              "case": "accusative"
+            },
+            {
+              "role": "adverbe de lieu",
+              "case": null
+            }
+          ],
+          "requiredCase": "accusative",
+          "compatibleCases": [
+            "accusative",
+            "instrumental (rare)"
+          ],
+          "constructionPatterns": [
+            "идти + lieu au cas locatif ou accusatif",
+            "идти + à pied",
+            "идти + durée au nominatif"
+          ],
+          "requiresInfinitive": false,
+          "takesObject": false,
+          "movementPattern": "unidirectionnel à pied",
+          "reflexive": false,
+          "impersonal": false,
+          "transitivity": "intransitif"
+        },
+        "semantics": {
+          "semanticCategory": "mouvement",
+          "coreMeaning": "se déplacer à pied en une direction précise",
+          "extendedMeaning": "démarche ou déplacement général à pied, sens concret et parfois figuré (exemple : le temps passe, le processus va)",
+          "register": "courant, standard",
+          "frequency": "fréquent",
+          "collocations": [
+            "идти домой",
+            "идти в школу",
+            "идти по улице",
+            "идти быстро/медленно"
+          ],
+          "falseFriends": [
+            {
+              "word": "ходить",
+              "explanation": "verbe de mouvement multidirectionnel ou itératif"
+            }
+          ],
+          "synonyms": [
+            "направляться (plus formel)",
+            "быть в пути (expression)"
+          ],
+          "antonyms": [
+            "стоять (rester immobile)",
+            "остановиться (s'arrêter)"
+          ]
+        },
+        "pedagogy": {
+          "summary": "Verbe de mouvement imparfaitif unidirectionnel signifiant 'aller à pied'.",
+          "takeaway": "Utiliser идти pour un déplacement unique dans une direction.",
+          "commonErrors": [
+            {
+              "wrong": "использовать идти при движении многократном",
+              "correct": "utiliser ходить"
+            },
+            {
+              "wrong": "не менять форму по лицам",
+              "correct": "conjuguer иди-ду, идёшь, идут"
+            }
+          ],
+          "confusions": [
+            "идти / ходить",
+            "идти / ехать (mouvement en véhicule)",
+            "идти / пойти"
+          ],
+          "tips": [
+            "идти implique un seul trajet précis, ходить revient à dire aller et revenir habituellement",
+            "conjuguer avec changement radical (иду, идёшь)",
+            "pensez à l'aspect : идти (imperfectif), пойти (perfectif)"
+          ],
+          "progression": "B1",
+          "relatedConcepts": [
+            "verbes de mouvement russes",
+            "aspect perfectif/imperfectif",
+            "conjugaison des verbes en -ти",
+            "mouvement unidirectionnel vs multidirectionnel"
+          ]
+        },
+        "paradigms": {
+          "forms": [
+            {
+              "label": "infinitif",
+              "form": "идти"
+            },
+            {
+              "label": "participe présent actif",
+              "form": "идущий"
+            },
+            {
+              "label": "participe passé actif",
+              "form": "идший"
+            },
+            {
+              "label": "gérondif",
+              "form": "идя"
+            }
+          ],
+          "cases": [],
+          "conjugation": [
+            {
+              "label": "je (1ère pers. sg.)",
+              "form": "иду"
+            },
+            {
+              "label": "tu (2ème pers. sg.)",
+              "form": "идёшь"
+            },
+            {
+              "label": "il/elle (3ème pers. sg.)",
+              "form": "идёт"
+            },
+            {
+              "label": "nous (1ère pers. pl.)",
+              "form": "идём"
+            },
+            {
+              "label": "vous (2ème pers. pl.)",
+              "form": "идёте"
+            },
+            {
+              "label": "ils/elles (3ème pers. pl.)",
+              "form": "идут"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "lemmaForm": "поезд",
+      "usedCandidate": "extracted",
+      "jsonParseError": null,
+      "zodSuccess": false,
+      "zodIssues": [
+        {
+          "path": "morphology.animacy",
+          "code": "invalid_value",
+          "message": "Invalid option: expected one of \"animate\"|\"inanimate\""
+        },
+        {
+          "path": "morphology.plural",
+          "code": "invalid_type",
+          "message": "Invalid input: expected object, received string",
+          "expected": "object"
+        }
+      ],
+      "zodIssueSummary": "morphology.animacy: Invalid option: expected one of \"animate\"|\"inanimate\" | morphology.plural: Invalid input: expected object, received string",
+      "sampleFields": {
+        "partOfSpeech": "noun",
+        "gender": "m",
+        "aspect": null,
+        "movementType": null,
+        "difficulty": "A1",
+        "pedagogyProgression": "A1",
+        "morphologyMovement": null,
+        "morphologyGender": "m"
+      },
+      "fullRaw": "```json\n{\n  \"partOfSpeech\": \"noun\",\n  \"gender\": \"m\",\n  \"aspect\": null,\n  \"movementType\": null,\n  \"government\": [],\n  \"semanticCategory\": \"transport\",\n  \"register\": \"standard\",\n  \"difficulty\": \"A1\",\n  \"notes\": \"Nom masculin signifiant « train ».\",\n  \"tags\": [\"train\", \"transport\", \"nom\", \"masculin\"],\n  \"morphology\": {\n    \"gender\": \"m\",\n    \"animacy\": \"inanimé\",\n    \"declensionClass\": \"2e déclinaison (masculin en consonne)\",\n    \"plural\": \"поезда\",\n    \"irregularities\": [],\n    \"caseParadigm\": [\n      { \"label\": \"nominatif singulier\", \"form\": \"поезд\" },\n      { \"label\": \"génitif singulier\", \"form\": \"поезда\" },\n      { \"label\": \"datif singulier\", \"form\": \"поезду\" },\n      { \"label\": \"accusatif singulier\", \"form\": \"поезд\" },\n      { \"label\": \"instrumental singulier\", \"form\": \"поездом\" },\n      { \"label\": \"locatif singulier\", \"form\": \"поезде\" },\n      { \"label\": \"nominatif pluriel\", \"form\": \"поезда\" },\n      { \"label\": \"génitif pluriel\", \"form\": \"поездов\" },\n      { \"label\": \"datif pluriel\", \"form\": \"поездам\" },\n      { \"label\": \"accusatif pluriel\", \"form\": \"поезда\" },\n      { \"label\": \"instrumental pluriel\", \"form\": \"поездами\" },\n      { \"label\": \"locatif pluriel\", \"form\": \"поездах\" }\n    ],\n    \"aspect\": null,\n    \"aspectPair\": null,\n    \"conjugationClass\": null,\n    \"conjugationParadigm\": [],\n    \"tense\": null,\n    \"person\": null,\n    \"voice\": null,\n    \"movementType\": null,\n    \"preverbs\": [],\n    \"agreement\": null,\n    \"comparative\": null,\n    \"superlative\": null,\n    \"shortForm\": null,\n    \"declension\": \"2\"\n  },\n  \"syntax\": {\n    \"government\": [],\n    \"requiredCase\": null,\n    \"compatibleCases\": [],\n    \"constructionPatterns\": [\"sujet\", \"complément d'objet direct\", \"complément circonstanciel\"],\n    \"requiresInfinitive\": false,\n    \"takesObject\": false,\n    \"movementPattern\": null,\n    \"reflexive\": false,\n    \"impersonal\": false,\n    \"transitivity\": null\n  },\n  \"semantics\": {\n    \"semanticCategory\": \"transport\",\n    \"coreMeaning\": \"Véhicule ferroviaire destiné au transport de passagers ou de marchandises\",\n    \"extendedMeaning\": \"Par extension, déplacement ou ligne ferroviaire\",\n    \"register\": \"standard\",\n    \"frequency\": \"fréquent\",\n    \"collocations\": [\n      \"поезд идет (arrive, part, circule)\",\n      \"билет на поезд (billet de train)\",\n      \"скорый поезд (train rapide)\",\n      \"пассажирский поезд (train de voyageurs)\"\n    ],\n    \"falseFriends\": [],\n    \"synonyms\": [\"рельсовый транспорт\"],\n    \"antonyms\": []\n  },\n  \"pedagogy\": {\n    \"summary\": \"Nom masculin désignant un train.\",\n    \"takeaway\": \"Поезд signifie train, véhicule ferroviaire.\",\n    \"commonErrors\": [\n      { \"wrong\": \"поезда (au singulier)\", \"correct\": \"поезд\" },\n      { \"wrong\": \"женский род\", \"correct\": \"masculin\" }\n    ],\n    \"confusions\": [\"поезд / поездка (voyage en train)\"],\n    \"tips\": [\"Se souvenir que поезд est masculin et appartient à la 2e déclinaison.\"],\n    \"progression\": \"A1\",\n    \"relatedConcepts\": [\"2e déclinaison masculine\", \"animé vs inanimé\", \"cas russes\"]\n  },\n  \"paradigms\": {\n    \"forms\": [\n      { \"label\": \"nominatif singulier\", \"form\": \"поезд\" },\n      { \"label\": \"génitif singulier\", \"form\": \"поезда\" },\n      { \"label\": \"datif singulier\", \"form\": \"поезду\" },\n      { \"label\": \"accusatif singulier\", \"form\": \"поезд\" },\n      { \"label\": \"instrumental singulier\", \"form\": \"поездом\" },\n      { \"label\": \"locatif singulier\", \"form\": \"поезде\" },\n      { \"label\": \"nominatif pluriel\", \"form\": \"поезда\" },\n      { \"label\": \"génitif pluriel\", \"form\": \"поездов\" },\n      { \"label\": \"datif pluriel\", \"form\": \"поездам\" },\n      { \"label\": \"accusatif pluriel\", \"form\": \"поезда\" },\n      { \"label\": \"instrumental pluriel\", \"form\": \"поездами\" },\n      { \"label\": \"locatif pluriel\", \"form\": \"поездах\" }\n    ],\n    \"cases\": [],\n    \"conjugation\": []\n  }\n}\n```",
+      "fullParsed": {
+        "partOfSpeech": "noun",
+        "gender": "m",
+        "aspect": null,
+        "movementType": null,
+        "government": [],
+        "semanticCategory": "transport",
+        "register": "standard",
+        "difficulty": "A1",
+        "notes": "Nom masculin signifiant « train ».",
+        "tags": [
+          "train",
+          "transport",
+          "nom",
+          "masculin"
+        ],
+        "morphology": {
+          "gender": "m",
+          "animacy": "inanimé",
+          "declensionClass": "2e déclinaison (masculin en consonne)",
+          "plural": "поезда",
+          "irregularities": [],
+          "caseParadigm": [
+            {
+              "label": "nominatif singulier",
+              "form": "поезд"
+            },
+            {
+              "label": "génitif singulier",
+              "form": "поезда"
+            },
+            {
+              "label": "datif singulier",
+              "form": "поезду"
+            },
+            {
+              "label": "accusatif singulier",
+              "form": "поезд"
+            },
+            {
+              "label": "instrumental singulier",
+              "form": "поездом"
+            },
+            {
+              "label": "locatif singulier",
+              "form": "поезде"
+            },
+            {
+              "label": "nominatif pluriel",
+              "form": "поезда"
+            },
+            {
+              "label": "génitif pluriel",
+              "form": "поездов"
+            },
+            {
+              "label": "datif pluriel",
+              "form": "поездам"
+            },
+            {
+              "label": "accusatif pluriel",
+              "form": "поезда"
+            },
+            {
+              "label": "instrumental pluriel",
+              "form": "поездами"
+            },
+            {
+              "label": "locatif pluriel",
+              "form": "поездах"
+            }
+          ],
+          "aspect": null,
+          "aspectPair": null,
+          "conjugationClass": null,
+          "conjugationParadigm": [],
+          "tense": null,
+          "person": null,
+          "voice": null,
+          "movementType": null,
+          "preverbs": [],
+          "agreement": null,
+          "comparative": null,
+          "superlative": null,
+          "shortForm": null,
+          "declension": "2"
+        },
+        "syntax": {
+          "government": [],
+          "requiredCase": null,
+          "compatibleCases": [],
+          "constructionPatterns": [
+            "sujet",
+            "complément d'objet direct",
+            "complément circonstanciel"
+          ],
+          "requiresInfinitive": false,
+          "takesObject": false,
+          "movementPattern": null,
+          "reflexive": false,
+          "impersonal": false,
+          "transitivity": null
+        },
+        "semantics": {
+          "semanticCategory": "transport",
+          "coreMeaning": "Véhicule ferroviaire destiné au transport de passagers ou de marchandises",
+          "extendedMeaning": "Par extension, déplacement ou ligne ferroviaire",
+          "register": "standard",
+          "frequency": "fréquent",
+          "collocations": [
+            "поезд идет (arrive, part, circule)",
+            "билет на поезд (billet de train)",
+            "скорый поезд (train rapide)",
+            "пассажирский поезд (train de voyageurs)"
+          ],
+          "falseFriends": [],
+          "synonyms": [
+            "рельсовый транспорт"
+          ],
+          "antonyms": []
+        },
+        "pedagogy": {
+          "summary": "Nom masculin désignant un train.",
+          "takeaway": "Поезд signifie train, véhicule ferroviaire.",
+          "commonErrors": [
+            {
+              "wrong": "поезда (au singulier)",
+              "correct": "поезд"
+            },
+            {
+              "wrong": "женский род",
+              "correct": "masculin"
+            }
+          ],
+          "confusions": [
+            "поезд / поездка (voyage en train)"
+          ],
+          "tips": [
+            "Se souvenir que поезд est masculin et appartient à la 2e déclinaison."
+          ],
+          "progression": "A1",
+          "relatedConcepts": [
+            "2e déclinaison masculine",
+            "animé vs inanimé",
+            "cas russes"
+          ]
+        },
+        "paradigms": {
+          "forms": [
+            {
+              "label": "nominatif singulier",
+              "form": "поезд"
+            },
+            {
+              "label": "génitif singulier",
+              "form": "поезда"
+            },
+            {
+              "label": "datif singulier",
+              "form": "поезду"
+            },
+            {
+              "label": "accusatif singulier",
+              "form": "поезд"
+            },
+            {
+              "label": "instrumental singulier",
+              "form": "поездом"
+            },
+            {
+              "label": "locatif singulier",
+              "form": "поезде"
+            },
+            {
+              "label": "nominatif pluriel",
+              "form": "поезда"
+            },
+            {
+              "label": "génitif pluriel",
+              "form": "поездов"
+            },
+            {
+              "label": "datif pluriel",
+              "form": "поездам"
+            },
+            {
+              "label": "accusatif pluriel",
+              "form": "поезда"
+            },
+            {
+              "label": "instrumental pluriel",
+              "form": "поездами"
+            },
+            {
+              "label": "locatif pluriel",
+              "form": "поездах"
+            }
+          ],
+          "cases": [],
+          "conjugation": []
+        }
+      }
+    },
+    {
+      "lemmaForm": "или",
+      "usedCandidate": "extracted",
+      "jsonParseError": null,
+      "zodSuccess": false,
+      "zodIssues": [
+        {
+          "path": "syntax.constructionPatterns.0",
+          "code": "invalid_type",
+          "message": "Invalid input: expected string, received object",
+          "expected": "string"
+        }
+      ],
+      "zodIssueSummary": "syntax.constructionPatterns.0: Invalid input: expected string, received object",
+      "sampleFields": {
+        "partOfSpeech": "conjunction",
+        "gender": null,
+        "aspect": null,
+        "movementType": null,
+        "difficulty": "A1",
+        "pedagogyProgression": "A1",
+        "morphologyMovement": null,
+        "morphologyGender": null
+      },
+      "fullRaw": "```json\n{\n  \"partOfSpeech\": \"conjunction\",\n  \"gender\": null,\n  \"aspect\": null,\n  \"movementType\": null,\n  \"government\": [],\n  \"semanticCategory\": \"conjonction de coordination\",\n  \"register\": \"neutre\",\n  \"difficulty\": \"A1\",\n  \"notes\": \"Conjonction de coordination signifiant « ou »\",\n  \"tags\": [\"conjonction\", \"coordination\", \"choix\", \"alternatif\"],\n  \"morphology\": {\n    \"gender\": null,\n    \"animacy\": null,\n    \"declensionClass\": null,\n    \"plural\": null,\n    \"irregularities\": [],\n    \"caseParadigm\": [],\n    \"aspect\": null,\n    \"aspectPair\": null,\n    \"conjugationClass\": null,\n    \"conjugationParadigm\": [],\n    \"tense\": null,\n    \"person\": null,\n    \"voice\": null,\n    \"movementType\": null,\n    \"preverbs\": [],\n    \"agreement\": null,\n    \"comparative\": null,\n    \"superlative\": null,\n    \"shortForm\": null,\n    \"declension\": null,\n    \"pronounType\": null,\n    \"pronounParadigm\": [],\n    \"specialForms\": [],\n    \"governedCases\": [],\n    \"variants\": [\"ль\"],\n    \"nuances\": [\"utilisée pour présenter une alternative ou un choix exclusif ou inclusif\"]\n  },\n  \"syntax\": {\n    \"government\": [],\n    \"requiredCase\": null,\n    \"compatibleCases\": [],\n    \"constructionPatterns\": [\n      {\n        \"label\": \"coordination simple\",\n        \"description\": \"Connecte deux éléments ou propositions alternatives\"\n      }\n    ],\n    \"requiresInfinitive\": false,\n    \"takesObject\": false,\n    \"movementPattern\": null,\n    \"reflexive\": false,\n    \"impersonal\": false,\n    \"transitivity\": null\n  },\n  \"semantics\": {\n    \"semanticCategory\": \"alternative\",\n    \"coreMeaning\": \"indique un choix entre deux ou plusieurs éléments\",\n    \"extendedMeaning\": \"peut exprimer un choix inclusif ou exclusif selon le contexte\",\n    \"register\": \"neutre, courant\",\n    \"frequency\": \"très fréquent\",\n    \"collocations\": [\n      \"или ... или ...\",\n      \"либо ... либо ...\"\n    ],\n    \"falseFriends\": [],\n    \"synonyms\": [\"либо\"],\n    \"antonyms\": []\n  },\n  \"pedagogy\": {\n    \"summary\": \"Conjonction russe signifiant « ou ».\",\n    \"takeaway\": \"Или sert à exprimer une alternative entre deux ou plusieurs choix.\",\n    \"commonErrors\": [\n      {\n        \"wrong\": \"utiliser или avec une coordination copulative (et)\",\n        \"correct\": \"utiliser и pour une coordination copulative\"\n      },\n      {\n        \"wrong\": \"confondre или avec ли (particule interrogative)\",\n        \"correct\": \"ne pas confondre или (ou) avec ли (question)\"\n      }\n    ],\n    \"confusions\": [\n      \"или vs ли (particule interrogative)\",\n      \"или vs либо (synonyme plus formel ou stylisé)\"\n    ],\n    \"tips\": [\n      \"Utiliser или pour exprimer un choix alternatif simple.\",\n      \"Либо est un synonyme souvent interchangeable avec или, mais plus formel.\",\n      \"Ne pas confondre с или и ли, cette dernière étant une particule interrogative.\"\n    ],\n    \"progression\": \"A1\",\n    \"relatedConcepts\": [\"conjonctions de coordination\", \"alternatives\", \"particules interrogatives\"]\n  },\n  \"paradigms\": {\n    \"forms\": [\n      {\n        \"label\": \"forme simple\",\n        \"form\": \"или\"\n      }\n    ],\n    \"cases\": [],\n    \"conjugation\": []\n  }\n}\n```",
+      "fullParsed": {
+        "partOfSpeech": "conjunction",
+        "gender": null,
+        "aspect": null,
+        "movementType": null,
+        "government": [],
+        "semanticCategory": "conjonction de coordination",
+        "register": "neutre",
+        "difficulty": "A1",
+        "notes": "Conjonction de coordination signifiant « ou »",
+        "tags": [
+          "conjonction",
+          "coordination",
+          "choix",
+          "alternatif"
+        ],
+        "morphology": {
+          "gender": null,
+          "animacy": null,
+          "declensionClass": null,
+          "plural": null,
+          "irregularities": [],
+          "caseParadigm": [],
+          "aspect": null,
+          "aspectPair": null,
+          "conjugationClass": null,
+          "conjugationParadigm": [],
+          "tense": null,
+          "person": null,
+          "voice": null,
+          "movementType": null,
+          "preverbs": [],
+          "agreement": null,
+          "comparative": null,
+          "superlative": null,
+          "shortForm": null,
+          "declension": null,
+          "pronounType": null,
+          "pronounParadigm": [],
+          "specialForms": [],
+          "governedCases": [],
+          "variants": [
+            "ль"
+          ],
+          "nuances": [
+            "utilisée pour présenter une alternative ou un choix exclusif ou inclusif"
+          ]
+        },
+        "syntax": {
+          "government": [],
+          "requiredCase": null,
+          "compatibleCases": [],
+          "constructionPatterns": [
+            {
+              "label": "coordination simple",
+              "description": "Connecte deux éléments ou propositions alternatives"
+            }
+          ],
+          "requiresInfinitive": false,
+          "takesObject": false,
+          "movementPattern": null,
+          "reflexive": false,
+          "impersonal": false,
+          "transitivity": null
+        },
+        "semantics": {
+          "semanticCategory": "alternative",
+          "coreMeaning": "indique un choix entre deux ou plusieurs éléments",
+          "extendedMeaning": "peut exprimer un choix inclusif ou exclusif selon le contexte",
+          "register": "neutre, courant",
+          "frequency": "très fréquent",
+          "collocations": [
+            "или ... или ...",
+            "либо ... либо ..."
+          ],
+          "falseFriends": [],
+          "synonyms": [
+            "либо"
+          ],
+          "antonyms": []
+        },
+        "pedagogy": {
+          "summary": "Conjonction russe signifiant « ou ».",
+          "takeaway": "Или sert à exprimer une alternative entre deux ou plusieurs choix.",
+          "commonErrors": [
+            {
+              "wrong": "utiliser или avec une coordination copulative (et)",
+              "correct": "utiliser и pour une coordination copulative"
+            },
+            {
+              "wrong": "confondre или avec ли (particule interrogative)",
+              "correct": "ne pas confondre или (ou) avec ли (question)"
+            }
+          ],
+          "confusions": [
+            "или vs ли (particule interrogative)",
+            "или vs либо (synonyme plus formel ou stylisé)"
+          ],
+          "tips": [
+            "Utiliser или pour exprimer un choix alternatif simple.",
+            "Либо est un synonyme souvent interchangeable avec или, mais plus formel.",
+            "Ne pas confondre с или и ли, cette dernière étant une particule interrogative."
+          ],
+          "progression": "A1",
+          "relatedConcepts": [
+            "conjonctions de coordination",
+            "alternatives",
+            "particules interrogatives"
+          ]
+        },
+        "paradigms": {
+          "forms": [
+            {
+              "label": "forme simple",
+              "form": "или"
+            }
+          ],
+          "cases": [],
+          "conjugation": []
+        }
+      }
+    }
+  ],
+  "grouped": [
+    {
+      "key": "morphology.animacy :: Invalid option: expected one of \"animate\"|\"inanimate\"",
+      "count": 3,
+      "lemmas": [
+        "окно",
+        "хлеб",
+        "поезд"
+      ],
+      "example": {
+        "path": "morphology.animacy",
+        "code": "invalid_value",
+        "message": "Invalid option: expected one of \"animate\"|\"inanimate\""
+      }
+    },
+    {
+      "key": "morphology.plural :: Invalid input: expected object, received string",
+      "count": 3,
+      "lemmas": [
+        "окно",
+        "хлеб",
+        "поезд"
+      ],
+      "example": {
+        "path": "morphology.plural",
+        "code": "invalid_type",
+        "message": "Invalid input: expected object, received string",
+        "expected": "object"
+      }
+    },
+    {
+      "key": "government.0 :: Invalid input: expected string, received object",
+      "count": 2,
+      "lemmas": [
+        "ехать",
+        "идти"
+      ],
+      "example": {
+        "path": "government.0",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received object",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "morphology.aspectPair :: Invalid input: expected object, received string",
+      "count": 2,
+      "lemmas": [
+        "ехать",
+        "идти"
+      ],
+      "example": {
+        "path": "morphology.aspectPair",
+        "code": "invalid_type",
+        "message": "Invalid input: expected object, received string",
+        "expected": "object"
+      }
+    },
+    {
+      "key": "morphology.conjugationClass :: Invalid input: expected string, received number",
+      "count": 2,
+      "lemmas": [
+        "ехать",
+        "идти"
+      ],
+      "example": {
+        "path": "morphology.conjugationClass",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received number",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "morphology.governedCases.0 :: Invalid input: expected object, received string",
+      "count": 2,
+      "lemmas": [
+        "ехать",
+        "идти"
+      ],
+      "example": {
+        "path": "morphology.governedCases.0",
+        "code": "invalid_type",
+        "message": "Invalid input: expected object, received string",
+        "expected": "object"
+      }
+    },
+    {
+      "key": "syntax.government.0 :: Invalid input: expected string, received object",
+      "count": 2,
+      "lemmas": [
+        "ехать",
+        "идти"
+      ],
+      "example": {
+        "path": "syntax.government.0",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received object",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "morphology.specialForms.0 :: Invalid input: expected object, received string",
+      "count": 1,
+      "lemmas": [
+        "ехать"
+      ],
+      "example": {
+        "path": "morphology.specialForms.0",
+        "code": "invalid_type",
+        "message": "Invalid input: expected object, received string",
+        "expected": "object"
+      }
+    },
+    {
+      "key": "morphology.specialForms.1 :: Invalid input: expected object, received string",
+      "count": 1,
+      "lemmas": [
+        "ехать"
+      ],
+      "example": {
+        "path": "morphology.specialForms.1",
+        "code": "invalid_type",
+        "message": "Invalid input: expected object, received string",
+        "expected": "object"
+      }
+    },
+    {
+      "key": "semantics.falseFriends.0 :: Invalid input: expected object, received string",
+      "count": 1,
+      "lemmas": [
+        "ехать"
+      ],
+      "example": {
+        "path": "semantics.falseFriends.0",
+        "code": "invalid_type",
+        "message": "Invalid input: expected object, received string",
+        "expected": "object"
+      }
+    },
+    {
+      "key": "paradigms.cases.0.form :: Invalid input: expected string, received undefined",
+      "count": 1,
+      "lemmas": [
+        "хлеб"
+      ],
+      "example": {
+        "path": "paradigms.cases.0.form",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received undefined",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "paradigms.cases.1.form :: Invalid input: expected string, received undefined",
+      "count": 1,
+      "lemmas": [
+        "хлеб"
+      ],
+      "example": {
+        "path": "paradigms.cases.1.form",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received undefined",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "paradigms.cases.2.form :: Invalid input: expected string, received undefined",
+      "count": 1,
+      "lemmas": [
+        "хлеб"
+      ],
+      "example": {
+        "path": "paradigms.cases.2.form",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received undefined",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "paradigms.cases.3.form :: Invalid input: expected string, received undefined",
+      "count": 1,
+      "lemmas": [
+        "хлеб"
+      ],
+      "example": {
+        "path": "paradigms.cases.3.form",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received undefined",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "paradigms.cases.4.form :: Invalid input: expected string, received undefined",
+      "count": 1,
+      "lemmas": [
+        "хлеб"
+      ],
+      "example": {
+        "path": "paradigms.cases.4.form",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received undefined",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "paradigms.cases.5.form :: Invalid input: expected string, received undefined",
+      "count": 1,
+      "lemmas": [
+        "хлеб"
+      ],
+      "example": {
+        "path": "paradigms.cases.5.form",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received undefined",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "syntax.government.1 :: Invalid input: expected string, received object",
+      "count": 1,
+      "lemmas": [
+        "идти"
+      ],
+      "example": {
+        "path": "syntax.government.1",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received object",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "semantics.falseFriends.0.wrong :: Invalid input: expected string, received undefined",
+      "count": 1,
+      "lemmas": [
+        "идти"
+      ],
+      "example": {
+        "path": "semantics.falseFriends.0.wrong",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received undefined",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "semantics.falseFriends.0.correct :: Invalid input: expected string, received undefined",
+      "count": 1,
+      "lemmas": [
+        "идти"
+      ],
+      "example": {
+        "path": "semantics.falseFriends.0.correct",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received undefined",
+        "expected": "string"
+      }
+    },
+    {
+      "key": "syntax.constructionPatterns.0 :: Invalid input: expected string, received object",
+      "count": 1,
+      "lemmas": [
+        "или"
+      ],
+      "example": {
+        "path": "syntax.constructionPatterns.0",
+        "code": "invalid_type",
+        "message": "Invalid input: expected string, received object",
+        "expected": "string"
+      }
+    }
+  ]
+}

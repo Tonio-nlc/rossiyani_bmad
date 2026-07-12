@@ -2,17 +2,12 @@ import { generateKnowledgeFromLlm } from "@/lib/knowledge/generate-knowledge-llm
 import { getKnowledgeByLemmaId } from "@/lib/knowledge/get-knowledge";
 import { isKnowledgeComplete } from "@/lib/knowledge/is-knowledge-complete";
 import { logKnowledge } from "@/lib/knowledge/log-knowledge";
-import { upsertKnowledge } from "@/lib/knowledge/upsert-knowledge";
+import {
+  buildUpsertFromLlmPayload,
+  upsertKnowledge,
+} from "@/lib/knowledge/upsert-knowledge";
 import { createClient } from "@/lib/supabase/server";
 import type { TLinguisticKnowledge } from "@/types/knowledge";
-
-function serializeGovernment(government: string[]): string | null {
-  if (government.length === 0) {
-    return null;
-  }
-
-  return JSON.stringify(government);
-}
 
 async function getLemmaForm(lemmaId: string): Promise<string> {
   const supabase = await createClient();
@@ -56,21 +51,9 @@ export async function buildKnowledge(
     return recheck;
   }
 
-  const saved = await upsertKnowledge({
-    lemmaId,
-    partOfSpeech: generated.partOfSpeech,
-    gender: generated.gender,
-    aspect: generated.aspect,
-    movementType: generated.movementType,
-    government: serializeGovernment(generated.government),
-    semanticCategory: generated.semanticCategory,
-    register: generated.register,
-    difficulty: generated.difficulty,
-    notes: generated.notes || null,
-    tags: generated.tags,
-    generatedBy: "llm",
-    validated: true,
-  });
+  const saved = await upsertKnowledge(
+    buildUpsertFromLlmPayload(lemmaId, generated.payload),
+  );
 
   logKnowledge("Saved");
 

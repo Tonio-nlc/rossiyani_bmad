@@ -11,7 +11,8 @@
     "db:push": "supabase db push",
     "db:verify": "bash scripts/db-reset.sh verify",
     "test": "tsx --test src/lib/import/**/*.test.ts",
-    "test:import": "tsx --test src/lib/import/**/*.test.ts"
+    "test:import": "tsx --test src/lib/import/**/*.test.ts",
+    "knowledge:bootstrap": "tsx scripts/knowledge-bootstrap.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

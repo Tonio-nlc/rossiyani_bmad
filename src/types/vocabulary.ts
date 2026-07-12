@@ -1,3 +1,12 @@
+import type {
+  TKnowledgeMorphology,
+  TKnowledgeParadigms,
+  TKnowledgePedagogy,
+  TKnowledgeSemantics,
+  TKnowledgeSyntax,
+  TLinguisticProfile,
+} from "@/types/knowledge";
+
 export type TVocabularyReviewStatus = "new" | "due" | "learned";
 
 export interface TVocabularyListItem {
@@ -19,10 +28,21 @@ export interface TVocabularyLinguisticProfile {
   gender: string | null;
   aspect: string | null;
   movementType: string | null;
+  morphology: TKnowledgeMorphology;
+  syntax: TKnowledgeSyntax;
+  semantics: TKnowledgeSemantics;
+  pedagogy: TKnowledgePedagogy;
+  paradigms: TKnowledgeParadigms;
+  profile: TLinguisticProfile;
+  /** @deprecated Compatibilité ascendante — préférer syntax.government */
   government: string[];
+  /** @deprecated Compatibilité ascendante — préférer semantics.register */
   register: string | null;
+  /** @deprecated Compatibilité ascendante — préférer semantics.semanticCategory */
   semanticCategory: string | null;
+  /** @deprecated Compatibilité ascendante — préférer pedagogy.takeaway */
   notes: string | null;
+  /** @deprecated Compatibilité ascendante — préférer pedagogy.relatedConcepts */
   tags: string[];
 }
 

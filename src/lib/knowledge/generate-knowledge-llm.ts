@@ -1,30 +1,69 @@
 import OpenAI from "openai";
 
-import { parseKnowledgeLlmJson } from "@/lib/knowledge/parse-knowledge-json";
+import {
+  parseKnowledgeLlmJsonWithMeta,
+  type TParseKnowledgeResult,
+} from "@/lib/knowledge/profile-schema";
 import type { TKnowledgeLlmPayload } from "@/types/knowledge";
+import type { TNormalizationEvent } from "@/lib/knowledge/normalize-knowledge-payload";
+
+export interface TKnowledgeGenerationResult {
+  payload: TKnowledgeLlmPayload;
+  normalizationEvents: TNormalizationEvent[];
+}
 
 const SYSTEM_PROMPT = `Tu es le générateur de connaissances linguistiques permanentes de Rossiyani.
 
-Ta mission : décrire ce qu'EST un mot russe — sa nature grammaticale, son usage et ses propriétés stables.
+Ta mission : produire le profil linguistique COMPLET d'un lemme russe — comme le ferait un professeur de russe, pas un dictionnaire.
 
 RÈGLES ABSOLUES :
 1. Répondre UNIQUEMENT en JSON valide — aucun texte avant ou après
 2. Décrire le MOT LUI-MÊME — jamais une occurrence dans une phrase
 3. Ne jamais expliquer "pourquoi ce mot a cette forme dans cette phrase"
 4. Ne jamais citer ni analyser une phrase d'exemple
-5. Utiliser un langage clair en français dans les champs texte (notes, tags, register, semanticCategory)
-6. Remplir uniquement les champs pertinents ; utiliser null pour ce qui ne s'applique pas (genre pour un verbe, aspect pour un nom, movementType hors verbes de mouvement)
+5. Langage clair en français dans les champs texte
+6. Préférer des objets structurés — éviter les longs paragraphes
+7. Remplir tous les champs pertinents selon la nature grammaticale ; null ou [] pour ce qui ne s'applique pas
+8. Les paradigmes doivent utiliser { "label": "...", "form": "..." } — jamais des listes en texte libre
 
-VALEURS ATTENDUES :
+STRUCTURE — quatre couches + paradigmes :
+
+A) morphology — forme du mot (genre, animacité, aspect, paire aspectuelle, conjugaison, déclinaison, paradigmes, préverbes, etc.)
+B) syntax — fonctionnement en phrase (government, cas requis, constructions, transitivité, etc.)
+C) semantics — sens (coreMeaning, extendedMeaning, register, collocations, faux amis, synonymes, antonymes)
+D) pedagogy — couche pédagogique Rossiyani :
+   - summary : une phrase très courte
+   - takeaway : une seule idée à retenir
+   - commonErrors : [{ wrong, correct }]
+   - confusions : mots souvent confondus (formes russes)
+   - tips : conseils courts
+   - progression : A1 | A2 | B1 | B2 | C1 | C2
+   - relatedConcepts : concepts grammaticaux liés
+
+E) paradigms — formes structurées :
+   - forms : paradigme principal (conjugaison présent, déclinaison, etc.)
+   - cases : paradigme des cas (noms, pronoms, adjectifs)
+   - conjugation : conjugaison complète si distincte
+
+PAR NATURE GRAMMATICALE — remplir systématiquement :
+
+NOM : gender, animacy, declensionClass, plural, irregularities, caseParadigm, paradigms.cases
+VERBE : aspect, aspectPair, conjugationClass, conjugationParadigm, tense, person, voice, movementType, preverbs, paradigms.conjugation + paradigms.forms
+ADJECTIF : agreement, comparative, superlative, shortForm, declension, caseParadigm, paradigms.forms
+PRONOM : pronounType, pronounParadigm, agreement, specialForms, paradigms.forms + paradigms.cases
+PRÉPOSITION : governedCases, variants, nuances, syntax.government
+
+VALEURS ATTENDUES (champs historiques — conserver pour compatibilité) :
 - partOfSpeech : noun | verb | adjective | adverb | preposition | conjunction | pronoun | particle
 - gender : m | f | n | null
 - aspect : imperfective | perfective | null
-- movementType : unidirectionnel | multidirectionnel | null (verbes de mouvement uniquement)
-- government : tableau de régimes ou constructions gouvernées (ex: ["accusatif", "préposition в + prépositionnel"])
+- movementType : unidirectionnel | multidirectionnel | null
+- government : tableau de régimes/constructions (doublon acceptable avec syntax.government)
 - difficulty : A1 | A2 | B1 | B2 | C1 | C2
-- tags : mots-clés courts en français (ex: ["mouvement", "quotidien"])
+- tags : mots-clés courts en français
+- notes : résumé court (doublon acceptable avec pedagogy.takeaway)
 
-FORMAT DE RÉPONSE JSON strict :
+FORMAT JSON strict :
 {
   "partOfSpeech": "",
   "gender": null,
@@ -35,12 +74,77 @@ FORMAT DE RÉPONSE JSON strict :
   "register": "",
   "difficulty": "",
   "notes": "",
-  "tags": []
+  "tags": [],
+  "morphology": {
+    "gender": null,
+    "animacy": null,
+    "declensionClass": null,
+    "plural": null,
+    "irregularities": [],
+    "caseParadigm": [],
+    "aspect": null,
+    "aspectPair": null,
+    "conjugationClass": null,
+    "conjugationParadigm": [],
+    "tense": null,
+    "person": null,
+    "voice": null,
+    "movementType": null,
+    "preverbs": [],
+    "agreement": null,
+    "comparative": null,
+    "superlative": null,
+    "shortForm": null,
+    "declension": null,
+    "pronounType": null,
+    "pronounParadigm": [],
+    "specialForms": [],
+    "governedCases": [],
+    "variants": [],
+    "nuances": []
+  },
+  "syntax": {
+    "government": [],
+    "requiredCase": null,
+    "compatibleCases": [],
+    "constructionPatterns": [],
+    "requiresInfinitive": false,
+    "takesObject": false,
+    "movementPattern": null,
+    "reflexive": false,
+    "impersonal": false,
+    "transitivity": null
+  },
+  "semantics": {
+    "semanticCategory": "",
+    "coreMeaning": "",
+    "extendedMeaning": "",
+    "register": "",
+    "frequency": "",
+    "collocations": [],
+    "falseFriends": [],
+    "synonyms": [],
+    "antonyms": []
+  },
+  "pedagogy": {
+    "summary": "",
+    "takeaway": "",
+    "commonErrors": [],
+    "confusions": [],
+    "tips": [],
+    "progression": "",
+    "relatedConcepts": []
+  },
+  "paradigms": {
+    "forms": [],
+    "cases": [],
+    "conjugation": []
+  }
 }`;
 
 export async function generateKnowledgeFromLlm(
   lemmaForm: string,
-): Promise<TKnowledgeLlmPayload> {
+): Promise<TKnowledgeGenerationResult> {
   const apiKey = process.env.OPENAI_API_KEY;
   const model = process.env.OPENAI_MODEL;
 
@@ -66,5 +170,14 @@ export async function generateKnowledgeFromLlm(
     throw new Error("Réponse LLM vide");
   }
 
-  return parseKnowledgeLlmJson(outputText);
+  const debug = process.env.KNOWLEDGE_NORMALIZE_DEBUG === "1";
+  const parsed: TParseKnowledgeResult = parseKnowledgeLlmJsonWithMeta(outputText, {
+    lemmaForm,
+    debug,
+  });
+
+  return {
+    payload: parsed.payload,
+    normalizationEvents: parsed.normalizationEvents,
+  };
 }

@@ -3,6 +3,14 @@ import type {
   TKnowledgeUpsertInput,
 } from "@/types/knowledge";
 import {
+  KNOWLEDGE_PROFILE_VERSION,
+  EMPTY_KNOWLEDGE_MORPHOLOGY,
+  EMPTY_KNOWLEDGE_PARADIGMS,
+  EMPTY_KNOWLEDGE_PEDAGOGY,
+  EMPTY_KNOWLEDGE_SEMANTICS,
+  EMPTY_KNOWLEDGE_SYNTAX,
+} from "@/types/knowledge";
+import {
   mapKnowledgeRow,
   type LinguisticKnowledgeRow,
 } from "@/lib/knowledge/types";
@@ -25,6 +33,12 @@ function toDbPayload(input: TKnowledgeUpsertInput) {
     notes: input.notes ?? null,
     generated_by: input.generatedBy ?? null,
     validated: input.validated ?? false,
+    morphology: input.morphology ?? EMPTY_KNOWLEDGE_MORPHOLOGY,
+    syntax: input.syntax ?? EMPTY_KNOWLEDGE_SYNTAX,
+    semantics: input.semantics ?? EMPTY_KNOWLEDGE_SEMANTICS,
+    pedagogy: input.pedagogy ?? EMPTY_KNOWLEDGE_PEDAGOGY,
+    paradigms: input.paradigms ?? EMPTY_KNOWLEDGE_PARADIGMS,
+    profile_version: input.profileVersion ?? 1,
     updated_at: new Date().toISOString(),
   };
 }
@@ -51,4 +65,44 @@ export async function createEmptyKnowledge(
   lemmaId: string,
 ): Promise<TLinguisticKnowledge> {
   return upsertKnowledge({ lemmaId });
+}
+
+export function buildUpsertFromLlmPayload(
+  lemmaId: string,
+  generated: import("@/types/knowledge").TKnowledgeLlmPayload,
+) {
+  const government = JSON.stringify(
+    generated.syntax.government?.length
+      ? generated.syntax.government
+      : generated.government,
+  );
+
+  return {
+    lemmaId,
+    partOfSpeech: generated.partOfSpeech,
+    gender: generated.gender,
+    aspect: generated.aspect ?? generated.morphology.aspect ?? null,
+    movementType:
+      generated.movementType ?? generated.morphology.movementType ?? null,
+    government,
+    semanticCategory:
+      generated.semanticCategory ??
+      generated.semantics.semanticCategory ??
+      null,
+    register: generated.register ?? generated.semantics.register ?? null,
+    difficulty: generated.pedagogy.progression ?? generated.difficulty,
+    notes: generated.pedagogy.takeaway ?? generated.notes ?? null,
+    tags: [
+      ...generated.tags,
+      ...(generated.pedagogy.relatedConcepts ?? []),
+    ].filter((tag, index, array) => array.indexOf(tag) === index),
+    morphology: generated.morphology,
+    syntax: generated.syntax,
+    semantics: generated.semantics,
+    pedagogy: generated.pedagogy,
+    paradigms: generated.paradigms,
+    generatedBy: "llm" as const,
+    validated: true,
+    profileVersion: KNOWLEDGE_PROFILE_VERSION,
+  };
 }
