@@ -1,4 +1,3 @@
-import { displayRussianGraphemes } from "@/lib/russian/display-russian";
 import type { TLearningCardEncounter } from "@/types/learning-card";
 
 import {
@@ -6,7 +5,6 @@ import {
   VocabMutedLabel,
   VocabRussianDisplay,
   VocabSection,
-  VocabStep,
 } from "./VocabEditorial";
 
 interface EncounterSectionProps {
@@ -14,33 +12,24 @@ interface EncounterSectionProps {
 }
 
 export function EncounterSection({ encounter }: EncounterSectionProps) {
-  const hasFormChips = encounter.formChips.length > 0;
-  const hasTraitChips = encounter.traitChips.length > 0;
+  const formChips = encounter.formChips.map((chip) => chip.toLowerCase());
 
   return (
     <VocabSection eyebrow="Rencontre" title="Tu as rencontré…">
-      <VocabStep>
-        <VocabRussianDisplay size="xl">{encounter.surface}</VocabRussianDisplay>
-      </VocabStep>
+      <div className="space-y-3">
+        <VocabRussianDisplay size="hero">{encounter.surface}</VocabRussianDisplay>
 
-      <VocabStep showArrow={hasFormChips || hasTraitChips}>
-        {hasFormChips ? (
-          <VocabChipRow
-            chips={encounter.formChips.map((chip) => `→ ${chip.toLowerCase()}`)}
-          />
-        ) : null}
-      </VocabStep>
+        {formChips.length > 0 ? <VocabChipRow chips={formChips} /> : null}
 
-      <VocabStep showArrow={hasTraitChips}>
-        <VocabMutedLabel>{encounter.originPhrase}</VocabMutedLabel>
-        <VocabRussianDisplay>{encounter.lemma}</VocabRussianDisplay>
-      </VocabStep>
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <VocabMutedLabel>{encounter.originPhrase}</VocabMutedLabel>
+          <VocabRussianDisplay size="md">{encounter.lemma}</VocabRussianDisplay>
+        </div>
 
-      {hasTraitChips ? (
-        <VocabStep showArrow={false}>
+        {encounter.traitChips.length > 0 ? (
           <VocabChipRow chips={encounter.traitChips} />
-        </VocabStep>
-      ) : null}
+        ) : null}
+      </div>
     </VocabSection>
   );
 }

@@ -1,3 +1,8 @@
+import {
+  VOCAB_LIST_CLASS,
+  VOCAB_LIST_ITEM_CLASS,
+  VOCAB_LIST_MAX,
+} from "@/lib/design/vocabulary-composition";
 import type { TLearningCardTakeaways } from "@/types/learning-card";
 
 import { VocabSection, VocabShortBlock } from "./VocabEditorial";
@@ -7,16 +12,21 @@ interface TakeawaySectionProps {
 }
 
 export function TakeawaySection({ takeaways }: TakeawaySectionProps) {
-  if (takeaways.items.length === 0) {
+  const items = takeaways.items.slice(0, VOCAB_LIST_MAX);
+
+  if (items.length === 0) {
     return null;
   }
 
   return (
     <VocabSection eyebrow="Essentiel" title="À retenir">
-      <ul className="space-y-3">
-        {takeaways.items.map((item) => (
-          <li key={item} className="flex gap-2">
-            <span className="mt-0.5 text-accent" aria-hidden="true">
+      <ul className={VOCAB_LIST_CLASS}>
+        {items.map((item) => (
+          <li key={item} className={VOCAB_LIST_ITEM_CLASS}>
+            <span
+              className="mt-1 shrink-0 text-[13px] text-accent"
+              aria-hidden="true"
+            >
               ✓
             </span>
             <VocabShortBlock>{item}</VocabShortBlock>

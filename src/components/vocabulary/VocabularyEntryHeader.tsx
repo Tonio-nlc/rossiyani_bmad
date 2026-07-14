@@ -37,7 +37,7 @@ export function VocabularyEntryHeader({
   returnLabel,
 }: VocabularyEntryHeaderProps) {
   return (
-    <header className={PAGE_HEADER_SHELL_CLASS}>
+    <header className={cn(PAGE_HEADER_SHELL_CLASS, "py-6 md:py-6")}>
       <div
         className={cn(
           PAGE_BODY_SHELL_CLASS,
@@ -49,10 +49,10 @@ export function VocabularyEntryHeader({
           <BackLink href={returnHref} label={returnLabel} />
         </div>
         <p className={PAGE_HEADER_EYEBROW_CLASS}>VOCABULAIRE</p>
-        <h1 className={cn(PAGE_HEADER_TITLE_CLASS, "mt-4")}>
+        <h1 className={cn(PAGE_HEADER_TITLE_CLASS, "mt-3")}>
           <HeaderLemma lemma={header.lemma} />
         </h1>
-        <p className={PAGE_HEADER_SUBTITLE_CLASS}>
+        <p className={cn(PAGE_HEADER_SUBTITLE_CLASS, "mt-1.5")}>
           {header.subtitle ?? header.translation ?? "Traduction indisponible"}
         </p>
       </div>
