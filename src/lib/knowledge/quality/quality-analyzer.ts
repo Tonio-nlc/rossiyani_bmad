@@ -54,6 +54,12 @@ export function formatQualityIssueBullet(issue: {
     COLLOCATIONS_TOO_MANY: "too many collocations",
     SYNONYMS_TOO_MANY: "too many synonyms",
     ANTONYMS_TOO_MANY: "too many antonyms",
+    POS_MISMATCH: "part of speech mismatch",
+    INVALID_SECTION: "invalid section for POS",
+    INVALID_LABEL: "invalid label for POS",
+    INVALID_NEXT_FORM: "invalid next form for POS",
+    INVALID_REFERENCE: "invalid reference for POS",
+    INVALID_MORPHOLOGY: "invalid morphology for POS",
   };
 
   return shortMessages[issue.code] ?? issue.message;

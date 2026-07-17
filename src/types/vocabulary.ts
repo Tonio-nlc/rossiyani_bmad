@@ -6,6 +6,7 @@ import type {
   TKnowledgeSyntax,
   TLinguisticProfile,
 } from "@/types/knowledge";
+import type { TConceptLesson } from "@/types/concept-lesson";
 import type { TLearningCard } from "@/types/learning-card";
 
 export type TVocabularyReviewStatus = "new" | "due" | "learned";
@@ -100,6 +101,7 @@ export interface TVocabularyEntry {
   translation: string;
   linguisticProfile: TVocabularyLinguisticProfile;
   learningCard: TLearningCard;
+  conceptLesson: TConceptLesson;
   contextEncounter: TVocabularyContextEncounter | null;
   linguisticData: TVocabularyLinguisticData;
   userVocabulary: TVocabularyUserRecord;

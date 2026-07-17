@@ -18,6 +18,10 @@ export interface TWordExplanationResponse {
   confidenceScore: number;
   lemmaId?: string;
   explanationCacheId?: string;
+  conceptId?: string;
+  conceptSlug?: string;
+  conceptTitle?: string;
+  conceptSummary?: string;
 }
 
 export type TFunctionalRole =

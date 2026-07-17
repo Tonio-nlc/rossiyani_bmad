@@ -5,7 +5,7 @@ import { useState } from "react";
 import {
   VOCAB_BLOCK_GAP_CLASS,
   VOCAB_EYEBROW_CLASS,
-  VOCAB_SECTION_GAP_CLASS,
+  VOCAB_NARRATIVE_GAP_CLASS,
   VOCAB_TITLE_CLASS,
   VOCAB_TITLE_TO_CONTENT_CLASS,
 } from "@/lib/design/vocabulary-composition";
@@ -26,9 +26,9 @@ export function ReferenceAccordion({ reference }: ReferenceAccordionProps) {
   }
 
   return (
-    <section className={VOCAB_SECTION_GAP_CLASS}>
+    <section className={VOCAB_NARRATIVE_GAP_CLASS}>
       <header>
-        <p className={VOCAB_EYEBROW_CLASS}>Référence</p>
+        <p className={VOCAB_EYEBROW_CLASS}>Explorer</p>
         <h2 className={VOCAB_TITLE_CLASS}>Aller plus loin</h2>
       </header>
 
@@ -39,7 +39,7 @@ export function ReferenceAccordion({ reference }: ReferenceAccordionProps) {
           className="flex w-full items-center justify-between rounded-lg border border-border/80 bg-bg/40 px-4 py-3 text-left text-[15px] font-medium text-ink-2 transition-colors hover:border-accent-border hover:text-ink"
           aria-expanded={isOpen}
         >
-          <span>{isOpen ? "▲" : "▼"} Référence grammaticale</span>
+          <span>{isOpen ? "▲" : "▼"} Paradigmes, collocations, notes</span>
         </button>
 
         <div

@@ -1,26 +1,21 @@
 import {
-  VOCAB_BODY_CLASS,
-  VOCAB_EXAMPLE_CARD_CLASS,
-  VOCAB_EXAMPLE_DIVIDER_CLASS,
-  VOCAB_SUBTITLE_CLASS,
-  VOCAB_SUFFIX_CARD_CLASS,
-} from "@/lib/design/vocabulary-composition";
-import {
-  getFunctionColorHex,
-  type TReaderFunctionColor,
-} from "@/lib/utils/russian";
-import { displayRussianGraphemes } from "@/lib/russian/display-russian";
+  selectEditorialChips,
+  rewriteEditorialText,
+} from "@/lib/design/editorial-voice";
+import { VOCAB_HERO_PANEL_CLASS } from "@/lib/design/vocabulary-composition";
 import type {
   TLearningCardEncounter,
   TLearningCardUnderstanding,
 } from "@/types/learning-card";
 
 import {
-  VocabChipRow,
+  EditorialExplanation,
+  EditorialInlineMeta,
+  EditorialProse,
+  EditorialSubpart,
+  NarrativeSection,
   VocabMutedLabel,
   VocabRussianDisplay,
-  VocabSection,
-  VocabShortBlock,
 } from "./VocabEditorial";
 
 interface UnderstandingSectionProps {
@@ -29,108 +24,111 @@ interface UnderstandingSectionProps {
 }
 
 function RussianSentence({ text }: { text: string }) {
-  const graphemes = displayRussianGraphemes(text);
-
-  return (
-    <span className="font-russian">
-      {graphemes.map((grapheme, index) => (
-        <span key={`${index}-${grapheme}`} className="inline">
-          {grapheme}
-        </span>
-      ))}
-    </span>
-  );
+  return <VocabRussianDisplay size="md">{text}</VocabRussianDisplay>;
 }
 
 export function UnderstandingSection({
   understanding,
   encounter = null,
 }: UnderstandingSectionProps) {
-  const colorHex = getFunctionColorHex(
-    understanding.functionColor as TReaderFunctionColor | undefined,
+  const surface = encounter?.surface;
+  const lemma = encounter?.lemma;
+  const metaChips = selectEditorialChips(
+    encounter?.formChips.map((chip) => chip.toLowerCase()) ?? [],
+    encounter?.traitChips ?? [],
   );
 
-  const formChips =
-    encounter?.formChips.map((chip) => chip.toLowerCase()) ?? [];
-  const traitChips = encounter?.traitChips ?? [];
-  const surface = encounter?.surface;
+  const hasEncounterStep = Boolean(surface);
+  const hasMeaningStep = Boolean(
+    understanding.intro ||
+      understanding.whyPoints.length > 0 ||
+      understanding.suffix ||
+      understanding.roleLabel,
+  );
+  const hasContextStep = Boolean(
+    understanding.explanationBlocks.length > 0 || understanding.sentence,
+  );
 
   return (
-    <VocabSection eyebrow="Dans la phrase" title="Comprendre cette forme">
-      <div className="space-y-4">
-        {surface ? (
-          <VocabRussianDisplay size="hero">{surface}</VocabRussianDisplay>
-        ) : null}
+    <>
+      {hasEncounterStep ? (
+        <NarrativeSection question="Pourquoi ai-je rencontré cette forme ?">
+          <div className={VOCAB_HERO_PANEL_CLASS}>
+            <div className="space-y-3">
+              <VocabRussianDisplay size="hero">{surface}</VocabRussianDisplay>
+              <EditorialInlineMeta items={metaChips} />
 
-        {formChips.length > 0 || traitChips.length > 0 ? (
-          <div className="space-y-2">
-            {formChips.length > 0 ? <VocabChipRow chips={formChips} /> : null}
-            {encounter ? (
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <VocabMutedLabel>{encounter.originPhrase}</VocabMutedLabel>
-                <VocabRussianDisplay size="md">{encounter.lemma}</VocabRussianDisplay>
+              {lemma ? (
+                <div className="space-y-1">
+                  <VocabMutedLabel>
+                    {rewriteEditorialText(
+                      encounter?.originPhrase ?? "Cette forme vient de",
+                    )}
+                  </VocabMutedLabel>
+                  <VocabRussianDisplay size="md">{lemma}</VocabRussianDisplay>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </NarrativeSection>
+      ) : null}
+
+      {hasMeaningStep ? (
+        <NarrativeSection question="Que signifie exactement cette forme ?">
+          <div className="space-y-4">
+            {understanding.suffix || understanding.roleLabel ? (
+              <div className="space-y-2">
+                {understanding.suffix ? (
+                  <VocabRussianDisplay size="hero">
+                    {understanding.suffix}
+                  </VocabRussianDisplay>
+                ) : null}
+                {understanding.roleLabel ? (
+                  <EditorialProse>
+                    {rewriteEditorialText(understanding.roleLabel)}
+                  </EditorialProse>
+                ) : null}
               </div>
             ) : null}
-            {traitChips.length > 0 ? <VocabChipRow chips={traitChips} /> : null}
-          </div>
-        ) : null}
 
-        {understanding.suffix || understanding.roleLabel ? (
-          <div className={VOCAB_SUFFIX_CARD_CLASS}>
-            {understanding.suffix ? (
-              <p
-                className="font-russian text-[1.75rem] leading-none"
-                style={colorHex ? { color: colorHex } : undefined}
-              >
-                <RussianSentence text={understanding.suffix} />
-              </p>
+            {understanding.intro ? (
+              <EditorialProse>{understanding.intro}</EditorialProse>
             ) : null}
-            {understanding.roleLabel ? (
-              <p
-                className="mt-2 text-[15px] font-medium leading-snug"
-                style={colorHex ? { color: colorHex } : undefined}
-              >
-                {understanding.roleLabel}
-              </p>
+
+            {understanding.whyPoints.length > 0 ? (
+              <EditorialSubpart label="Pourquoi ?">
+                <div className="space-y-3">
+                  {understanding.whyPoints.map((point) => (
+                    <EditorialExplanation key={point} text={point} />
+                  ))}
+                </div>
+              </EditorialSubpart>
             ) : null}
           </div>
-        ) : null}
+        </NarrativeSection>
+      ) : null}
 
-        {understanding.intro ? (
-          <VocabShortBlock>{understanding.intro}</VocabShortBlock>
-        ) : null}
+      {hasContextStep ? (
+        <NarrativeSection question="Pourquoi est-elle utilisée ici ?">
+          <div className="space-y-4">
+            {understanding.explanationBlocks.length > 0 ? (
+              <EditorialSubpart label="Dans cette phrase">
+                <div className="space-y-3">
+                  {understanding.explanationBlocks.map((block) => (
+                    <EditorialExplanation key={block} text={block} />
+                  ))}
+                </div>
+              </EditorialSubpart>
+            ) : null}
 
-        {understanding.whyPoints.length > 0 ? (
-          <div className="space-y-2">
-            <h3 className={VOCAB_SUBTITLE_CLASS}>Pourquoi ?</h3>
-            <div className="space-y-3">
-              {understanding.whyPoints.map((point) => (
-                <VocabShortBlock key={point}>{point}</VocabShortBlock>
-              ))}
-            </div>
+            {understanding.sentence ? (
+              <EditorialSubpart label="Phrase">
+                <RussianSentence text={understanding.sentence} />
+              </EditorialSubpart>
+            ) : null}
           </div>
-        ) : null}
-
-        {understanding.explanationBlocks.length > 0 ? (
-          <div className="space-y-2">
-            <h3 className={VOCAB_SUBTITLE_CLASS}>Dans cette phrase</h3>
-            <div className="space-y-3">
-              {understanding.explanationBlocks.map((block) => (
-                <VocabShortBlock key={block}>{block}</VocabShortBlock>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {understanding.sentence ? (
-          <div className="space-y-2">
-            <h3 className={VOCAB_SUBTITLE_CLASS}>Phrase russe</h3>
-            <p className={VOCAB_BODY_CLASS}>
-              <RussianSentence text={understanding.sentence} />
-            </p>
-          </div>
-        ) : null}
-      </div>
-    </VocabSection>
+        </NarrativeSection>
+      ) : null}
+    </>
   );
 }

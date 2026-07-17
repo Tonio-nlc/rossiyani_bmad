@@ -37,6 +37,20 @@ const ISSUE_CATEGORY_MAP: Record<string, keyof TKnowledgeQualityCategoryScores> 
 
     REFERENCE_INFORMATION_IN_VISIBLE_CONTENT: "reference",
     INVALID_STRESS_MARK: "reference",
+
+    POS_MISMATCH: "pedagogy",
+    INVALID_SECTION: "pedagogy",
+    INVALID_LABEL: "pedagogy",
+    INVALID_NEXT_FORM: "relevance",
+    INVALID_REFERENCE: "reference",
+    INVALID_MORPHOLOGY: "pedagogy",
+
+    TEACHING_MISSING: "pedagogy",
+    ENCYCLOPEDIC_TEACHING: "pedagogy",
+    TEACHING_TOO_LONG: "readability",
+    TEACHING_TOO_MANY_RETENTION: "pedagogy",
+    TEACHING_WHAT_IF_MISSING: "pedagogy",
+    TEACHING_TOO_MANY_WHAT_IF: "pedagogy",
   };
 
 const ERROR_PENALTY = 22;

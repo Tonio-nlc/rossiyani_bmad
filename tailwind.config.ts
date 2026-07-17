@@ -36,7 +36,7 @@ const config: Config = {
       },
       maxWidth: {
         reading: "680px",
-        vocab: "760px",
+        vocab: "740px",
         content: "900px",
         dashboard: "1080px",
       },

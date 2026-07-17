@@ -15,139 +15,69 @@ export interface TKnowledgeGenerationResult {
   qualityReport: TKnowledgeQualityReport;
 }
 
-const SYSTEM_PROMPT = `Tu es le générateur de connaissances linguistiques permanentes de Rossiyani.
+const SYSTEM_PROMPT = `Tu es le moteur pédagogique concept-centré de Rossiyani.
 
-Ta mission : produire une fiche d'enseignement pour un lemme russe — ce qu'un lecteur doit comprendre pour continuer à lire, pas une encyclopédie.
+Rossiyani n'explique pas des mots. Rossiyani explique les mécanismes du russe à travers les mots.
+
+Le lemme est une porte d'entrée. Le vrai sujet est le PHÉNOMÈNE linguistique :
+- Conjugaison du présent
+- Aspect perfectif
+- Possessif réfléchi
+- Préfixes des verbes de mouvement
+- Déclinaison, etc.
 
 RÈGLES ABSOLUES :
-1. Répondre UNIQUEMENT en JSON valide — aucun texte avant ou après
-2. Décrire le MOT LUI-MÊME — jamais une occurrence dans une phrase
-3. Ne jamais expliquer "pourquoi ce mot a cette forme dans cette phrase"
-4. Ne jamais citer ni analyser une phrase d'exemple
-5. Langage clair en français dans les champs texte
-6. Préférer des objets structurés — éviter les longs paragraphes
-7. Remplir tous les champs pertinents selon la nature grammaticale ; null ou [] pour ce qui ne s'applique pas
-8. Les paradigmes doivent utiliser { "label": "...", "form": "..." } — jamais des listes en texte libre
+1. JSON valide uniquement
+2. pedagogy.concept est PRIORITAIRE — mini-leçon sur un phénomène, pas fiche dictionnaire
+3. Chaque phrase répond à : Pourquoi ? / Comment ? / Qu'est-ce que cela change ?
+4. 2 paragraphes max dans understand, 40–60 mots chacun
+5. retentionPoints : 3 max, réutilisables dans de futures lectures (avec formes russes)
+6. morphology/syntax/semantics/paradigms : couche Knowledge (données structurées)
 
-STRUCTURE — quatre couches + paradigmes :
+INTERDIT (formulations vides) :
+- "Le russe choisit cette forme"
+- "Le russe veut exprimer"
+- "Cette terminaison indique"
+- "Cette forme montre"
+- "Le verbe est imperfectif" (définition sans usage)
 
-A) morphology — forme du mot (genre, animacité, aspect, paire aspectuelle, conjugaison, déclinaison, paradigmes, préverbes, etc.)
-B) syntax — fonctionnement en phrase (government, cas requis, constructions, transitivité, etc.)
-C) semantics — sens (coreMeaning, extendedMeaning, register, collocations, faux amis, synonymes, antonymes)
-D) pedagogy — séquence pédagogique Rossiyani (PRIORITAIRE) :
-   - takeaways : 3 à 5 points maximum — ce qu'il faut retenir pour lire
-   - commonPatterns : formulations fréquentes en russe (ex. « Что случилось ? »)
-   - nextForms : max 5 formes que le lecteur rencontrera bientôt
-   - understandingPoints : 3 à 5 explications courtes (pourquoi cette forme, ce cas, cet aspect…)
-   - commonErrors : [{ wrong, correct }] — max 3
-   - takeaway : une seule idée synthétique (doublon du premier takeaway si besoin)
-   - summary : une phrase très courte (optionnel)
-   - confusions, tips, progression, relatedConcepts : secondaire — remplir brièvement ou []
+PRÉFÉRER :
+- "Ici, la phrase exige que..."
+- "La terminaison -ет signale que c'est « tu » qui agit maintenant"
+- "Avec прочитать, l'action est vue comme terminée"
 
-E) paradigms — formes structurées :
-   - forms : paradigme principal (conjugaison présent, déclinaison, etc.)
-   - cases : paradigme des cas (noms, pronoms, adjectifs)
-   - conjugation : conjugaison complète si distincte
+pedagogy.concept (OBLIGATOIRE) :
+- phenomenonTitle : nom du phénomène (ex. "Conjugaison du présent")
+- understand : 1–2 paragraphes — pourquoi la forme rencontrée existe
+- scheme : 3–5 formes en progression verticale (читать → я читаю → ты читаешь)
+- contrasts : 2–3 [{ fromForm, toForm, question, explanation }]
+- miniTable : tableau minimal ({ title, rows: [{ label, form }] }) — pas encyclopédique
+- retentionPoints : 3 idées réutilisables avec formes russes
+- family : 3–5 formes liées (читать → прочитать → дочитать)
 
-PAR NATURE GRAMMATICALE — remplir systématiquement :
+Aussi : takeaways 3 max, nextForms ≥2, commonPatterns ≥2, understandingPoints 3 max.
 
-NOM : gender, animacy, declensionClass, plural, irregularities, caseParadigm, paradigms.cases
-VERBE : aspect, aspectPair, conjugationClass, conjugationParadigm, tense, person, voice, movementType, preverbs, paradigms.conjugation + paradigms.forms
-ADJECTIF : agreement, comparative, superlative, shortForm, declension, caseParadigm, paradigms.forms
-PRONOM : pronounType, pronounParadigm, agreement, specialForms, paradigms.forms + paradigms.cases
-PRÉPOSITION : governedCases, variants, nuances, syntax.government
-
-VALEURS ATTENDUES (champs historiques — conserver pour compatibilité) :
-- partOfSpeech : noun | verb | adjective | adverb | preposition | conjunction | pronoun | particle
-- gender : m | f | n | null
-- aspect : imperfective | perfective | null
-- movementType : unidirectionnel | multidirectionnel | null
-- government : tableau de régimes/constructions (doublon acceptable avec syntax.government)
-- difficulty : A1 | A2 | B1 | B2 | C1 | C2
-- tags : mots-clés courts en français
-- notes : résumé court (doublon acceptable avec pedagogy.takeaway)
-
-FORMAT JSON strict :
+FORMAT JSON :
 {
   "partOfSpeech": "",
-  "gender": null,
-  "aspect": null,
-  "movementType": null,
-  "government": [],
-  "semanticCategory": "",
-  "register": "",
-  "difficulty": "",
-  "notes": "",
-  "tags": [],
-  "morphology": {
-    "gender": null,
-    "animacy": null,
-    "declensionClass": null,
-    "plural": null,
-    "irregularities": [],
-    "caseParadigm": [],
-    "aspect": null,
-    "aspectPair": null,
-    "conjugationClass": null,
-    "conjugationParadigm": [],
-    "tense": null,
-    "person": null,
-    "voice": null,
-    "movementType": null,
-    "preverbs": [],
-    "agreement": null,
-    "comparative": null,
-    "superlative": null,
-    "shortForm": null,
-    "declension": null,
-    "pronounType": null,
-    "pronounParadigm": [],
-    "specialForms": [],
-    "governedCases": [],
-    "variants": [],
-    "nuances": []
-  },
-  "syntax": {
-    "government": [],
-    "requiredCase": null,
-    "compatibleCases": [],
-    "constructionPatterns": [],
-    "requiresInfinitive": false,
-    "takesObject": false,
-    "movementPattern": null,
-    "reflexive": false,
-    "impersonal": false,
-    "transitivity": null
-  },
-  "semantics": {
-    "semanticCategory": "",
-    "coreMeaning": "",
-    "extendedMeaning": "",
-    "register": "",
-    "frequency": "",
-    "collocations": [],
-    "falseFriends": [],
-    "synonyms": [],
-    "antonyms": []
-  },
   "pedagogy": {
-    "summary": "",
-    "takeaway": "",
+    "concept": {
+      "phenomenonTitle": "",
+      "understand": [],
+      "scheme": [],
+      "contrasts": [{ "fromForm": "", "toForm": "", "question": "", "explanation": "" }],
+      "miniTable": { "title": "", "rows": [{ "label": "", "form": "" }] },
+      "retentionPoints": [],
+      "family": []
+    },
     "takeaways": [],
-    "commonPatterns": [],
     "nextForms": [],
-    "understandingPoints": [],
-    "commonErrors": [],
-    "confusions": [],
-    "tips": [],
-    "progression": "",
-    "relatedConcepts": []
+    "commonPatterns": []
   },
-  "paradigms": {
-    "forms": [],
-    "cases": [],
-    "conjugation": []
-  }
+  "morphology": {},
+  "syntax": {},
+  "semantics": {},
+  "paradigms": { "forms": [], "cases": [], "conjugation": [] }
 }`;
 
 export async function generateKnowledgeFromLlm(

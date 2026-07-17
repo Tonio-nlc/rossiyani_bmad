@@ -1,19 +1,21 @@
 import Link from "next/link";
 
+import { buildExampleReason } from "@/lib/design/editorial-voice";
 import {
   VOCAB_BODY_CLASS,
   VOCAB_BODY_SMALL_CLASS,
   VOCAB_EXAMPLE_CARD_CLASS,
-  VOCAB_EXAMPLE_DIVIDER_CLASS,
-  VOCAB_LIST_MAX,
+  VOCAB_EXAMPLE_MAX,
+  VOCAB_TIGHT_GAP_CLASS,
 } from "@/lib/design/vocabulary-composition";
 import { displayRussianGraphemes } from "@/lib/russian/display-russian";
 import type { TLearningCardExample } from "@/types/learning-card";
 
-import { VocabSection } from "./VocabEditorial";
+import { EditorialProse, NarrativeSection } from "./VocabEditorial";
 
 interface ExamplesSectionProps {
   examples: TLearningCardExample[];
+  takeawayHint?: string | null;
 }
 
 function RussianExampleText({ text }: { text: string }) {
@@ -30,7 +32,14 @@ function RussianExampleText({ text }: { text: string }) {
   );
 }
 
-function ExampleCitation({ example }: { example: TLearningCardExample }) {
+function ExampleStory({
+  example,
+  takeawayHint,
+}: {
+  example: TLearningCardExample;
+  takeawayHint?: string | null;
+}) {
+  const reason = buildExampleReason(example.translationFr, takeawayHint ?? null);
   const sourceLabel =
     example.textId && example.textTitle
       ? example.textTitle
@@ -45,19 +54,27 @@ function ExampleCitation({ example }: { example: TLearningCardExample }) {
       </blockquote>
 
       {example.translationFr ? (
-        <>
-          <div className={VOCAB_EXAMPLE_DIVIDER_CLASS} aria-hidden="true" />
-          <figcaption className="space-y-1">
-            <p className="text-[11px] font-bold tracking-[0.08em] text-ink-3 uppercase">
-              Phrase originale
-            </p>
-            <p className={VOCAB_BODY_SMALL_CLASS}>{example.translationFr}</p>
-          </figcaption>
-        </>
+        <div className="mt-3">
+          <p className="text-[11px] font-bold tracking-[0.08em] text-ink-3 uppercase">
+            Explication
+          </p>
+          <p className={`mt-1 ${VOCAB_BODY_SMALL_CLASS}`}>
+            {example.translationFr}
+          </p>
+        </div>
       ) : null}
 
+      <div className="mt-3">
+        <p className="text-[11px] font-bold tracking-[0.08em] text-ink-3 uppercase">
+          Raison du choix
+        </p>
+        <div className="mt-1">
+          <EditorialProse>{reason}</EditorialProse>
+        </div>
+      </div>
+
       {sourceLabel ? (
-        <p className="mt-2 text-[13px] text-ink-3">
+        <p className="mt-3 text-[13px] text-ink-3">
           {example.textId && example.textTitle ? (
             <Link
               href={`/reader/${example.textId}`}
@@ -74,20 +91,31 @@ function ExampleCitation({ example }: { example: TLearningCardExample }) {
   );
 }
 
-export function ExamplesSection({ examples }: ExamplesSectionProps) {
-  const visibleExamples = examples.slice(0, VOCAB_LIST_MAX);
+export function ExamplesSection({
+  examples,
+  takeawayHint = null,
+}: ExamplesSectionProps) {
+  const visibleExamples = examples.slice(0, VOCAB_EXAMPLE_MAX);
 
   if (visibleExamples.length === 0) {
     return null;
   }
 
   return (
-    <VocabSection eyebrow="Pour voir" title="Exemples">
-      <div className="space-y-3">
+    <NarrativeSection
+      question={
+        visibleExamples.length === 1 ? "Exemple" : "Exemples"
+      }
+    >
+      <div className={VOCAB_TIGHT_GAP_CLASS}>
         {visibleExamples.map((example) => (
-          <ExampleCitation key={example.id} example={example} />
+          <ExampleStory
+            key={example.id}
+            example={example}
+            takeawayHint={takeawayHint}
+          />
         ))}
       </div>
-    </VocabSection>
+    </NarrativeSection>
   );
 }

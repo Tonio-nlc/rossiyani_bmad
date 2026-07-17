@@ -122,6 +122,56 @@ export const semanticsSchema = z
   })
   .partial();
 
+const whatIfComparisonSchema = z.object({
+  fromForm: requiredText,
+  toForm: requiredText,
+  explanation: requiredText,
+});
+
+const teachingSchema = z
+  .object({
+    whyNotBaseForm: optionalText,
+    russianExpresses: optionalText,
+    visibleSignal: optionalText,
+    whatIfComparisons: z.array(whatIfComparisonSchema).optional(),
+    retentionPoints: z.array(requiredText).optional(),
+  })
+  .partial();
+
+const conceptContrastSchema = z.object({
+  fromForm: requiredText,
+  toForm: requiredText,
+  question: optionalText,
+  explanation: requiredText,
+});
+
+const conceptMiniTableSchema = z
+  .object({
+    title: requiredText,
+    rows: z.array(
+      z.object({
+        label: requiredText,
+        form: requiredText,
+      }),
+    ),
+  })
+  .nullable()
+  .optional();
+
+const conceptSchema = z
+  .object({
+    phenomenonId: optionalText,
+    phenomenonTitle: requiredText,
+    priority: z.number().nullable().optional(),
+    understand: z.array(requiredText).optional(),
+    scheme: z.array(requiredText).optional(),
+    contrasts: z.array(conceptContrastSchema).optional(),
+    miniTable: conceptMiniTableSchema,
+    retentionPoints: z.array(requiredText).optional(),
+    family: z.array(requiredText).optional(),
+  })
+  .partial();
+
 export const pedagogySchema = z
   .object({
     summary: optionalText,
@@ -135,6 +185,8 @@ export const pedagogySchema = z
     tips: z.array(requiredText).optional(),
     progression: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).nullable().optional(),
     relatedConcepts: z.array(requiredText).optional(),
+    teaching: teachingSchema.optional(),
+    concept: conceptSchema.optional(),
   })
   .partial();
 

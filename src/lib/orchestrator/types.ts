@@ -38,4 +38,8 @@ export interface TWordExplanationResponseExtended {
   confidenceScore: number;
   lemmaId: string;
   explanationCacheId: string;
+  conceptId?: string;
+  conceptSlug?: string;
+  conceptTitle?: string;
+  conceptSummary?: string;
 }

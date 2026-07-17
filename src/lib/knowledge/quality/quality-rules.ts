@@ -1,4 +1,6 @@
 import { PEDAGOGY_LIMITS } from "@/lib/knowledge/pedagogy/importance-ranking";
+import { runIntegrityQualityRules } from "@/lib/knowledge/quality/integrity-rules";
+import { runTeachingQualityRules } from "@/lib/knowledge/quality/teaching-rules";
 import { normalizeRussianWord } from "@/lib/vocabulary/normalize-russian-word";
 import { segmentGraphemes, toNfc } from "@/lib/utils/russian";
 import type { TKnowledgeLlmPayload } from "@/types/knowledge";
@@ -79,11 +81,11 @@ export function runCompletenessRules(
     });
   }
 
-  if (takeaways.length > 5) {
+  if (takeaways.length > 3) {
     issues.push({
       severity: "warning",
       code: "TAKEAWAYS_TOO_MANY",
-      message: `${takeaways.length} takeaways — maximum recommandé : 5`,
+      message: `${takeaways.length} takeaways — maximum recommandé : 3`,
       field: "pedagogy.takeaways",
     });
   }
@@ -706,5 +708,7 @@ export function runAllQualityRules(
     ...runAccentRules(payload, lemmaForm),
     ...runFrenchStyleRules(payload),
     ...runSizeLimitRules(payload),
+    ...runIntegrityQualityRules(payload),
+    ...runTeachingQualityRules(payload),
   ];
 }

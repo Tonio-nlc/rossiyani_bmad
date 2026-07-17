@@ -1,18 +1,19 @@
 import { BackLink } from "@/components/ui/BackLink";
 import { displayRussianGraphemes } from "@/lib/russian/display-russian";
+import { VOCAB_COLUMN_CLASS } from "@/lib/design/vocabulary-composition";
 import {
   PAGE_BODY_SHELL_CLASS,
   PAGE_HEADER_EYEBROW_CLASS,
   PAGE_HEADER_SHELL_CLASS,
   PAGE_HEADER_SUBTITLE_CLASS,
   PAGE_HEADER_TITLE_CLASS,
-  pageBodyWidthClass,
 } from "@/lib/design/rhythm";
 import type { TLearningCardHeader } from "@/types/learning-card";
 import { cn } from "@/lib/utils";
 
 interface VocabularyEntryHeaderProps {
   header: TLearningCardHeader;
+  phenomenonTitle?: string | null;
   returnHref: string;
   returnLabel: string;
 }
@@ -33,22 +34,19 @@ function HeaderLemma({ lemma }: { lemma: string }) {
 
 export function VocabularyEntryHeader({
   header,
+  phenomenonTitle,
   returnHref,
   returnLabel,
 }: VocabularyEntryHeaderProps) {
   return (
     <header className={cn(PAGE_HEADER_SHELL_CLASS, "py-6 md:py-6")}>
-      <div
-        className={cn(
-          PAGE_BODY_SHELL_CLASS,
-          "pb-0",
-          pageBodyWidthClass("content"),
-        )}
-      >
+      <div className={cn(PAGE_BODY_SHELL_CLASS, "pb-0", VOCAB_COLUMN_CLASS)}>
         <div className="mb-4">
           <BackLink href={returnHref} label={returnLabel} />
         </div>
-        <p className={PAGE_HEADER_EYEBROW_CLASS}>VOCABULAIRE</p>
+        <p className={PAGE_HEADER_EYEBROW_CLASS}>
+          {phenomenonTitle ?? "VOCABULAIRE"}
+        </p>
         <h1 className={cn(PAGE_HEADER_TITLE_CLASS, "mt-3")}>
           <HeaderLemma lemma={header.lemma} />
         </h1>

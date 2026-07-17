@@ -1,3 +1,4 @@
+import { resolveReaderConceptFromSignals } from "@/lib/knowledge/concept-graph";
 import {
   getCachedExplanation,
   incrementUsageCount,
@@ -32,6 +33,29 @@ function mapCacheToResponse(
   };
 }
 
+function attachConceptResolution(
+  response: TWordExplanationResponseExtended,
+): TWordExplanationResponseExtended {
+  const concept = resolveReaderConceptFromSignals({
+    surface: response.surface,
+    lemma: response.lemma,
+    explanation: response.explanation,
+    suffixExplanation: response.suffixExplanation,
+  });
+
+  if (!concept) {
+    return response;
+  }
+
+  return {
+    ...response,
+    conceptId: concept.conceptId,
+    conceptSlug: concept.conceptSlug,
+    conceptTitle: concept.conceptTitle,
+    conceptSummary: concept.conceptSummary,
+  };
+}
+
 export async function explainWord(
   request: TWordExplanationRequest,
 ): Promise<TWordExplanationResponseExtended> {
@@ -40,7 +64,9 @@ export async function explainWord(
   const cached = await getCachedExplanation(contextHash);
 
   if (cached) {
-    const response = mapCacheToResponse(cached, surface);
+    const response = attachConceptResolution(
+      mapCacheToResponse(cached, surface),
+    );
 
     void incrementUsageCount(cached.id, cached.usageCount).catch(() => undefined);
 
@@ -57,7 +83,7 @@ export async function explainWord(
     payload: llmPayload,
   });
 
-  return {
+  return attachConceptResolution({
     surface,
     lemma: llmPayload.lemma,
     lemmaStressed: llmPayload.lemmaStressed,
@@ -71,7 +97,7 @@ export async function explainWord(
     confidenceScore: 0.5,
     lemmaId,
     explanationCacheId,
-  };
+  });
 }
 
 export type { TWordExplanationRequest, TWordExplanationResponseExtended };

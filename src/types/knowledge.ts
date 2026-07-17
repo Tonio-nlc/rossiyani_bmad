@@ -105,6 +105,44 @@ export interface TKnowledgeSemantics {
   antonyms?: string[];
 }
 
+export interface TKnowledgeWhatIfComparison {
+  fromForm: string;
+  toForm: string;
+  explanation: string;
+}
+
+export interface TKnowledgeConceptContrast {
+  fromForm: string;
+  toForm: string;
+  question?: string | null;
+  explanation: string;
+}
+
+export interface TKnowledgeConceptMiniTable {
+  title: string;
+  rows: Array<{ label: string; form: string }>;
+}
+
+export interface TKnowledgeConcept {
+  phenomenonId?: string | null;
+  phenomenonTitle: string;
+  priority?: number | null;
+  understand?: string[];
+  scheme?: string[];
+  contrasts?: TKnowledgeConceptContrast[];
+  miniTable?: TKnowledgeConceptMiniTable | null;
+  retentionPoints?: string[];
+  family?: string[];
+}
+
+export interface TKnowledgeTeaching {
+  whyNotBaseForm?: string | null;
+  russianExpresses?: string | null;
+  visibleSignal?: string | null;
+  whatIfComparisons?: TKnowledgeWhatIfComparison[];
+  retentionPoints?: string[];
+}
+
 export interface TKnowledgePedagogy {
   summary?: string | null;
   takeaway?: string | null;
@@ -117,6 +155,8 @@ export interface TKnowledgePedagogy {
   tips?: string[];
   progression?: TKnowledgeDifficulty | string | null;
   relatedConcepts?: string[];
+  teaching?: TKnowledgeTeaching;
+  concept?: TKnowledgeConcept;
 }
 
 export interface TKnowledgeParadigms {
