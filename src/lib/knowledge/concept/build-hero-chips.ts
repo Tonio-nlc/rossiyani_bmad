@@ -1,4 +1,5 @@
 import { stripTrailingPunctuationForDisplay } from "@/lib/utils/russian";
+import { formatAspectLabel } from "@/lib/vocabulary/format-linguistic-labels";
 import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-linguistic-context";
 import type { TVocabularyContextEncounter, TVocabularyLinguisticProfile } from "@/types/vocabulary";
 
@@ -7,8 +8,8 @@ const FORM_CHIP_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
   { pattern: /\bpassé\b/i, label: "Passé" },
   { pattern: /\bfutur\b/i, label: "Futur" },
   { pattern: /\bimparfait\b/i, label: "Imparfait" },
-  { pattern: /\bperfectif\b/i, label: "Perfectif" },
-  { pattern: /\bimperfectif\b/i, label: "Imperfectif" },
+  { pattern: /\bperfectif|perfective|parfaitif\b/i, label: "Perfectif" },
+  { pattern: /\bimperfectif|imperfective|imparfaitif\b/i, label: "Imperfectif" },
   { pattern: /\b1[re]+(?:\s+personne)?\b/i, label: "1re personne" },
   { pattern: /\b2[e]?\s+personne\b/i, label: "2e personne" },
   { pattern: /\b3[e]?\s+personne\b/i, label: "3e personne" },
@@ -25,8 +26,38 @@ const FORM_CHIP_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
   { pattern: /\bneutre\b/i, label: "Neutre" },
 ];
 
-function uniqueNonEmpty(values: string[]): string[] {
-  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+function uniqueNonEmptyCaseInsensitive(values: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const value of values) {
+    const trimmed = value.trim();
+
+    if (!trimmed) {
+      continue;
+    }
+
+    const key = trimmed.toLowerCase();
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    result.push(trimmed);
+  }
+
+  return result;
+}
+
+function normalizeChipLabel(value: string): string {
+  const aspectLabel = formatAspectLabel(value);
+
+  if (aspectLabel) {
+    return aspectLabel;
+  }
+
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function parseEncounterChips(encounter: TVocabularyContextEncounter | null): string[] {
@@ -52,15 +83,27 @@ export function buildHeroChips(
   analysis: TLinguisticAnalysis,
 ): string[] {
   const fromEncounter = parseEncounterChips(encounter);
-  const fromMorphology = uniqueNonEmpty([
+  const aspectChip = formatAspectLabel(
+    profile.morphology.aspect ?? profile.aspect,
+  );
+  const fromMorphology = [
     profile.morphology.tense ?? "",
     profile.morphology.person ?? "",
-    profile.morphology.aspect ?? profile.aspect ?? "",
+    aspectChip ?? "",
     profile.morphology.gender ?? profile.gender ?? "",
-  ]).map((value) => value.charAt(0).toUpperCase() + value.slice(1));
+  ]
+    .filter(Boolean)
+    .map((value) => normalizeChipLabel(value));
 
-  return uniqueNonEmpty([...fromEncounter, ...fromMorphology, ...analysis.morphSignals])
-    .slice(0, 6);
+  const fromSignals = analysis.morphSignals.map((signal) =>
+    normalizeChipLabel(signal),
+  );
+
+  return uniqueNonEmptyCaseInsensitive([
+    ...fromEncounter,
+    ...fromMorphology,
+    ...fromSignals,
+  ]).slice(0, 6);
 }
 
 export function normalizeEncounterSurface(

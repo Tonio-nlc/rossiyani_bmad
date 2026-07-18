@@ -1,3 +1,5 @@
+import { formatAspectLabel } from "@/lib/vocabulary/format-linguistic-labels";
+
 const SENTENCE_SPLIT_RE = /(?<=[.!?…])\s+/u;
 
 const VOICE_REPLACEMENTS: Array<[RegExp, string]> = [
@@ -121,7 +123,7 @@ export function selectEditorialChips(
   const merged = [...formChips, ...traitChips]
     .map((chip) => chip.trim())
     .filter(Boolean)
-    .map((chip) => chip.charAt(0).toUpperCase() + chip.slice(1));
+    .map((chip) => formatAspectLabel(chip) ?? chip.charAt(0).toUpperCase() + chip.slice(1));
 
   const seen = new Set<string>();
   const selected: string[] = [];

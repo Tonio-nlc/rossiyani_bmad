@@ -3,71 +3,86 @@
 import { useState } from "react";
 
 import type { TConceptExplorerView } from "@/types/concept-lesson";
+import type { TLearningCardExample } from "@/types/learning-card";
 
 import {
   VOCAB_BLOCK_GAP_CLASS,
-  VOCAB_BODY_SMALL_CLASS,
-  VOCAB_EYEBROW_CLASS,
   VOCAB_NARRATIVE_GAP_CLASS,
-  VOCAB_TITLE_CLASS,
   VOCAB_TITLE_TO_CONTENT_CLASS,
 } from "@/lib/design/vocabulary-composition";
 import { cn } from "@/lib/utils";
 
-import { ConceptSchemeDiagram } from "./ConceptSchemeDiagram";
-import { VocabExploreBlock, VocabMutedLabel } from "./VocabEditorial";
+import { VocabExploreBlock } from "./VocabEditorial";
+
+/** Blocs déjà couverts par TeachingScenarioView / ConceptSecondarySection. */
+const DUPLICATE_REFERENCE_TITLES = new Set([
+  "À retenir",
+  "Erreurs fréquentes",
+  "Concepts liés",
+  "Résumé",
+  "Progression",
+]);
+
+/**
+ * Formes fléchies / conjugaisons issues du LLM (linguistic_knowledge.paradigms).
+ * Volontairement non rendues : morphologie russe LLM non fiable.
+ * Les données restent en base ; on re-sourcera plus tard depuis une ressource déterministe.
+ */
+const LLM_INFLECTED_FORM_TITLES = new Set([
+  "Paradigme principal",
+  "Formes principales",
+  "Conjugaison",
+  "Type de conjugaison",
+  "Paradigme",
+  "Paradigme des cas",
+  "Formes particulières",
+  "Cas",
+]);
 
 interface ConceptExplorerSectionProps {
   explorer: TConceptExplorerView;
+  examples?: TLearningCardExample[];
 }
 
 export function ConceptExplorerSection({
   explorer,
+  examples = [],
 }: ConceptExplorerSectionProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const schemeNodes = explorer.visualModel.nodes ?? [];
+  const referenceBlocks = explorer.reference.blocks.filter(
+    (block) =>
+      !DUPLICATE_REFERENCE_TITLES.has(block.title) &&
+      !LLM_INFLECTED_FORM_TITLES.has(block.title),
+  );
+
+  const exampleItems = examples
+    .map((example) =>
+      example.translationFr
+        ? `${example.sentenceRu} — ${example.translationFr}`
+        : example.sentenceRu,
+    )
+    .filter(Boolean);
+
+  const hasContent =
+    referenceBlocks.length > 0 ||
+    explorer.relatedLemmas.length > 0 ||
+    exampleItems.length > 0;
+
+  if (!hasContent) {
+    return null;
+  }
 
   return (
     <section className={VOCAB_NARRATIVE_GAP_CLASS}>
-      <header>
-        <p className={VOCAB_EYEBROW_CLASS}>Explorer</p>
-        <h2 className={VOCAB_TITLE_CLASS}>{explorer.title}</h2>
-        <p className={`mt-2 ${VOCAB_BODY_SMALL_CLASS}`}>{explorer.summary}</p>
-      </header>
-
       <div className={cn(VOCAB_TITLE_TO_CONTENT_CLASS, VOCAB_BLOCK_GAP_CLASS)}>
-        <VocabMutedLabel>Modèle mental</VocabMutedLabel>
-        <p className="text-[17px] leading-snug text-ink-2">{explorer.mentalModel}</p>
-
-        {schemeNodes.length >= 2 ? (
-          <ConceptSchemeDiagram scheme={{ nodes: schemeNodes }} />
-        ) : null}
-
-        {explorer.examples.length > 0 ? (
-          <VocabExploreBlock title="Exemples" items={explorer.examples} />
-        ) : null}
-
-        {explorer.connectedConcepts.length > 0 ? (
-          <VocabExploreBlock
-            title="Concepts liés"
-            items={explorer.connectedConcepts.map(
-              (concept) => `${concept.title} — ${concept.summary}`,
-            )}
-          />
-        ) : null}
-
-        {explorer.relatedLemmas.length > 0 ? (
-          <VocabExploreBlock title="Lemmes liés" items={explorer.relatedLemmas} />
-        ) : null}
-
         <button
           type="button"
           onClick={() => setIsOpen((open) => !open)}
           className="flex w-full items-center justify-between rounded-lg border border-border/80 bg-bg/40 px-4 py-3 text-left text-[15px] font-medium text-ink-2 transition-colors hover:border-accent-border hover:text-ink"
           aria-expanded={isOpen}
         >
-          <span>{isOpen ? "▲" : "▼"} Paradigmes, collocations, notes</span>
+          <span>{isOpen ? "▲" : "▼"} Approfondir</span>
         </button>
 
         <div
@@ -78,7 +93,7 @@ export function ConceptExplorerSection({
         >
           <div className="overflow-hidden">
             <div className="space-y-4 pt-4">
-              {explorer.reference.blocks.map((block) => (
+              {referenceBlocks.map((block) => (
                 <VocabExploreBlock
                   key={block.title}
                   title={block.title}
@@ -86,17 +101,14 @@ export function ConceptExplorerSection({
                 />
               ))}
 
-              {explorer.commonMistakes.length > 0 ? (
-                <VocabExploreBlock
-                  title="Erreurs fréquentes"
-                  items={explorer.commonMistakes}
-                />
+              {exampleItems.length > 0 ? (
+                <VocabExploreBlock title="Exemples" items={exampleItems} />
               ) : null}
 
-              {explorer.teachingPath.length > 0 ? (
+              {explorer.relatedLemmas.length > 0 ? (
                 <VocabExploreBlock
-                  title="Progression"
-                  items={explorer.teachingPath}
+                  title="Lemmes liés"
+                  items={explorer.relatedLemmas}
                 />
               ) : null}
             </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { CARD_SHELL_CLASS } from "@/components/ui/card-styles";
+import { TextWithRussianDisplay } from "@/components/vocabulary/VocabEditorial";
 import { formatReviewLabel } from "@/lib/vocabulary/format-review-label";
 import type { TVocabularyListItem } from "@/types/vocabulary";
 import { cn } from "@/lib/utils";
@@ -19,7 +20,9 @@ export function WordCard({ word, returnQuery = "" }: WordCardProps) {
         "block hover:shadow-sm",
       )}
     >
-      <p className="font-serif text-xl text-ink">{word.lemma}</p>
+      <p className="font-serif text-xl text-ink">
+        <TextWithRussianDisplay text={word.lemma} />
+      </p>
       <p className="mt-1 text-base text-ink-2">
         {word.translation || "Traduction indisponible"}
       </p>

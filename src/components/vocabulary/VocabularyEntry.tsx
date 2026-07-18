@@ -16,20 +16,16 @@ export function VocabularyEntry({
   returnHref,
   returnLabel,
 }: VocabularyEntryProps) {
-  const { conceptLesson } = entry;
-
   return (
     <article>
       <VocabularyEntryHeader
-        header={conceptLesson.header}
-        phenomenonTitle={conceptLesson.hero.phenomenon.title}
         returnHref={returnHref}
         returnLabel={returnLabel}
       />
 
-      <div className="bg-surface px-6 pb-12 pt-8 md:px-10">
+      <div className="bg-surface px-6 pb-12 pt-6 md:px-10">
         <div className={VOCAB_COLUMN_CLASS}>
-          <ConceptLessonView lesson={conceptLesson} />
+          <ConceptLessonView lesson={entry.conceptLesson} />
         </div>
       </div>
     </article>

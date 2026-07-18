@@ -3,16 +3,17 @@ import type { TConceptLesson } from "@/types/concept-lesson";
 import { ConceptExplorerSection } from "./ConceptExplorerSection";
 import { ConceptHeroSection } from "./ConceptHeroSection";
 import { ConceptSecondarySection } from "./ConceptSecondarySection";
-import { ExamplesSection } from "./ExamplesSection";
 import { TeachingScenarioView } from "./TeachingScenarioView";
 
 interface ConceptLessonViewProps {
   lesson: TConceptLesson;
 }
 
+/**
+ * Fiche concept-centrée uniquement :
+ * Hero → Teaching Scenario → Concepts liés → Approfondir (replié).
+ */
 export function ConceptLessonView({ lesson }: ConceptLessonViewProps) {
-  const takeawayHint = lesson.teachingScenario.memoryAnchor;
-
   return (
     <>
       <ConceptHeroSection hero={lesson.hero} />
@@ -21,9 +22,10 @@ export function ConceptLessonView({ lesson }: ConceptLessonViewProps) {
 
       <ConceptSecondarySection concepts={lesson.secondaryConcepts} />
 
-      <ExamplesSection examples={lesson.examples} takeawayHint={takeawayHint} />
-
-      <ConceptExplorerSection explorer={lesson.conceptExplorer} />
+      <ConceptExplorerSection
+        explorer={lesson.conceptExplorer}
+        examples={lesson.examples}
+      />
     </>
   );
 }

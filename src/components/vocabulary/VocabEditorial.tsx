@@ -22,6 +22,35 @@ import {
 import { displayRussianGraphemes } from "@/lib/russian/display-russian";
 import { cn } from "@/lib/utils";
 
+const CYRILLIC_BASE_RE = /[\u0400-\u04FF]/;
+
+/**
+ * Affiche une chaîne (FR, RU ou mixte) via le pipeline grapheme-aware du hero.
+ * Les graphèmes cyrilliques passent par displayRussianGraphemes — accents NFC sûrs.
+ */
+export function TextWithRussianDisplay({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
+  const graphemes = displayRussianGraphemes(text);
+
+  return (
+    <span className={className}>
+      {graphemes.map((grapheme, index) => (
+        <span
+          key={`${index}-${grapheme}`}
+          className={cn("inline", CYRILLIC_BASE_RE.test(grapheme) && "font-russian")}
+        >
+          {grapheme}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export function NarrativeSection({
   question,
   children,
@@ -33,7 +62,9 @@ export function NarrativeSection({
 }) {
   return (
     <section className={cn(VOCAB_NARRATIVE_GAP_CLASS, className)}>
-      <h2 className={VOCAB_NARRATIVE_QUESTION_CLASS}>{question}</h2>
+      <h2 className={VOCAB_NARRATIVE_QUESTION_CLASS}>
+        <TextWithRussianDisplay text={question} />
+      </h2>
       <div className={cn(VOCAB_TITLE_TO_CONTENT_CLASS, VOCAB_BLOCK_GAP_CLASS)}>
         {children}
       </div>
@@ -71,17 +102,7 @@ function RussianGraphemeText({
   text: string;
   className?: string;
 }) {
-  const graphemes = displayRussianGraphemes(text);
-
-  return (
-    <span className={cn("font-russian", className)}>
-      {graphemes.map((grapheme, index) => (
-        <span key={`${index}-${grapheme}`} className="inline">
-          {grapheme}
-        </span>
-      ))}
-    </span>
-  );
+  return <TextWithRussianDisplay text={text} className={cn("font-russian", className)} />;
 }
 
 export function VocabRussianDisplay({
@@ -127,7 +148,7 @@ export function EditorialProse({ children }: { children: ReactNode }) {
     <div className={VOCAB_TIGHT_GAP_CLASS}>
       {blocks.map((block) => (
         <p key={block} className={VOCAB_BODY_CLASS}>
-          {block}
+          <TextWithRussianDisplay text={block} />
         </p>
       ))}
     </div>
@@ -141,17 +162,15 @@ export function EditorialExplanation({ text }: { text: string }) {
     <div className={VOCAB_TIGHT_GAP_CLASS}>
       {steps.map((step) => (
         <p key={step} className={VOCAB_BODY_CLASS}>
-          {step}
+          <TextWithRussianDisplay text={step} />
         </p>
       ))}
     </div>
   );
 }
 
-const CYRILLIC_RE = /[\u0400-\u04FF]/;
-
 function ExploreItem({ item }: { item: string }) {
-  if (CYRILLIC_RE.test(item)) {
+  if (CYRILLIC_BASE_RE.test(item)) {
     return (
       <RussianGraphemeText text={item} className={VOCAB_BODY_SMALL_CLASS} />
     );

@@ -16,8 +16,12 @@ const GENDER_LABELS: Record<string, string> = {
 };
 
 const ASPECT_LABELS: Record<string, string> = {
-  imperfective: "Imparfaitif",
-  perfective: "Parfaitif",
+  imperfective: "Imperfectif",
+  perfective: "Perfectif",
+  imperfectif: "Imperfectif",
+  perfectif: "Perfectif",
+  imparfaitif: "Imperfectif",
+  parfaitif: "Perfectif",
 };
 
 export function formatPosLabel(pos: string | null | undefined): string | null {
@@ -45,7 +49,9 @@ export function formatAspectLabel(
     return null;
   }
 
-  return ASPECT_LABELS[aspect] ?? aspect;
+  const key = aspect.trim().toLowerCase();
+
+  return ASPECT_LABELS[key] ?? null;
 }
 
 const MOVEMENT_LABELS: Record<string, string> = {

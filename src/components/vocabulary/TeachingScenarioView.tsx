@@ -10,7 +10,11 @@ import {
 import { displayRussianGraphemes } from "@/lib/russian/display-russian";
 
 import { ConceptSchemeDiagram } from "./ConceptSchemeDiagram";
-import { EditorialProse, NarrativeSection } from "./VocabEditorial";
+import {
+  EditorialProse,
+  NarrativeSection,
+  TextWithRussianDisplay,
+} from "./VocabEditorial";
 
 function RussianForm({ text }: { text: string }) {
   const graphemes = displayRussianGraphemes(text);
@@ -39,7 +43,7 @@ export function TeachingScenarioView({ scenario }: TeachingScenarioViewProps) {
     <>
       <section className="border-y border-border/70 py-5">
         <p className="font-serif text-[1.375rem] leading-snug text-ink md:text-[1.5rem]">
-          {scenario.hook}
+          <TextWithRussianDisplay text={scenario.hook} />
         </p>
       </section>
 
@@ -85,7 +89,9 @@ export function TeachingScenarioView({ scenario }: TeachingScenarioViewProps) {
                   <RussianForm text={item.toForm} />
                 </div>
                 {item.explanation ? (
-                  <p className={`mt-2 ${VOCAB_BODY_CLASS}`}>{item.explanation}</p>
+                  <p className={`mt-2 ${VOCAB_BODY_CLASS}`}>
+                    <TextWithRussianDisplay text={item.explanation} />
+                  </p>
                 ) : null}
               </div>
             ))}
@@ -94,7 +100,9 @@ export function TeachingScenarioView({ scenario }: TeachingScenarioViewProps) {
       ) : null}
 
       <NarrativeSection question="Erreur fréquente">
-        <p className={VOCAB_BODY_CLASS}>{scenario.commonMistake}</p>
+        <p className={VOCAB_BODY_CLASS}>
+          <TextWithRussianDisplay text={scenario.commonMistake} />
+        </p>
       </NarrativeSection>
 
       {scenario.reuse.length > 0 ? (
@@ -102,7 +110,7 @@ export function TeachingScenarioView({ scenario }: TeachingScenarioViewProps) {
           <ul className="space-y-2">
             {scenario.reuse.map((item) => (
               <li key={item} className={VOCAB_BODY_CLASS}>
-                {item}
+                <TextWithRussianDisplay text={item} />
               </li>
             ))}
           </ul>
@@ -112,7 +120,7 @@ export function TeachingScenarioView({ scenario }: TeachingScenarioViewProps) {
       <NarrativeSection question="À retenir">
         <div className={`${VOCAB_CARD_CLASS} px-4 py-4`}>
           <p className="text-[17px] leading-snug text-ink-2">
-            {scenario.memoryAnchor}
+            <TextWithRussianDisplay text={scenario.memoryAnchor} />
           </p>
         </div>
       </NarrativeSection>
