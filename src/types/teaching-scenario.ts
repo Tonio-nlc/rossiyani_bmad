@@ -16,34 +16,58 @@ export interface TTeachingNextConcept {
   title: string;
 }
 
-/** Contenu officiel d'enseignement — indépendant du lemme et du LLM */
+/**
+ * Contenu officiel d'enseignement — géométrie variable (RC-026+).
+ *
+ * Obligatoires : fact, contrast, memoryAnchor.
+ * Conditionnels : omis s'il n'y a rien de solide à dire.
+ *
+ * Alias legacy (seeds) : explanation → fact, comparison → contrast.
+ */
 export interface TTeachingScenarioContent {
-  hook: string;
-  hookWithSurface?: string;
-  question: string;
-  intuition: string;
-  visual: TTeachingVisual;
-  explanation: string[];
-  comparison: TTeachingComparison[];
-  commonMistake: string;
-  reuse: string[];
+  /** LE fait — une phrase concrète et nommée (ex. "-ешь = 2e personne…"). */
+  fact?: string;
+  /** Contraste minimal, un seul axe. */
+  contrast?: TTeachingComparison[];
+  /** Reformule le fact — pas une métaphore neuve. */
   memoryAnchor: string;
+
+  hook?: string;
+  hookWithSurface?: string;
+  /** Titre / question d'ouverture (optionnel). */
+  question?: string;
+  intuition?: string;
+  visual?: TTeachingVisual | null;
+  commonMistake?: string;
+  reuse?: string[];
+
+  /**
+   * @deprecated Prefer `fact`. Kept for seed compatibility until seeds are rewritten.
+   */
+  explanation?: string[];
+  /**
+   * @deprecated Prefer `contrast`. Kept for seed compatibility until seeds are rewritten.
+   */
+  comparison?: TTeachingComparison[];
 }
 
-/** Scénario complet prêt pour l'affichage */
+/**
+ * Scénario prêt pour l'affichage — slots absents = non rendus.
+ */
 export interface TTeachingScenario {
   conceptId: string;
   conceptSlug: string;
   conceptTitle: string;
-  hook: string;
-  question: string;
-  intuition: string;
-  visual: TTeachingVisual;
-  explanation: string[];
-  comparison: TTeachingComparison[];
-  commonMistake: string;
-  reuse: string[];
+  encounteredForm: string | null;
+  fact: string;
+  contrast: TTeachingComparison[];
   memoryAnchor: string;
+  hook?: string;
+  question?: string;
+  intuition?: string;
+  visual?: TTeachingVisual | null;
+  commonMistake?: string;
+  reuse?: string[];
   nextConcept: TTeachingNextConcept | null;
 }
 

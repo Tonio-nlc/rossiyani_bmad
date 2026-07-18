@@ -3,8 +3,14 @@
  * Échelle verticale : 8 · 16 · 24 · 40 px uniquement.
  */
 
-/** Colonne de lecture — ~740px */
+/** Colonne de lecture — ~740px (parallèle à LESSON_COLUMN_CLASS) */
 export const VOCAB_COLUMN_CLASS = "mx-auto w-full max-w-vocab";
+
+/** Shell page — padding + surface sur la colonne centrée */
+export const VOCAB_PAGE_SHELL_CLASS = "bg-surface px-6 pb-12 pt-6 md:px-10";
+
+/** Padding horizontal aligné sur la colonne (BackLink / chrome) */
+export const VOCAB_COLUMN_GUTTER_CLASS = "px-6 md:px-10";
 
 /* ── Rythme vertical ─────────────────────────────────────── */
 

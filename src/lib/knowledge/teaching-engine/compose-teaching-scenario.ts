@@ -5,34 +5,57 @@ import type {
   TTeachingScenarioContent,
 } from "@/types/teaching-scenario";
 
+import { normalizeTeachingScenarioContent } from "./normalize-teaching-scenario";
 import { SEED_TEACHING_SCENARIOS } from "./seed-teaching-scenarios";
 
+function hasCyrillic(text: string): boolean {
+  return /[а-яёА-ЯЁіІїЇєЄґҐ]/.test(text);
+}
+
+/**
+ * Fallback concept → scénario minimal (pas de meublage).
+ * Slots conditionnels omis s'ils n'apportent rien de solide.
+ */
 function buildScenarioFromConcept(
   concept: TLinguisticConcept,
 ): TTeachingScenarioContent {
   const canonical = concept.canonicalExplanation;
+  const fact =
+    canonical.understand.find((item) => item.trim())?.trim() ??
+    concept.coreIdea.trim();
+
+  const contrast = canonical.contrasts.map((item) => ({
+    fromForm: item.fromForm,
+    toForm: item.toForm,
+    explanation: item.explanation,
+  }));
+
+  const rawNodes = concept.visualModel.nodes ?? canonical.scheme ?? [];
+  const cyrillicNodes = rawNodes.filter((node) => hasCyrillic(node));
+  const visual =
+    cyrillicNodes.length >= 3
+      ? {
+          nodes: rawNodes,
+          layout:
+            concept.visualModel.type === "comparison"
+              ? ("comparison" as const)
+              : ("vertical" as const),
+          caption: concept.visualModel.caption,
+        }
+      : undefined;
+
+  const commonMistake = concept.commonMistakes[0]?.trim();
+  const retention = canonical.retentionPoints
+    .map((item) => item.trim())
+    .find(Boolean);
 
   return {
-    hook: concept.whyItExists,
-    question: `Pourquoi ${concept.title.toLowerCase()} ?`,
-    intuition: concept.mentalModel,
-    visual: {
-      nodes: concept.visualModel.nodes ?? canonical.scheme,
-      layout:
-        concept.visualModel.type === "comparison"
-          ? "comparison"
-          : "vertical",
-      caption: concept.visualModel.caption,
-    },
-    explanation: canonical.understand.slice(0, 2),
-    comparison: canonical.contrasts.map((item) => ({
-      fromForm: item.fromForm,
-      toForm: item.toForm,
-      explanation: item.explanation,
-    })),
-    commonMistake: concept.commonMistakes[0] ?? "",
-    reuse: canonical.retentionPoints.slice(0, 2),
-    memoryAnchor: concept.mentalModel,
+    fact,
+    contrast: contrast.length > 0 ? contrast : undefined,
+    memoryAnchor: retention && !/\bpense à\b/i.test(retention) ? retention : fact,
+    visual,
+    commonMistake: commonMistake || undefined,
+    reuse: canonical.retentionPoints.slice(0, 2).filter(Boolean),
   };
 }
 
@@ -55,12 +78,14 @@ export function getTeachingScenarioContent(
 function personalizeHook(
   content: TTeachingScenarioContent,
   surface: string | null,
-): string {
-  if (surface && content.hookWithSurface) {
+): string | undefined {
+  if (surface && content.hookWithSurface?.trim()) {
     return content.hookWithSurface.replace("{surface}", surface);
   }
 
-  return content.hook;
+  const hook = content.hook?.trim();
+
+  return hook || undefined;
 }
 
 export interface TComposeTeachingScenarioInput {
@@ -78,19 +103,26 @@ export function composeTeachingScenario(
     return null;
   }
 
+  const normalized = normalizeTeachingScenarioContent(content);
+
+  if (!normalized.fact || normalized.contrast.length === 0) {
+    return null;
+  }
+
   return {
     conceptId: input.concept.id,
     conceptSlug: input.concept.slug,
     conceptTitle: input.concept.title,
+    encounteredForm: input.encounteredForm?.trim() || null,
+    fact: normalized.fact,
+    contrast: normalized.contrast,
+    memoryAnchor: normalized.memoryAnchor,
     hook: personalizeHook(content, input.encounteredForm ?? null),
-    question: content.question,
-    intuition: content.intuition,
-    visual: content.visual,
-    explanation: content.explanation.slice(0, 2),
-    comparison: content.comparison,
-    commonMistake: content.commonMistake,
-    reuse: content.reuse,
-    memoryAnchor: content.memoryAnchor,
+    question: normalized.question,
+    intuition: normalized.intuition,
+    visual: normalized.visual ?? undefined,
+    commonMistake: normalized.commonMistake,
+    reuse: normalized.reuse,
     nextConcept: input.nextConcept ?? null,
   };
 }

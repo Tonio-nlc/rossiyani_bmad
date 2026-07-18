@@ -30,7 +30,7 @@ for (const concept of ENRICHED_CONCEPTS) {
 
   if (!report.valid && process.env.NODE_ENV !== "production") {
     console.warn(
-      `[Teaching Engine] Concept incomplet: ${concept.id}`,
+      `[Teaching Engine] Scénario rejeté (anti-meublage): ${concept.id}`,
       report.issues,
     );
   }

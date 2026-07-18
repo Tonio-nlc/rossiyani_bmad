@@ -34,24 +34,35 @@ interface TeachingScenarioViewProps {
   scenario: TTeachingScenario;
 }
 
+/**
+ * Rend un scénario à géométrie variable — aucun titre orphelin pour un slot absent.
+ */
 export function TeachingScenarioView({ scenario }: TeachingScenarioViewProps) {
-  const visualScheme = {
-    nodes: scenario.visual.nodes,
-  };
+  const visualNodes = scenario.visual?.nodes?.filter((node) => node.trim()) ?? [];
+  const hasVisual = visualNodes.length >= 2;
+  const reuse = scenario.reuse?.filter((item) => item.trim()) ?? [];
+  const factTitle =
+    scenario.question && !scenario.intuition
+      ? scenario.question
+      : "Ce qu'il faut comprendre";
 
   return (
     <>
-      <section className="border-y border-border/70 py-5">
-        <p className="font-serif text-[1.375rem] leading-snug text-ink md:text-[1.5rem]">
-          <TextWithRussianDisplay text={scenario.hook} />
-        </p>
-      </section>
+      {scenario.hook ? (
+        <section className="border-y border-border/70 py-5">
+          <p className="font-serif text-[1.375rem] leading-snug text-ink md:text-[1.5rem]">
+            <TextWithRussianDisplay text={scenario.hook} />
+          </p>
+        </section>
+      ) : null}
 
-      <NarrativeSection question={scenario.question}>
-        <EditorialProse>{scenario.intuition}</EditorialProse>
-      </NarrativeSection>
+      {scenario.intuition ? (
+        <NarrativeSection question={scenario.question ?? "Ce qu'il faut sentir"}>
+          <EditorialProse>{scenario.intuition}</EditorialProse>
+        </NarrativeSection>
+      ) : null}
 
-      {visualScheme.nodes.length >= 2 ? (
+      {hasVisual && scenario.visual ? (
         <NarrativeSection question="Visualiser">
           {scenario.visual.caption ? (
             <p className={`mb-3 ${VOCAB_BODY_SMALL_CLASS}`}>
@@ -59,24 +70,20 @@ export function TeachingScenarioView({ scenario }: TeachingScenarioViewProps) {
             </p>
           ) : null}
           <ConceptSchemeDiagram
-            scheme={visualScheme}
+            scheme={{ nodes: visualNodes }}
             compact={scenario.visual.layout === "comparison"}
           />
         </NarrativeSection>
       ) : null}
 
-      <NarrativeSection question="Ce qu'il faut comprendre">
-        <div className="space-y-4">
-          {scenario.explanation.map((paragraph) => (
-            <EditorialProse key={paragraph}>{paragraph}</EditorialProse>
-          ))}
-        </div>
+      <NarrativeSection question={factTitle}>
+        <EditorialProse>{scenario.fact}</EditorialProse>
       </NarrativeSection>
 
-      {scenario.comparison.length > 0 ? (
+      {scenario.contrast.length > 0 ? (
         <NarrativeSection question="Comparer">
           <div className="space-y-3">
-            {scenario.comparison.map((item) => (
+            {scenario.contrast.map((item) => (
               <div
                 key={`${item.fromForm}-${item.toForm}`}
                 className={VOCAB_FORM_CARD_CLASS}
@@ -99,16 +106,18 @@ export function TeachingScenarioView({ scenario }: TeachingScenarioViewProps) {
         </NarrativeSection>
       ) : null}
 
-      <NarrativeSection question="Erreur fréquente">
-        <p className={VOCAB_BODY_CLASS}>
-          <TextWithRussianDisplay text={scenario.commonMistake} />
-        </p>
-      </NarrativeSection>
+      {scenario.commonMistake ? (
+        <NarrativeSection question="Erreur fréquente">
+          <p className={VOCAB_BODY_CLASS}>
+            <TextWithRussianDisplay text={scenario.commonMistake} />
+          </p>
+        </NarrativeSection>
+      ) : null}
 
-      {scenario.reuse.length > 0 ? (
+      {reuse.length > 0 ? (
         <NarrativeSection question="Tu retrouveras cette idée dans">
           <ul className="space-y-2">
-            {scenario.reuse.map((item) => (
+            {reuse.map((item) => (
               <li key={item} className={VOCAB_BODY_CLASS}>
                 <TextWithRussianDisplay text={item} />
               </li>
@@ -127,9 +136,7 @@ export function TeachingScenarioView({ scenario }: TeachingScenarioViewProps) {
 
       {scenario.nextConcept ? (
         <NarrativeSection question="Ensuite">
-          <p className={VOCAB_BODY_CLASS}>
-            {scenario.nextConcept.title}
-          </p>
+          <p className={VOCAB_BODY_CLASS}>{scenario.nextConcept.title}</p>
         </NarrativeSection>
       ) : null}
     </>
