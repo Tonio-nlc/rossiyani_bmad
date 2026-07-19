@@ -1,143 +1,290 @@
+import { LessonExampleSentence } from "@/components/lessons/LessonExampleSentence";
+import { LessonSection } from "@/components/lessons/LessonSection";
+import { RussianText } from "@/components/reader/RussianText";
+import {
+  LESSON_CARD_SHELL_CLASS,
+  LESSON_EXAMPLE_CARD_CLASS,
+  LESSON_EXAMPLE_NOTE_CLASS,
+  LESSON_PROSE_CLASS,
+  LESSON_QUESTION_CLASS,
+  LESSON_SCHEMA_CAPTION_CLASS,
+  LESSON_SCHEMA_PADDING_CLASS,
+  LESSON_SCHEMA_SHELL_CLASS,
+  LESSON_SUBCONTENT_GAP_CLASS,
+} from "@/lib/design/lesson-composition";
+import {
+  buildLessonWordsHighlightingSurface,
+  buildLessonWordsWithRole,
+  containsCyrillic,
+  resolveLessonRoleFromEncounter,
+} from "@/lib/lessons/lesson-colors";
+import { LESSON_SECTION_LABELS } from "@/lib/lessons/group-lesson-sections";
+import { LESSON_SECTION_RHYTHM } from "@/lib/lessons/lesson-section-rhythm";
+import { cn } from "@/lib/utils";
 import type { TTeachingScenario } from "@/types/teaching-scenario";
 
-import {
-  VOCAB_BODY_CLASS,
-  VOCAB_BODY_SMALL_CLASS,
-  VOCAB_CARD_CLASS,
-  VOCAB_FORM_CARD_CLASS,
-  VOCAB_RUSSIAN_MD_CLASS,
-} from "@/lib/design/vocabulary-composition";
-import { displayRussianGraphemes } from "@/lib/russian/display-russian";
-
 import { ConceptSchemeDiagram } from "./ConceptSchemeDiagram";
-import {
-  EditorialProse,
-  NarrativeSection,
-  TextWithRussianDisplay,
-} from "./VocabEditorial";
 
-function RussianForm({ text }: { text: string }) {
-  const graphemes = displayRussianGraphemes(text);
-
-  return (
-    <span className={VOCAB_RUSSIAN_MD_CLASS}>
-      {graphemes.map((grapheme, index) => (
-        <span key={`${index}-${grapheme}`} className="inline">
-          {grapheme}
-        </span>
-      ))}
-    </span>
-  );
+export interface TVocabEncounterColor {
+  surface: string;
+  functionalRole: string;
+  functionColor: string | null;
 }
 
 interface TeachingScenarioViewProps {
   scenario: TTeachingScenario;
+  encounter?: TVocabEncounterColor | null;
+}
+
+function LessonProse({ text }: { text: string }) {
+  return (
+    <p className={LESSON_PROSE_CLASS}>
+      {containsCyrillic(text) ? <RussianText>{text}</RussianText> : text}
+    </p>
+  );
+}
+
+function buildContrastWords(
+  fromForm: string,
+  toForm: string,
+  encounter?: TVocabEncounterColor | null,
+) {
+  const role = resolveLessonRoleFromEncounter(encounter ?? null);
+
+  if (role && encounter?.surface) {
+    const fromWords = buildLessonWordsHighlightingSurface(
+      fromForm,
+      encounter.surface,
+      role,
+    );
+    const toWords = buildLessonWordsHighlightingSurface(
+      toForm,
+      encounter.surface,
+      role,
+    );
+
+    if (
+      fromWords.some((word) => word.role) ||
+      toWords.some((word) => word.role)
+    ) {
+      return [...fromWords, ...toWords];
+    }
+  }
+
+  return [
+    ...buildLessonWordsWithRole(fromForm, "subject"),
+    ...buildLessonWordsWithRole(toForm, "object"),
+  ];
+}
+
+function ContrastExampleCard({
+  fromForm,
+  toForm,
+  explanation,
+  encounter,
+}: {
+  fromForm: string;
+  toForm: string;
+  explanation?: string;
+  encounter?: TVocabEncounterColor | null;
+}) {
+  const russian = `${fromForm} → ${toForm}`;
+  const words = buildContrastWords(fromForm, toForm, encounter);
+
+  return (
+    <div className={LESSON_EXAMPLE_CARD_CLASS}>
+      <LessonExampleSentence russian={russian} words={words} />
+      {explanation ? (
+        <p className={LESSON_EXAMPLE_NOTE_CLASS}>
+          {containsCyrillic(explanation) ? (
+            <RussianText>{explanation}</RussianText>
+          ) : (
+            explanation
+          )}
+        </p>
+      ) : null}
+    </div>
+  );
 }
 
 /**
- * Rend un scénario à géométrie variable — aucun titre orphelin pour un slot absent.
+ * Scénario d'enseignement — même système éditorial que les pages Leçons.
  */
-export function TeachingScenarioView({ scenario }: TeachingScenarioViewProps) {
+export function TeachingScenarioView({
+  scenario,
+  encounter = null,
+}: TeachingScenarioViewProps) {
   const visualNodes = scenario.visual?.nodes?.filter((node) => node.trim()) ?? [];
   const hasVisual = visualNodes.length >= 2;
   const reuse = scenario.reuse?.filter((item) => item.trim()) ?? [];
   const factTitle =
     scenario.question && !scenario.intuition
       ? scenario.question
-      : "Ce qu'il faut comprendre";
+      : LESSON_SECTION_LABELS.comprendre.title;
+
+  const questionRhythm = LESSON_SECTION_RHYTHM.question;
+  const intuitionRhythm = LESSON_SECTION_RHYTHM.intuition;
+  const exempleRhythm = LESSON_SECTION_RHYTHM.exemple;
+  const comprendreRhythm = LESSON_SECTION_RHYTHM.comprendre;
+  const schemaRhythm = LESSON_SECTION_RHYTHM.schema;
+  const retenirRhythm = LESSON_SECTION_RHYTHM.retenir;
 
   return (
     <>
       {scenario.hook ? (
-        <section className="border-y border-border/70 py-5">
-          <p className="font-serif text-[1.375rem] leading-snug text-ink md:text-[1.5rem]">
-            <TextWithRussianDisplay text={scenario.hook} />
+        <LessonSection
+          sectionId="question"
+          eyebrow={LESSON_SECTION_LABELS.question.eyebrow}
+          title={LESSON_SECTION_LABELS.question.title}
+          {...questionRhythm}
+        >
+          <p className={LESSON_QUESTION_CLASS}>
+            {containsCyrillic(scenario.hook) ? (
+              <RussianText>{scenario.hook}</RussianText>
+            ) : (
+              scenario.hook
+            )}
           </p>
-        </section>
+        </LessonSection>
       ) : null}
 
       {scenario.intuition ? (
-        <NarrativeSection question={scenario.question ?? "Ce qu'il faut sentir"}>
-          <EditorialProse>{scenario.intuition}</EditorialProse>
-        </NarrativeSection>
+        <LessonSection
+          sectionId="intuition"
+          eyebrow={LESSON_SECTION_LABELS.intuition.eyebrow}
+          title={scenario.question ?? LESSON_SECTION_LABELS.intuition.title}
+          {...intuitionRhythm}
+          headerTone="standard"
+        >
+          <LessonProse text={scenario.intuition} />
+        </LessonSection>
       ) : null}
 
       {hasVisual && scenario.visual ? (
-        <NarrativeSection question="Visualiser">
-          {scenario.visual.caption ? (
-            <p className={`mb-3 ${VOCAB_BODY_SMALL_CLASS}`}>
-              {scenario.visual.caption}
-            </p>
-          ) : null}
-          <ConceptSchemeDiagram
-            scheme={{ nodes: visualNodes }}
-            compact={scenario.visual.layout === "comparison"}
-          />
-        </NarrativeSection>
+        <LessonSection
+          sectionId="schema"
+          eyebrow={LESSON_SECTION_LABELS.schema.eyebrow}
+          title={LESSON_SECTION_LABELS.schema.title}
+          {...schemaRhythm}
+          headerTone="standard"
+        >
+          <figure>
+            <div
+              className={cn(
+                LESSON_SCHEMA_SHELL_CLASS,
+                LESSON_SCHEMA_PADDING_CLASS,
+                "flex justify-center",
+              )}
+            >
+              <ConceptSchemeDiagram
+                scheme={{ nodes: visualNodes }}
+                compact={scenario.visual.layout === "comparison"}
+              />
+            </div>
+            {scenario.visual.caption ? (
+              <figcaption className={LESSON_SCHEMA_CAPTION_CLASS}>
+                {scenario.visual.caption}
+              </figcaption>
+            ) : null}
+          </figure>
+        </LessonSection>
       ) : null}
 
-      <NarrativeSection question={factTitle}>
-        <EditorialProse>{scenario.fact}</EditorialProse>
-      </NarrativeSection>
+      <LessonSection
+        sectionId="comprendre"
+        eyebrow={LESSON_SECTION_LABELS.comprendre.eyebrow}
+        title={factTitle}
+        {...comprendreRhythm}
+        marginTop={
+          scenario.hook || scenario.intuition || hasVisual
+            ? comprendreRhythm.marginTop
+            : "mt-0"
+        }
+      >
+        <LessonProse text={scenario.fact} />
+      </LessonSection>
 
       {scenario.contrast.length > 0 ? (
-        <NarrativeSection question="Comparer">
-          <div className="space-y-3">
+        <LessonSection
+          sectionId="exemple"
+          eyebrow={LESSON_SECTION_LABELS.exemple.eyebrow}
+          title={LESSON_SECTION_LABELS.exemple.title}
+          {...exempleRhythm}
+        >
+          <div className={LESSON_SUBCONTENT_GAP_CLASS}>
             {scenario.contrast.map((item) => (
-              <div
+              <ContrastExampleCard
                 key={`${item.fromForm}-${item.toForm}`}
-                className={VOCAB_FORM_CARD_CLASS}
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <RussianForm text={item.fromForm} />
-                  <span className="text-ink-3" aria-hidden="true">
-                    ↓
-                  </span>
-                  <RussianForm text={item.toForm} />
-                </div>
-                {item.explanation ? (
-                  <p className={`mt-2 ${VOCAB_BODY_CLASS}`}>
-                    <TextWithRussianDisplay text={item.explanation} />
-                  </p>
-                ) : null}
-              </div>
+                fromForm={item.fromForm}
+                toForm={item.toForm}
+                explanation={item.explanation}
+                encounter={encounter}
+              />
             ))}
           </div>
-        </NarrativeSection>
+        </LessonSection>
       ) : null}
 
       {scenario.commonMistake ? (
-        <NarrativeSection question="Erreur fréquente">
-          <p className={VOCAB_BODY_CLASS}>
-            <TextWithRussianDisplay text={scenario.commonMistake} />
-          </p>
-        </NarrativeSection>
+        <LessonSection
+          sectionId="comprendre"
+          eyebrow="ERREUR"
+          title="Erreur fréquente"
+          {...comprendreRhythm}
+        >
+          <LessonProse text={scenario.commonMistake} />
+        </LessonSection>
       ) : null}
 
       {reuse.length > 0 ? (
-        <NarrativeSection question="Tu retrouveras cette idée dans">
-          <ul className="space-y-2">
+        <LessonSection
+          sectionId="comprendre"
+          eyebrow="RÉUTILISER"
+          title="Tu retrouveras cette idée dans"
+          {...comprendreRhythm}
+        >
+          <ul className={LESSON_SUBCONTENT_GAP_CLASS}>
             {reuse.map((item) => (
-              <li key={item} className={VOCAB_BODY_CLASS}>
-                <TextWithRussianDisplay text={item} />
+              <li key={item}>
+                <LessonProse text={item} />
               </li>
             ))}
           </ul>
-        </NarrativeSection>
+        </LessonSection>
       ) : null}
 
-      <NarrativeSection question="À retenir">
-        <div className={`${VOCAB_CARD_CLASS} px-4 py-4`}>
-          <p className="text-[17px] leading-snug text-ink-2">
-            <TextWithRussianDisplay text={scenario.memoryAnchor} />
+      <LessonSection
+        sectionId="retenir"
+        eyebrow={LESSON_SECTION_LABELS.retenir.eyebrow}
+        title={LESSON_SECTION_LABELS.retenir.title}
+        {...retenirRhythm}
+        isConclusion
+      >
+        <div
+          className={cn(
+            LESSON_CARD_SHELL_CLASS,
+            "border-accent-border/60 bg-accent-light/70 px-4 py-3",
+          )}
+        >
+          <p className={cn(LESSON_PROSE_CLASS, "text-sm")}>
+            {containsCyrillic(scenario.memoryAnchor) ? (
+              <RussianText>{scenario.memoryAnchor}</RussianText>
+            ) : (
+              scenario.memoryAnchor
+            )}
           </p>
         </div>
-      </NarrativeSection>
+      </LessonSection>
 
       {scenario.nextConcept ? (
-        <NarrativeSection question="Ensuite">
-          <p className={VOCAB_BODY_CLASS}>{scenario.nextConcept.title}</p>
-        </NarrativeSection>
+        <LessonSection
+          sectionId="comprendre"
+          eyebrow="ENSUITE"
+          title="Ensuite"
+          {...comprendreRhythm}
+        >
+          <LessonProse text={scenario.nextConcept.title} />
+        </LessonSection>
       ) : null}
     </>
   );

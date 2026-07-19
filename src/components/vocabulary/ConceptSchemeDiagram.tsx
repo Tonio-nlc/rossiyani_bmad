@@ -1,18 +1,12 @@
+import { RussianText } from "@/components/reader/RussianText";
 import type { TConceptScheme } from "@/types/concept-lesson";
 
-import { VOCAB_RUSSIAN_MD_CLASS } from "@/lib/design/vocabulary-composition";
-import { displayRussianGraphemes } from "@/lib/russian/display-russian";
+import { LESSON_EXAMPLE_RUSSIAN_CLASS } from "@/lib/design/lesson-composition";
 
 function RussianNode({ text }: { text: string }) {
-  const graphemes = displayRussianGraphemes(text);
-
   return (
-    <span className={VOCAB_RUSSIAN_MD_CLASS}>
-      {graphemes.map((grapheme, index) => (
-        <span key={`${index}-${grapheme}`} className="inline">
-          {grapheme}
-        </span>
-      ))}
+    <span className={LESSON_EXAMPLE_RUSSIAN_CLASS}>
+      <RussianText>{text}</RussianText>
     </span>
   );
 }

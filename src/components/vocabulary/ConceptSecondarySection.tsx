@@ -1,10 +1,12 @@
-import type { TConceptSecondaryCard } from "@/types/concept-lesson";
-
+import { LessonSection } from "@/components/lessons/LessonSection";
+import { RussianText } from "@/components/reader/RussianText";
 import {
-  VOCAB_BODY_SMALL_CLASS,
-  VOCAB_INLINE_META_CLASS,
-} from "@/lib/design/vocabulary-composition";
-import { NarrativeSection } from "./VocabEditorial";
+  LESSON_PROSE_CLASS,
+  LESSON_SUBCONTENT_GAP_CLASS,
+} from "@/lib/design/lesson-composition";
+import { containsCyrillic } from "@/lib/lessons/lesson-colors";
+import { LESSON_SECTION_RHYTHM } from "@/lib/lessons/lesson-section-rhythm";
+import type { TConceptSecondaryCard } from "@/types/concept-lesson";
 
 interface ConceptSecondarySectionProps {
   concepts: TConceptSecondaryCard[];
@@ -17,19 +19,32 @@ export function ConceptSecondarySection({
     return null;
   }
 
+  const rhythm = LESSON_SECTION_RHYTHM.comprendre;
+
   return (
-    <NarrativeSection question="Concepts liés">
-      <ul className="space-y-3">
+    <LessonSection
+      sectionId="comprendre"
+      eyebrow="CONCEPTS LIÉS"
+      title="Concepts liés"
+      {...rhythm}
+    >
+      <ul className={LESSON_SUBCONTENT_GAP_CLASS}>
         {concepts.map((concept) => (
           <li key={concept.conceptId}>
             <p className="text-[15px] font-semibold text-ink">{concept.title}</p>
-            <p className={`mt-0.5 ${VOCAB_BODY_SMALL_CLASS}`}>{concept.summary}</p>
+            <p className={LESSON_PROSE_CLASS}>
+              {containsCyrillic(concept.summary) ? (
+                <RussianText>{concept.summary}</RussianText>
+              ) : (
+                concept.summary
+              )}
+            </p>
           </li>
         ))}
       </ul>
-      <p className={`mt-3 ${VOCAB_INLINE_META_CLASS}`}>
+      <p className={LESSON_PROSE_CLASS}>
         Ces mécanismes apparaissent souvent avec le même type de forme.
       </p>
-    </NarrativeSection>
+    </LessonSection>
   );
 }

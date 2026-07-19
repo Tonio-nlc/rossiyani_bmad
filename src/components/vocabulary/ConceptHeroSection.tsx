@@ -1,16 +1,24 @@
+import { LessonExampleSentence } from "@/components/lessons/LessonExampleSentence";
+import { RussianText } from "@/components/reader/RussianText";
 import type { TConceptHero } from "@/types/concept-lesson";
 
 import {
-  VOCAB_EYEBROW_CLASS,
-  VOCAB_HERO_PANEL_CLASS,
-  VOCAB_INLINE_META_CLASS,
-} from "@/lib/design/vocabulary-composition";
+  LESSON_EYEBROW_CLASS,
+  LESSON_HERO_CLASS,
+  LESSON_INTRO_CLASS,
+  LESSON_TITLE_CLASS,
+} from "@/lib/design/lesson-composition";
+import {
+  buildLessonWordsWithRole,
+  resolveLessonRoleFromEncounter,
+} from "@/lib/lessons/lesson-colors";
 import { formatPosLabel } from "@/lib/vocabulary/format-linguistic-labels";
 
-import { VocabMutedLabel, VocabRussianDisplay } from "./VocabEditorial";
+import type { TVocabEncounterColor } from "./TeachingScenarioView";
 
 interface ConceptHeroSectionProps {
   hero: TConceptHero;
+  encounter?: TVocabEncounterColor | null;
 }
 
 function ConceptChip({ label }: { label: string }) {
@@ -21,38 +29,44 @@ function ConceptChip({ label }: { label: string }) {
   );
 }
 
-export function ConceptHeroSection({ hero }: ConceptHeroSectionProps) {
+export function ConceptHeroSection({
+  hero,
+  encounter = null,
+}: ConceptHeroSectionProps) {
   const posLabel = formatPosLabel(hero.partOfSpeech);
+  const role = resolveLessonRoleFromEncounter(encounter);
+  const encounteredWords =
+    hero.encounteredForm && role
+      ? buildLessonWordsWithRole(hero.encounteredForm, role)
+      : [];
 
   return (
-    <section className={VOCAB_HERO_PANEL_CLASS}>
-      <div className="space-y-5">
-        <div className="space-y-1.5">
-          <VocabRussianDisplay size="hero">{hero.lemma}</VocabRussianDisplay>
-          <p className={VOCAB_INLINE_META_CLASS}>
-            {[posLabel, hero.translation].filter(Boolean).join(" · ")}
-          </p>
+    <header className={LESSON_HERO_CLASS}>
+      <p className={LESSON_EYEBROW_CLASS}>{hero.phenomenon.title}</p>
+      <h1 className={LESSON_TITLE_CLASS}>
+        <RussianText>{hero.lemma}</RussianText>
+      </h1>
+      <p className={LESSON_INTRO_CLASS}>
+        {[posLabel, hero.translation].filter(Boolean).join(" · ")}
+      </p>
+
+      {hero.encounteredForm ? (
+        <div className="mt-6 space-y-2">
+          <p className={LESSON_EYEBROW_CLASS}>Tu as rencontré</p>
+          <LessonExampleSentence
+            russian={hero.encounteredForm}
+            words={encounteredWords}
+          />
         </div>
+      ) : null}
 
-        <div className="border-t border-border/60 pt-5">
-          <p className={VOCAB_EYEBROW_CLASS}>{hero.phenomenon.title}</p>
-
-          {hero.encounteredForm ? (
-            <div className="mt-3 space-y-2">
-              <VocabMutedLabel>Tu as rencontré</VocabMutedLabel>
-              <VocabRussianDisplay size="hero">{hero.encounteredForm}</VocabRussianDisplay>
-            </div>
-          ) : null}
-
-          {hero.chips.length > 0 ? (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {hero.chips.map((chip) => (
-                <ConceptChip key={chip} label={chip} />
-              ))}
-            </div>
-          ) : null}
+      {hero.chips.length > 0 ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {hero.chips.map((chip) => (
+            <ConceptChip key={chip} label={chip} />
+          ))}
         </div>
-      </div>
-    </section>
+      ) : null}
+    </header>
   );
 }

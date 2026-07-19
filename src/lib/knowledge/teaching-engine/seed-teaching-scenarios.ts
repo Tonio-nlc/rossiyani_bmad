@@ -1,320 +1,326 @@
+/**
+ * Scénarios d'enseignement seed — contrat géométrie variable.
+ *
+ * Statut éditorial : à valider — relecture humaine requise avant prod.
+ * validé manuellement — ne pas générer par LLM (formes via morphology/curated)
+ */
+
 import type { TTeachingScenarioContent } from "@/types/teaching-scenario";
 
+import {
+  CURATED_ADJECTIVES,
+  CURATED_AGREEMENT_NOUNS,
+  CURATED_CHITAT,
+  CURATED_DELAT,
+  CURATED_EXAMPLE_PHRASES,
+  CURATED_GOVORIT,
+  CURATED_KNIGA,
+  CURATED_MOSKVA,
+  CURATED_MOTION,
+  CURATED_NOUNS_GENDER,
+  CURATED_PISAT,
+  CURATED_POSSESSIVE,
+  CURATED_PRESENT_SG2,
+  CURATED_PROCHITAT,
+  CURATED_STOL,
+} from "@/lib/knowledge/morphology/curated";
+
+/** à valider — relecture humaine requise */
+export const SEED_TEACHING_SCENARIOS_REVIEW_STATUS = "à-valider" as const;
+
+/**
+ * 11 scénarios seed.
+ * Statut : à valider — relecture humaine requise.
+ */
 export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> = {
+  // ─── à valider ─────────────────────────────────────────────
   "verb-present-conjugation": {
-    hook: "Pourquoi le russe change la fin du verbe au présent ?",
-    hookWithSurface: "Pourquoi cette phrase utilise-t-elle « {surface} » ?",
-    question: "Pourquoi -ешь ?",
-    intuition:
-      "En russe, la terminaison du verbe répond à une seule question : qui fait l'action, maintenant ? Le pronom est souvent invisible — la terminaison le remplace.",
+    fact: `La terminaison ${CURATED_CHITAT.endings.sg2} marque la 2e personne du singulier au présent.`,
+    contrast: [
+      {
+        fromForm: `ты ${CURATED_CHITAT.present.sg2}`,
+        toForm: `он ${CURATED_CHITAT.present.sg3}`,
+        explanation: "Même présent, seule la personne change.",
+      },
+    ],
     visual: {
-      nodes: ["читать", "я читаю", "ты читаешь", "он читает"],
+      nodes: [
+        `я ${CURATED_CHITAT.present.sg1} (${CURATED_CHITAT.endings.sg1})`,
+        `ты ${CURATED_CHITAT.present.sg2} (${CURATED_CHITAT.endings.sg2})`,
+        `он ${CURATED_CHITAT.present.sg3} (${CURATED_CHITAT.endings.sg3})`,
+      ],
       layout: "vertical",
-      caption: "Du lemme à la forme conjuguée",
+      caption: "Présent — trois personnes, trois terminaisons",
     },
-    explanation: [
-      "Tu vois читаешь dans la phrase : la terminaison -ешь signale que c'est « tu » qui agis, maintenant.",
-      "Ce n'est pas une variante décorative — c'est la conjugaison du présent : le russe intègre le pronom dans le verbe.",
-    ],
-    comparison: [
-      {
-        fromForm: "читать",
-        toForm: "читаешь",
-        explanation: "читать = lemme. читаешь = tu + maintenant.",
-      },
-      {
-        fromForm: "читаешь",
-        toForm: "читал",
-        explanation: "Le passé (читал) remplace le présent — autre temps, autre terminaison.",
-      },
-    ],
-    commonMistake: "Ne pas confondre читаешь (présent) et читал (passé).",
+    commonMistake: `Ne confonds pas ${CURATED_CHITAT.present.sg2} (présent, 2e pers.) et ${CURATED_CHITAT.past.m} (passé).`,
     reuse: [
-      "Ты делаешь, ты говоришь, ты пишешь — même terminaison, même logique.",
-      "Dans tout texte au présent, cherche qui agit : la terminaison te le dira.",
+      `Ты ${CURATED_PRESENT_SG2.delaesh}, ты ${CURATED_PRESENT_SG2.govorish}, ты ${CURATED_PRESENT_SG2.pishesh} — même terminaison ${CURATED_CHITAT.endings.sg2}, même logique.`,
     ],
-    memoryAnchor: "Pense à une grille : lignes = personnes, colonne = présent.",
+    memoryAnchor: `${CURATED_CHITAT.endings.sg2} = 2e personne du singulier, présent.`,
   },
+
+  // ─── à valider ─────────────────────────────────────────────
   "verb-imperfective-aspect": {
-    hook: "Pourquoi le russe a deux façons de dire « lire » ?",
-    hookWithSurface: "Pourquoi « {surface} » décrit une action en cours ?",
-    question: "Pourquoi deux verbes pour la même action ?",
     intuition:
-      "Le russe regarde une action comme un film : soit il suit le déroulement, soit il fixe le résultat. Avant de parler d'imperfectif, pense au film.",
-    visual: {
-      nodes: ["читать", "────────────>"],
-      layout: "horizontal",
-      caption: "Processus en cours",
-    },
-    explanation: [
-      "читать ne promet pas qu'un livre est fini : il décrit la lecture comme activité — en cours ou habituelle.",
-      "C'est l'aspect imperfectif : le russe regarde l'action de l'intérieur, pas le point final.",
-    ],
-    comparison: [
+      "Avant de nommer l'imperfectif : le russe peut suivre une action comme un film — sans fixer le résultat.",
+    fact: `${CURATED_CHITAT.infinitive} est à l'aspect imperfectif : il décrit un processus ou une habitude, pas un résultat fini.`,
+    contrast: [
       {
-        fromForm: "читать",
-        toForm: "прочитать",
-        explanation: "прочитать place un point final. читать, non.",
+        fromForm: CURATED_CHITAT.infinitive,
+        toForm: CURATED_PROCHITAT.infinitive,
+        explanation:
+          "Même action « lire » : imperfectif = processus ; perfectif = résultat atteint.",
       },
     ],
-    commonMistake: "Ne pas confondre imperfectif russe et imparfait français.",
+    commonMistake: `Ne traduis pas imperfectif par « imparfait » français — ${CURATED_CHITAT.infinitive} n'est pas un temps, c'est un aspect.`,
     reuse: [
-      "делать / сделать, писать / написать — même logique partout.",
-      "Action en cours dans un texte ? Cherche l'imperfectif.",
+      `${CURATED_DELAT.imperfective} / ${CURATED_DELAT.perfective}, ${CURATED_PISAT.imperfective} / ${CURATED_PISAT.perfective} — même logique.`,
     ],
-    memoryAnchor: "Pense à un film — l'action se déroule.",
+    memoryAnchor: `${CURATED_CHITAT.infinitive} = aspect imperfectif : processus, pas résultat fini.`,
   },
+
+  // ─── à valider — mètre-étalon (aspect perfectif) ───────────
   "verb-perfective-aspect": {
-    hook: "Pourquoi cette phrase utilise-t-elle un verbe différent pour une action terminée ?",
-    hookWithSurface: "Pourquoi « {surface} » marque une action terminée ?",
-    question: "Pourquoi прочитать et pas читать ?",
+    hook: "Pourquoi le russe choisit parfois un autre verbe pour une action terminée ?",
+    question: `Pourquoi ${CURATED_PROCHITAT.infinitive} et pas ${CURATED_CHITAT.infinitive} ?`,
     intuition:
-      "Le russe peut photographier une action : pas le déroulement, le résultat. Le perfectif, c'est la photo finale.",
-    visual: {
-      nodes: ["читать", "прочитать •"],
-      layout: "comparison",
-      caption: "Processus vs résultat",
-    },
-    explanation: [
-      "прочитать ne décrit pas une lecture en cours : le livre est lu jusqu'au bout.",
-      "Le préfixе про- renforce l'achèvement. Même action, regard différent — c'est l'aspect perfectif.",
-    ],
-    comparison: [
+      "Le russe peut photographier une action : pas le déroulement, le résultat. Le perfectif, c'est ce regard final.",
+    fact: `${CURATED_PROCHITAT.infinitive} est à l'aspect perfectif : l'action est vue comme terminée, résultat atteint.`,
+    contrast: [
       {
-        fromForm: "читать",
-        toForm: "прочитать",
-        explanation: "Processus → résultat atteint.",
+        fromForm: CURATED_CHITAT.infinitive,
+        toForm: CURATED_PROCHITAT.infinitive,
+        explanation:
+          "Même action « lire » : imperfectif = en cours ; perfectif = livre lu jusqu'au bout.",
       },
     ],
-    commonMistake: "Ne pas confondre читать (en cours) et прочитать (terminé).",
+    visual: {
+      nodes: [
+        CURATED_CHITAT.infinitive,
+        CURATED_PROCHITAT.infinitive,
+        CURATED_DELAT.perfective,
+      ],
+      layout: "comparison",
+      caption: "Perfectif = résultat (про-, с-…)",
+    },
+    commonMistake: `Ne confonds pas ${CURATED_CHITAT.infinitive} (processus, imperfectif) et ${CURATED_PROCHITAT.infinitive} (résultat, perfectif).`,
     reuse: [
-      "сделать, понять, написать — même logique de résultat.",
-      "Action terminée dans un récit ? Le perfectif est souvent là.",
+      `${CURATED_DELAT.perfective}, ${CURATED_PISAT.perfective} — même logique de résultat.`,
     ],
-    memoryAnchor: "Pense à une photo — l'action est finie.",
+    memoryAnchor: `${CURATED_PROCHITAT.infinitive} = aspect perfectif : l'action est terminée.`,
   },
+
+  // ─── à valider ─────────────────────────────────────────────
   "aspect-pairs": {
-    hook: "Pourquoi apprendre deux verbes pour une seule action ?",
-    question: "Pourquoi читать et прочитать ensemble ?",
     intuition:
-      "En russe, les verbes voyagent en paires : un pour le processus, un pour le résultat. Apprendre une paire, c'est apprendre deux regards sur la même action.",
-    visual: {
-      nodes: ["читать", "↔", "прочитать"],
-      layout: "comparison",
-    },
-    explanation: [
-      "читать et прочитать ne sont pas des synonymes : ils forment une paire aspectuelle.",
-      "Quand tu rencontres l'un, cherche toujours l'autre — c'est la même action, deux angles.",
-    ],
-    comparison: [
+      "En russe, beaucoup de verbes voyagent à deux : un pour le processus, un pour le résultat.",
+    fact: `${CURATED_CHITAT.infinitive} (aspect imperfectif) et ${CURATED_PROCHITAT.infinitive} (aspect perfectif) forment une paire : même action, deux aspects.`,
+    contrast: [
       {
-        fromForm: "делать",
-        toForm: "сделать",
-        explanation: "Faire (processus) → faire jusqu'au bout (résultat).",
+        fromForm: CURATED_DELAT.imperfective,
+        toForm: CURATED_DELAT.perfective,
+        explanation:
+          "Paire aspectuelle : imperfectif (processus) vs perfectif (résultat).",
       },
     ],
-    commonMistake: "Apprendre прочитать sans connaître читать.",
+    commonMistake: `N'apprends pas ${CURATED_PROCHITAT.infinitive} sans ${CURATED_CHITAT.infinitive} — c'est une paire.`,
     reuse: [
-      "писать / написать, говорить / сказать — des dizaines de paires identiques.",
+      `${CURATED_PISAT.imperfective} / ${CURATED_PISAT.perfective}, ${CURATED_GOVORIT.imperfective} / ${CURATED_GOVORIT.perfective} — même type de paires.`,
     ],
-    memoryAnchor: "Pense à deux faces d'une même pièce.",
+    memoryAnchor: `Une paire aspectuelle = imperfectif + perfectif pour la même action (${CURATED_CHITAT.infinitive} / ${CURATED_PROCHITAT.infinitive}).`,
   },
+
+  // ─── à valider ─────────────────────────────────────────────
   "verb-movement-prefixes": {
-    hook: "Pourquoi un petit préfixe change tout le sens du déplacement ?",
-    hookWithSurface: "Pourquoi « {surface} » ajoute une direction ?",
-    question: "Pourquoi un préfixe ?",
     intuition:
-      "En russe, la direction du mouvement vit dans le verbe. по-, у-, при- ne sont pas des décorations — ce sont des morceaux de sens réutilisables.",
+      "En russe, la direction du déplacement vit souvent dans un préfixe collé au verbe.",
+    fact: `Le préfixe по- dans ${CURATED_MOTION.poehat} ajoute l'idée d'un départ (aspect et direction), par rapport à ${CURATED_MOTION.ehat}.`,
+    contrast: [
+      {
+        fromForm: CURATED_MOTION.ehat,
+        toForm: CURATED_MOTION.poehat,
+        explanation: "Même mode (véhicule) : sans préfixe vs départ (по-).",
+      },
+    ],
     visual: {
-      nodes: ["ехать", "поехать", "уехать", "приехать"],
+      nodes: [
+        CURATED_MOTION.ehat,
+        CURATED_MOTION.poehat,
+        CURATED_MOTION.uehat,
+        CURATED_MOTION.priehat,
+      ],
       layout: "vertical",
+      caption: "Préfixes de déplacement : base → по- / у- / при-",
     },
-    explanation: [
-      "поехать ne remplace pas ехать au hasard : по- ajoute l'idée d'un départ vers un but.",
-      "Chaque préfixe est une brique : по- (départ), у- (éloignement), при- (arrivée).",
-    ],
-    comparison: [
-      {
-        fromForm: "ехать",
-        toForm: "поехать",
-        explanation: "Se déplacer → partir vers un lieu.",
-      },
-      {
-        fromForm: "поехать",
-        toForm: "уехать",
-        explanation: "Partir → quitter, s'éloigner.",
-      },
-    ],
-    commonMistake: "Confondre поехать (véhicule) et пойти (à pied).",
+    commonMistake: `Ne confonds pas ${CURATED_MOTION.poehat} (véhicule) et ${CURATED_MOTION.pojti} (à pied) — le préfixe по- s'attache à la bonne base.`,
     reuse: [
-      "прийти, уйти, выйти — mêmes préfixes, autres verbes de base.",
+      `${CURATED_MOTION.prijti}, ${CURATED_MOTION.uiti}, ${CURATED_MOTION.vyiti} — mêmes préfixes, base à pied.`,
     ],
-    memoryAnchor: "Pense à des flèches : → départ, ← éloignement, ↓ arrivée.",
+    memoryAnchor: `по- dans ${CURATED_MOTION.poehat} = départ ; le préfixe porte la direction.`,
   },
+
+  // ─── à valider ─────────────────────────────────────────────
   "verbs-of-motion": {
-    hook: "Pourquoi le russe distingue « aller » à pied et en véhicule ?",
-    hookWithSurface: "Pourquoi « {surface} » implique un mode de déplacement ?",
-    question: "Pourquoi deux verbes pour « aller » ?",
     intuition:
-      "En russe, « aller » n'est jamais neutre : le mode (pied ou véhicule) et la direction (aller simple ou aller-retour) sont obligatoires.",
+      "En russe, « aller » n'est jamais neutre : pied ou véhicule, trajet simple ou allers-retours.",
+    fact: `${CURATED_MOTION.idti} = un trajet à pied (une direction) ; ${CURATED_MOTION.hodit} = allers-retours ou habitude à pied.`,
+    contrast: [
+      {
+        fromForm: CURATED_MOTION.idti,
+        toForm: CURATED_MOTION.hodit,
+        explanation:
+          "Même mode (à pied) : un trajet vs allers-retours / habitude.",
+      },
+    ],
     visual: {
-      nodes: ["идти →", "ходить ⇄⇄⇄"],
+      nodes: [
+        CURATED_MOTION.idti,
+        CURATED_MOTION.hodit,
+        CURATED_MOTION.ehat,
+        CURATED_MOTION.ezdit,
+      ],
       layout: "comparison",
+      caption: "Pied : идти́ / ходи́ть — véhicule : е́хать / е́здить",
     },
-    explanation: [
-      "идти = déplacement à pied, une direction. ходить = allers-retours ou habitude à pied.",
-      "De même : ехать (trajet en véhicule) vs ездить (déplacements répétés en véhicule).",
-    ],
-    comparison: [
-      {
-        fromForm: "идти",
-        toForm: "ходить",
-        explanation: "Un trajet → aller-retour ou habitude.",
-      },
-      {
-        fromForm: "ехать",
-        toForm: "ездить",
-        explanation: "Un trajet en voiture → déplacements répétés.",
-      },
-    ],
-    commonMistake: "Utiliser идти pour un trajet en voiture.",
+    commonMistake: `N'utilise pas ${CURATED_MOTION.idti} pour un trajet en voiture — prends ${CURATED_MOTION.ehat}.`,
     reuse: [
-      "Я иду домой / Мы ездим на работу — le mode est toujours explicite.",
+      `${CURATED_EXAMPLE_PHRASES.yaIdu} — le mode (à pied) reste explicite dans le verbe.`,
     ],
-    memoryAnchor: "Pense à une flèche (→) vs des allers-retours (⇄).",
+    memoryAnchor: `${CURATED_MOTION.idti} = un trajet à pied ; ${CURATED_MOTION.hodit} = allers-retours ou habitude.`,
   },
+
+  // ─── à valider ─────────────────────────────────────────────
   "reflexive-possessive": {
-    hook: "Pourquoi le russe utilise свой au lieu de « mon » ?",
-    hookWithSurface: "Pourquoi « {surface} » renvoie au possesseur de la phrase ?",
-    question: "Pourquoi свой et pas мой ?",
     intuition:
-      "свой ne dit pas « à moi » — il dit « au possesseur dont on parle déjà ». Le russe évite l'ambiguïté : à qui appartient vraiment la chose ?",
-    visual: {
-      nodes: ["мой", "свой"],
-      layout: "comparison",
-    },
-    explanation: [
-      "Quand le sujet possède quelque chose, le russe préfère свой à мой/твой/его.",
-      "свой renvoie au possesseur du groupe nominal — pas au locuteur.",
-    ],
-    comparison: [
+      "свой ne dit pas « à moi » : il dit « au possesseur dont on parle déjà dans la phrase ».",
+    fact: `${CURATED_POSSESSIVE.svoj} = possessif du sujet de la phrase ; ${CURATED_POSSESSIVE.moj} = possessif du locuteur (1re personne).`,
+    contrast: [
       {
-        fromForm: "мой",
-        toForm: "свой",
-        explanation: "мой = à moi (locuteur). свой = au possesseur de la phrase.",
+        fromForm: CURATED_POSSESSIVE.moj,
+        toForm: CURATED_POSSESSIVE.svoj,
+        explanation:
+          "мой = à moi (locuteur). свой = au possesseur déjà nommé dans la phrase.",
       },
     ],
-    commonMistake: "Traduire свой par « mon » systématiquement.",
+    visual: {
+      nodes: [CURATED_POSSESSIVE.moj, CURATED_POSSESSIVE.svoj],
+      layout: "comparison",
+      caption: "Possession : locuteur vs possesseur de la phrase",
+    },
+    commonMistake: `Ne traduis pas ${CURATED_POSSESSIVE.svoj} par « mon » systématiquement — regarde qui possède dans la phrase.`,
     reuse: [
-      "Он любит свою работу, Она взяла свою сумку — même logique.",
+      `${CURATED_EXAMPLE_PHRASES.onLyubitSvoyuRabotu} — ${CURATED_POSSESSIVE.svoj} suit le sujet он.`,
     ],
-    memoryAnchor: "Pense au propriétaire de la phrase.",
+    memoryAnchor: `${CURATED_POSSESSIVE.svoj} = au possesseur de la phrase ; ${CURATED_POSSESSIVE.moj} = à moi (locuteur).`,
   },
+
+  // ─── à valider ─────────────────────────────────────────────
   "noun-declension": {
-    hook: "Pourquoi un nom change de forme dans la phrase ?",
-    hookWithSurface: "Pourquoi « {surface} » n'a pas la forme du dictionnaire ?",
-    question: "Pourquoi книгу et pas книга ?",
     intuition:
-      "En russe, chaque nom joue un rôle — comme un acteur. Sa terminaison montre ce rôle : sujet, objet, lieu, moyen…",
-    visual: {
-      nodes: ["Я вижу", "↓", "кого ?", "↓", "Машу"],
-      layout: "vertical",
-    },
-    explanation: [
-      "книгу n'est pas une faute : c'est l'accusatif — le nom change parce qu'il est l'objet direct de « je vois ».",
-      "Le nominatif (книга) est la forme du dictionnaire. Les autres cas montrent le rôle dans la phrase.",
-    ],
-    comparison: [
+      "En russe, la terminaison du nom montre son rôle dans la phrase — sujet, objet, lieu…",
+    fact: `${CURATED_KNIGA.acc} est à l'accusatif : objet direct — ce n'est pas la forme du dictionnaire (${CURATED_KNIGA.nom}, nominatif).`,
+    contrast: [
       {
-        fromForm: "книга",
-        toForm: "книгу",
-        explanation: "Sujet (книга) → objet direct (книгу).",
+        fromForm: CURATED_KNIGA.nom,
+        toForm: CURATED_KNIGA.acc,
+        explanation: "Nominatif (sujet / citation) vs accusatif (objet direct).",
       },
     ],
-    commonMistake: "Apprendre les cas comme une liste sans fonction.",
+    visual: {
+      nodes: [
+        `${CURATED_KNIGA.nom} (nominatif)`,
+        `${CURATED_KNIGA.acc} (accusatif)`,
+        `${CURATED_STOL.gen} (génitif)`,
+      ],
+      layout: "vertical",
+      caption: "Même nom, cas différents = rôles différents",
+    },
+    commonMistake: `N'apprends pas les cas comme une liste : ${CURATED_KNIGA.acc} existe parce que le nom est objet direct.`,
     reuse: [
-      "стол / стола / столу — chaque forme = un rôle différent.",
+      `${CURATED_STOL.nom} / ${CURATED_STOL.gen} / ${CURATED_STOL.dat} — chaque forme = un rôle.`,
     ],
-    memoryAnchor: "Pense au rôle que joue chaque acteur.",
+    memoryAnchor: `${CURATED_KNIGA.acc} = accusatif (objet direct) ; ${CURATED_KNIGA.nom} = nominatif.`,
   },
+
+  // ─── à valider ─────────────────────────────────────────────
   "noun-gender": {
-    hook: "Pourquoi le genre compte autant en russe ?",
-    question: "Pourquoi новая et pas новый ?",
-    intuition:
-      "Chaque nom russe appartient à une famille : masculin, féminin ou neutre. Cette famille détermine toutes les formes autour du nom.",
-    visual: {
-      nodes: ["стол (m.)", "книга (f.)", "окно (n.)"],
-      layout: "vertical",
-    },
-    explanation: [
-      "Le genre n'est pas optionnel : il conditionne déclinaison, adjectifs, pronoms.",
-      "книга est féminin — c'est pourquoi l'adjectif devient новая, pas новый.",
-    ],
-    comparison: [
+    fact: `Chaque nom russe a un genre (masculin, féminin, neutre) : ${CURATED_NOUNS_GENDER.kniga} est féminin — d'où ${CURATED_ADJECTIVES.novaya}, pas ${CURATED_ADJECTIVES.novyj}.`,
+    contrast: [
       {
-        fromForm: "новый стол",
-        toForm: "новая книга",
-        explanation: "Masculin → féminin : l'adjectif suit.",
+        fromForm: `${CURATED_ADJECTIVES.novyj} ${CURATED_NOUNS_GENDER.stol}`,
+        toForm: `${CURATED_ADJECTIVES.novaya} ${CURATED_NOUNS_GENDER.kniga}`,
+        explanation: "Même adjectif : le genre du nom change, l'accord suit.",
       },
     ],
-    commonMistake: "Deviner le genre sans vérifier l'accord.",
+    visual: {
+      nodes: [
+        `${CURATED_NOUNS_GENDER.stol} (m.)`,
+        `${CURATED_NOUNS_GENDER.kniga} (f.)`,
+        `${CURATED_NOUNS_GENDER.okno} (n.)`,
+      ],
+      layout: "vertical",
+      caption: "Trois genres = trois familles d'accord",
+    },
+    commonMistake: `Vérifie le genre avant l'accord : ${CURATED_NOUNS_GENDER.kniga} → ${CURATED_ADJECTIVES.novaya}.`,
     reuse: [
-      "Новый дом, новая квартира, новое окно — trois genres, trois formes.",
+      `${CURATED_ADJECTIVES.novyj} ${CURATED_NOUNS_GENDER.dom}, ${CURATED_ADJECTIVES.novaya} ${CURATED_NOUNS_GENDER.kvartira}, ${CURATED_ADJECTIVES.novoe} ${CURATED_NOUNS_GENDER.okno}.`,
     ],
-    memoryAnchor: "Pense à trois familles de mots.",
+    memoryAnchor: `Genre du nom (${CURATED_NOUNS_GENDER.kniga} = féminin) → forme de l'adjectif (${CURATED_ADJECTIVES.novaya}).`,
   },
+
+  // ─── à valider ─────────────────────────────────────────────
   "adjective-agreement": {
-    hook: "Pourquoi l'adjectif change quand le nom change ?",
-    hookWithSurface: "Pourquoi l'adjectif s'accorde avec « {surface} » ?",
-    question: "Pourquoi новая et pas новый ?",
     intuition:
-      "L'adjectif est le miroir du nom : il copie son genre, son nombre et son cas. Pas de liberté — c'est un reflet.",
+      "L'adjectif copie le genre, le nombre et le cas du nom — pas de forme libre.",
+    fact: `${CURATED_ADJECTIVES.novaya} s'accorde avec ${CURATED_KNIGA.nom} : féminin singulier — c'est l'accord de l'adjectif.`,
+    contrast: [
+      {
+        fromForm: `${CURATED_ADJECTIVES.novyj} ${CURATED_NOUNS_GENDER.stol}`,
+        toForm: `${CURATED_ADJECTIVES.novaya} ${CURATED_KNIGA.nom}`,
+        explanation: "Seul le genre du nom change : l'adjectif suit (accord).",
+      },
+    ],
     visual: {
-      nodes: ["книга", "новая книга"],
+      nodes: [
+        `${CURATED_ADJECTIVES.novyj} ${CURATED_NOUNS_GENDER.stol}`,
+        `${CURATED_ADJECTIVES.novaya} ${CURATED_KNIGA.nom}`,
+        `${CURATED_ADJECTIVES.novoe} ${CURATED_NOUNS_GENDER.okno}`,
+      ],
       layout: "vertical",
+      caption: "Même adjectif, trois genres",
     },
-    explanation: [
-      "новая s'accorde avec книга (féminin singulier). Ce n'est pas une variante — c'est l'accord.",
-      "Change le nom, l'adjectif suit : masculin, féminin, neutre, pluriel.",
-    ],
-    comparison: [
-      {
-        fromForm: "новый стол",
-        toForm: "новая книга",
-        explanation: "Le genre du nom change, l'adjectif suit.",
-      },
-    ],
-    commonMistake: "Oublier l'accord au pluriel (новые книги).",
+    commonMistake: `N'oublie pas le pluriel : ${CURATED_ADJECTIVES.novye} ${CURATED_AGREEMENT_NOUNS.knigi} — l'accord continue.`,
     reuse: [
-      "Хороший день, хорошая погода, хорошее настроение — même règle.",
+      `${CURATED_ADJECTIVES.horoshij} ${CURATED_AGREEMENT_NOUNS.den}, ${CURATED_ADJECTIVES.horoshaya} ${CURATED_AGREEMENT_NOUNS.pogoda}, ${CURATED_ADJECTIVES.horoshee} ${CURATED_AGREEMENT_NOUNS.nastroenie} — même règle.`,
     ],
-    memoryAnchor: "Pense à un miroir — l'adjectif reflète le nom.",
+    memoryAnchor: `Adjectif = accord avec le nom : ${CURATED_ADJECTIVES.novaya} suit ${CURATED_KNIGA.nom} (féminin).`,
   },
+
+  // ─── à valider ─────────────────────────────────────────────
   "preposition-government": {
-    hook: "Pourquoi la même préposition exige des formes différentes ?",
-    hookWithSurface: "Pourquoi « {surface} » suit une préposition précise ?",
-    question: "Pourquoi в Москву et в Москве ?",
     intuition:
-      "Chaque préposition russe impose un cas — comme un contrat. в + direction ≠ в + lieu. Le cas n'est pas libre.",
-    visual: {
-      nodes: ["в + Acc.", "в + Prép."],
-      layout: "comparison",
-    },
-    explanation: [
-      "в Москву (accusatif) = direction. в Москве (prépositionnel) = lieu.",
-      "La préposition в ne change pas — le cas, oui. C'est la régence.",
-    ],
-    comparison: [
+      "Chaque préposition russe impose un cas — ce n'est pas un choix libre.",
+    fact: `Après в : l'accusatif marque куда́ (${CURATED_MOSKVA.direction}) ; le prépositionnel marque где (${CURATED_MOSKVA.location}).`,
+    contrast: [
       {
-        fromForm: "в Москву",
-        toForm: "в Москве",
-        explanation: "Direction (accusatif) → lieu (prépositionnel).",
+        fromForm: CURATED_MOSKVA.direction,
+        toForm: CURATED_MOSKVA.location,
+        explanation:
+          "Même préposition в : accusatif (куда́) vs prépositionnel (где).",
       },
     ],
-    commonMistake: "Mélanger direction et lieu avec в/на.",
+    visual: {
+      nodes: [
+        `${CURATED_MOSKVA.direction} (accusatif)`,
+        `${CURATED_MOSKVA.location} (prépositionnel)`,
+      ],
+      layout: "comparison",
+      caption: "в + cas : куда́ vs где",
+    },
+    commonMistake: `Ne mélange pas ${CURATED_MOSKVA.direction} (куда́, accusatif) et ${CURATED_MOSKVA.location} (где, prépositionnel).`,
     reuse: [
-      "Я еду в Москву / Я в Москве — à retrouver dans tout texte de voyage.",
+      `${CURATED_EXAMPLE_PHRASES.yaEduVMoskvu} / ${CURATED_EXAMPLE_PHRASES.yaVMoskve} — même opposition partout.`,
     ],
-    memoryAnchor: "Pense à un contrat : préposition + cas fixe.",
+    memoryAnchor: `в + accusatif = куда́ ; в + prépositionnel = где.`,
   },
 };
