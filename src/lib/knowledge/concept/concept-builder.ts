@@ -6,7 +6,6 @@ import {
 import type { TPedagogicalIntent } from "@/lib/knowledge/teaching/build-pedagogical-intent";
 import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-linguistic-context";
 import { buildHeroChips, normalizeEncounterSurface } from "@/lib/knowledge/concept/build-hero-chips";
-import { composeTeachingScenario } from "@/lib/knowledge/teaching-engine";
 import {
   toConceptParagraph,
   toConceptParagraphs,

@@ -16,11 +16,20 @@ export interface TTeachingNextConcept {
   title: string;
 }
 
+/** Phrase d'origine liée (explanation_cache) — carte d'exemple de rencontre. */
+export interface TTeachingEncounterExample {
+  sentence: string;
+  /** Raison du choix de la forme (explication contextuelle). */
+  note?: string;
+  surface: string;
+}
+
 /**
  * Contenu officiel d'enseignement — géométrie variable (RC-026+).
  *
  * Obligatoires : fact, contrast, memoryAnchor.
  * Conditionnels : omis s'il n'y a rien de solide à dire.
+ * Le bridge n'est PAS dans le seed : composé dynamiquement à l'application.
  *
  * Alias legacy (seeds) : explanation → fact, comparison → contrast.
  */
@@ -53,15 +62,22 @@ export interface TTeachingScenarioContent {
 
 /**
  * Scénario prêt pour l'affichage — slots absents = non rendus.
+ * `bridge` : application du concept à la forme rencontrée (obligatoire).
  */
 export interface TTeachingScenario {
   conceptId: string;
   conceptSlug: string;
   conceptTitle: string;
   encounteredForm: string | null;
+  /** Applique le concept canonique au lemme / à la forme rencontrés. */
+  bridge: string;
+  /** Phrase d'origine + raison — omis si pas de cache de rencontre. */
+  encounterExample: TTeachingEncounterExample | null;
   fact: string;
   contrast: TTeachingComparison[];
   memoryAnchor: string;
+  /** false si memoryAnchor duplique fact — section « À retenir » omise. */
+  showMemoryAnchor: boolean;
   hook?: string;
   question?: string;
   intuition?: string;

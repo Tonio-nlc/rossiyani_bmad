@@ -23,14 +23,6 @@ export function VocabularyEntry({
   returnHref,
   returnLabel,
 }: VocabularyEntryProps) {
-  const encounter = entry.contextEncounter
-    ? {
-        surface: entry.contextEncounter.surface,
-        functionalRole: entry.contextEncounter.functionalRole,
-        functionColor: entry.contextEncounter.functionColor,
-      }
-    : null;
-
   return (
     <div>
       <VocabularyEntryHeader
@@ -41,7 +33,7 @@ export function VocabularyEntry({
       <article className={cn(LESSON_COLUMN_CLASS, LESSON_PAGE_SHELL_CLASS)}>
         <ConceptLessonView
           lesson={entry.conceptLesson}
-          encounter={encounter}
+          encounter={entry.contextEncounter}
         />
       </article>
     </div>

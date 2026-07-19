@@ -24,7 +24,7 @@ export function ConceptSecondarySection({
   return (
     <LessonSection
       sectionId="comprendre"
-      eyebrow="CONCEPTS LIÉS"
+      eyebrow="LIENS"
       title="Concepts liés"
       {...rhythm}
     >

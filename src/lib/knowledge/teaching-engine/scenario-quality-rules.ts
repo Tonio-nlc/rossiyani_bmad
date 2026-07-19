@@ -8,6 +8,7 @@ import type {
   TTeachingVisual,
 } from "@/types/teaching-scenario";
 
+import { bridgeMentionsForm } from "./compose-teaching-bridge";
 import { normalizeTeachingScenarioContent } from "./normalize-teaching-scenario";
 
 const ENCYCLOPEDIC_PATTERNS: RegExp[] = [
@@ -471,6 +472,27 @@ export function validateTeachingScenario(
       code: "SCENARIO_ENCOUNTERED_FORM_MISSING",
       message: "encounteredForm absent",
       field: "encounteredForm",
+    });
+    report.valid = false;
+  }
+
+  if (!scenario.bridge?.trim()) {
+    report.issues.push({
+      severity: "error",
+      code: "SCENARIO_BRIDGE_MISSING",
+      message: "bridge absent — appliquer le concept à la forme rencontrée",
+      field: "bridge",
+    });
+    report.valid = false;
+  } else if (
+    scenario.encounteredForm?.trim() &&
+    !bridgeMentionsForm(scenario.bridge, scenario.encounteredForm)
+  ) {
+    report.issues.push({
+      severity: "error",
+      code: "SCENARIO_BRIDGE_NO_FORM",
+      message: "bridge ne mentionne pas la forme rencontrée",
+      field: "bridge",
     });
     report.valid = false;
   }

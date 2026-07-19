@@ -1,24 +1,17 @@
-import { LessonExampleSentence } from "@/components/lessons/LessonExampleSentence";
 import { RussianText } from "@/components/reader/RussianText";
 import type { TConceptHero } from "@/types/concept-lesson";
 
 import {
+  LESSON_EXAMPLE_RUSSIAN_CLASS,
   LESSON_EYEBROW_CLASS,
   LESSON_HERO_CLASS,
   LESSON_INTRO_CLASS,
   LESSON_TITLE_CLASS,
 } from "@/lib/design/lesson-composition";
-import {
-  buildLessonWordsWithRole,
-  resolveLessonRoleFromEncounter,
-} from "@/lib/lessons/lesson-colors";
 import { formatPosLabel } from "@/lib/vocabulary/format-linguistic-labels";
-
-import type { TVocabEncounterColor } from "./TeachingScenarioView";
 
 interface ConceptHeroSectionProps {
   hero: TConceptHero;
-  encounter?: TVocabEncounterColor | null;
 }
 
 function ConceptChip({ label }: { label: string }) {
@@ -29,16 +22,12 @@ function ConceptChip({ label }: { label: string }) {
   );
 }
 
-export function ConceptHeroSection({
-  hero,
-  encounter = null,
-}: ConceptHeroSectionProps) {
+/**
+ * Hero fiche — formes isolées sans couleurs de rôle
+ * (les couleurs n'apparaissent que dans une phrase annotée).
+ */
+export function ConceptHeroSection({ hero }: ConceptHeroSectionProps) {
   const posLabel = formatPosLabel(hero.partOfSpeech);
-  const role = resolveLessonRoleFromEncounter(encounter);
-  const encounteredWords =
-    hero.encounteredForm && role
-      ? buildLessonWordsWithRole(hero.encounteredForm, role)
-      : [];
 
   return (
     <header className={LESSON_HERO_CLASS}>
@@ -53,10 +42,9 @@ export function ConceptHeroSection({
       {hero.encounteredForm ? (
         <div className="mt-6 space-y-2">
           <p className={LESSON_EYEBROW_CLASS}>Tu as rencontré</p>
-          <LessonExampleSentence
-            russian={hero.encounteredForm}
-            words={encounteredWords}
-          />
+          <p className={LESSON_EXAMPLE_RUSSIAN_CLASS}>
+            <RussianText>{hero.encounteredForm}</RussianText>
+          </p>
         </div>
       ) : null}
 

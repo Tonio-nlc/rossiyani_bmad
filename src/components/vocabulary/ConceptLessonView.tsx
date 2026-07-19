@@ -1,16 +1,14 @@
 import type { TConceptLesson } from "@/types/concept-lesson";
+import type { TVocabularyContextEncounter } from "@/types/vocabulary";
 
 import { ConceptExplorerSection } from "./ConceptExplorerSection";
 import { ConceptHeroSection } from "./ConceptHeroSection";
 import { ConceptSecondarySection } from "./ConceptSecondarySection";
-import {
-  TeachingScenarioView,
-  type TVocabEncounterColor,
-} from "./TeachingScenarioView";
+import { TeachingScenarioView } from "./TeachingScenarioView";
 
 interface ConceptLessonViewProps {
   lesson: TConceptLesson;
-  encounter?: TVocabEncounterColor | null;
+  encounter?: TVocabularyContextEncounter | null;
 }
 
 /**
@@ -23,7 +21,7 @@ export function ConceptLessonView({
 }: ConceptLessonViewProps) {
   return (
     <>
-      <ConceptHeroSection hero={lesson.hero} encounter={encounter} />
+      <ConceptHeroSection hero={lesson.hero} />
 
       <TeachingScenarioView
         scenario={lesson.teachingScenario}

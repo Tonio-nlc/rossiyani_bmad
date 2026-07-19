@@ -40,7 +40,15 @@ export function composeConceptLesson(
 
   const teachingScenario = composeTeachingScenario({
     concept: graph.primary,
+    lemma: input.displayLemma || input.profile.lemma,
     encounteredForm: normalizeEncounterSurface(input.encounter),
+    encounterExample: input.encounter?.sentence
+      ? {
+          sentence: input.encounter.sentence,
+          note: input.encounter.explanation || undefined,
+          surface: input.encounter.surface,
+        }
+      : null,
     nextConcept: graph.secondary[0]
       ? {
           id: graph.secondary[0].id,

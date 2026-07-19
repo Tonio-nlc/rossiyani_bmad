@@ -95,13 +95,9 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
       },
     ],
     visual: {
-      nodes: [
-        CURATED_CHITAT.infinitive,
-        CURATED_PROCHITAT.infinitive,
-        CURATED_DELAT.perfective,
-      ],
+      nodes: [CURATED_CHITAT.infinitive, CURATED_PROCHITAT.infinitive],
       layout: "comparison",
-      caption: "Perfectif = résultat (про-, с-…)",
+      caption: "Paire aspectuelle : processus vs résultat",
     },
     commonMistake: `Ne confonds pas ${CURATED_CHITAT.infinitive} (processus, imperfectif) et ${CURATED_PROCHITAT.infinitive} (résultat, perfectif).`,
     reuse: [

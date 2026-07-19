@@ -1,4 +1,5 @@
 export { composeTeachingScenario, getTeachingScenarioContent } from "./compose-teaching-scenario";
+export { composeTeachingBridge, bridgeMentionsForm } from "./compose-teaching-bridge";
 export { normalizeTeachingScenarioContent } from "./normalize-teaching-scenario";
 export { teachingScenarioContentSchema } from "./scenario-schema";
 export {

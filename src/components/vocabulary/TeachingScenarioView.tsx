@@ -14,7 +14,6 @@ import {
 } from "@/lib/design/lesson-composition";
 import {
   buildLessonWordsHighlightingSurface,
-  buildLessonWordsWithRole,
   containsCyrillic,
   resolveLessonRoleFromEncounter,
 } from "@/lib/lessons/lesson-colors";
@@ -22,79 +21,46 @@ import { LESSON_SECTION_LABELS } from "@/lib/lessons/group-lesson-sections";
 import { LESSON_SECTION_RHYTHM } from "@/lib/lessons/lesson-section-rhythm";
 import { cn } from "@/lib/utils";
 import type { TTeachingScenario } from "@/types/teaching-scenario";
+import type { TVocabularyContextEncounter } from "@/types/vocabulary";
 
 import { ConceptSchemeDiagram } from "./ConceptSchemeDiagram";
 
-export interface TVocabEncounterColor {
-  surface: string;
-  functionalRole: string;
-  functionColor: string | null;
-}
-
 interface TeachingScenarioViewProps {
   scenario: TTeachingScenario;
-  encounter?: TVocabEncounterColor | null;
+  /** Encounter complet — couleurs uniquement dans la phrase d'origine (rôles syntaxiques). */
+  encounter?: TVocabularyContextEncounter | null;
 }
 
 function LessonProse({ text }: { text: string }) {
+  const trimmed = text.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
   return (
     <p className={LESSON_PROSE_CLASS}>
-      {containsCyrillic(text) ? <RussianText>{text}</RussianText> : text}
+      {containsCyrillic(trimmed) ? <RussianText>{trimmed}</RussianText> : trimmed}
     </p>
   );
 }
 
-function buildContrastWords(
-  fromForm: string,
-  toForm: string,
-  encounter?: TVocabEncounterColor | null,
-) {
-  const role = resolveLessonRoleFromEncounter(encounter ?? null);
-
-  if (role && encounter?.surface) {
-    const fromWords = buildLessonWordsHighlightingSurface(
-      fromForm,
-      encounter.surface,
-      role,
-    );
-    const toWords = buildLessonWordsHighlightingSurface(
-      toForm,
-      encounter.surface,
-      role,
-    );
-
-    if (
-      fromWords.some((word) => word.role) ||
-      toWords.some((word) => word.role)
-    ) {
-      return [...fromWords, ...toWords];
-    }
-  }
-
-  return [
-    ...buildLessonWordsWithRole(fromForm, "subject"),
-    ...buildLessonWordsWithRole(toForm, "object"),
-  ];
-}
-
+/** Contraste conceptuel — pas de couleurs de rôle (ce ne sont pas des rôles syntaxiques). */
 function ContrastExampleCard({
   fromForm,
   toForm,
   explanation,
-  encounter,
 }: {
   fromForm: string;
   toForm: string;
   explanation?: string;
-  encounter?: TVocabEncounterColor | null;
 }) {
   const russian = `${fromForm} → ${toForm}`;
-  const words = buildContrastWords(fromForm, toForm, encounter);
 
   return (
     <div className={LESSON_EXAMPLE_CARD_CLASS}>
-      <LessonExampleSentence russian={russian} words={words} />
-      {explanation ? (
+      <LessonExampleSentence russian={russian} words={[]} />
+      {explanation?.trim() ? (
         <p className={LESSON_EXAMPLE_NOTE_CLASS}>
           {containsCyrillic(explanation) ? (
             <RussianText>{explanation}</RussianText>
@@ -107,8 +73,38 @@ function ContrastExampleCard({
   );
 }
 
+function EncounterExampleCard({
+  encounter,
+}: {
+  encounter: TVocabularyContextEncounter;
+}) {
+  const role = resolveLessonRoleFromEncounter(encounter);
+  const words = role
+    ? buildLessonWordsHighlightingSurface(
+        encounter.sentence,
+        encounter.surface,
+        role,
+      )
+    : [];
+
+  return (
+    <div className={LESSON_EXAMPLE_CARD_CLASS}>
+      <LessonExampleSentence russian={encounter.sentence} words={words} />
+      {encounter.explanation.trim() ? (
+        <p className={LESSON_EXAMPLE_NOTE_CLASS}>
+          {containsCyrillic(encounter.explanation) ? (
+            <RussianText>{encounter.explanation}</RussianText>
+          ) : (
+            encounter.explanation
+          )}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 /**
- * Scénario d'enseignement — même système éditorial que les pages Leçons.
+ * Scénario d'enseignement — système éditorial Leçons + bridge vers la rencontre.
  */
 export function TeachingScenarioView({
   scenario,
@@ -116,11 +112,31 @@ export function TeachingScenarioView({
 }: TeachingScenarioViewProps) {
   const visualNodes = scenario.visual?.nodes?.filter((node) => node.trim()) ?? [];
   const hasVisual = visualNodes.length >= 2;
-  const reuse = scenario.reuse?.filter((item) => item.trim()) ?? [];
+  const reuse =
+    scenario.reuse?.map((item) => item.trim()).filter(Boolean) ?? [];
   const factTitle =
     scenario.question && !scenario.intuition
       ? scenario.question
       : LESSON_SECTION_LABELS.comprendre.title;
+
+  const showEncounterCard = Boolean(
+    scenario.encounterExample?.sentence || encounter?.sentence,
+  );
+  const encounterForCard: TVocabularyContextEncounter | null =
+    encounter?.sentence
+      ? encounter
+      : scenario.encounterExample
+        ? {
+            surface: scenario.encounterExample.surface,
+            sentence: scenario.encounterExample.sentence,
+            explanation: scenario.encounterExample.note ?? "",
+            suffix: "",
+            suffixExplanation: "",
+            functionalRole: "",
+            functionColor: null,
+            roleLabel: "",
+          }
+        : null;
 
   const questionRhythm = LESSON_SECTION_RHYTHM.question;
   const intuitionRhythm = LESSON_SECTION_RHYTHM.intuition;
@@ -204,6 +220,18 @@ export function TeachingScenarioView({
         <LessonProse text={scenario.fact} />
       </LessonSection>
 
+      <LessonSection
+        sectionId="comprendre"
+        eyebrow="DANS TA PHRASE"
+        title="Ce que ça change ici"
+        {...comprendreRhythm}
+      >
+        <LessonProse text={scenario.bridge} />
+        {showEncounterCard && encounterForCard ? (
+          <EncounterExampleCard encounter={encounterForCard} />
+        ) : null}
+      </LessonSection>
+
       {scenario.contrast.length > 0 ? (
         <LessonSection
           sectionId="exemple"
@@ -218,17 +246,16 @@ export function TeachingScenarioView({
                 fromForm={item.fromForm}
                 toForm={item.toForm}
                 explanation={item.explanation}
-                encounter={encounter}
               />
             ))}
           </div>
         </LessonSection>
       ) : null}
 
-      {scenario.commonMistake ? (
+      {scenario.commonMistake?.trim() ? (
         <LessonSection
           sectionId="comprendre"
-          eyebrow="ERREUR"
+          eyebrow="PIÈGE"
           title="Erreur fréquente"
           {...comprendreRhythm}
         >
@@ -239,7 +266,7 @@ export function TeachingScenarioView({
       {reuse.length > 0 ? (
         <LessonSection
           sectionId="comprendre"
-          eyebrow="RÉUTILISER"
+          eyebrow="PLUS LOIN"
           title="Tu retrouveras cette idée dans"
           {...comprendreRhythm}
         >
@@ -253,34 +280,36 @@ export function TeachingScenarioView({
         </LessonSection>
       ) : null}
 
-      <LessonSection
-        sectionId="retenir"
-        eyebrow={LESSON_SECTION_LABELS.retenir.eyebrow}
-        title={LESSON_SECTION_LABELS.retenir.title}
-        {...retenirRhythm}
-        isConclusion
-      >
-        <div
-          className={cn(
-            LESSON_CARD_SHELL_CLASS,
-            "border-accent-border/60 bg-accent-light/70 px-4 py-3",
-          )}
+      {scenario.showMemoryAnchor ? (
+        <LessonSection
+          sectionId="retenir"
+          eyebrow={LESSON_SECTION_LABELS.retenir.eyebrow}
+          title={LESSON_SECTION_LABELS.retenir.title}
+          {...retenirRhythm}
+          isConclusion
         >
-          <p className={cn(LESSON_PROSE_CLASS, "text-sm")}>
-            {containsCyrillic(scenario.memoryAnchor) ? (
-              <RussianText>{scenario.memoryAnchor}</RussianText>
-            ) : (
-              scenario.memoryAnchor
+          <div
+            className={cn(
+              LESSON_CARD_SHELL_CLASS,
+              "border-accent-border/60 bg-accent-light/70 px-4 py-3",
             )}
-          </p>
-        </div>
-      </LessonSection>
+          >
+            <p className={cn(LESSON_PROSE_CLASS, "text-sm")}>
+              {containsCyrillic(scenario.memoryAnchor) ? (
+                <RussianText>{scenario.memoryAnchor}</RussianText>
+              ) : (
+                scenario.memoryAnchor
+              )}
+            </p>
+          </div>
+        </LessonSection>
+      ) : null}
 
       {scenario.nextConcept ? (
         <LessonSection
           sectionId="comprendre"
-          eyebrow="ENSUITE"
-          title="Ensuite"
+          eyebrow="SUITE"
+          title="Concept suivant"
           {...comprendreRhythm}
         >
           <LessonProse text={scenario.nextConcept.title} />

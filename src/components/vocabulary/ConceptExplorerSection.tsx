@@ -18,8 +18,8 @@ import { LESSON_SECTION_RHYTHM } from "@/lib/lessons/lesson-section-rhythm";
 import { cn } from "@/lib/utils";
 import type { TConceptExplorerView } from "@/types/concept-lesson";
 import type { TLearningCardExample } from "@/types/learning-card";
+import type { TVocabularyContextEncounter } from "@/types/vocabulary";
 
-import type { TVocabEncounterColor } from "./TeachingScenarioView";
 import { VocabExploreBlock } from "./VocabEditorial";
 
 /** Blocs déjà couverts par TeachingScenarioView / ConceptSecondarySection. */
@@ -49,7 +49,7 @@ const LLM_INFLECTED_FORM_TITLES = new Set([
 interface ConceptExplorerSectionProps {
   explorer: TConceptExplorerView;
   examples?: TLearningCardExample[];
-  encounter?: TVocabEncounterColor | null;
+  encounter?: TVocabularyContextEncounter | null;
 }
 
 export function ConceptExplorerSection({
@@ -82,7 +82,7 @@ export function ConceptExplorerSection({
     <LessonSection
       sectionId="retenir"
       eyebrow="APPROFONDIR"
-      title="Approfondir"
+      title="Aller plus loin"
       {...rhythm}
       marginTop={LESSON_APPENDIX_CLASS}
       isConclusion={false}
