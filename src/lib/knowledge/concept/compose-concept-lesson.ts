@@ -21,6 +21,10 @@ export interface TComposeConceptLessonResult {
   teachingScenario: TTeachingScenario;
 }
 
+/**
+ * Compose la leçon concept pour la fiche vocabulaire.
+ * Ne throw jamais pour une donnée manquante — dégrade l'affichage.
+ */
 export function composeConceptLesson(
   input: TComposeConceptLessonInput,
 ): TComposeConceptLessonResult {
@@ -57,12 +61,6 @@ export function composeConceptLesson(
         }
       : null,
   });
-
-  if (!teachingScenario) {
-    throw new Error(
-      `Teaching Engine: scénario introuvable pour ${graph.primary.id}`,
-    );
-  }
 
   const phenomenon = phenomenonFromGraph(graph);
 

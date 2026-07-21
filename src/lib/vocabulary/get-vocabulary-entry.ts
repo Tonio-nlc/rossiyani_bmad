@@ -228,7 +228,13 @@ export async function getVocabularyEntry(
 
   const [translation, examples, contextEncounter] = await Promise.all([
     resolveTranslation(supabase, lemmaId, explanationFr),
-    collectVocabularyExamples(supabase, lemmaId, lemma.form),
+    collectVocabularyExamples(supabase, lemmaId, lemma.form).catch((error) => {
+      console.warn(
+        `[getVocabularyEntry] Exemples indisponibles pour ${lemmaId}`,
+        error instanceof Error ? error.message : error,
+      );
+      return [] as Awaited<ReturnType<typeof collectVocabularyExamples>>;
+    }),
     resolveContextEncounter(supabase, lemmaId, linkedCache),
   ]);
 

@@ -16,7 +16,7 @@ export {
   validateTeachingScenarioContent,
   validateConceptCatalog,
 } from "@/lib/knowledge/teaching-engine";
-export { LinguisticIntegrityError } from "@/lib/knowledge/pedagogy/integrity/integrity-gate";
+export { LinguisticIntegrityError, assertLearningCardIntegrityStrict } from "@/lib/knowledge/pedagogy/integrity/integrity-gate";
 export { getPedagogicalStrategy } from "@/lib/knowledge/pedagogy/strategy/strategies";
 export {
   buildProfileExploreBlocks,

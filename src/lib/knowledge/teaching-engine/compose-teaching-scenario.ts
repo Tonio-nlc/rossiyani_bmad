@@ -21,8 +21,8 @@ function normalizeForCompare(text: string): string {
   return text
     .toLowerCase()
     .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9À-ÿА-Яа-яЁёІіЇїЄєҐґ\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -52,7 +52,10 @@ function jaccard(a: Set<string>, b: Set<string>): number {
 }
 
 /** Évite un « À retenir » qui répète « Comprendre ». */
-function dedupeMemoryAnchor(fact: string, memoryAnchor: string): string | undefined {
+function dedupeMemoryAnchor(
+  fact: string,
+  memoryAnchor: string,
+): string | undefined {
   const na = normalizeForCompare(fact);
   const nb = normalizeForCompare(memoryAnchor);
 
@@ -118,7 +121,8 @@ function buildScenarioFromConcept(
   return {
     fact,
     contrast: contrast.length > 0 ? contrast : undefined,
-    memoryAnchor: retention && !/\bpense à\b/i.test(retention) ? retention : fact,
+    memoryAnchor:
+      retention && !/\bpense à\b/i.test(retention) ? retention : fact,
     visual,
     commonMistake: commonMistake || undefined,
     reuse: canonical.retentionPoints.slice(0, 2).filter(Boolean),
@@ -154,46 +158,90 @@ function personalizeHook(
   return hook || undefined;
 }
 
+function buildMinimalScenario(
+  concept: TLinguisticConcept,
+  input: TComposeTeachingScenarioInput,
+): TTeachingScenario {
+  const fact = concept.coreIdea.trim() || concept.summary.trim() || concept.title;
+  const contrast =
+    concept.canonicalExplanation.contrasts.slice(0, 1).map((item) => ({
+      fromForm: item.fromForm,
+      toForm: item.toForm,
+      explanation: item.explanation,
+    })) ?? [];
+
+  return {
+    conceptId: concept.id,
+    conceptSlug: concept.slug,
+    conceptTitle: concept.title,
+    encounteredForm: input.encounteredForm?.trim() || null,
+    bridge: undefined,
+    encounterExample: null,
+    fact,
+    contrast,
+    memoryAnchor: fact,
+    showMemoryAnchor: false,
+    contrastIsCanonical: true,
+    nextConcept: input.nextConcept ?? null,
+  };
+}
+
 export interface TComposeTeachingScenarioInput {
   concept: TLinguisticConcept;
   lemma: string;
+  /** Forme rencontrée réelle (après strip ponctuation) — pas le lemme. */
   encounteredForm?: string | null;
   /** Phrase d'origine + raison (explanation_cache). */
   encounterExample?: TTeachingEncounterExample | null;
   nextConcept?: TTeachingNextConcept | null;
 }
 
+/**
+ * Compose un scénario d'affichage.
+ * Ne throw jamais : données manquantes → scénario minimal / slots omis.
+ * Le Quality Gate (auteur) reste séparé — non appelé ici.
+ */
 export function composeTeachingScenario(
   input: TComposeTeachingScenarioInput,
-): TTeachingScenario | null {
+): TTeachingScenario {
   const content = getTeachingScenarioContent(input.concept);
 
   if (!content) {
-    return null;
+    console.warn(
+      `[Teaching Engine] Contenu absent pour ${input.concept.id} — scénario minimal`,
+    );
+    return buildMinimalScenario(input.concept, input);
   }
 
   const normalized = normalizeTeachingScenarioContent(content);
 
   if (!normalized.fact || normalized.contrast.length === 0) {
-    return null;
+    console.warn(
+      `[Teaching Engine] Fact/contrast incomplets pour ${input.concept.id} — scénario minimal`,
+    );
+    return buildMinimalScenario(input.concept, input);
   }
 
-  const encounteredForm =
-    input.encounteredForm?.trim() || input.lemma.trim() || null;
-  const lemma = input.lemma.trim() || encounteredForm || "";
+  const encounteredForm = input.encounteredForm?.trim() || null;
+  const lemma = input.lemma.trim() || encounteredForm || input.concept.title;
 
-  if (!encounteredForm) {
-    return null;
-  }
+  /** Bridge seulement si une vraie forme rencontrée existe (≠ lemme de secours). */
+  let bridge: string | undefined;
 
-  const bridge = composeTeachingBridge({
-    concept: input.concept,
-    lemma,
-    encounteredForm,
-  });
+  if (encounteredForm) {
+    const composed = composeTeachingBridge({
+      concept: input.concept,
+      lemma,
+      encounteredForm,
+    });
 
-  if (!bridgeMentionsForm(bridge, encounteredForm)) {
-    return null;
+    if (bridgeMentionsForm(composed, encounteredForm)) {
+      bridge = composed;
+    } else {
+      console.warn(
+        `[Teaching Engine] Bridge sans forme pour ${input.concept.id} — slot omis`,
+      );
+    }
   }
 
   const memoryDeduped = dedupeMemoryAnchor(
@@ -204,11 +252,12 @@ export function composeTeachingScenario(
   const reuse = normalized.reuse?.map((item) => item.trim()).filter(Boolean);
 
   const encounterExample =
-    input.encounterExample?.sentence.trim()
+    bridge && input.encounterExample?.sentence.trim()
       ? {
           sentence: input.encounterExample.sentence.trim(),
           note: input.encounterExample.note?.trim() || undefined,
-          surface: input.encounterExample.surface.trim() || encounteredForm,
+          surface:
+            input.encounterExample.surface.trim() || encounteredForm || "",
         }
       : null;
 
@@ -223,6 +272,7 @@ export function composeTeachingScenario(
     contrast: normalized.contrast,
     memoryAnchor: memoryDeduped ?? normalized.memoryAnchor,
     showMemoryAnchor: Boolean(memoryDeduped),
+    contrastIsCanonical: !bridge,
     hook: personalizeHook(content, encounteredForm),
     question: normalized.question,
     intuition: normalized.intuition,

@@ -62,15 +62,18 @@ export interface TTeachingScenarioContent {
 
 /**
  * Scénario prêt pour l'affichage — slots absents = non rendus.
- * `bridge` : application du concept à la forme rencontrée (obligatoire).
+ * `bridge` : conditionnel — seulement s'il y a une forme rencontrée réelle.
  */
 export interface TTeachingScenario {
   conceptId: string;
   conceptSlug: string;
   conceptTitle: string;
   encounteredForm: string | null;
-  /** Applique le concept canonique au lemme / à la forme rencontrés. */
-  bridge: string;
+  /**
+   * Applique le concept à la forme rencontrée.
+   * Absent si pas de rencontre exploitable — ne pas inventer un bridge creux.
+   */
+  bridge?: string;
   /** Phrase d'origine + raison — omis si pas de cache de rencontre. */
   encounterExample: TTeachingEncounterExample | null;
   fact: string;
@@ -78,6 +81,8 @@ export interface TTeachingScenario {
   memoryAnchor: string;
   /** false si memoryAnchor duplique fact — section « À retenir » omise. */
   showMemoryAnchor: boolean;
+  /** true si l'exemple contraste illustre le CONCEPT, pas le lemme consulté. */
+  contrastIsCanonical: boolean;
   hook?: string;
   question?: string;
   intuition?: string;

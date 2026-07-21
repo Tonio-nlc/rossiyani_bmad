@@ -220,26 +220,42 @@ export function TeachingScenarioView({
         <LessonProse text={scenario.fact} />
       </LessonSection>
 
-      <LessonSection
-        sectionId="comprendre"
-        eyebrow="DANS TA PHRASE"
-        title="Ce que ça change ici"
-        {...comprendreRhythm}
-      >
-        <LessonProse text={scenario.bridge} />
-        {showEncounterCard && encounterForCard ? (
-          <EncounterExampleCard encounter={encounterForCard} />
-        ) : null}
-      </LessonSection>
+      {scenario.bridge ? (
+        <LessonSection
+          sectionId="comprendre"
+          eyebrow="DANS TA PHRASE"
+          title="Ce que ça change ici"
+          {...comprendreRhythm}
+        >
+          <LessonProse text={scenario.bridge} />
+          {showEncounterCard && encounterForCard ? (
+            <EncounterExampleCard encounter={encounterForCard} />
+          ) : null}
+        </LessonSection>
+      ) : null}
 
       {scenario.contrast.length > 0 ? (
         <LessonSection
           sectionId="exemple"
-          eyebrow={LESSON_SECTION_LABELS.exemple.eyebrow}
-          title={LESSON_SECTION_LABELS.exemple.title}
+          eyebrow={
+            scenario.contrastIsCanonical
+              ? "CONCEPT"
+              : LESSON_SECTION_LABELS.exemple.eyebrow
+          }
+          title={
+            scenario.contrastIsCanonical
+              ? `Illustration — ${scenario.conceptTitle}`
+              : LESSON_SECTION_LABELS.exemple.title
+          }
           {...exempleRhythm}
         >
           <div className={LESSON_SUBCONTENT_GAP_CLASS}>
+            {scenario.contrastIsCanonical ? (
+              <p className={LESSON_PROSE_CLASS}>
+                Exemple du concept « {scenario.conceptTitle} », pas une forme de
+                ce lemme.
+              </p>
+            ) : null}
             {scenario.contrast.map((item) => (
               <ContrastExampleCard
                 key={`${item.fromForm}-${item.toForm}`}

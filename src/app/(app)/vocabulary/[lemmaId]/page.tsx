@@ -47,7 +47,11 @@ export default async function VocabularyEntryPage({
         returnLabel={backNavigation.label}
       />
     );
-  } catch {
+  } catch (error) {
+    console.error(
+      `[vocabulary/${lemmaId}] Échec chargement fiche`,
+      error instanceof Error ? error.message : error,
+    );
     return (
       <div className="mx-auto max-w-content px-4 py-12">
         <p className="text-sm text-destructive">

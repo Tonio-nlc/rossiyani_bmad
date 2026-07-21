@@ -10,6 +10,7 @@ import {
   type TConceptMatchProfile,
 } from "./match-signals";
 import {
+  getAllConcepts,
   getConceptById,
   getConceptsByIds,
   isKnownConceptId,
@@ -148,10 +149,49 @@ export function resolveConceptGraph(
 ): TResolvedConceptGraph {
   const signals = buildLemmaConceptLinks(profile, analysis, encounter);
   const primaryId = pickPrimaryConceptId(profile, signals);
-  const primary = getConceptById(primaryId);
+  const primary =
+    getConceptById(primaryId) ??
+    getConceptById("verb-present-conjugation") ??
+    getAllConcepts()[0];
 
   if (!primary) {
-    throw new Error(`Concept graph: concept introuvable (${primaryId})`);
+    console.warn(
+      `[Concept Graph] Aucun concept disponible (primaryId=${primaryId}) — graphe vide`,
+    );
+    // Dernier recours : coquille minimale pour ne pas casser le rendu
+    const fallback = {
+      id: "fallback-concept",
+      slug: "fallback-concept",
+      title: "Notion linguistique",
+      category: "General" as const,
+      difficulty: "A1" as const,
+      summary: "Explication en cours de construction.",
+      coreIdea: "Ce lemme illustre une notion linguistique russe.",
+      whyItExists: "",
+      mentalModel: "",
+      visualModel: { type: "diagram" as const, nodes: [] },
+      canonicalExplanation: {
+        understand: ["Explication en cours de construction."],
+        scheme: [],
+        contrasts: [],
+        miniTable: null,
+        retentionPoints: [],
+        family: [],
+      },
+      commonMistakes: [],
+      relatedConcepts: [],
+      relatedLemmas: [],
+      examples: [],
+      progression: { beginner: "À compléter." },
+    };
+
+    return {
+      primary: fallback,
+      secondary: [],
+      advanced: [],
+      teachingPath: [],
+      links: [],
+    };
   }
 
   const links = buildLinks(signals, primaryId);

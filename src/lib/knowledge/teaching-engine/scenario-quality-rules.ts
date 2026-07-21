@@ -466,25 +466,21 @@ export function validateTeachingScenario(
 
   const report = validateTeachingScenarioContent(content, scenario.conceptId);
 
-  if (!scenario.encounteredForm?.trim()) {
+  // Outil d'AUTEUR : encounteredForm / bridge conditionnels.
+  // Pas d'erreur si absents — warning seulement quand la forme existe sans bridge.
+  if (
+    scenario.encounteredForm?.trim() &&
+    !scenario.bridge?.trim()
+  ) {
     report.issues.push({
-      severity: "error",
-      code: "SCENARIO_ENCOUNTERED_FORM_MISSING",
-      message: "encounteredForm absent",
-      field: "encounteredForm",
-    });
-    report.valid = false;
-  }
-
-  if (!scenario.bridge?.trim()) {
-    report.issues.push({
-      severity: "error",
+      severity: "warning",
       code: "SCENARIO_BRIDGE_MISSING",
-      message: "bridge absent — appliquer le concept à la forme rencontrée",
+      message:
+        "Forme rencontrée sans bridge — recommandé pour ancrer le concept",
       field: "bridge",
     });
-    report.valid = false;
   } else if (
+    scenario.bridge?.trim() &&
     scenario.encounteredForm?.trim() &&
     !bridgeMentionsForm(scenario.bridge, scenario.encounteredForm)
   ) {
