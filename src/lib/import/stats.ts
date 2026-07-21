@@ -1,10 +1,19 @@
 import { IMPORT_LIMITS } from "./constants";
-import { normalizeToken, splitIntoSentences, tokenizeSentence } from "../utils/russian";
-
-const LETTER_RE = /\p{L}/u;
+import {
+  isUnicodeLetterChar,
+  normalizeToken,
+  splitIntoSentences,
+  tokenizeSentence,
+} from "../utils/russian";
 
 function isWordToken(token: string): boolean {
-  return LETTER_RE.test(normalizeToken(token));
+  const normalized = normalizeToken(token);
+
+  if (!normalized) {
+    return false;
+  }
+
+  return Array.from(normalized).some((char) => isUnicodeLetterChar(char));
 }
 
 export function countWords(text: string): number {

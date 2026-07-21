@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { splitIntoSentences } from "@/lib/utils/russian";
 import {
   normalizeRussianWord,
   sentenceContainsLemma,
@@ -18,13 +19,6 @@ interface CacheExampleRow {
   id: string;
   sentence_example: string;
   explanation_fr: string;
-}
-
-function splitIntoSentences(content: string): string[] {
-  return content
-    .split(/(?<=[.!?…])\s+/)
-    .map((sentence) => sentence.trim())
-    .filter(Boolean);
 }
 
 function mapAnnotatedExamples(

@@ -1,8 +1,18 @@
 import { normalizeToken, splitIntoSentences, tokenizeSentence } from "../utils/russian";
 import type { TTextLevel } from "./types";
 
-const CYRILLIC_RE = /\p{Script=Cyrillic}/u;
 const LEVELS: TTextLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
+
+function isCyrillicToken(token: string): boolean {
+  return Array.from(token).some((char) => {
+    const codePoint = char.codePointAt(0) ?? 0;
+
+    return (
+      (codePoint >= 0x0400 && codePoint <= 0x04ff) ||
+      (codePoint >= 0x0500 && codePoint <= 0x052f)
+    );
+  });
+}
 
 function cyrillicWords(text: string): string[] {
   const sentences = splitIntoSentences(text);
@@ -11,7 +21,7 @@ function cyrillicWords(text: string): string[] {
   return parts
     .flatMap((sentence) => tokenizeSentence(sentence))
     .map((token) => normalizeToken(token).toLowerCase())
-    .filter((token) => CYRILLIC_RE.test(token));
+    .filter((token) => token.length > 0 && isCyrillicToken(token));
 }
 
 /**

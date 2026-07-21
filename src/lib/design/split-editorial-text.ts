@@ -1,4 +1,4 @@
-const SENTENCE_SPLIT_RE = /(?<=[.!?…])\s+/u;
+import { splitIntoSentences } from "@/lib/utils/russian";
 
 /**
  * Découpe un texte long en blocs lisibles (max ~70 mots par bloc).
@@ -14,19 +14,19 @@ export function splitEditorialText(
     return [];
   }
 
-  const words = trimmed.split(/\s+/u);
+  const words = trimmed.split(/\s+/);
 
   if (words.length <= maxWords) {
     return [trimmed];
   }
 
-  const sentences = trimmed.split(SENTENCE_SPLIT_RE).filter(Boolean);
+  const sentences = splitIntoSentences(trimmed);
   const blocks: string[] = [];
   let current = "";
 
   for (const sentence of sentences) {
     const candidate = current ? `${current} ${sentence}` : sentence;
-    const candidateWords = candidate.split(/\s+/u).length;
+    const candidateWords = candidate.split(/\s+/).length;
 
     if (candidateWords > maxWords && current) {
       blocks.push(current.trim());

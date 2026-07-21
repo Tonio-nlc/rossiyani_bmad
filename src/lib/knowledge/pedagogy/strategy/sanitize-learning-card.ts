@@ -1,8 +1,7 @@
 import { textMatchesPatterns } from "@/lib/knowledge/pedagogy/strategy/label-patterns";
 import type { TPedagogicalStrategy } from "@/lib/knowledge/pedagogy/strategy/strategy-types";
+import { splitIntoSentences } from "@/lib/utils/russian";
 import type { TLearningCard } from "@/types/learning-card";
-
-const SENTENCE_SPLIT_RE = /(?<=[.!?…])\s+/u;
 
 function filterChips(chips: string[], strategy: TPedagogicalStrategy): string[] {
   return chips.filter(
@@ -46,7 +45,7 @@ function sanitizeText(
     return text.trim();
   }
 
-  const sentences = text.split(SENTENCE_SPLIT_RE).filter(Boolean);
+  const sentences = splitIntoSentences(text);
   const clean = sentences.filter(
     (sentence) =>
       !textMatchesPatterns(sentence, strategy.forbiddenLabelPatterns),

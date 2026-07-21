@@ -1,4 +1,4 @@
-const SENTENCE_SPLIT_RE = /(?<=[.!?…])\s+/u;
+import { splitIntoSentences } from "@/lib/utils/russian";
 
 export const COGNITIVE_MAX_WORDS = 60;
 export const COGNITIVE_MAX_SENTENCES = 2;
@@ -6,7 +6,7 @@ export const COGNITIVE_MAX_RETENTION = 3;
 export const COGNITIVE_MAX_WHAT_IF = 3;
 
 export function countWords(text: string): number {
-  return text.trim().split(/\s+/u).filter(Boolean).length;
+  return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
 export function constrainCognitiveParagraph(
@@ -20,7 +20,7 @@ export function constrainCognitiveParagraph(
     return trimmed;
   }
 
-  const sentences = trimmed.split(SENTENCE_SPLIT_RE).filter(Boolean);
+  const sentences = splitIntoSentences(trimmed);
   const limitedSentences = sentences.slice(0, maxSentences);
   let result = limitedSentences.join(" ");
 
@@ -30,7 +30,7 @@ export function constrainCognitiveParagraph(
   }
 
   if (countWords(result) > maxWords) {
-    const words = result.split(/\s+/u);
+    const words = result.split(/\s+/);
     result = `${words.slice(0, maxWords).join(" ")}…`;
   }
 

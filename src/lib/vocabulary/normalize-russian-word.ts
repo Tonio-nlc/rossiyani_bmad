@@ -1,9 +1,22 @@
+import { normalizeToken, toNfc } from "@/lib/utils/russian";
+
+/**
+ * Tokenisation / normalisation russe — sans /\p{…}/ (Safari-safe).
+ * Accents U+0301 : retirés pour la comparaison, préservés dans findAccentedLemmaForm.
+ */
+
+const WORD_CHAR_RE =
+  /[A-Za-zÀ-ÿА-Яа-яЁёІіЇїЄєҐґ0-9\u0300-\u036f\u1ab0-\u1aff\u1dc0-\u1dff\u20d0-\u20ff\ufe20-\ufe2f]+/g;
+
 export function normalizeRussianWord(word: string): string {
-  return word
+  return normalizeToken(word)
     .normalize("NFD")
     .replace(/\u0301/g, "")
-    .replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "")
     .toLowerCase();
+}
+
+function tokenizeRussian(text: string): string[] {
+  return text.normalize("NFC").match(WORD_CHAR_RE) ?? [];
 }
 
 export function sentenceContainsLemma(
@@ -16,9 +29,7 @@ export function sentenceContainsLemma(
     return false;
   }
 
-  const tokens = sentence.match(/[\p{L}\p{M}]+/gu) ?? [];
-
-  return tokens.some(
+  return tokenizeRussian(sentence).some(
     (token) => normalizeRussianWord(token) === normalizedLemma,
   );
 }
@@ -34,9 +45,7 @@ export function findAccentedLemmaForm(
   }
 
   for (const content of textContents) {
-    const tokens = content.match(/[\p{L}\p{M}]+/gu) ?? [];
-
-    for (const token of tokens) {
+    for (const token of tokenizeRussian(content)) {
       if (normalizeRussianWord(token) !== normalizedLemma) {
         continue;
       }
@@ -44,7 +53,7 @@ export function findAccentedLemmaForm(
       const hasAccent = token.normalize("NFD").includes("\u0301");
 
       if (hasAccent) {
-        return token.normalize("NFC");
+        return toNfc(token);
       }
     }
   }

@@ -12,29 +12,89 @@ export function toNfc(text: string): string {
   return text.normalize("NFC");
 }
 
-const TRAILING_PUNCTUATION_RE = /([^\p{L}\p{N}\p{M}]+)$/u;
-const TOKEN_TRIM_RE = /^[^\p{L}\p{N}\p{M}]+|[^\p{L}\p{N}\p{M}]+$/gu;
+/**
+ * Combining marks (Mn) — Safari-safe substitute for /\p{M}/u.
+ * Couvre U+0301 (accent tonique russe) et les diacritiques courants.
+ */
+function isCombiningMarkCodePoint(codePoint: number): boolean {
+  return (
+    (codePoint >= 0x0300 && codePoint <= 0x036f) ||
+    (codePoint >= 0x1ab0 && codePoint <= 0x1aff) ||
+    (codePoint >= 0x1dc0 && codePoint <= 0x1dff) ||
+    (codePoint >= 0x20d0 && codePoint <= 0x20ff) ||
+    (codePoint >= 0xfe20 && codePoint <= 0xfe2f)
+  );
+}
+
+/** Lettres Latin + Cyrillique — substitute Safari-safe pour /\p{L}/u (périmètre app). */
+function isLetterCodePoint(codePoint: number): boolean {
+  return (
+    (codePoint >= 0x0041 && codePoint <= 0x005a) ||
+    (codePoint >= 0x0061 && codePoint <= 0x007a) ||
+    (codePoint >= 0x00c0 && codePoint <= 0x024f) ||
+    (codePoint >= 0x0400 && codePoint <= 0x04ff) ||
+    (codePoint >= 0x0500 && codePoint <= 0x052f) ||
+    (codePoint >= 0x1e00 && codePoint <= 0x1eff) ||
+    (codePoint >= 0x2de0 && codePoint <= 0x2dff) ||
+    (codePoint >= 0xa640 && codePoint <= 0xa69f)
+  );
+}
+
+function isNumberCodePoint(codePoint: number): boolean {
+  return codePoint >= 0x0030 && codePoint <= 0x0039;
+}
+
+function isWordChar(char: string): boolean {
+  const codePoint = char.codePointAt(0) ?? 0;
+
+  return (
+    isLetterCodePoint(codePoint) ||
+    isNumberCodePoint(codePoint) ||
+    isCombiningMarkCodePoint(codePoint)
+  );
+}
+
+function isCombiningMarkChar(char: string): boolean {
+  return isCombiningMarkCodePoint(char.codePointAt(0) ?? 0);
+}
+
+/** Exporté pour les modules client (import) — Safari-safe vs /\p{L}/u. */
+export function isUnicodeLetterChar(char: string): boolean {
+  return isLetterCodePoint(char.codePointAt(0) ?? 0);
+}
+
+/** Découpe en code points (sépare correctement les paires UTF-16). */
+function toChars(text: string): string[] {
+  return Array.from(text);
+}
 
 export function splitTrailingPunctuation(surface: string): {
   wordPart: string;
   trailingPunctuation: string;
 } {
-  const trailingMatch = surface.match(TRAILING_PUNCTUATION_RE);
-  const trailingPunctuation = trailingMatch?.[1] ?? "";
-  const wordPart = trailingPunctuation
-    ? surface.slice(0, -trailingPunctuation.length)
-    : surface;
+  const chars = toChars(surface);
+  let end = chars.length;
 
-  return { wordPart, trailingPunctuation };
+  while (end > 0 && !isWordChar(chars[end - 1]!)) {
+    end -= 1;
+  }
+
+  return {
+    wordPart: chars.slice(0, end).join(""),
+    trailingPunctuation: chars.slice(end).join(""),
+  };
 }
 
+/**
+ * Segmentation graphème déterministe (NFC + Mn collés au caractère de base).
+ * Équivalent Safari-safe de l'ancien /\p{M}/u — accents U+0301 préservés.
+ */
 export function segmentGraphemes(text: string): string[] {
   const normalized = toNfc(text);
   const graphemes: string[] = [];
 
-  // Segmentation déterministe — évite les écarts SSR/client de Intl.Segmenter.
   for (const char of normalized) {
-    if (/\p{M}/u.test(char) && graphemes.length > 0) {
+    if (isCombiningMarkChar(char) && graphemes.length > 0) {
       graphemes[graphemes.length - 1] += char;
     } else {
       graphemes.push(char);
@@ -149,7 +209,11 @@ export function isPunctuationToken(token: string): boolean {
     return false;
   }
 
-  return /^[^\p{L}\p{N}]+$/u.test(trimmed);
+  return toChars(trimmed).every((char) => {
+    const codePoint = char.codePointAt(0) ?? 0;
+
+    return !isLetterCodePoint(codePoint) && !isNumberCodePoint(codePoint);
+  });
 }
 
 export function shouldAddSpaceAfterToken(
@@ -165,9 +229,14 @@ export function shouldAddSpaceAfterToken(
   return !isPunctuationToken(nextToken);
 }
 
+/**
+ * Découpe en phrases — équivalent Safari-safe de /(?<=[.!?…])\s+/
+ * (lookbehind non supporté avant Safari 16.4).
+ */
 export function splitIntoSentences(content: string): string[] {
   return content
-    .split(/(?<=[.!?…])\s+/)
+    .replace(/([.!?…])\s+/g, "$1\n")
+    .split("\n")
     .map((sentence) => sentence.trim())
     .filter(Boolean);
 }
@@ -177,7 +246,26 @@ export function tokenizeSentence(sentence: string): string[] {
 }
 
 export function normalizeToken(token: string): string {
-  return toNfc(token).replace(TOKEN_TRIM_RE, "");
+  const chars = toChars(toNfc(token));
+  let start = 0;
+  let end = chars.length;
+
+  while (start < end && !isWordChar(chars[start]!)) {
+    start += 1;
+  }
+
+  while (end > start && !isWordChar(chars[end - 1]!)) {
+    end -= 1;
+  }
+
+  return chars.slice(start, end).join("");
+}
+
+/** Retire les marques combinantes (accents) — Safari-safe vs /\p{M}/gu. */
+export function stripAllCombiningMarks(text: string): string {
+  return toChars(text)
+    .filter((char) => !isCombiningMarkChar(char))
+    .join("");
 }
 
 export const FUNCTIONAL_ROLE_LABELS: Record<string, string> = {

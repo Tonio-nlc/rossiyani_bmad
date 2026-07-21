@@ -1,6 +1,8 @@
 import { formatAspectLabel } from "@/lib/vocabulary/format-linguistic-labels";
-
-const SENTENCE_SPLIT_RE = /(?<=[.!?…])\s+/u;
+import {
+  splitIntoSentences,
+  stripAllCombiningMarks,
+} from "@/lib/utils/russian";
 
 const VOICE_REPLACEMENTS: Array<[RegExp, string]> = [
   [/cette terminaison indique/gi, "Ici, cette terminaison montre"],
@@ -58,7 +60,7 @@ export function rewriteEditorialText(text: string): string {
 
 export function structureExplanation(text: string, maxSteps = 4): string[] {
   const rewritten = rewriteEditorialText(text);
-  const sentences = rewritten.split(SENTENCE_SPLIT_RE).filter(Boolean);
+  const sentences = splitIntoSentences(rewritten);
 
   if (sentences.length === 0) {
     return [];
@@ -81,11 +83,8 @@ export function structureExplanation(text: string, maxSteps = 4): string[] {
 }
 
 function normalizeTakeawayKey(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+  return stripAllCombiningMarks(text.toLowerCase().normalize("NFD"))
+    .replace(/[^a-zA-Z0-9À-ÿА-Яа-яЁёІіЇїЄєҐґ\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -110,7 +109,7 @@ export function dedupeEditorialItems(items: string[]): string[] {
 
 export function toSingleLineTakeaway(text: string): string {
   const rewritten = rewriteEditorialText(text);
-  const firstSentence = rewritten.split(SENTENCE_SPLIT_RE)[0]?.trim();
+  const firstSentence = splitIntoSentences(rewritten)[0]?.trim();
 
   return firstSentence || rewritten;
 }
