@@ -225,6 +225,11 @@ export interface TComposeTeachingScenarioInput {
   nextConcept?: TTeachingNextConcept | null;
   /** Profil linguistique — paradigmes / défectivité pour la démonstration. */
   profile?: TVocabularyLinguisticProfile | null;
+  /**
+   * Scénario du phénomène seul (Reader → concept) :
+   * pas de bridge, illustration canonique du concept, pas de démo lemme.
+   */
+  forceCanonical?: boolean;
 }
 
 /**
@@ -261,12 +266,14 @@ export function composeTeachingScenario(
   }
 
   const encounteredForm = input.encounteredForm?.trim() || null;
-  const lemma = input.lemma.trim() || encounteredForm || input.concept.title;
+  const lemma = input.forceCanonical
+    ? ""
+    : input.lemma.trim() || encounteredForm || input.concept.title;
 
   /** Bridge seulement si une vraie forme rencontrée existe (≠ lemme de secours). */
   let bridge: string | undefined;
 
-  if (encounteredForm) {
+  if (encounteredForm && !input.forceCanonical) {
     const composed = composeTeachingBridge({
       concept: input.concept,
       lemma,
@@ -283,7 +290,7 @@ export function composeTeachingScenario(
   }
 
   const presentDemo =
-    input.concept.id === "verb-present-conjugation"
+    !input.forceCanonical && input.concept.id === "verb-present-conjugation"
       ? composePresentConjugationDemo({
           lemma,
           encounteredForm,
@@ -291,26 +298,53 @@ export function composeTeachingScenario(
         })
       : null;
 
-  const useLemmaDemo = Boolean(presentDemo?.isLemmaDemo);
+  /**
+   * Pour verb-present-conjugation : dès qu'un lemme est consulté, la démo
+   * appartient à CE lemme. Ne jamais retomber sur le seed читать.
+   * forceCanonical = fiche phénomène seule (Reader → concept).
+   */
+  const useLemmaDemo =
+    !input.forceCanonical &&
+    (Boolean(presentDemo?.isLemmaDemo) ||
+      (input.concept.id === "verb-present-conjugation" && Boolean(lemma)));
 
-  const fact = useLemmaDemo && presentDemo ? presentDemo.fact : factBase;
+  const fact =
+    presentDemo?.isLemmaDemo && presentDemo ? presentDemo.fact : factBase;
   const contrast =
-    useLemmaDemo && presentDemo ? presentDemo.contrast : normalized.contrast;
+    presentDemo?.isLemmaDemo && presentDemo
+      ? presentDemo.contrast
+      : useLemmaDemo
+        ? [
+            {
+              fromForm: lemma,
+              toForm: encounteredForm || lemma,
+              explanation: encounteredForm
+                ? `${encounteredForm} : forme rencontrée du lemme ${lemma}.`
+                : "La démonstration se lit sur ce lemme — pas sur un autre verbe.",
+            },
+          ]
+        : normalized.contrast;
   const visual =
-    useLemmaDemo && presentDemo
-      ? presentDemo.visual
-      : (normalized.visual ?? undefined);
+    presentDemo?.isLemmaDemo && presentDemo
+      ? (presentDemo.visual ?? undefined)
+      : useLemmaDemo
+        ? undefined
+        : (normalized.visual ?? undefined);
   const commonMistake =
-    useLemmaDemo && presentDemo
+    presentDemo?.isLemmaDemo && presentDemo
       ? presentDemo.commonMistake
-      : normalized.commonMistake;
+      : useLemmaDemo
+        ? undefined
+        : normalized.commonMistake;
   const reuse = useLemmaDemo
     ? undefined
     : normalized.reuse?.map((item) => item.trim()).filter(Boolean);
   const memorySource =
-    useLemmaDemo && presentDemo
+    presentDemo?.isLemmaDemo && presentDemo
       ? presentDemo.memoryAnchor
-      : normalized.memoryAnchor;
+      : useLemmaDemo
+        ? factBase
+        : normalized.memoryAnchor;
 
   const memoryDeduped = dedupeMemoryAnchor(fact, memorySource);
 
@@ -335,7 +369,7 @@ export function composeTeachingScenario(
     conceptId: input.concept.id,
     conceptSlug: input.concept.slug,
     conceptTitle: input.concept.title,
-    consultedLemma: lemma,
+    consultedLemma: input.forceCanonical ? null : lemma,
     encounteredForm,
     bridge,
     encounterExample,
@@ -354,4 +388,19 @@ export function composeTeachingScenario(
     illustration,
     nextConcept: input.nextConcept ?? null,
   };
+}
+
+/**
+ * Fiche phénomène seule — principe + illustration du concept, sans bridge lemme.
+ * Utilisée depuis le Reader (Explorer → concept).
+ */
+export function composeCanonicalConceptScenario(
+  concept: TLinguisticConcept,
+): TTeachingScenario {
+  return composeTeachingScenario({
+    concept,
+    lemma: "",
+    encounteredForm: null,
+    forceCanonical: true,
+  });
 }

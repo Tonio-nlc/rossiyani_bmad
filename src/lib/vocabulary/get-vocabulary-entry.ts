@@ -6,6 +6,7 @@ import { collectVocabularyExamples } from "@/lib/vocabulary/collect-vocabulary-e
 import { extractTranslation } from "@/lib/vocabulary/extract-translation";
 import { formatReviewLevel } from "@/lib/vocabulary/format-linguistic-labels";
 import { parseExplanationCachePayload } from "@/lib/vocabulary/parse-explanation-cache";
+import { parsePersistedTeachingScenario } from "@/lib/vocabulary/prepare-and-persist-word-scenario";
 import { resolveDisplayLemma } from "@/lib/vocabulary/resolve-display-lemma";
 import { getNaturalFunctionalRoleLabel } from "@/lib/utils/russian";
 import { createClient } from "@/lib/supabase/server";
@@ -25,6 +26,7 @@ interface VocabularyEntryRow {
   saved_at: string;
   text_id: string | null;
   notes: string | null;
+  teaching_scenario: unknown;
   lemmas: { form: string } | { form: string }[] | null;
   explanation_cache:
     | ExplanationCacheRelation
@@ -188,6 +190,7 @@ export async function getVocabularyEntry(
       saved_at,
       text_id,
       notes,
+      teaching_scenario,
       lemmas ( form ),
       explanation_cache (
         explanation_fr,
@@ -256,6 +259,9 @@ export async function getVocabularyEntry(
     translation,
     encounter: contextEncounter,
     examples,
+    persistedTeachingScenario: parsePersistedTeachingScenario(
+      row.teaching_scenario,
+    ),
   });
 
   return {

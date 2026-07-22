@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getUserVocabulary } from "@/lib/vocabulary/get-user-vocabulary";
+import { prepareAndPersistWordTeachingScenario } from "@/lib/vocabulary/prepare-and-persist-word-scenario";
 import { createClient } from "@/lib/supabase/server";
 
 const saveSchema = z.object({
@@ -93,8 +94,16 @@ export async function POST(request: Request) {
     });
   }
 
+  // Scénario personnalisé (principe partagé + démo/bridge du mot) — ne bloque pas l'UX
+  const teachingScenario = await prepareAndPersistWordTeachingScenario({
+    userVocabularyId: vocabulary.id,
+    lemmaId,
+    explanationCacheId,
+  });
+
   return NextResponse.json({
     success: true,
     userVocabularyId: vocabulary.id,
+    teachingScenarioPersisted: Boolean(teachingScenario),
   });
 }

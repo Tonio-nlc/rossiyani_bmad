@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { ExplorerConceptDeepLink } from "@/components/reader/ExplorerConceptDeepLink";
 import { ExplorerLessonDeepLink } from "@/components/reader/ExplorerLessonDeepLink";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BTN_PRIMARY_CLASS, BTN_SECONDARY_CLASS } from "@/lib/design/classes";
@@ -225,6 +226,13 @@ function ExplorerContent({
           {roleLabel}
         </span>
       </div>
+
+      {explanation.conceptSlug && explanation.conceptTitle ? (
+        <ExplorerConceptDeepLink
+          conceptSlug={explanation.conceptSlug}
+          conceptTitle={explanation.conceptTitle}
+        />
+      ) : null}
 
       <p
         className={cn(

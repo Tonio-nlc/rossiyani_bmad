@@ -1,6 +1,8 @@
 /**
  * Démonstration paramétrée pour verb-present-conjugation.
  * Principe (seed) invariant ; slots démonstratifs = lemme + forme rencontrée.
+ *
+ * Si morphologie curée absente : paradigme (visual) OMIS — jamais remplacé par читать.
  */
 
 import type {
@@ -25,11 +27,14 @@ export interface TPresentConjugationDemo {
   fact: string;
   memoryAnchor: string;
   contrast: TTeachingComparison[];
-  visual: TTeachingVisual;
+  /** Absent si pas de paradigme curé / profil — ne pas inventer ni emprunter. */
+  visual?: TTeachingVisual | null;
   commonMistake?: string;
   reuse?: string[];
   /** true = démonstration du lemme consulté (pas illustration canonique). */
   isLemmaDemo: boolean;
+  /** true si le paradigme a été omis faute de morphologie curée. */
+  paradigmOmitted: boolean;
 }
 
 function resolveVerb(
@@ -105,6 +110,8 @@ function conjugationClassLabel(conjugationClass: 1 | 2): string {
 
 /**
  * Compose fact / visual / contrast à partir du lemme consulté + forme rencontrée.
+ * Retourne toujours une démo lemme si le principe peut s'appliquer (forme ou lemme seul).
+ * Ne retourne null que si aucun lemme n'est fourni.
  */
 export function composePresentConjugationDemo(input: {
   lemma: string;
@@ -112,31 +119,50 @@ export function composePresentConjugationDemo(input: {
   profile?: TVocabularyLinguisticProfile | null;
 }): TPresentConjugationDemo | null {
   const lemma = input.lemma.trim();
+
+  if (!lemma) {
+    return null;
+  }
+
   const form = input.encounteredForm?.trim() || null;
   const verb = resolveVerb(lemma, input.profile);
-
   const personInfo = form ? inferPresentPersonFromSurface(form) : null;
   const ending =
     (personInfo && verb?.endings[personInfo.key]) ||
     personInfo?.ending ||
     null;
 
-  if (!form || !personInfo || !ending) {
-    return null;
+  if (!verb) {
+    console.info(
+      `[morphology] Lemme sans paradigme curé (présent) — paradigme omis: ${lemma}`,
+    );
   }
 
-  const personFr = personKeyToFrench(personInfo.key);
+  const paradigmOmitted = !verb;
+  const personFr = personInfo ? personKeyToFrench(personInfo.key) : null;
   const classHint = verb
     ? ` (${conjugationClassLabel(verb.conjugationClass)})`
     : "";
 
-  const fact = `La terminaison ${ending} marque la ${personFr} au présent${classHint}.`;
-  const memoryAnchor = `${ending} = ${personFr}, présent.`;
+  let fact: string;
+  let memoryAnchor: string;
+
+  if (form && personInfo && ending) {
+    fact = `La terminaison ${ending} marque la ${personFr} au présent${classHint}.`;
+    memoryAnchor = `${ending} = ${personFr}, présent.`;
+  } else if (form) {
+    fact = `${form} illustre le principe : la terminaison du verbe dit qui fait l'action, maintenant.`;
+    memoryAnchor = "Terminaison du présent = qui agit, maintenant.";
+  } else {
+    fact =
+      "En russe, la terminaison du verbe dit qui fait l'action, maintenant.";
+    memoryAnchor = "Terminaison du présent = qui agit, maintenant.";
+  }
 
   const entries = verb ? getAllowedPresentEntries(verb) : [];
   const contrast: TTeachingComparison[] = [];
 
-  if (entries.length >= 2) {
+  if (entries.length >= 2 && personInfo) {
     const current =
       entries.find((entry) => entry.key === personInfo.key) ?? entries[0];
     const other =
@@ -149,40 +175,54 @@ export function composePresentConjugationDemo(input: {
         ? verb.defective.note
         : "Même présent, seule la personne change.",
     });
-  } else {
+  } else if (form) {
     contrast.push({
       fromForm: lemma,
       toForm: form,
-      explanation: `${form} : terminaison ${ending} = ${personFr} au présent.`,
+      explanation:
+        personInfo && ending
+          ? `Même présent : ${ending} marque la ${personFr}.`
+          : `Forme rencontrée du lemme ${lemma}.`,
+    });
+  } else {
+    contrast.push({
+      fromForm: lemma,
+      toForm: lemma,
+      explanation:
+        "La démonstration se lit sur ce lemme — pas sur un autre verbe.",
     });
   }
 
-  let visual: TTeachingVisual;
+  let visual: TTeachingVisual | null | undefined;
 
   if (verb) {
     const nodes = buildPresentVisualNodes(verb);
 
-    visual = {
-      nodes:
-        nodes.length >= 2
-          ? nodes
-          : entries.map(
-              (entry) =>
-                `${PERSON_PRONOUNS[entry.key]} ${entry.form}${
-                  entry.ending ? ` (${entry.ending})` : ""
-                }`,
-            ),
-      layout: "vertical",
-      caption: verb.defective
-        ? `Présent défectif — ${conjugationClassLabel(verb.conjugationClass)}`
-        : `Présent — ${conjugationClassLabel(verb.conjugationClass)}`,
-    };
+    if (nodes.length >= 2) {
+      visual = {
+        nodes,
+        layout: "vertical",
+        caption: verb.defective
+          ? `Présent défectif — ${conjugationClassLabel(verb.conjugationClass)}`
+          : `Présent — ${conjugationClassLabel(verb.conjugationClass)}`,
+      };
+    } else if (entries.length >= 2) {
+      visual = {
+        nodes: entries.map(
+          (entry) =>
+            `${PERSON_PRONOUNS[entry.key]} ${entry.form}${
+              entry.ending ? ` (${entry.ending})` : ""
+            }`,
+        ),
+        layout: "vertical",
+        caption: `Présent — ${conjugationClassLabel(verb.conjugationClass)}`,
+      };
+    } else {
+      visual = undefined;
+    }
   } else {
-    visual = {
-      nodes: [lemma, form],
-      layout: "vertical",
-      caption: "Du lemme à la forme rencontrée",
-    };
+    // ÉTAPE 4 — pas de paradigme emprunté : omettre
+    visual = undefined;
   }
 
   let commonMistake: string | undefined;
@@ -191,7 +231,7 @@ export function composePresentConjugationDemo(input: {
     commonMistake = verb.defective.note;
   } else if (verb?.past?.m && verb.present.sg2) {
     commonMistake = `Ne confonds pas ${verb.present.sg2} (présent) et ${verb.past.m} (passé).`;
-  } else {
+  } else if (form) {
     commonMistake = `Regarde la terminaison de ${form} : c'est elle qui dit qui agit, pas le pronom seul.`;
   }
 
@@ -202,5 +242,6 @@ export function composePresentConjugationDemo(input: {
     visual,
     commonMistake,
     isLemmaDemo: true,
+    paradigmOmitted,
   };
 }

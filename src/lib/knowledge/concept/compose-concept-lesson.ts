@@ -42,26 +42,28 @@ export function composeConceptLesson(
     input.encounter,
   );
 
-  const teachingScenario = composeTeachingScenario({
-    concept: graph.primary,
-    lemma: input.displayLemma || input.profile.lemma,
-    encounteredForm: normalizeEncounterSurface(input.encounter),
-    encounterExample: input.encounter?.sentence
-      ? {
-          sentence: input.encounter.sentence,
-          note: input.encounter.explanation || undefined,
-          surface: input.encounter.surface,
-        }
-      : null,
-    nextConcept: graph.secondary[0]
-      ? {
-          id: graph.secondary[0].id,
-          slug: graph.secondary[0].slug,
-          title: graph.secondary[0].title,
-        }
-      : null,
-    profile: input.profile,
-  });
+  const teachingScenario =
+    input.persistedTeachingScenario ??
+    composeTeachingScenario({
+      concept: graph.primary,
+      lemma: input.displayLemma || input.profile.lemma,
+      encounteredForm: normalizeEncounterSurface(input.encounter),
+      encounterExample: input.encounter?.sentence
+        ? {
+            sentence: input.encounter.sentence,
+            note: input.encounter.explanation || undefined,
+            surface: input.encounter.surface,
+          }
+        : null,
+      nextConcept: graph.secondary[0]
+        ? {
+            id: graph.secondary[0].id,
+            slug: graph.secondary[0].slug,
+            title: graph.secondary[0].title,
+          }
+        : null,
+      profile: input.profile,
+    });
 
   const phenomenon = phenomenonFromGraph(graph);
 
