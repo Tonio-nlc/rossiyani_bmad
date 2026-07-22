@@ -20,3 +20,25 @@ export {
   CURATED_PROCHITAT,
   CURATED_STOL,
 } from "./forms";
+
+export {
+  CURATED_BOLET_HURT,
+  CURATED_CHITAT_PRESENT,
+  CURATED_GOVORIT_PRESENT,
+  CURATED_PRESENT_VERBS,
+  CURATED_SLUCHITSYA,
+  buildPresentVisualNodes,
+  getAllowedPresentEntries,
+  getCuratedPresentVerb,
+  inferPresentPersonFromSurface,
+  isDefectivePresentVerb,
+  personKeyToChipLabel,
+  personKeyToFrench,
+  stripStressMarks,
+  type TCuratedVerbDefectivity,
+  type TCuratedVerbPresent,
+  type TPresentPersonInfo,
+  type TPresentPersonKey,
+} from "./present-verbs";
+
+export { composePresentConjugationDemo } from "./compose-present-conjugation-demo";

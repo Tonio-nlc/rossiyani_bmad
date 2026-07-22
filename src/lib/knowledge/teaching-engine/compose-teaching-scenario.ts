@@ -1,10 +1,14 @@
 import type { TLinguisticConcept } from "@/types/linguistic-concept";
 import type {
   TTeachingEncounterExample,
+  TTeachingIllustration,
   TTeachingNextConcept,
   TTeachingScenario,
   TTeachingScenarioContent,
 } from "@/types/teaching-scenario";
+import type { TVocabularyLinguisticProfile } from "@/types/vocabulary";
+
+import { composePresentConjugationDemo } from "@/lib/knowledge/morphology/curated";
 
 import {
   bridgeMentionsForm,
@@ -119,6 +123,7 @@ function buildScenarioFromConcept(
     .find(Boolean);
 
   return {
+    principle: concept.coreIdea.trim() || undefined,
     fact,
     contrast: contrast.length > 0 ? contrast : undefined,
     memoryAnchor:
@@ -158,6 +163,28 @@ function personalizeHook(
   return hook || undefined;
 }
 
+function resolvePrinciple(content: TTeachingScenarioContent): string | undefined {
+  return content.principle?.trim() || undefined;
+}
+
+function buildIllustrationPayload(
+  content: TTeachingScenarioContent,
+): TTeachingIllustration | null {
+  if (!content.illustration) {
+    return null;
+  }
+
+  return {
+    label: content.illustration.label,
+    fact: content.illustration.fact,
+    contrast: content.illustration.contrast,
+    visual: content.illustration.visual,
+    commonMistake: content.illustration.commonMistake,
+    reuse: content.illustration.reuse,
+    memoryAnchor: content.illustration.memoryAnchor,
+  };
+}
+
 function buildMinimalScenario(
   concept: TLinguisticConcept,
   input: TComposeTeachingScenarioInput,
@@ -174,9 +201,11 @@ function buildMinimalScenario(
     conceptId: concept.id,
     conceptSlug: concept.slug,
     conceptTitle: concept.title,
+    consultedLemma: input.lemma.trim() || null,
     encounteredForm: input.encounteredForm?.trim() || null,
     bridge: undefined,
     encounterExample: null,
+    principle: concept.coreIdea.trim() || undefined,
     fact,
     contrast,
     memoryAnchor: fact,
@@ -194,6 +223,8 @@ export interface TComposeTeachingScenarioInput {
   /** Phrase d'origine + raison (explanation_cache). */
   encounterExample?: TTeachingEncounterExample | null;
   nextConcept?: TTeachingNextConcept | null;
+  /** Profil linguistique — paradigmes / défectivité pour la démonstration. */
+  profile?: TVocabularyLinguisticProfile | null;
 }
 
 /**
@@ -214,8 +245,15 @@ export function composeTeachingScenario(
   }
 
   const normalized = normalizeTeachingScenarioContent(content);
+  const principle =
+    resolvePrinciple(content) ??
+    (normalized.fact.includes("terminaison du verbe dit qui")
+      ? normalized.fact
+      : undefined);
 
-  if (!normalized.fact || normalized.contrast.length === 0) {
+  const factBase = principle || normalized.fact;
+
+  if (!factBase || normalized.contrast.length === 0) {
     console.warn(
       `[Teaching Engine] Fact/contrast incomplets pour ${input.concept.id} — scénario minimal`,
     );
@@ -244,12 +282,37 @@ export function composeTeachingScenario(
     }
   }
 
-  const memoryDeduped = dedupeMemoryAnchor(
-    normalized.fact,
-    normalized.memoryAnchor,
-  );
+  const presentDemo =
+    input.concept.id === "verb-present-conjugation"
+      ? composePresentConjugationDemo({
+          lemma,
+          encounteredForm,
+          profile: input.profile,
+        })
+      : null;
 
-  const reuse = normalized.reuse?.map((item) => item.trim()).filter(Boolean);
+  const useLemmaDemo = Boolean(presentDemo?.isLemmaDemo);
+
+  const fact = useLemmaDemo && presentDemo ? presentDemo.fact : factBase;
+  const contrast =
+    useLemmaDemo && presentDemo ? presentDemo.contrast : normalized.contrast;
+  const visual =
+    useLemmaDemo && presentDemo
+      ? presentDemo.visual
+      : (normalized.visual ?? undefined);
+  const commonMistake =
+    useLemmaDemo && presentDemo
+      ? presentDemo.commonMistake
+      : normalized.commonMistake;
+  const reuse = useLemmaDemo
+    ? undefined
+    : normalized.reuse?.map((item) => item.trim()).filter(Boolean);
+  const memorySource =
+    useLemmaDemo && presentDemo
+      ? presentDemo.memoryAnchor
+      : normalized.memoryAnchor;
+
+  const memoryDeduped = dedupeMemoryAnchor(fact, memorySource);
 
   const encounterExample =
     bridge && input.encounterExample?.sentence.trim()
@@ -261,24 +324,34 @@ export function composeTeachingScenario(
         }
       : null;
 
+  /**
+   * Illustration (autre lemme) :
+   * - si démo lemme : on n'enseigne pas читать en parallèle (évite la confusion)
+   * - sinon : section Illustration autorisée
+   */
+  const illustration = useLemmaDemo ? null : buildIllustrationPayload(content);
+
   return {
     conceptId: input.concept.id,
     conceptSlug: input.concept.slug,
     conceptTitle: input.concept.title,
+    consultedLemma: lemma,
     encounteredForm,
     bridge,
     encounterExample,
-    fact: normalized.fact,
-    contrast: normalized.contrast,
-    memoryAnchor: memoryDeduped ?? normalized.memoryAnchor,
+    principle: principle && principle !== fact ? principle : undefined,
+    fact,
+    contrast,
+    memoryAnchor: memoryDeduped ?? memorySource,
     showMemoryAnchor: Boolean(memoryDeduped),
-    contrastIsCanonical: !bridge,
+    contrastIsCanonical: !useLemmaDemo,
     hook: personalizeHook(content, encounteredForm),
     question: normalized.question,
     intuition: normalized.intuition,
-    visual: normalized.visual ?? undefined,
-    commonMistake: normalized.commonMistake,
+    visual,
+    commonMistake,
     reuse: reuse?.length ? reuse : undefined,
+    illustration,
     nextConcept: input.nextConcept ?? null,
   };
 }

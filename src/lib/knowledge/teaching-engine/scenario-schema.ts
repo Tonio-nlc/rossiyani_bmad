@@ -22,6 +22,7 @@ const visualSchema = z
  */
 export const teachingScenarioContentSchema = z
   .object({
+    principle: z.string().optional(),
     fact: z.string().optional(),
     contrast: z.array(comparisonSchema).optional(),
     memoryAnchor: z.string().min(1),
@@ -32,14 +33,26 @@ export const teachingScenarioContentSchema = z
     visual: visualSchema,
     commonMistake: z.string().optional(),
     reuse: z.array(z.string()).optional(),
+    illustration: z
+      .object({
+        label: z.string().optional(),
+        fact: z.string().optional(),
+        contrast: z.array(comparisonSchema).optional(),
+        visual: visualSchema,
+        commonMistake: z.string().optional(),
+        reuse: z.array(z.string()).optional(),
+        memoryAnchor: z.string().optional(),
+      })
+      .optional(),
     explanation: z.array(z.string()).optional(),
     comparison: z.array(comparisonSchema).optional(),
   })
   .refine(
     (value) =>
       Boolean(value.fact?.trim()) ||
+      Boolean(value.principle?.trim()) ||
       Boolean(value.explanation?.some((item) => item.trim())),
-    { message: "fact (ou explanation legacy) requis", path: ["fact"] },
+    { message: "fact (ou principle / explanation legacy) requis", path: ["fact"] },
   )
   .refine(
     (value) =>

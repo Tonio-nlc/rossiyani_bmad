@@ -1,5 +1,6 @@
 import { stripTrailingPunctuationForDisplay } from "@/lib/utils/russian";
 import { formatAspectLabel } from "@/lib/vocabulary/format-linguistic-labels";
+import { inferPresentPersonFromSurface } from "@/lib/knowledge/morphology/curated";
 import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-linguistic-context";
 import type { TVocabularyContextEncounter, TVocabularyLinguisticProfile } from "@/types/vocabulary";
 
@@ -77,12 +78,31 @@ function parseEncounterChips(encounter: TVocabularyContextEncounter | null): str
   return chips;
 }
 
+function inferPersonChipsFromSurface(
+  encounter: TVocabularyContextEncounter | null,
+): string[] {
+  const surface = normalizeEncounterSurface(encounter);
+
+  if (!surface) {
+    return [];
+  }
+
+  const inferred = inferPresentPersonFromSurface(surface);
+
+  if (!inferred) {
+    return [];
+  }
+
+  return [inferred.label, inferred.numberLabel];
+}
+
 export function buildHeroChips(
   profile: TVocabularyLinguisticProfile,
   encounter: TVocabularyContextEncounter | null,
   analysis: TLinguisticAnalysis,
 ): string[] {
   const fromEncounter = parseEncounterChips(encounter);
+  const fromSurfacePerson = inferPersonChipsFromSurface(encounter);
   const aspectChip = formatAspectLabel(
     profile.morphology.aspect ?? profile.aspect,
   );
@@ -102,6 +122,7 @@ export function buildHeroChips(
   return uniqueNonEmptyCaseInsensitive([
     ...fromEncounter,
     ...fromMorphology,
+    ...fromSurfacePerson,
     ...fromSignals,
   ]).slice(0, 6);
 }

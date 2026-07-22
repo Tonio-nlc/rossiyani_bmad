@@ -73,6 +73,12 @@ export interface TKnowledgeMorphology {
   governedCases?: TKnowledgeGovernedCase[];
   variants?: string[];
   nuances?: string[];
+  /**
+   * Verbe défectif : paradigme incomplet pour ce sens
+   * (ex. болеть « avoir mal » → 3e personne seulement).
+   */
+  defective?: boolean | null;
+  defectiveNote?: string | null;
 }
 
 export interface TKnowledgeSyntax {

@@ -5,6 +5,7 @@ import type {
 } from "@/types/teaching-scenario";
 
 export interface TNormalizedTeachingContent {
+  principle?: string;
   fact: string;
   contrast: TTeachingComparison[];
   memoryAnchor: string;
@@ -32,6 +33,7 @@ export function normalizeTeachingScenarioContent(
 ): TNormalizedTeachingContent {
   const fact =
     trimOrUndefined(content.fact) ??
+    trimOrUndefined(content.principle) ??
     content.explanation?.map((item) => item.trim()).find(Boolean) ??
     "";
 
@@ -48,6 +50,7 @@ export function normalizeTeachingScenarioContent(
   const reuse = content.reuse?.map((item) => item.trim()).filter(Boolean);
 
   return {
+    principle: trimOrUndefined(content.principle),
     fact,
     contrast,
     memoryAnchor: content.memoryAnchor.trim(),

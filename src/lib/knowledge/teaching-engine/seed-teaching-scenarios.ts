@@ -35,7 +35,11 @@ export const SEED_TEACHING_SCENARIOS_REVIEW_STATUS = "à-valider" as const;
 export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> = {
   // ─── à valider ─────────────────────────────────────────────
   "verb-present-conjugation": {
-    fact: `La terminaison ${CURATED_CHITAT.endings.sg2} marque la 2e personne du singulier au présent.`,
+    principle:
+      "En russe, la terminaison du verbe dit qui fait l'action, maintenant.",
+    fact: "En russe, la terminaison du verbe dit qui fait l'action, maintenant.",
+    intuition:
+      "Contrairement au français, le russe intègre souvent le pronom dans la terminaison : une seule forme suffit à dire qui agit.",
     contrast: [
       {
         fromForm: `ты ${CURATED_CHITAT.present.sg2}`,
@@ -50,13 +54,38 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
         `он ${CURATED_CHITAT.present.sg3} (${CURATED_CHITAT.endings.sg3})`,
       ],
       layout: "vertical",
-      caption: "Présent — trois personnes, trois terminaisons",
+      caption: "Illustration — présent (1re conjugaison)",
     },
     commonMistake: `Ne confonds pas ${CURATED_CHITAT.present.sg2} (présent, 2e pers.) et ${CURATED_CHITAT.past.m} (passé).`,
     reuse: [
-      `Ты ${CURATED_PRESENT_SG2.delaesh}, ты ${CURATED_PRESENT_SG2.govorish}, ты ${CURATED_PRESENT_SG2.pishesh} — même terminaison ${CURATED_CHITAT.endings.sg2}, même logique.`,
+      `Ты ${CURATED_PRESENT_SG2.delaesh}, ты ${CURATED_PRESENT_SG2.govorish}, ты ${CURATED_PRESENT_SG2.pishesh} — même logique de personne au présent.`,
     ],
-    memoryAnchor: `${CURATED_CHITAT.endings.sg2} = 2e personne du singulier, présent.`,
+    memoryAnchor: "Terminaison du présent = qui agit, maintenant.",
+    illustration: {
+      label: "conjugaison au présent",
+      fact: `La terminaison ${CURATED_CHITAT.endings.sg2} marque la 2e personne du singulier au présent (exemple : ${CURATED_CHITAT.infinitive}).`,
+      contrast: [
+        {
+          fromForm: `ты ${CURATED_CHITAT.present.sg2}`,
+          toForm: `он ${CURATED_CHITAT.present.sg3}`,
+          explanation: "Même présent, seule la personne change.",
+        },
+      ],
+      visual: {
+        nodes: [
+          `я ${CURATED_CHITAT.present.sg1} (${CURATED_CHITAT.endings.sg1})`,
+          `ты ${CURATED_CHITAT.present.sg2} (${CURATED_CHITAT.endings.sg2})`,
+          `он ${CURATED_CHITAT.present.sg3} (${CURATED_CHITAT.endings.sg3})`,
+        ],
+        layout: "vertical",
+        caption: "Présent — trois personnes, trois terminaisons",
+      },
+      commonMistake: `Ne confonds pas ${CURATED_CHITAT.present.sg2} (présent, 2e pers.) et ${CURATED_CHITAT.past.m} (passé).`,
+      reuse: [
+        `Ты ${CURATED_PRESENT_SG2.delaesh}, ты ${CURATED_PRESENT_SG2.govorish}, ты ${CURATED_PRESENT_SG2.pishesh} — même terminaison ${CURATED_CHITAT.endings.sg2}, même logique.`,
+      ],
+      memoryAnchor: `${CURATED_CHITAT.endings.sg2} = 2e personne du singulier, présent.`,
+    },
   },
 
   // ─── à valider ─────────────────────────────────────────────

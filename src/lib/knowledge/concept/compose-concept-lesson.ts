@@ -60,6 +60,7 @@ export function composeConceptLesson(
           title: graph.secondary[0].title,
         }
       : null,
+    profile: input.profile,
   });
 
   const phenomenon = phenomenonFromGraph(graph);

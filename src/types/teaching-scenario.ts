@@ -25,16 +25,44 @@ export interface TTeachingEncounterExample {
 }
 
 /**
+ * Illustration du concept avec un lemme d'exemple (ex. читать).
+ * Autorisée UNIQUEMENT dans la section étiquetée « Illustration — {concept} ».
+ * Ne doit jamais remplacer la démonstration du lemme consulté.
+ */
+export interface TTeachingIllustration {
+  /** Titre court, ex. « conjugaison au présent ». */
+  label?: string;
+  contrast?: TTeachingComparison[];
+  visual?: TTeachingVisual | null;
+  commonMistake?: string;
+  reuse?: string[];
+  /** Fact d'exemple lié au lemme d'illustration (pas au lemme consulté). */
+  fact?: string;
+  memoryAnchor?: string;
+}
+
+/**
  * Contenu officiel d'enseignement — géométrie variable (RC-026+).
  *
- * Obligatoires : fact, contrast, memoryAnchor.
- * Conditionnels : omis s'il n'y a rien de solide à dire.
+ * Séparation principe / démonstration :
+ * - `principle` (+ intuition/hook) = invariant du concept (tous les lemmes)
+ * - `fact` / visual / contrast / commonMistake / reuse dans le seed =
+ *   illustration canonique OU fallback si pas de forme rencontrée
+ * - À l'affichage, les slots démonstratifs sont recomposés depuis le lemme
+ *   consulté + la forme rencontrée (voir composeTeachingScenario)
+ *
+ * Obligatoires : fact (ou principle), contrast, memoryAnchor.
  * Le bridge n'est PAS dans le seed : composé dynamiquement à l'application.
  *
  * Alias legacy (seeds) : explanation → fact, comparison → contrast.
  */
 export interface TTeachingScenarioContent {
-  /** LE fait — une phrase concrète et nommée (ex. "-ешь = 2e personne…"). */
+  /**
+   * Principe invariant du concept (RC-025).
+   * Ex. : « En russe, la terminaison du verbe dit qui fait l'action, maintenant. »
+   */
+  principle?: string;
+  /** LE fait — spécialisé sur une forme, ou principe si pas encore de démo. */
   fact?: string;
   /** Contraste minimal, un seul axe. */
   contrast?: TTeachingComparison[];
@@ -49,6 +77,10 @@ export interface TTeachingScenarioContent {
   visual?: TTeachingVisual | null;
   commonMistake?: string;
   reuse?: string[];
+  /**
+   * Exemple du concept avec un autre lemme — section « Illustration » uniquement.
+   */
+  illustration?: TTeachingIllustration;
 
   /**
    * @deprecated Prefer `fact`. Kept for seed compatibility until seeds are rewritten.
@@ -68,6 +100,8 @@ export interface TTeachingScenario {
   conceptId: string;
   conceptSlug: string;
   conceptTitle: string;
+  /** Lemme consulté — pour le gate anti-formes étrangères. */
+  consultedLemma?: string | null;
   encounteredForm: string | null;
   /**
    * Applique le concept à la forme rencontrée.
@@ -76,6 +110,8 @@ export interface TTeachingScenario {
   bridge?: string;
   /** Phrase d'origine + raison — omis si pas de cache de rencontre. */
   encounterExample: TTeachingEncounterExample | null;
+  /** Principe invariant (si distinct du fact spécialisé). */
+  principle?: string;
   fact: string;
   contrast: TTeachingComparison[];
   memoryAnchor: string;
@@ -89,6 +125,11 @@ export interface TTeachingScenario {
   visual?: TTeachingVisual | null;
   commonMistake?: string;
   reuse?: string[];
+  /**
+   * Illustration canonique (autre lemme) — affichée hors démonstration.
+   * Autorisée à contenir des formes d'un lemme ≠ consulté.
+   */
+  illustration?: TTeachingIllustration | null;
   nextConcept: TTeachingNextConcept | null;
 }
 

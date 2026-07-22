@@ -12,53 +12,46 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     coreIdea:
       "La terminaison du verbe répond à la question : qui fait l'action, maintenant ?",
     whyItExists:
-      "Contrairement au français, le russe intègre le pronom dans la forme verbale. « читаешь » dit à lui seul : tu lis, maintenant.",
+      "Contrairement au français, le russe intègre souvent le pronom dans la forme verbale : la terminaison dit qui agit, maintenant.",
     mentalModel:
       "Pense à une grille : lignes = personnes (я, ты, он…), colonne = présent. Chaque case a sa terminaison.",
     visualModel: {
       type: "diagram",
-      nodes: ["читать", "я читаю", "ты читаешь", "он читает"],
-      caption: "Du lemme à la forme conjuguée",
+      nodes: ["infinitif", "я …", "ты …", "он …"],
+      caption: "Du lemme à la forme conjuguée — la terminaison porte la personne",
     },
     canonicalExplanation: {
       understand: [
-        "Le russe ne choisit jamais une terminaison au hasard. Ici, la phrase exige que ce soit « tu » qui effectues l'action maintenant — c'est pourquoi читать devient читаешь.",
-        "La terminaison -ешь signale la 2e personne du singulier au présent. Tu la retrouveras sur des centaines d'autres verbes imperfectifs.",
+        "En russe, la terminaison du verbe dit qui fait l'action, maintenant.",
+        "Ce n'est jamais une terminaison au hasard : la phrase exige une personne précise, et la forme du verbe la marque.",
       ],
-      scheme: ["читать", "я читаю", "ты читаешь", "он читает"],
+      scheme: ["infinitif", "я …", "ты …", "он …"],
       contrasts: [
         {
-          fromForm: "читать",
-          toForm: "читаешь",
+          fromForm: "infinitif",
+          toForm: "forme conjuguée",
           question: "Pourquoi ?",
           explanation:
-            "читать est le lemme (l'infinitif). читаешь est la forme conjuguée : c'est « tu » qui lis, maintenant.",
-        },
-        {
-          fromForm: "читаешь",
-          toForm: "читал",
-          question: "Qu'est-ce qui change ?",
-          explanation:
-            "читал place l'action dans le passé. Le présent (читаешь) dit que l'action se déroule maintenant.",
+            "L'infinitif nomme l'action. La forme conjuguée ajoute qui agit, au présent.",
         },
       ],
       miniTable: {
-        title: "Présent",
+        title: "Présent — logique",
         rows: [
-          { label: "я", form: "читаю" },
-          { label: "ты", form: "читаешь" },
-          { label: "он/она", form: "читает" },
+          { label: "я", form: "…" },
+          { label: "ты", form: "…" },
+          { label: "он/она", form: "…" },
         ],
       },
       retentionPoints: [
-        "La terminaison -ешь = tu, maintenant (2e personne singulier).",
-        "читать décrit une lecture en cours ou habituelle.",
-        "Pour le passé, le russe utilisera читал, pas читаешь.",
+        "Terminaison du présent = qui agit, maintenant.",
+        "La démonstration se lit toujours sur le verbe consulté, pas sur un autre verbe.",
       ],
-      family: ["читать", "прочитать", "дочитать", "перечитать"],
+      family: ["читать", "говорить", "болеть", "делать"],
     },
     commonMistakes: [
       "Oublier que le pronom est souvent omis — la terminaison suffit.",
+      "Appliquer le paradigme d'un autre verbe (ex. читать) au verbe consulté.",
       "Confondre présent et futur perfectif.",
     ],
     relatedConcepts: [
@@ -70,10 +63,11 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     examples: ["Ты читаешь книгу.", "Он читает газету."],
     progression: {
       beginner: "Une seule idée : la terminaison dit qui agit, maintenant.",
-      intermediate: "Comparer présent et passé sur le même verbe.",
-      advanced: "Exceptions de conjugaison (читать → читаю, pas *читаюсь).",
+      intermediate: "Comparer les personnes sur le verbe consulté (pas sur un autre verbe).",
+      advanced: "Repérer conjugaison 1 vs 2 et les paradigmes défectifs (болеть « avoir mal », случиться).",
     },
-    teacherNotes: "Valider une fois — tous les verbes imperfectifs du présent réutilisent cette explication.",
+    teacherNotes:
+      "RC-025 : une explication canonique = le principe. La démonstration (terminaison, paradigme) se compose depuis le lemme + la forme rencontrée.",
   },
   {
     id: "verb-imperfective-aspect",

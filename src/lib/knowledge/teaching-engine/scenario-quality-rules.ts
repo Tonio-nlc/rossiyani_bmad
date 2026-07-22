@@ -8,8 +8,101 @@ import type {
   TTeachingVisual,
 } from "@/types/teaching-scenario";
 
+import {
+  CURATED_PRESENT_VERBS,
+  stripStressMarks,
+} from "@/lib/knowledge/morphology/curated";
+
 import { bridgeMentionsForm } from "./compose-teaching-bridge";
 import { normalizeTeachingScenarioContent } from "./normalize-teaching-scenario";
+
+const CYRILLIC_TOKEN = /[а-яёА-ЯЁіІїЇєЄґҐ́]{2,}/gu;
+
+function extractCyrillicTokens(text: string): string[] {
+  return (text.match(CYRILLIC_TOKEN) ?? []).map((token) =>
+    stripStressMarks(token),
+  );
+}
+
+/** Formes de paradigme indexées par lemme (sans accent). */
+function buildParadigmFormIndex(): Map<string, string> {
+  const index = new Map<string, string>();
+
+  for (const verb of CURATED_PRESENT_VERBS) {
+    const lemmaKey = stripStressMarks(verb.lemma);
+
+    for (const form of Object.values(verb.present)) {
+      if (form) {
+        index.set(stripStressMarks(form), lemmaKey);
+      }
+    }
+
+    if (verb.past?.m) {
+      index.set(stripStressMarks(verb.past.m), lemmaKey);
+    }
+
+    index.set(lemmaKey, lemmaKey);
+  }
+
+  return index;
+}
+
+const PARADIGM_FORM_TO_LEMMA = buildParadigmFormIndex();
+
+/**
+ * Gate auteur : un slot démonstratif ne doit pas enseigner le paradigme
+ * d'un autre lemme que celui consulté (sauf section Illustration).
+ */
+function checkForeignLemmaInDemonstration(
+  scenario: TTeachingScenario,
+  issues: TTeachingScenarioIssue[],
+): void {
+  const consulted = scenario.consultedLemma?.trim();
+
+  if (!consulted || scenario.contrastIsCanonical) {
+    return;
+  }
+
+  const consultedKey = stripStressMarks(consulted);
+  const fields: Array<{ field: string; text: string }> = [
+    { field: "fact", text: scenario.fact },
+    { field: "commonMistake", text: scenario.commonMistake ?? "" },
+    { field: "memoryAnchor", text: scenario.memoryAnchor },
+    ...(scenario.visual?.nodes ?? []).map((node, index) => ({
+      field: `visual.nodes[${index}]`,
+      text: node,
+    })),
+    ...scenario.contrast.flatMap((item, index) => [
+      { field: `contrast[${index}].fromForm`, text: item.fromForm },
+      { field: `contrast[${index}].toForm`, text: item.toForm },
+      {
+        field: `contrast[${index}].explanation`,
+        text: item.explanation ?? "",
+      },
+    ]),
+    ...(scenario.reuse ?? []).map((item, index) => ({
+      field: `reuse[${index}]`,
+      text: item,
+    })),
+  ];
+
+  for (const { field, text } of fields) {
+    for (const token of extractCyrillicTokens(text)) {
+      const ownerLemma = PARADIGM_FORM_TO_LEMMA.get(token);
+
+      if (!ownerLemma || ownerLemma === consultedKey) {
+        continue;
+      }
+
+      issues.push({
+        severity: "error",
+        code: "SCENARIO_FOREIGN_LEMMA_FORM",
+        message: `Slot démonstratif « ${field} » contient une forme de « ${ownerLemma} » alors que le lemme consulté est « ${consultedKey} ». Réserver les autres lemmes à « Illustration — {concept} ».`,
+        field,
+      });
+    }
+  }
+}
 
 const ENCYCLOPEDIC_PATTERNS: RegExp[] = [
   /^le verbe est\b/i,
@@ -453,6 +546,7 @@ export function validateTeachingScenario(
   scenario: TTeachingScenario,
 ): TTeachingScenarioQualityReport {
   const content: TTeachingScenarioContent = {
+    principle: scenario.principle,
     fact: scenario.fact,
     contrast: scenario.contrast,
     memoryAnchor: scenario.memoryAnchor,
@@ -462,6 +556,7 @@ export function validateTeachingScenario(
     visual: scenario.visual,
     commonMistake: scenario.commonMistake,
     reuse: scenario.reuse,
+    illustration: scenario.illustration ?? undefined,
   };
 
   const report = validateTeachingScenarioContent(content, scenario.conceptId);
@@ -490,6 +585,12 @@ export function validateTeachingScenario(
       message: "bridge ne mentionne pas la forme rencontrée",
       field: "bridge",
     });
+    report.valid = false;
+  }
+
+  checkForeignLemmaInDemonstration(scenario, report.issues);
+
+  if (report.issues.some((issue) => issue.severity === "error")) {
     report.valid = false;
   }
 
