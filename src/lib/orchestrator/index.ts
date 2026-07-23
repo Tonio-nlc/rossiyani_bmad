@@ -1,4 +1,6 @@
 import { resolveReaderConceptFromSignals } from "@/lib/knowledge/concept-graph";
+import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
+import { getKnowledgeForConceptResolution } from "@/lib/knowledge/get-knowledge";
 import {
   getCachedExplanation,
   incrementUsageCount,
@@ -33,10 +35,41 @@ function mapCacheToResponse(
   };
 }
 
-function attachConceptResolution(
+/**
+ * Attache conceptId/Slug/Title depuis linguistic_knowledge (POS + aspect).
+ * Pas d'heuristique sur la prose LLM. Pas d'appel LLM synchrone.
+ */
+async function attachConceptResolution(
   response: TWordExplanationResponseExtended,
-): TWordExplanationResponseExtended {
+): Promise<TWordExplanationResponseExtended> {
+  const knowledge = await getKnowledgeForConceptResolution({
+    lemmaId: response.lemmaId,
+    lemmaForm: response.lemma,
+  });
+
+  if (!knowledge?.partOfSpeech || knowledge.partOfSpeech === "unknown") {
+    console.info(
+      `[Concept Resolution] Pas de linguistic_knowledge utilisable pour lemme « ${response.lemma} » (${response.lemmaId}) — bootstrap requis`,
+    );
+    return response;
+  }
+
+  const profile = buildLinguisticProfile(knowledge);
+
+  if (!profile.partOfSpeech) {
+    console.info(
+      `[Concept Resolution] POS absent après profil pour lemme « ${response.lemma} » (${response.lemmaId}) — bootstrap requis`,
+    );
+    return response;
+  }
+
   const concept = resolveReaderConceptFromSignals({
+    partOfSpeech: profile.partOfSpeech,
+    aspect: profile.aspect,
+    gender: profile.gender,
+    movementType: profile.movementType,
+    morphology: profile.morphology,
+    paradigms: profile.paradigms,
     surface: response.surface,
     lemma: response.lemma,
     explanation: response.explanation,
@@ -64,7 +97,7 @@ export async function explainWord(
   const cached = await getCachedExplanation(contextHash);
 
   if (cached) {
-    const response = attachConceptResolution(
+    const response = await attachConceptResolution(
       mapCacheToResponse(cached, surface),
     );
 

@@ -156,7 +156,6 @@ export async function collectP0Lemmas(): Promise<TBootstrapLemma[]> {
   }
 
   const textRows = (texts ?? []) as TextRow[];
-  const textContents = textRows.map((text) => text.content);
   const collected: TBootstrapLemma[] = [];
 
   for (const text of textRows) {
@@ -181,20 +180,29 @@ export async function collectP0Lemmas(): Promise<TBootstrapLemma[]> {
     }
   }
 
+  return uniqueByLemmaId(collected);
+}
+
+/**
+ * Lemmes rencontrés dans le Reader (clics → explanation_cache).
+ * Inclut найти́ / прочитать même s'ils n'apparaissent pas dans les textes P0.
+ * Priorité P0 : même file d'attente bootstrap que la bibliothèque.
+ */
+export async function collectReaderEncounterLemmas(): Promise<TBootstrapLemma[]> {
+  const admin = createAdminClient();
+
   const { data: cacheRows, error: cacheError } = await admin
     .from("explanation_cache")
-    .select("lemma_id, sentence_example, lemmas ( form )");
+    .select("lemma_id, lemmas ( form )");
 
   if (cacheError) {
     throw new Error(cacheError.message);
   }
 
-  for (const row of (cacheRows ?? []) as ExplanationCacheRow[]) {
-    const inRossiyaniText = textContents.some((content) =>
-      content.includes(row.sentence_example.slice(0, 24)),
-    );
+  const collected: TBootstrapLemma[] = [];
 
-    if (!inRossiyaniText) {
+  for (const row of (cacheRows ?? []) as ExplanationCacheRow[]) {
+    if (!row.lemma_id) {
       continue;
     }
 
@@ -207,7 +215,7 @@ export async function collectP0Lemmas(): Promise<TBootstrapLemma[]> {
       lemmaId: row.lemma_id,
       form: lemma?.form ?? row.lemma_id,
       priority: "P0",
-      source: "explanation_cache",
+      source: "explanation_cache:reader",
     });
   }
 
@@ -298,6 +306,23 @@ export async function collectP2Lemmas(): Promise<TBootstrapLemma[]> {
   return uniqueByLemmaId(collected);
 }
 
+const PRIORITY_RANK: Record<TBootstrapPriority, number> = {
+  P0: 0,
+  P1: 1,
+  P2: 2,
+};
+
+/**
+ * Fusionne les buckets pour la génération.
+ *
+ * Ancien bug : P0 puis P1 puis P2 + `seen` gardait toujours P0 → les lemmes
+ * user_vocabulary (P2) aussi présents en P0 disparaissaient du compteur P2
+ * (couverture P2 = 0) même s'ils étaient bien candidats via P0.
+ *
+ * Nouveau : on déduplique pour la file d'exécution (une seule génération / lemme,
+ * priorité la plus haute), et la couverture P0/P1/P2 se calcule séparément
+ * via `countEnrichedByPriority` sur chaque bucket source.
+ */
 export async function collectBootstrapLemmas(
   only?: TBootstrapPriority,
 ): Promise<TBootstrapLemma[]> {
@@ -305,6 +330,7 @@ export async function collectBootstrapLemmas(
 
   if (!only || only === "P0") {
     buckets.push(...(await collectP0Lemmas()));
+    buckets.push(...(await collectReaderEncounterLemmas()));
   }
 
   if (!only || only === "P1") {
@@ -315,42 +341,60 @@ export async function collectBootstrapLemmas(
     buckets.push(...(await collectP2Lemmas()));
   }
 
-  const seen = new Set<string>();
-  const merged: TBootstrapLemma[] = [];
+  const byId = new Map<string, TBootstrapLemma>();
 
   for (const lemma of buckets) {
-    if (seen.has(lemma.lemmaId)) {
-      continue;
-    }
+    const existing = byId.get(lemma.lemmaId);
 
-    seen.add(lemma.lemmaId);
-    merged.push(lemma);
+    if (!existing || PRIORITY_RANK[lemma.priority] < PRIORITY_RANK[existing.priority]) {
+      byId.set(lemma.lemmaId, lemma);
+    }
   }
 
-  return merged;
+  return [...byId.values()].sort(
+    (left, right) =>
+      PRIORITY_RANK[left.priority] - PRIORITY_RANK[right.priority] ||
+      left.form.localeCompare(right.form, "ru"),
+  );
 }
 
-export async function countEnrichedByPriority(
-  lemmas: TBootstrapLemma[],
-): Promise<{
+export async function countEnrichedByPriority(): Promise<{
   p0: { total: number; enriched: number };
   p1: { total: number; enriched: number };
   p2: { total: number; enriched: number };
 }> {
   const admin = createAdminClient();
-  const lemmaIds = lemmas.map((lemma) => lemma.lemmaId);
+
+  const [p0Lemmas, readerLemmas, p1Lemmas, p2Lemmas] = await Promise.all([
+    collectP0Lemmas(),
+    collectReaderEncounterLemmas(),
+    collectP1Lemmas(),
+    collectP2Lemmas(),
+  ]);
+
+  /** P0 couverture = textes Rossiyani ∪ rencontres Reader. */
+  const p0All = uniqueByLemmaId([...p0Lemmas, ...readerLemmas]);
+
+  const allIds = uniqueByLemmaId([
+    ...p0All,
+    ...p1Lemmas,
+    ...p2Lemmas,
+  ]).map((lemma) => lemma.lemmaId);
 
   const { data, error } = await admin
     .from("linguistic_knowledge")
     .select("lemma_id, profile_version, validated")
-    .in("lemma_id", lemmaIds);
+    .in("lemma_id", allIds.length > 0 ? allIds : ["00000000-0000-0000-0000-000000000000"]);
 
   if (error) {
     if (error.message.includes("profile_version")) {
       const { data: fallback, error: fallbackError } = await admin
         .from("linguistic_knowledge")
         .select("lemma_id, validated")
-        .in("lemma_id", lemmaIds);
+        .in(
+          "lemma_id",
+          allIds.length > 0 ? allIds : ["00000000-0000-0000-0000-000000000000"],
+        );
 
       if (fallbackError) {
         throw new Error(fallbackError.message);
@@ -362,18 +406,15 @@ export async function countEnrichedByPriority(
           .map((row) => row.lemma_id as string),
       );
 
-      const count = (priority: TBootstrapPriority) => {
-        const subset = lemmas.filter((lemma) => lemma.priority === priority);
-        return {
-          total: subset.length,
-          enriched: subset.filter((lemma) => enriched.has(lemma.lemmaId)).length,
-        };
-      };
+      const count = (lemmas: TBootstrapLemma[]) => ({
+        total: lemmas.length,
+        enriched: lemmas.filter((lemma) => enriched.has(lemma.lemmaId)).length,
+      });
 
       return {
-        p0: count("P0"),
-        p1: count("P1"),
-        p2: count("P2"),
+        p0: count(p0All),
+        p1: count(p1Lemmas),
+        p2: count(p2Lemmas),
       };
     }
 
@@ -386,17 +427,14 @@ export async function countEnrichedByPriority(
       .map((row) => row.lemma_id as string),
   );
 
-  const count = (priority: TBootstrapPriority) => {
-    const subset = lemmas.filter((lemma) => lemma.priority === priority);
-    return {
-      total: subset.length,
-      enriched: subset.filter((lemma) => enriched.has(lemma.lemmaId)).length,
-    };
-  };
+  const count = (lemmas: TBootstrapLemma[]) => ({
+    total: lemmas.length,
+    enriched: lemmas.filter((lemma) => enriched.has(lemma.lemmaId)).length,
+  });
 
   return {
-    p0: count("P0"),
-    p1: count("P1"),
-    p2: count("P2"),
+    p0: count(p0All),
+    p1: count(p1Lemmas),
+    p2: count(p2Lemmas),
   };
 }

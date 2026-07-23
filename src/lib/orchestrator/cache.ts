@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizeRussianWord } from "@/lib/vocabulary/normalize-russian-word";
 import type {
   TCachedExplanationPayload,
   TLlmExplanationPayload,
@@ -140,8 +141,55 @@ export async function storeExplanationInCache(params: {
   return data.id as string;
 }
 
+/**
+ * Résout un lemme existant (y compris variante d'accent) ou en crée un.
+ * Préfère le lemme qui a déjà une linguistic_knowledge avec POS
+ * (ex. чита́ть plutôt que читать sans fiche).
+ */
 export async function resolveOrCreateLemma(lemmaForm: string): Promise<string> {
   const admin = createAdminClient();
+  const normalized = normalizeRussianWord(lemmaForm);
+
+  if (normalized) {
+    const prefix = normalized.slice(0, Math.min(4, normalized.length));
+    const { data: candidates } = await admin
+      .from("lemmas")
+      .select("id, form, linguistic_knowledge(part_of_speech)")
+      .like("form", `${prefix}%`);
+
+    const equivalents = (candidates ?? []).filter(
+      (row) => normalizeRussianWord(row.form as string) === normalized,
+    );
+
+    const withKnowledge = equivalents.find((row) => {
+      const knowledge = row.linguistic_knowledge as
+        | { part_of_speech: string | null }
+        | { part_of_speech: string | null }[]
+        | null;
+      const pos = Array.isArray(knowledge)
+        ? knowledge[0]?.part_of_speech
+        : knowledge?.part_of_speech;
+      return Boolean(pos && pos !== "unknown");
+    });
+
+    if (withKnowledge?.id) {
+      return withKnowledge.id as string;
+    }
+
+    const withAccent = equivalents.find((row) =>
+      (row.form as string).normalize("NFD").includes("\u0301"),
+    );
+
+    if (withAccent?.id) {
+      return withAccent.id as string;
+    }
+
+    const exact = equivalents.find((row) => row.form === lemmaForm);
+
+    if (exact?.id) {
+      return exact.id as string;
+    }
+  }
 
   const { data: existing } = await admin
     .from("lemmas")
@@ -166,5 +214,5 @@ export async function resolveOrCreateLemma(lemmaForm: string): Promise<string> {
     throw new Error(error?.message ?? "Impossible de créer le lemme");
   }
 
-  return created.id;
+  return created.id as string;
 }

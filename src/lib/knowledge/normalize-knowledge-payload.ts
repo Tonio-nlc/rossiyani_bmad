@@ -51,6 +51,57 @@ const GENDER_TO_CANONICAL: Record<string, "m" | "f" | "n"> = {
   neutre: "n",
 };
 
+const ASPECT_TO_CANONICAL: Record<string, "imperfective" | "perfective"> = {
+  imperfective: "imperfective",
+  imperfectif: "imperfective",
+  impf: "imperfective",
+  "imp.": "imperfective",
+  perfective: "perfective",
+  perfectif: "perfective",
+  pf: "perfective",
+  "pf.": "perfective",
+};
+
+const POS_TO_CANONICAL: Record<string, string> = {
+  noun: "noun",
+  nom: "noun",
+  substantif: "noun",
+  "nom commun": "noun",
+  "nom propre": "noun",
+  verb: "verb",
+  verbe: "verb",
+  adjective: "adjective",
+  adjectif: "adjective",
+  adverb: "adverb",
+  adverbe: "adverb",
+  preposition: "preposition",
+  préposition: "preposition",
+  conjunction: "conjunction",
+  conjonction: "conjunction",
+  pronoun: "pronoun",
+  pronom: "pronoun",
+  particle: "particle",
+  particule: "particle",
+};
+
+const POS_WITH_GENDER = new Set(["noun", "adjective", "pronoun"]);
+const POS_VERB = "verb";
+
+function deleteField(
+  target: Record<string, unknown>,
+  key: string,
+  path: string,
+  events: TNormalizationEvent[],
+  options?: TNormalizeKnowledgeOptions,
+) {
+  if (!(key in target)) {
+    return;
+  }
+
+  recordEvent(events, options, path, target[key], "absent");
+  delete target[key];
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
@@ -146,7 +197,8 @@ function normalizeGender(
   }
 
   if (typeof value !== "string") {
-    return undefined;
+    recordEvent(events, options, path, value, "null");
+    return null;
   }
 
   const canonical = GENDER_TO_CANONICAL[value.trim().toLowerCase()];
@@ -161,6 +213,151 @@ function normalizeGender(
   }
 
   return canonical;
+}
+
+function normalizeAspect(
+  value: unknown,
+  path: string,
+  events: TNormalizationEvent[],
+  options?: TNormalizeKnowledgeOptions,
+): "imperfective" | "perfective" | null | undefined {
+  if (value === null || value === undefined) {
+    return value === null ? null : undefined;
+  }
+
+  if (typeof value !== "string") {
+    recordEvent(events, options, path, value, "null");
+    return null;
+  }
+
+  const canonical = ASPECT_TO_CANONICAL[value.trim().toLowerCase()];
+
+  if (!canonical) {
+    recordEvent(events, options, path, value, "null");
+    return null;
+  }
+
+  if (canonical !== value) {
+    recordEvent(events, options, path, value, canonical);
+  }
+
+  return canonical;
+}
+
+function normalizePartOfSpeech(
+  value: unknown,
+  path: string,
+  events: TNormalizationEvent[],
+  options?: TNormalizeKnowledgeOptions,
+): string | null {
+  if (typeof value !== "string" || !value.trim()) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  const canonical = POS_TO_CANONICAL[trimmed.toLowerCase()] ?? trimmed.toLowerCase();
+
+  if (canonical !== trimmed) {
+    recordEvent(events, options, path, trimmed, canonical);
+  }
+
+  return canonical;
+}
+
+/**
+ * Retire les champs incompatibles avec le POS.
+ * Absent ≠ null inventé : on delete la clé.
+ */
+function applyPosFieldConstraints(
+  payload: Record<string, unknown>,
+  events: TNormalizationEvent[],
+  options?: TNormalizeKnowledgeOptions,
+) {
+  const pos = normalizePartOfSpeech(
+    payload.partOfSpeech,
+    "partOfSpeech",
+    events,
+    options,
+  );
+
+  if (pos) {
+    payload.partOfSpeech = pos;
+  }
+
+  if (pos && !POS_WITH_GENDER.has(pos)) {
+    deleteField(payload, "gender", "gender", events, options);
+
+    if (isRecord(payload.morphology)) {
+      deleteField(
+        payload.morphology,
+        "gender",
+        "morphology.gender",
+        events,
+        options,
+      );
+    }
+  }
+
+  if (pos && pos !== POS_VERB) {
+    deleteField(payload, "aspect", "aspect", events, options);
+    deleteField(payload, "movementType", "movementType", events, options);
+    deleteField(payload, "government", "government", events, options);
+
+    if (isRecord(payload.morphology)) {
+      deleteField(
+        payload.morphology,
+        "aspect",
+        "morphology.aspect",
+        events,
+        options,
+      );
+      deleteField(
+        payload.morphology,
+        "aspectPair",
+        "morphology.aspectPair",
+        events,
+        options,
+      );
+      deleteField(
+        payload.morphology,
+        "movementType",
+        "morphology.movementType",
+        events,
+        options,
+      );
+      deleteField(
+        payload.morphology,
+        "conjugationClass",
+        "morphology.conjugationClass",
+        events,
+        options,
+      );
+      deleteField(
+        payload.morphology,
+        "conjugationParadigm",
+        "morphology.conjugationParadigm",
+        events,
+        options,
+      );
+      deleteField(
+        payload.morphology,
+        "preverbs",
+        "morphology.preverbs",
+        events,
+        options,
+      );
+    }
+
+    if (isRecord(payload.paradigms)) {
+      deleteField(
+        payload.paradigms,
+        "conjugation",
+        "paradigms.conjugation",
+        events,
+        options,
+      );
+    }
+  }
 }
 
 function normalizePlural(
@@ -537,8 +734,25 @@ function normalizeFormEntryArray(
   events: TNormalizationEvent[],
   options?: TNormalizeKnowledgeOptions,
 ): Array<{ label: string; form: string }> | undefined {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+
+    if (!trimmed) {
+      recordEvent(events, options, path, value, "array(0)");
+      return [];
+    }
+
+    recordEvent(events, options, path, "string", "array(1)");
+    return [{ label: "forme", form: trimmed }];
+  }
+
   if (!Array.isArray(value)) {
-    return undefined;
+    if (value === null || value === undefined) {
+      return value === null ? [] : undefined;
+    }
+
+    recordEvent(events, options, path, value, "array(0)");
+    return [];
   }
 
   const normalized = value.flatMap((entry, index) =>
@@ -615,6 +829,19 @@ function normalizeMorphology(
 
     if (animacy !== undefined) {
       normalized.animacy = animacy;
+    }
+  }
+
+  if ("aspect" in normalized) {
+    const morphAspect = normalizeAspect(
+      normalized.aspect,
+      "morphology.aspect",
+      events,
+      options,
+    );
+
+    if (morphAspect !== undefined) {
+      normalized.aspect = morphAspect;
     }
   }
 
@@ -880,12 +1107,22 @@ export function normalizeKnowledgePayload(
   }
 
   const payload = structuredClone(raw) as Record<string, unknown>;
-  const aspect =
-    typeof payload.aspect === "string"
-      ? payload.aspect
-      : isRecord(payload.morphology) && typeof payload.morphology.aspect === "string"
-        ? payload.morphology.aspect
-        : null;
+
+  if ("gender" in payload) {
+    const gender = normalizeGender(payload.gender, "gender", events, options);
+
+    if (gender !== undefined) {
+      payload.gender = gender;
+    }
+  }
+
+  if ("aspect" in payload) {
+    const topAspect = normalizeAspect(payload.aspect, "aspect", events, options);
+
+    if (topAspect !== undefined) {
+      payload.aspect = topAspect;
+    }
+  }
 
   if ("government" in payload) {
     const government = normalizeGovernmentArray(
@@ -900,18 +1137,17 @@ export function normalizeKnowledgePayload(
     }
   }
 
-  if ("gender" in payload) {
-    const gender = normalizeGender(payload.gender, "gender", events, options);
-
-    if (gender !== undefined) {
-      payload.gender = gender;
-    }
-  }
+  const aspectForMorph =
+    typeof payload.aspect === "string"
+      ? payload.aspect
+      : isRecord(payload.morphology) && typeof payload.morphology.aspect === "string"
+        ? payload.morphology.aspect
+        : null;
 
   if (isRecord(payload.morphology)) {
     payload.morphology = normalizeMorphology(
       payload.morphology,
-      aspect,
+      aspectForMorph,
       events,
       options,
     );
@@ -942,6 +1178,8 @@ export function normalizeKnowledgePayload(
   if (isRecord(payload.paradigms)) {
     payload.paradigms = normalizeParadigms(payload.paradigms, events, options);
   }
+
+  applyPosFieldConstraints(payload, events, options);
 
   return { payload, events };
 }

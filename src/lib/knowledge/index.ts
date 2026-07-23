@@ -27,6 +27,7 @@ export {
 export {
   ensureKnowledgeExists,
   getKnowledgeByLemmaId,
+  getKnowledgeForConceptResolution,
 } from "@/lib/knowledge/get-knowledge";
 export {
   createEmptyKnowledge,

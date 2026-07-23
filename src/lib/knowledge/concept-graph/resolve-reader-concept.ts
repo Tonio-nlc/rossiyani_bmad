@@ -1,4 +1,5 @@
 import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-linguistic-context";
+import type { TLinguisticProfile } from "@/types/knowledge";
 import type { TVocabularyContextEncounter } from "@/types/vocabulary";
 
 import {
@@ -34,32 +35,45 @@ export function resolveReaderConcept(input: {
   };
 }
 
+/**
+ * Résolution Reader : POS / aspect / morphologie viennent de linguistic_knowledge
+ * (via le profil), jamais d'heuristiques sur la prose LLM.
+ */
 export function resolveReaderConceptFromSignals(input: {
   partOfSpeech?: string | null;
   aspect?: string | null;
+  gender?: string | null;
+  movementType?: string | null;
+  morphology?: TLinguisticProfile["morphology"] | null;
+  paradigms?: TLinguisticProfile["paradigms"] | null;
   explanation?: string;
   suffixExplanation?: string;
   surface?: string;
   lemma?: string;
 }): TReaderConceptResolution | null {
+  const morph = input.morphology;
+  const aspect = input.aspect ?? morph?.aspect ?? null;
+
   const profile: TConceptMatchProfile = {
     partOfSpeech: input.partOfSpeech ?? null,
-    aspect: input.aspect ?? null,
-    gender: null,
-    movementType: null,
+    aspect,
+    gender: input.gender ?? morph?.gender ?? null,
+    movementType: input.movementType ?? morph?.movementType ?? null,
     morphology: {
-      aspect: input.aspect ?? null,
-      tense: null,
-      person: null,
-      gender: null,
-      preverbs: [],
-      caseParadigm: [],
-      governedCases: [],
-      agreement: null,
-      pronounType: null,
-      aspectPair: null,
+      aspect,
+      tense: morph?.tense ?? null,
+      person: morph?.person ?? null,
+      gender: morph?.gender ?? input.gender ?? null,
+      preverbs: morph?.preverbs ?? [],
+      caseParadigm: morph?.caseParadigm ?? [],
+      governedCases: morph?.governedCases ?? [],
+      agreement: morph?.agreement ?? null,
+      pronounType: morph?.pronounType ?? null,
+      aspectPair: morph?.aspectPair ?? null,
     },
-    paradigms: { cases: [] },
+    paradigms: {
+      cases: input.paradigms?.cases ?? [],
+    },
     pedagogy: { concept: undefined },
   };
 

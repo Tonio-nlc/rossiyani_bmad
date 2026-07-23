@@ -19,9 +19,24 @@ const optionalText = z
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : null;
   })
-  .nullable();
+  .nullable()
+  .optional();
 
 const requiredText = z.string().trim().min(1);
+
+/** Accepte string | null | undefined → string | null (jamais undefined en sortie). */
+const nullishText = z.preprocess((value) => {
+  if (value === undefined || value === null) {
+    return null;
+  }
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}, z.string().nullable());
 
 const formEntrySchema = z.object({
   label: requiredText,
@@ -200,17 +215,43 @@ export const paradigmsSchema = z
 
 export const knowledgeLlmResponseSchema = z.object({
   partOfSpeech: requiredText,
-  gender: z.enum(["m", "f", "n"]).nullable(),
-  aspect: z.enum(["imperfective", "perfective"]).nullable(),
-  movementType: optionalText,
-  government: z.array(z.string()),
-  semanticCategory: optionalText,
-  register: optionalText,
-  difficulty: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).or(requiredText),
-  notes: z.string().transform((value) => value.trim()),
-  tags: z
-    .array(z.string().transform((value) => value.trim()))
-    .transform((tags) => tags.filter(Boolean)),
+  /** Genre : noms / adjectifs / pronoms — absent sinon (pas inventé). */
+  gender: z.enum(["m", "f", "n"]).nullable().optional(),
+  /** Aspect : verbes uniquement — absent sinon. */
+  aspect: z.enum(["imperfective", "perfective"]).nullable().optional(),
+  /** Type de mouvement : verbes uniquement — absent sinon. */
+  movementType: nullishText.optional(),
+  /** Régimes : verbes typiquement — optionnel. */
+  government: z.preprocess(
+    (value) => (Array.isArray(value) ? value : []),
+    z.array(z.string()),
+  ),
+  semanticCategory: nullishText.optional(),
+  register: nullishText.optional(),
+  difficulty: z.preprocess((value) => {
+    if (value === undefined || value === null || value === "") {
+      return null;
+    }
+
+    return value;
+  }, z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).or(z.string().trim().min(1)).nullable()),
+  notes: z.preprocess((value) => {
+    if (value === undefined || value === null) {
+      return "";
+    }
+
+    return typeof value === "string" ? value.trim() : "";
+  }, z.string()),
+  tags: z.preprocess((value) => {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value
+      .filter((tag): tag is string => typeof tag === "string")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }, z.array(z.string())),
   morphology: morphologySchema.default({}),
   syntax: syntaxSchema.default({}),
   semantics: semanticsSchema.default({}),

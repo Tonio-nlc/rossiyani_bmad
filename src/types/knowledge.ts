@@ -246,15 +246,15 @@ export interface TKnowledgeUpsertInput {
 
 export interface TKnowledgeLlmPayload {
   partOfSpeech: string;
-  gender: TKnowledgeGender | null;
-  aspect: TKnowledgeAspect | null;
-  movementType: string | null;
-  government: string[];
-  semanticCategory: string | null;
-  register: string | null;
-  difficulty: string;
-  notes: string;
-  tags: string[];
+  gender?: TKnowledgeGender | null;
+  aspect?: TKnowledgeAspect | null;
+  movementType?: string | null;
+  government?: string[];
+  semanticCategory?: string | null;
+  register?: string | null;
+  difficulty?: string | null;
+  notes?: string;
+  tags?: string[];
   morphology: TKnowledgeMorphology;
   syntax: TKnowledgeSyntax;
   semantics: TKnowledgeSemantics;

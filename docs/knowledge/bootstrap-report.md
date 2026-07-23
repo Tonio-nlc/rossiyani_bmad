@@ -1,71 +1,109 @@
 # Knowledge Bootstrap Report
 
-> Généré le 12/07/2026 12:34:00 — RC-019
+> Généré le 23/07/2026 18:45:35
 
 ## Résumé
 
 | Métrique | Valeur |
 |----------|--------|
-| Lemmes candidats | 45 |
-| Générés (v2) | 45 |
-| Ignorés (déjà v2) | 0 |
+| Lemmes candidats | 67 |
+| Générés (v2) | 3 |
+| Ignorés (déjà v2) | 64 |
 | Dry-run | 0 |
 | Erreurs validation | 0 |
 | Timeouts | 0 |
 | Autres erreurs | 0 |
-| Payloads normalisés | ~41 |
-| Durée totale | ~17 min (2 passes) |
+| Payloads normalisés | 3 |
+| Événements de normalisation | 25 |
+| Durée totale | 59 s |
 
-## Normalisation (RC-019)
+## Normalisation
 
-Étape `normalizeKnowledgePayload()` insérée entre LLM et Zod. Le schéma reste strict ; seuls les écarts de format sont corrigés de façon déterministe.
-
-| Catégorie | Occurrences (estimé) |
-|-----------|----------------------|
-| plural | 25 |
-| animacy | 18 |
-| government | 15 |
-| aspectPair | 11 |
-| specialForms | 14 |
-| paradigms | 6 |
-| morphologyScalar | 6 |
-| caseParadigm | 6 |
-| falseFriends | 6 |
-| governedCases | 5 |
-| preverbs | 5 |
-| confusions | 5 |
-| constructionPatterns | 2 |
-| gender | 1 |
-
-**Première passe** (45 lemmes) : 29 OK, 16 validation — tous des écarts de format identifiés en RC-018/019.
-
-**Seconde passe** (16 lemmes en échec, normalisation étendue) : 16/16 OK.
-
-**Couverture P0 finale : 45/45 (100 %)**
+| Catégorie | Occurrences |
+|-----------|-------------|
+| morphology | 3 |
+| paradigms | 18 |
+| partOfSpeech | 3 |
+| verbFeatures | 1 |
 
 ## Options
 
-- force : true
+- force : false
 - dry-run : false
-- only : P0
+- only : P0+P1+P2
 - limit : aucune
 
 ## Couverture finale
 
 | Priorité | Total | Enrichis (v2) | Taux |
 |----------|-------|---------------|------|
-| P0 — textes Rossiyani | 45 | 45 | 100 % |
-| P1 — leçons | 0 | 0 | — |
-| P2 — vocabulaire utilisateur | 0 | 0 | — |
+| P0 — textes Rossiyani | 67 | 67 | 100 % |
+| P1 — leçons | 11 | 11 | 100 % |
+| P2 — vocabulaire utilisateur | 11 | 11 | 100 % |
 
-## Critères RC-019
+## Lemmes ignorés (déjà v2)
 
-- [x] `knowledge:bootstrap --only=P0` ≥ 90 % de réussite (atteint **100 %**)
-- [x] Schéma Zod inchangé
-- [x] Profils conformes au modèle v2
-- [x] Aucun changement React / Knowledge Layer consommation
-- [x] `npm run build` OK
-
-## Architecture
-
-À 45/45, le socle Knowledge Layer est considéré **terminé**. Prochaine phase : contenu, audit pédagogique, bêta professeurs.
+- а
+- Анна
+- библиотека
+- бо́леть
+- булочная
+- вагон
+- ваго́н
+- вста́ть
+- входить
+- говори́ть
+- голубо́й
+- громко
+- друг
+- ехать
+- же́нщина
+- здора́ваться
+- иди́ти
+- идти́
+- или
+- книга
+- корзи́на
+- магазин
+- медленно
+- ме́сто
+- молодой
+- молоко
+- находить
+- немно́го
+- никто
+- окно
+- он
+- пешко́м
+- плохо
+- повернуть
+- погода
+- поезд
+- пожилая
+- пойти́
+- потом
+- продавец
+- прохо́жий
+- рабо́та
+- разговаривать
+- садиться
+- свидание
+- свой
+- себя
+- следующий
+- случи́ться
+- смотреть
+- сразу
+- ста́нция
+- ста́рый
+- телефон
+- ты
+- улыбаться
+- хлеб
+- хоро́ший
+- хотеть
+- ча́сто
+- человек
+- челове́к
+- чита́ть
+- чувствовать

@@ -259,8 +259,7 @@ export async function runKnowledgeBootstrap(
     });
   }
 
-  const allForCoverage = await collectBootstrapLemmas();
-  const coverage = await countEnrichedByPriority(allForCoverage);
+  const coverage = await countEnrichedByPriority();
   const finishedAt = new Date().toISOString();
 
   const report: TBootstrapReport = {

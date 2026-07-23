@@ -74,13 +74,13 @@ export function buildUpsertFromLlmPayload(
   const government = JSON.stringify(
     generated.syntax.government?.length
       ? generated.syntax.government
-      : generated.government,
+      : (generated.government ?? []),
   );
 
   return {
     lemmaId,
     partOfSpeech: generated.partOfSpeech,
-    gender: generated.gender,
+    gender: generated.gender ?? null,
     aspect: generated.aspect ?? generated.morphology.aspect ?? null,
     movementType:
       generated.movementType ?? generated.morphology.movementType ?? null,
@@ -90,10 +90,10 @@ export function buildUpsertFromLlmPayload(
       generated.semantics.semanticCategory ??
       null,
     register: generated.register ?? generated.semantics.register ?? null,
-    difficulty: generated.pedagogy.progression ?? generated.difficulty,
+    difficulty: generated.pedagogy.progression ?? generated.difficulty ?? null,
     notes: generated.pedagogy.takeaway ?? generated.notes ?? null,
     tags: [
-      ...generated.tags,
+      ...(generated.tags ?? []),
       ...(generated.pedagogy.relatedConcepts ?? []),
     ].filter((tag, index, array) => array.indexOf(tag) === index),
     morphology: generated.morphology,
