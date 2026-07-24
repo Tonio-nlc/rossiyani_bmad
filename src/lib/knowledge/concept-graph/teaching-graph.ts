@@ -16,16 +16,29 @@ export const TEACHING_GRAPH_EDGES: TConceptGraphEdge[] = [
   { fromId: "preposition-government", toId: "noun-declension", relation: "prerequisite" },
 ];
 
+/** Arêtes actives : seed mémoire, remplacées si la DB fournit des relations. */
+let activeEdges: TConceptGraphEdge[] = TEACHING_GRAPH_EDGES;
+
+export function setTeachingGraphEdges(edges: TConceptGraphEdge[]): void {
+  activeEdges = edges;
+}
+
+export function getTeachingGraphEdges(): TConceptGraphEdge[] {
+  return activeEdges;
+}
+
 export function getPrerequisiteIds(conceptId: string): string[] {
-  return TEACHING_GRAPH_EDGES.filter(
-    (edge) => edge.toId === conceptId && edge.relation === "prerequisite",
-  ).map((edge) => edge.fromId);
+  return activeEdges
+    .filter(
+      (edge) => edge.toId === conceptId && edge.relation === "prerequisite",
+    )
+    .map((edge) => edge.fromId);
 }
 
 export function getRelatedConceptIds(conceptId: string): string[] {
   const related = new Set<string>();
 
-  for (const edge of TEACHING_GRAPH_EDGES) {
+  for (const edge of activeEdges) {
     if (edge.fromId === conceptId && edge.relation !== "prerequisite") {
       related.add(edge.toId);
     }

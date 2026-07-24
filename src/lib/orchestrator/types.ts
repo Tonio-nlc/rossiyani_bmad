@@ -42,4 +42,6 @@ export interface TWordExplanationResponseExtended {
   conceptSlug?: string;
   conceptTitle?: string;
   conceptSummary?: string;
+  partOfSpeech?: string | null;
+  aspect?: string | null;
 }

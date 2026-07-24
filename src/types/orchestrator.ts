@@ -22,6 +22,9 @@ export interface TWordExplanationResponse {
   conceptSlug?: string;
   conceptTitle?: string;
   conceptSummary?: string;
+  /** Depuis linguistic_knowledge — pas d'heuristique LLM. */
+  partOfSpeech?: string | null;
+  aspect?: string | null;
 }
 
 export type TFunctionalRole =

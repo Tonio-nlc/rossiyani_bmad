@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { getConceptBySlug } from "@/lib/knowledge/concept-graph";
+import {
+  ensureConceptGraphHydrated,
+  getConceptBySlug,
+} from "@/lib/knowledge/concept-graph";
 import { composeCanonicalConceptScenario } from "@/lib/knowledge/teaching-engine";
 import { createClient } from "@/lib/supabase/server";
 
@@ -23,6 +26,8 @@ export async function GET(_request: Request, { params }: RouteParams) {
   if (!user) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
+
+  await ensureConceptGraphHydrated();
 
   const concept = getConceptBySlug(slug);
 

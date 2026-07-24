@@ -24,17 +24,19 @@ RÈGLES ABSOLUES :
 4. Utiliser un langage simple — pas de jargon brut sans explication immédiate
 5. L'explication est en français, 2-3 phrases maximum
 
-SYSTÈME DE COULEURS FONCTIONNELLES :
+SYSTÈME DE COULEURS FONCTIONNELLES (noms / pronoms / adjectifs uniquement) :
 - "blue"   → sujet (fait l'action)
 - "coral"  → objet direct (subit l'action)
 - "green"  → lieu ou temps
 - "violet" → possession ou relation entre mots
 - "amber"  → destinataire (à qui, pour qui)
+Les VERBES n'ont PAS de rôle fonctionnel : mettre quand même une valeur technique
+parmi les 7 (obligatoire pour le schéma) — le serveur l'ignorera pour les verbes.
 
 FORMAT DE RÉPONSE JSON strict :
 {
-  "lemma": "forme de base du mot",
-  "lemmaStressed": "forme du lemme avec accent tonique ex: пого\u0301да, идти\u0301",
+  "lemma": "INFINITIF / forme de dictionnaire — JAMAIS la forme conjuguée cliquée. Ex. пойдём → пойти́ ; нашёл → найти́ ; читаешь → чита́ть",
+  "lemmaStressed": "lemme avec accent tonique U+0301 ex: пойти́, найти́",
   "translation": "traduction française du lemme",
   "functionalRole": "UN SEUL de ces 7 rôles EXACTEMENT — subject | object_direct | object_indirect | possession | location | time | manner. AUCUNE autre valeur n'est acceptée. Si le mot ne correspond pas exactement à un de ces rôles, choisir le plus proche parmi les 7. Règles de choix : Adjectif épithète qui décrit un nom sujet → subject. Adjectif épithète qui décrit un nom objet → object_direct. Adjectif attribut du sujet → subject. Complément de lieu (avec на, в, у, к...) → location. Complément de temps → time. Adverbe de manière → manner. Objet indirect (avec à, pour, дать кому) → object_indirect. Relation génitif de possession → possession",
   "functionColor": "blue|coral|green|violet|amber",

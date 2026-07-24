@@ -1,6 +1,6 @@
 # Rapport de remappage — déduplication des lemmes
 
-> Généré le 23/07/2026 18:44:12 — **DRY-RUN** (aucune écriture)
+> Généré le 24/07/2026 05:37:36 — **DRY-RUN** (aucune écriture)
 
 ## Règles
 
@@ -20,7 +20,7 @@
 | explanation_cache | 5 |
 | word_forms | 0 |
 | texts.content_annotated (mots) | 0 |
-| linguistic_knowledge (sur doublons drop) | 3 |
+| linguistic_knowledge (sur doublons drop) | 4 |
 
 **Groupes planifiés : 5**
 
@@ -35,8 +35,8 @@
 ### `читать` (accent-duplicate)
 
 - **Conserver** : « чита́ть » (`81772f4b-3be2-4b6e-a809-03ffaaa26f0b`) — knowledge v2 : oui
-- **Supprimer après remap** : « читать » (`6b92f2ef-5179-41e9-9cf7-f1e868919c59`) — knowledge v2 : non
-- Remaps : uv=0, cache=1, word_forms=0, annotated=0, knowledge_drop=0
+- **Supprimer après remap** : « читать » (`6b92f2ef-5179-41e9-9cf7-f1e868919c59`) — knowledge v2 : oui
+- Remaps : uv=0, cache=1, word_forms=0, annotated=0, knowledge_drop=1
 
 ### `человек` (accent-duplicate)
 

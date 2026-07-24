@@ -66,6 +66,8 @@ export const CURATED_POSSESSIVE = {
 export const CURATED_KNIGA = {
   nom: "кни́га",
   acc: "кни́гу",
+  /** Génitif singulier */
+  gen: "кни́ги",
 } as const;
 
 export const CURATED_STOL = {

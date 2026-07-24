@@ -1,4 +1,8 @@
 import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-linguistic-context";
+import {
+  detectPrepositionGovernment,
+  inferMorphologicalCaseFromParadigms,
+} from "@/lib/knowledge/morphology/curated";
 import type { TLinguisticProfile } from "@/types/knowledge";
 import type { TVocabularyContextEncounter } from "@/types/vocabulary";
 
@@ -38,6 +42,7 @@ export function resolveReaderConcept(input: {
 /**
  * Résolution Reader : POS / aspect / morphologie viennent de linguistic_knowledge
  * (via le profil), jamais d'heuristiques sur la prose LLM.
+ * Régence : préposition immédiatement avant le mot + table curée.
  */
 export function resolveReaderConceptFromSignals(input: {
   partOfSpeech?: string | null;
@@ -50,15 +55,41 @@ export function resolveReaderConceptFromSignals(input: {
   suffixExplanation?: string;
   surface?: string;
   lemma?: string;
+  /** Phrase d'origine — requise pour détecter la préposition précédente. */
+  sentence?: string | null;
 }): TReaderConceptResolution | null {
   const morph = input.morphology;
   const aspect = input.aspect ?? morph?.aspect ?? null;
+
+  const caseEntries = [
+    ...(input.paradigms?.cases ?? []),
+    ...(morph?.caseParadigm ?? []),
+  ];
+
+  const morphologicalCase = input.surface
+    ? inferMorphologicalCaseFromParadigms(input.surface, caseEntries)
+    : null;
+
+  const government =
+    input.surface && input.sentence
+      ? detectPrepositionGovernment({
+          surface: input.surface,
+          sentence: input.sentence,
+          morphologicalCase,
+        })
+      : null;
 
   const profile: TConceptMatchProfile = {
     partOfSpeech: input.partOfSpeech ?? null,
     aspect,
     gender: input.gender ?? morph?.gender ?? null,
     movementType: input.movementType ?? morph?.movementType ?? null,
+    prepositionGovernment: government
+      ? {
+          preposition: government.preposition,
+          governedCase: government.governedCase,
+        }
+      : null,
     morphology: {
       aspect,
       tense: morph?.tense ?? null,
@@ -83,8 +114,10 @@ export function resolveReaderConceptFromSignals(input: {
     partOfSpeech: input.partOfSpeech ?? null,
     suffix: null,
     roleLabel: null,
-    sentence: null,
-    morphSignals: [],
+    sentence: input.sentence ?? null,
+    morphSignals: government
+      ? [`régence:${government.preposition}+${government.governedCase}`]
+      : [],
     alternativeForms: [],
     encounterExplanation: input.explanation ?? null,
     suffixExplanation: input.suffixExplanation ?? null,
@@ -93,7 +126,7 @@ export function resolveReaderConceptFromSignals(input: {
   const encounter = input.explanation
     ? ({
         surface: input.surface ?? "",
-        sentence: "",
+        sentence: input.sentence ?? "",
         explanation: input.explanation,
         suffix: "",
         suffixExplanation: input.suffixExplanation ?? "",

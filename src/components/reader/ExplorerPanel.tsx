@@ -23,6 +23,7 @@ import {
   stripTrailingPunctuationForDisplay,
   type TReaderFunctionColor,
 } from "@/lib/utils/russian";
+import { formatAspectLabel } from "@/lib/vocabulary/format-linguistic-labels";
 import type { TWordExplanationResponse } from "@/types/orchestrator";
 import type { TLessonLink } from "@/types/lessons";
 import { cn } from "@/lib/utils";
@@ -177,11 +178,17 @@ function ExplorerContent({
     return null;
   }
 
-  const colorHex = getFunctionColorHex(
-    explanation.functionColor as TReaderFunctionColor,
-  );
+  const isVerb = explanation.partOfSpeech === "verb";
+  const colorHex = isVerb
+    ? null
+    : getFunctionColorHex(explanation.functionColor as TReaderFunctionColor);
   const cleanSurface = stripTrailingPunctuationForDisplay(explanation.surface);
-  const roleLabel = getNaturalFunctionalRoleLabel(explanation.functionalRole);
+  const roleLabel = isVerb
+    ? null
+    : getNaturalFunctionalRoleLabel(explanation.functionalRole);
+  const aspectLabel = isVerb
+    ? formatAspectLabel(explanation.aspect)
+    : null;
   const displayLemma =
     explanation.lemmaStressed ?? explanation.lemma.toLowerCase();
   const plainLemma = explanation.lemma.toLowerCase();
@@ -206,26 +213,35 @@ function ExplorerContent({
         {explanation.translation}
       </p>
 
-      <div className={EXPLORER_SPACE.afterTranslation}>
-        <span
-          className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
-          style={
-            colorHex
-              ? {
-                  color: colorHex,
-                  backgroundColor: `${colorHex}26`,
-                }
-              : undefined
-          }
-        >
-          <span
-            className="size-1.5 shrink-0 rounded-full"
-            style={colorHex ? { backgroundColor: colorHex } : undefined}
-            aria-hidden="true"
-          />
-          {roleLabel}
-        </span>
-      </div>
+      {roleLabel || aspectLabel ? (
+        <div className={EXPLORER_SPACE.afterTranslation}>
+          {roleLabel ? (
+            <span
+              className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+              style={
+                colorHex
+                  ? {
+                      color: colorHex,
+                      backgroundColor: `${colorHex}26`,
+                    }
+                  : undefined
+              }
+            >
+              <span
+                className="size-1.5 shrink-0 rounded-full"
+                style={colorHex ? { backgroundColor: colorHex } : undefined}
+                aria-hidden="true"
+              />
+              {roleLabel}
+            </span>
+          ) : null}
+          {aspectLabel ? (
+            <span className="inline-flex items-center rounded-full bg-bg px-3 py-1 text-xs font-semibold text-ink-2">
+              {aspectLabel}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
 
       {explanation.conceptSlug && explanation.conceptTitle ? (
         <ExplorerConceptDeepLink

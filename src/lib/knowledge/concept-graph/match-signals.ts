@@ -10,6 +10,14 @@ export interface TConceptMatchProfile {
   aspect?: string | null;
   gender?: string | null;
   movementType?: string | null;
+  /**
+   * Régence détectée déterministe (préposition avant le mot + table curée).
+   * Prioritaire sur noun-declension.
+   */
+  prepositionGovernment?: {
+    preposition: string;
+    governedCase: string;
+  } | null;
   morphology: {
     tense?: string | null;
     person?: string | null;
@@ -194,9 +202,11 @@ const SIGNAL_RULES: SignalRule[] = [
   {
     conceptId: "preposition-government",
     weight: "primary",
-    score: 75,
+    /** Au-dessus de noun-declension (80) : la régence est le phénomène précis. */
+    score: 96,
     signal: "régence prépositionnelle",
     matches: ({ profile }) =>
+      Boolean(profile.prepositionGovernment) ||
       profile.partOfSpeech === "preposition" ||
       Boolean(profile.morphology.governedCases?.length),
   },

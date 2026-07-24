@@ -3,6 +3,8 @@ import type { TLinguisticConcept } from "@/types/linguistic-concept";
 import { SEED_TEACHING_SCENARIOS } from "@/lib/knowledge/teaching-engine/seed-teaching-scenarios";
 import { validateTeachingScenarioContent } from "@/lib/knowledge/teaching-engine/scenario-quality-rules";
 
+import { loadConceptGraphFromDb } from "../load-from-db";
+import { setTeachingGraphEdges } from "../teaching-graph";
 import { SEED_LINGUISTIC_CONCEPTS } from "./seed-concepts";
 
 function enrichConceptWithScenario(concept: TLinguisticConcept): TLinguisticConcept {
@@ -16,9 +18,9 @@ function enrichConceptWithScenario(concept: TLinguisticConcept): TLinguisticConc
   return { ...concept, teachingScenario };
 }
 
-const ENRICHED_CONCEPTS = SEED_LINGUISTIC_CONCEPTS.map(enrichConceptWithScenario);
+const MEMORY_SEED = SEED_LINGUISTIC_CONCEPTS.map(enrichConceptWithScenario);
 
-for (const concept of ENRICHED_CONCEPTS) {
+for (const concept of MEMORY_SEED) {
   if (!concept.teachingScenario) {
     continue;
   }
@@ -36,12 +38,51 @@ for (const concept of ENRICHED_CONCEPTS) {
   }
 }
 
-const byId = new Map<string, TLinguisticConcept>();
-const bySlug = new Map<string, TLinguisticConcept>();
+let activeConcepts: TLinguisticConcept[] = MEMORY_SEED;
+let byId = new Map<string, TLinguisticConcept>();
+let bySlug = new Map<string, TLinguisticConcept>();
 
-for (const concept of ENRICHED_CONCEPTS) {
-  byId.set(concept.id, concept);
-  bySlug.set(concept.slug, concept);
+function rebuildIndexes(concepts: TLinguisticConcept[]): void {
+  activeConcepts = concepts;
+  byId = new Map();
+  bySlug = new Map();
+
+  for (const concept of concepts) {
+    byId.set(concept.id, concept);
+    bySlug.set(concept.slug, concept);
+  }
+}
+
+rebuildIndexes(MEMORY_SEED);
+
+let hydratePromise: Promise<"db" | "memory"> | null = null;
+
+/**
+ * Charge le Concept Graph depuis la DB une fois par process.
+ * Repli silencieux sur le registry TypeScript si table vide / absente / erreur.
+ */
+export async function ensureConceptGraphHydrated(): Promise<"db" | "memory"> {
+  if (hydratePromise) {
+    return hydratePromise;
+  }
+
+  hydratePromise = (async () => {
+    const { concepts, relations, source } = await loadConceptGraphFromDb();
+
+    if (source !== "db" || concepts.length === 0) {
+      return "memory";
+    }
+
+    rebuildIndexes(concepts.map(enrichConceptWithScenario));
+
+    if (relations.length > 0) {
+      setTeachingGraphEdges(relations);
+    }
+
+    return "db";
+  })();
+
+  return hydratePromise;
 }
 
 export function getConceptById(id: string): TLinguisticConcept | null {
@@ -53,7 +94,7 @@ export function getConceptBySlug(slug: string): TLinguisticConcept | null {
 }
 
 export function getAllConcepts(): TLinguisticConcept[] {
-  return [...ENRICHED_CONCEPTS];
+  return [...activeConcepts];
 }
 
 export function getConceptsByIds(ids: string[]): TLinguisticConcept[] {

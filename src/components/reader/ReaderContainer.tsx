@@ -208,13 +208,15 @@ export function ReaderContainer({
     : false;
 
   useEffect(() => {
-    if (!explanation?.functionColor || !selectedWord) {
+    if (!explanation || !selectedWord) {
       return;
     }
 
+    const isVerb = explanation.partOfSpeech === "verb";
+
     annotateWord(selectedWord, {
-      functionColor: explanation.functionColor,
-      functionalRole: explanation.functionalRole,
+      functionColor: isVerb ? "" : explanation.functionColor,
+      functionalRole: isVerb ? "" : explanation.functionalRole,
       lemma: explanation.lemma,
       translation: explanation.translation,
       suffix: explanation.suffix,
@@ -230,8 +232,12 @@ export function ReaderContainer({
   const activeWordAnnotation =
     explanation && selectedWord && !isLoading && !error
       ? {
-          functionColor: explanation.functionColor,
-          functionalRole: explanation.functionalRole,
+          functionColor:
+            explanation.partOfSpeech === "verb" ? "" : explanation.functionColor,
+          functionalRole:
+            explanation.partOfSpeech === "verb"
+              ? ""
+              : explanation.functionalRole,
           lemma: explanation.lemma,
           translation: explanation.translation,
           suffix: explanation.suffix,

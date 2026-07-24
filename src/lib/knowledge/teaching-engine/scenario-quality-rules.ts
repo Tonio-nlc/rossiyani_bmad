@@ -9,7 +9,9 @@ import type {
 } from "@/types/teaching-scenario";
 
 import {
+  CURATED_KNIGA,
   CURATED_PRESENT_VERBS,
+  CURATED_STOL,
   stripStressMarks,
 } from "@/lib/knowledge/morphology/curated";
 
@@ -44,22 +46,82 @@ function buildParadigmFormIndex(): Map<string, string> {
     index.set(lemmaKey, lemmaKey);
   }
 
+  const kniga = stripStressMarks(CURATED_KNIGA.nom);
+  for (const form of Object.values(CURATED_KNIGA)) {
+    index.set(stripStressMarks(form), kniga);
+  }
+
+  const stol = stripStressMarks(CURATED_STOL.nom);
+  for (const form of Object.values(CURATED_STOL)) {
+    index.set(stripStressMarks(form), stol);
+  }
+
   return index;
 }
 
 const PARADIGM_FORM_TO_LEMMA = buildParadigmFormIndex();
 
+const SAME_WORD_VISUAL_CAPTION =
+  /même nom|même mot|d['']un même|cas différents\s*=\s*rôles/i;
+
+/**
+ * Scénario canonique (phénomène seul) : un visual qui prétend montrer
+ * les formes d'un même mot ne peut pas mélanger plusieurs lemmes curés.
+ */
+function checkCanonicalVisualHomogeneousLemma(
+  scenario: TTeachingScenario,
+  issues: TTeachingScenarioIssue[],
+): void {
+  const nodes = scenario.visual?.nodes ?? [];
+  const caption = scenario.visual?.caption ?? "";
+
+  const mustBeHomogeneous =
+    scenario.conceptId === "noun-declension" ||
+    SAME_WORD_VISUAL_CAPTION.test(caption);
+
+  if (!mustBeHomogeneous || nodes.length < 2) {
+    return;
+  }
+
+  const owners = new Set<string>();
+
+  for (const node of nodes) {
+    for (const token of extractCyrillicTokens(node)) {
+      const owner = PARADIGM_FORM_TO_LEMMA.get(token);
+
+      if (owner) {
+        owners.add(owner);
+      }
+    }
+  }
+
+  if (owners.size > 1) {
+    issues.push({
+      severity: "error",
+      code: "SCENARIO_FOREIGN_LEMMA_FORM",
+      message: `Visual canonique « ${caption || scenario.conceptId} » mélange plusieurs lemmes (${[...owners].join(", ")}). Une variation de formes d'un même mot doit rester sur un seul lemme.`,
+      field: "visual.nodes",
+    });
+  }
+}
+
 /**
  * Gate auteur : un slot démonstratif ne doit pas enseigner le paradigme
  * d'un autre lemme que celui consulté (sauf section Illustration).
+ * Les scénarios canoniques (forceCanonical) sont couverts séparément.
  */
 function checkForeignLemmaInDemonstration(
   scenario: TTeachingScenario,
   issues: TTeachingScenarioIssue[],
 ): void {
+  if (scenario.contrastIsCanonical) {
+    checkCanonicalVisualHomogeneousLemma(scenario, issues);
+    return;
+  }
+
   const consulted = scenario.consultedLemma?.trim();
 
-  if (!consulted || scenario.contrastIsCanonical) {
+  if (!consulted) {
     return;
   }
 

@@ -22,7 +22,6 @@ import {
   CURATED_POSSESSIVE,
   CURATED_PRESENT_SG2,
   CURATED_PROCHITAT,
-  CURATED_STOL,
 } from "@/lib/knowledge/morphology/curated";
 
 /** à valider — relecture humaine requise */
@@ -255,14 +254,14 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
       nodes: [
         `${CURATED_KNIGA.nom} (nominatif)`,
         `${CURATED_KNIGA.acc} (accusatif)`,
-        `${CURATED_STOL.gen} (génitif)`,
+        `${CURATED_KNIGA.gen} (génitif)`,
       ],
       layout: "vertical",
       caption: "Même nom, cas différents = rôles différents",
     },
     commonMistake: `N'apprends pas les cas comme une liste : ${CURATED_KNIGA.acc} existe parce que le nom est objet direct.`,
     reuse: [
-      `${CURATED_STOL.nom} / ${CURATED_STOL.gen} / ${CURATED_STOL.dat} — chaque forme = un rôle.`,
+      `${CURATED_KNIGA.nom} / ${CURATED_KNIGA.acc} / ${CURATED_KNIGA.gen} — chaque forme = un rôle.`,
     ],
     memoryAnchor: `${CURATED_KNIGA.acc} = accusatif (objet direct) ; ${CURATED_KNIGA.nom} = nominatif.`,
   },

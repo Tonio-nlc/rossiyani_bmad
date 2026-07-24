@@ -1,4 +1,5 @@
 export {
+  ensureConceptGraphHydrated,
   getAllConcepts,
   getConceptById,
   getConceptBySlug,
@@ -7,5 +8,11 @@ export {
 } from "./registry";
 export { resolveConceptGraph } from "./resolve-concept-graph";
 export { resolveReaderConcept, resolveReaderConceptFromSignals } from "./resolve-reader-concept";
-export { buildTeachingPath, getPrerequisiteIds, getRelatedConceptIds } from "./teaching-graph";
+export {
+  buildTeachingPath,
+  getPrerequisiteIds,
+  getRelatedConceptIds,
+  getTeachingGraphEdges,
+} from "./teaching-graph";
 export { matchConceptSignals, buildLemmaConceptLinks } from "./match-signals";
+export { loadConceptGraphFromDb } from "./load-from-db";

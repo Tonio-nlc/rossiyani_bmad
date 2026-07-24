@@ -28,6 +28,9 @@ export type TConceptCategory =
 
 export type TConceptDifficulty = "A0" | "A1" | "A2" | "B1" | "B2";
 
+/** Statut éditorial pour relecture professeur (persisté en DB). */
+export type TConceptValidationStatus = "brouillon" | "a-valider" | "valide";
+
 export type TConceptLinkWeight = "primary" | "secondary" | "advanced";
 
 export type TVisualModelType =
@@ -68,6 +71,8 @@ export interface TLinguisticConcept {
   category: TConceptCategory;
   difficulty: TConceptDifficulty;
   summary: string;
+  /** Absent sur le seed TS → traité comme `a-valider` côté UI. */
+  validationStatus?: TConceptValidationStatus;
   coreIdea: string;
   whyItExists: string;
   mentalModel: string;

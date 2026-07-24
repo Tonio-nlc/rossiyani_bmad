@@ -1,6 +1,10 @@
-import { resolveReaderConceptFromSignals } from "@/lib/knowledge/concept-graph";
+import {
+  ensureConceptGraphHydrated,
+  resolveReaderConceptFromSignals,
+} from "@/lib/knowledge/concept-graph";
 import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
 import { getKnowledgeForConceptResolution } from "@/lib/knowledge/get-knowledge";
+import { resolveCuratedLemmaFromSurface } from "@/lib/knowledge/morphology/curated";
 import {
   getCachedExplanation,
   incrementUsageCount,
@@ -10,6 +14,7 @@ import {
 import { generateWordExplanation } from "@/lib/orchestrator/llm";
 import { computeContextHash } from "@/lib/orchestrator/hasher";
 import type {
+  TLlmExplanationPayload,
   TWordExplanationRequest,
   TWordExplanationResponseExtended,
 } from "@/lib/orchestrator/types";
@@ -36,31 +41,93 @@ function mapCacheToResponse(
 }
 
 /**
- * Attache conceptId/Slug/Title depuis linguistic_knowledge (POS + aspect).
- * Pas d'heuristique sur la prose LLM. Pas d'appel LLM synchrone.
+ * Corrige lemma / lemmaStressed depuis la morphologie curée
+ * (ex. пойдём → пойти́). Autorité : curated, pas le LLM.
+ */
+function applyCuratedLemmaToPayload(
+  surface: string,
+  payload: TLlmExplanationPayload,
+): TLlmExplanationPayload {
+  const curated = resolveCuratedLemmaFromSurface(surface);
+
+  if (!curated) {
+    return payload;
+  }
+
+  return {
+    ...payload,
+    lemma: curated.lemma,
+    lemmaStressed: curated.lemma,
+  };
+}
+
+async function applyCuratedLemmaToResponse(
+  response: TWordExplanationResponseExtended,
+): Promise<TWordExplanationResponseExtended> {
+  const curated = resolveCuratedLemmaFromSurface(response.surface);
+
+  if (!curated) {
+    return response;
+  }
+
+  const lemmaId = await resolveOrCreateLemma(curated.lemma);
+
+  return {
+    ...response,
+    lemma: curated.lemma,
+    lemmaStressed: curated.lemma,
+    lemmaId,
+  };
+}
+
+/**
+ * Attache concept + POS/aspect depuis linguistic_knowledge.
+ * Les verbes n'ont pas de rôle fonctionnel (sujet/objet…) : on le retire ici.
  */
 async function attachConceptResolution(
   response: TWordExplanationResponseExtended,
+  sentence: string,
 ): Promise<TWordExplanationResponseExtended> {
+  await ensureConceptGraphHydrated();
+
+  const curatedSurface = resolveCuratedLemmaFromSurface(response.surface);
   const knowledge = await getKnowledgeForConceptResolution({
     lemmaId: response.lemmaId,
     lemmaForm: response.lemma,
   });
 
-  if (!knowledge?.partOfSpeech || knowledge.partOfSpeech === "unknown") {
-    console.info(
-      `[Concept Resolution] Pas de linguistic_knowledge utilisable pour lemme « ${response.lemma} » (${response.lemmaId}) — bootstrap requis`,
-    );
+  const profile = knowledge?.partOfSpeech && knowledge.partOfSpeech !== "unknown"
+    ? buildLinguisticProfile(knowledge)
+    : null;
+
+  if (!profile?.partOfSpeech && !curatedSurface) {
+    if (!knowledge?.partOfSpeech || knowledge.partOfSpeech === "unknown") {
+      console.info(
+        `[Concept Resolution] Pas de linguistic_knowledge utilisable pour lemme « ${response.lemma} » (${response.lemmaId}) — bootstrap requis`,
+      );
+    }
+
     return response;
   }
 
-  const profile = buildLinguisticProfile(knowledge);
+  const partOfSpeech = profile?.partOfSpeech ?? "verb";
+  const aspect = profile?.aspect ?? null;
+  const isVerb = partOfSpeech === "verb" || Boolean(curatedSurface);
 
-  if (!profile.partOfSpeech) {
-    console.info(
-      `[Concept Resolution] POS absent après profil pour lemme « ${response.lemma} » (${response.lemmaId}) — bootstrap requis`,
-    );
-    return response;
+  const withPos: TWordExplanationResponseExtended = {
+    ...response,
+    partOfSpeech,
+    aspect,
+    ...(isVerb
+      ? {
+          functionalRole: "",
+          functionColor: "",
+        }
+      : {}),
+  };
+
+  if (!profile?.partOfSpeech) {
+    return withPos;
   }
 
   const concept = resolveReaderConceptFromSignals({
@@ -70,18 +137,19 @@ async function attachConceptResolution(
     movementType: profile.movementType,
     morphology: profile.morphology,
     paradigms: profile.paradigms,
-    surface: response.surface,
-    lemma: response.lemma,
-    explanation: response.explanation,
-    suffixExplanation: response.suffixExplanation,
+    surface: withPos.surface,
+    lemma: withPos.lemma,
+    explanation: withPos.explanation,
+    suffixExplanation: withPos.suffixExplanation,
+    sentence,
   });
 
   if (!concept) {
-    return response;
+    return withPos;
   }
 
   return {
-    ...response,
+    ...withPos,
     conceptId: concept.conceptId,
     conceptSlug: concept.conceptSlug,
     conceptTitle: concept.conceptTitle,
@@ -97,16 +165,18 @@ export async function explainWord(
   const cached = await getCachedExplanation(contextHash);
 
   if (cached) {
-    const response = await attachConceptResolution(
+    const withLemma = await applyCuratedLemmaToResponse(
       mapCacheToResponse(cached, surface),
     );
+    const response = await attachConceptResolution(withLemma, sentence);
 
     void incrementUsageCount(cached.id, cached.usageCount).catch(() => undefined);
 
     return response;
   }
 
-  const llmPayload = await generateWordExplanation(surface, sentence);
+  const llmRaw = await generateWordExplanation(surface, sentence);
+  const llmPayload = applyCuratedLemmaToPayload(surface, llmRaw);
   const lemmaId = await resolveOrCreateLemma(llmPayload.lemma);
   const explanationCacheId = await storeExplanationInCache({
     contextHash,
@@ -116,21 +186,24 @@ export async function explainWord(
     payload: llmPayload,
   });
 
-  return attachConceptResolution({
-    surface,
-    lemma: llmPayload.lemma,
-    lemmaStressed: llmPayload.lemmaStressed,
-    translation: llmPayload.translation,
-    functionalRole: llmPayload.functionalRole,
-    functionColor: llmPayload.functionColor,
-    explanation: llmPayload.explanation,
-    suffix: llmPayload.suffix,
-    suffixExplanation: llmPayload.suffixExplanation,
-    source: "api",
-    confidenceScore: 0.5,
-    lemmaId,
-    explanationCacheId,
-  });
+  return attachConceptResolution(
+    {
+      surface,
+      lemma: llmPayload.lemma,
+      lemmaStressed: llmPayload.lemmaStressed,
+      translation: llmPayload.translation,
+      functionalRole: llmPayload.functionalRole,
+      functionColor: llmPayload.functionColor,
+      explanation: llmPayload.explanation,
+      suffix: llmPayload.suffix,
+      suffixExplanation: llmPayload.suffixExplanation,
+      source: "api",
+      confidenceScore: 0.5,
+      lemmaId,
+      explanationCacheId,
+    },
+    sentence,
+  );
 }
 
 export type { TWordExplanationRequest, TWordExplanationResponseExtended };

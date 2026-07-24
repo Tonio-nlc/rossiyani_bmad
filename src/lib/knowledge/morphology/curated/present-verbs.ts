@@ -132,26 +132,70 @@ export const CURATED_GOVORIT_PRESENT: TCuratedVerbPresent = {
   },
 };
 
+export const CURATED_POJTI_PRESENT: TCuratedVerbPresent = {
+  lemma: "пойти́",
+  aliases: ["пойти", "пойти́"],
+  conjugationClass: 1,
+  present: {
+    sg1: "пойду́",
+    sg2: "пойдёшь",
+    sg3: "пойдёт",
+    pl1: "пойдём",
+    pl2: "пойдёте",
+    pl3: "пойду́т",
+  },
+  endings: {
+    sg1: "-у",
+    sg2: "-ёшь",
+    sg3: "-ёт",
+    pl1: "-ём",
+    pl2: "-ёте",
+    pl3: "-ут",
+  },
+};
+
 export const CURATED_PRESENT_VERBS: TCuratedVerbPresent[] = [
   CURATED_BOLET_HURT,
   CURATED_SLUCHITSYA,
   CURATED_CHITAT_PRESENT,
   CURATED_GOVORIT_PRESENT,
+  CURATED_POJTI_PRESENT,
 ];
 
 const byAlias = new Map<string, TCuratedVerbPresent>();
+const bySurfaceForm = new Map<string, TCuratedVerbPresent>();
 
 for (const verb of CURATED_PRESENT_VERBS) {
   for (const alias of verb.aliases) {
     byAlias.set(stripStressMarks(alias), verb);
   }
   byAlias.set(stripStressMarks(verb.lemma), verb);
+
+  for (const form of Object.values(verb.present)) {
+    if (form) {
+      bySurfaceForm.set(stripStressMarks(form), verb);
+    }
+  }
+
+  if (verb.past?.m) {
+    bySurfaceForm.set(stripStressMarks(verb.past.m), verb);
+  }
 }
 
 export function getCuratedPresentVerb(
   lemma: string,
 ): TCuratedVerbPresent | null {
   return byAlias.get(stripStressMarks(lemma)) ?? null;
+}
+
+/**
+ * Lemme d'autorité depuis une forme fléchie curée (ex. пойдём → пойти́).
+ * Pas de LLM — morphologie curée uniquement.
+ */
+export function resolveCuratedLemmaFromSurface(
+  surface: string,
+): TCuratedVerbPresent | null {
+  return bySurfaceForm.get(stripStressMarks(surface)) ?? null;
 }
 
 export function isDefectivePresentVerb(lemma: string): boolean {

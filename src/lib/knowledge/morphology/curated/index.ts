@@ -25,6 +25,7 @@ export {
   CURATED_BOLET_HURT,
   CURATED_CHITAT_PRESENT,
   CURATED_GOVORIT_PRESENT,
+  CURATED_POJTI_PRESENT,
   CURATED_PRESENT_VERBS,
   CURATED_SLUCHITSYA,
   buildPresentVisualNodes,
@@ -34,6 +35,7 @@ export {
   isDefectivePresentVerb,
   personKeyToChipLabel,
   personKeyToFrench,
+  resolveCuratedLemmaFromSurface,
   stripStressMarks,
   type TCuratedVerbDefectivity,
   type TCuratedVerbPresent,
@@ -42,3 +44,17 @@ export {
 } from "./present-verbs";
 
 export { composePresentConjugationDemo } from "./compose-present-conjugation-demo";
+
+export {
+  CURATED_PREPOSITION_GOVERNMENT,
+  getPrepositionGovernmentEntry,
+  type TGovernedCase,
+  type TPrepositionGovernmentEntry,
+} from "./preposition-government";
+
+export {
+  detectPrepositionGovernment,
+  inferMorphologicalCaseFromParadigms,
+  normalizeGovernedCaseLabel,
+  type TDetectedPrepositionGovernment,
+} from "./detect-preposition-government";
