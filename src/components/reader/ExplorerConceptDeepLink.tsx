@@ -13,6 +13,9 @@ import { cn } from "@/lib/utils";
 interface ExplorerConceptDeepLinkProps {
   conceptSlug: string;
   conceptTitle: string;
+  /** Régence détectée — illustration alignée (ex. до + génitif). */
+  conceptPreposition?: string | null;
+  conceptGovernedCase?: string | null;
 }
 
 interface ConceptApiPayload {
@@ -34,6 +37,8 @@ interface ConceptApiPayload {
 export function ExplorerConceptDeepLink({
   conceptSlug,
   conceptTitle,
+  conceptPreposition,
+  conceptGovernedCase,
 }: ExplorerConceptDeepLinkProps) {
   const [isOpen, setIsOpen] = useState(false);
   const titleId = useId();
@@ -62,6 +67,8 @@ export function ExplorerConceptDeepLink({
         <ConceptCanonicalOverlay
           conceptSlug={conceptSlug}
           conceptTitle={conceptTitle}
+          conceptPreposition={conceptPreposition}
+          conceptGovernedCase={conceptGovernedCase}
           titleId={titleId}
           onClose={() => setIsOpen(false)}
         />
@@ -73,11 +80,15 @@ export function ExplorerConceptDeepLink({
 function ConceptCanonicalOverlay({
   conceptSlug,
   conceptTitle,
+  conceptPreposition,
+  conceptGovernedCase,
   titleId,
   onClose,
 }: {
   conceptSlug: string;
   conceptTitle: string;
+  conceptPreposition?: string | null;
+  conceptGovernedCase?: string | null;
   titleId: string;
   onClose: () => void;
 }) {
@@ -91,8 +102,19 @@ function ConceptCanonicalOverlay({
     setError(null);
 
     try {
+      const params = new URLSearchParams();
+
+      if (conceptPreposition) {
+        params.set("prep", conceptPreposition);
+      }
+
+      if (conceptGovernedCase) {
+        params.set("case", conceptGovernedCase);
+      }
+
+      const query = params.toString();
       const response = await fetch(
-        `/api/concepts/${encodeURIComponent(conceptSlug)}`,
+        `/api/concepts/${encodeURIComponent(conceptSlug)}${query ? `?${query}` : ""}`,
       );
 
       if (!response.ok) {
@@ -112,7 +134,7 @@ function ConceptCanonicalOverlay({
     } finally {
       setIsLoading(false);
     }
-  }, [conceptSlug]);
+  }, [conceptSlug, conceptPreposition, conceptGovernedCase]);
 
   useEffect(() => {
     setIsMounted(true);

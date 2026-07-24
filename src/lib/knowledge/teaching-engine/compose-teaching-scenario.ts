@@ -11,6 +11,11 @@ import type { TVocabularyLinguisticProfile } from "@/types/vocabulary";
 import { composePresentConjugationDemo } from "@/lib/knowledge/morphology/curated";
 
 import {
+  applyIllustrationContext,
+  ensureIllustrationCaption,
+  type TIllustrationContextHint,
+} from "./apply-illustration-context";
+import {
   bridgeMentionsForm,
   composeTeachingBridge,
 } from "./compose-teaching-bridge";
@@ -230,6 +235,8 @@ export interface TComposeTeachingScenarioInput {
    * pas de bridge, illustration canonique du concept, pas de démo lemme.
    */
   forceCanonical?: boolean;
+  /** Contexte de rencontre pour choisir une variante d'illustration (régence). */
+  illustrationHint?: TIllustrationContextHint | null;
 }
 
 /**
@@ -240,7 +247,10 @@ export interface TComposeTeachingScenarioInput {
 export function composeTeachingScenario(
   input: TComposeTeachingScenarioInput,
 ): TTeachingScenario {
-  const content = getTeachingScenarioContent(input.concept);
+  const rawContent = getTeachingScenarioContent(input.concept);
+  const content = rawContent
+    ? applyIllustrationContext(rawContent, input.illustrationHint)
+    : null;
 
   if (!content) {
     console.warn(
@@ -324,12 +334,18 @@ export function composeTeachingScenario(
             },
           ]
         : normalized.contrast;
-  const visual =
+  const visualRaw =
     presentDemo?.isLemmaDemo && presentDemo
       ? (presentDemo.visual ?? undefined)
       : useLemmaDemo
         ? undefined
         : (normalized.visual ?? undefined);
+  const visual = visualRaw
+    ? {
+        ...visualRaw,
+        caption: ensureIllustrationCaption(visualRaw.caption),
+      }
+    : undefined;
   const commonMistake =
     presentDemo?.isLemmaDemo && presentDemo
       ? presentDemo.commonMistake
@@ -396,11 +412,13 @@ export function composeTeachingScenario(
  */
 export function composeCanonicalConceptScenario(
   concept: TLinguisticConcept,
+  illustrationHint?: TIllustrationContextHint | null,
 ): TTeachingScenario {
   return composeTeachingScenario({
     concept,
     lemma: "",
     encounteredForm: null,
     forceCanonical: true,
+    illustrationHint,
   });
 }

@@ -110,6 +110,30 @@ export const CURATED_NOUNS_GENDER = {
 export const CURATED_MOSKVA = {
   direction: "в Москву́",
   location: "в Москве́",
+  /** Génitif — après из / от / до… */
+  genitive: "Москвы́",
+} as const;
+
+/**
+ * Illustrations de régence — formes curées (pas de LLM).
+ * Groupées par cas imposé par la préposition.
+ */
+export const CURATED_PREP_GOVERNMENT_EXAMPLES = {
+  genitive: {
+    doSvidaniya: "до свида́ния",
+    izMoskvy: `из ${CURATED_MOSKVA.genitive}`,
+    otStola: `от ${CURATED_STOL.gen}`,
+  },
+  dative: {
+    kStolu: `к ${CURATED_STOL.dat}`,
+    kDrugu: "к дру́гу",
+  },
+  directionLocation: {
+    vDirection: CURATED_MOSKVA.direction,
+    vLocation: CURATED_MOSKVA.location,
+    naDirection: "на рабо́ту",
+    naLocation: "на рабо́те",
+  },
 } as const;
 
 /** Phrases d'exemple courtes — accents validés manuellement. */

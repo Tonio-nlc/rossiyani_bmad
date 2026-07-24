@@ -42,6 +42,9 @@ export interface TWordExplanationResponseExtended {
   conceptSlug?: string;
   conceptTitle?: string;
   conceptSummary?: string;
+  /** Régence détectée (préposition + cas) — illustration concept. */
+  conceptPreposition?: string;
+  conceptGovernedCase?: string;
   partOfSpeech?: string | null;
   aspect?: string | null;
 }

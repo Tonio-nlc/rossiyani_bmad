@@ -5,6 +5,8 @@ import type {
 } from "@/types/linguistic-concept";
 import type { TVocabularyContextEncounter } from "@/types/vocabulary";
 
+import { applyPedagogicalHierarchy } from "./pedagogical-hierarchy";
+
 export interface TConceptMatchProfile {
   partOfSpeech: string | null;
   aspect?: string | null;
@@ -133,6 +135,10 @@ const SIGNAL_RULES: SignalRule[] = [
   },
   {
     conceptId: "verbs-of-motion",
+    /**
+     * Weight/score bruts : la hiérarchie pédagogique (pedagogical-hierarchy)
+     * promeut ce concept en PRIMARY dès que le lemme est un verbe de mouvement.
+     */
     weight: "secondary",
     score: 80,
     signal: "verbe de mouvement",
@@ -141,11 +147,18 @@ const SIGNAL_RULES: SignalRule[] = [
         return false;
       }
 
-      const lemma = analysis.baseLemma;
+      const lemma = analysis.baseLemma
+        .normalize("NFD")
+        .replace(/\u0301/g, "")
+        .normalize("NFC")
+        .toLowerCase();
 
       return (
         Boolean(profile.movementType) ||
-        /^(ид|ход|ех|езд|пой|при|уй)/u.test(lemma)
+        /^(по|при|у|вы|пере)?(йти|идти|ходить|ехать|ездить|бежать|лететь|плыть|нести|везти)/u.test(
+          lemma,
+        ) ||
+        /^(ид|ход|ех|езд|бег|лет|плыв|нес|вез)/u.test(lemma)
       );
     },
   },
@@ -212,6 +225,18 @@ const SIGNAL_RULES: SignalRule[] = [
   },
 ];
 
+/**
+ * Scores bruts des règles — diagnostic (écarts &lt; 10 = fragiles) :
+ *   preposition-government 96
+ *   verb-perfective-aspect 95  ↔  verb-movement-prefixes 92 (Δ3)
+ *   verb-movement-prefixes 92  ↔  verb-present-conjugation 90 (Δ2)
+ *   verb-present-conjugation 90  ↔  reflexive-possessive 88 (Δ2)
+ *   verbs-of-motion 80  ↔  noun-declension 80 (Δ0)
+ *   noun-declension 80  ↔  adjective-agreement 78 (Δ2)
+ *
+ * Ne pas « corriger » en jouant ±5 sur ces scores : utiliser
+ * applyPedagogicalHierarchy (mouvement > aspect, etc.).
+ */
 export function matchConceptSignals(
   profile: TConceptMatchProfile,
   analysis: TLinguisticAnalysis,
@@ -233,7 +258,9 @@ export function matchConceptSignals(
     });
   }
 
-  return matches.sort((left, right) => right.score - left.score);
+  const sorted = matches.sort((left, right) => right.score - left.score);
+
+  return applyPedagogicalHierarchy(sorted, profile, analysis);
 }
 
 export function buildLemmaConceptLinks(

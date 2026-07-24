@@ -42,6 +42,30 @@ export interface TTeachingIllustration {
 }
 
 /**
+ * Variante d'illustration canonique — choisie selon la rencontre
+ * (ex. préposition + cas pour la régence).
+ */
+export interface TTeachingIllustrationVariant {
+  id: string;
+  /** Prépositions qui déclenchent cette variante (formes nues, sans accent). */
+  prepositions?: string[];
+  /** Cas gouvernés qui déclenchent cette variante. */
+  cases?: Array<
+    | "genitive"
+    | "dative"
+    | "accusative"
+    | "instrumental"
+    | "prepositional"
+  >;
+  fact?: string;
+  contrast?: TTeachingComparison[];
+  visual?: TTeachingVisual | null;
+  commonMistake?: string;
+  reuse?: string[];
+  memoryAnchor?: string;
+}
+
+/**
  * Contenu officiel d'enseignement — géométrie variable (RC-026+).
  *
  * Séparation principe / démonstration :
@@ -81,6 +105,11 @@ export interface TTeachingScenarioContent {
    * Exemple du concept avec un autre lemme — section « Illustration » uniquement.
    */
   illustration?: TTeachingIllustration;
+  /**
+   * Variantes d'illustration selon la rencontre (régence : cas / préposition).
+   * Si aucune ne matche → slots fact/contrast/visual du seed par défaut.
+   */
+  illustrationVariants?: TTeachingIllustrationVariant[];
 
   /**
    * @deprecated Prefer `fact`. Kept for seed compatibility until seeds are rewritten.

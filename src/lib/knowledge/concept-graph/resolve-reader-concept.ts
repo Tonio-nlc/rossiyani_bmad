@@ -18,6 +18,11 @@ export interface TReaderConceptResolution {
   conceptSlug: string;
   conceptTitle: string;
   conceptSummary: string;
+  /** Régence détectée — pour illustration alignée sur la rencontre. */
+  prepositionGovernment?: {
+    preposition: string;
+    governedCase: string;
+  } | null;
 }
 
 export function resolveReaderConcept(input: {
@@ -36,6 +41,7 @@ export function resolveReaderConcept(input: {
     conceptSlug: graph.primary.slug,
     conceptTitle: graph.primary.title,
     conceptSummary: graph.primary.summary,
+    prepositionGovernment: input.profile.prepositionGovernment ?? null,
   };
 }
 
@@ -154,5 +160,11 @@ export function resolveReaderConceptFromSignals(input: {
     conceptSlug: concept.slug,
     conceptTitle: concept.title,
     conceptSummary: concept.summary,
+    prepositionGovernment: government
+      ? {
+          preposition: government.preposition,
+          governedCase: government.governedCase,
+        }
+      : null,
   };
 }

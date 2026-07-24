@@ -20,8 +20,10 @@ import {
   CURATED_NOUNS_GENDER,
   CURATED_PISAT,
   CURATED_POSSESSIVE,
+  CURATED_PREP_GOVERNMENT_EXAMPLES,
   CURATED_PRESENT_SG2,
   CURATED_PROCHITAT,
+  CURATED_STOL,
 } from "@/lib/knowledge/morphology/curated";
 
 /** à valider — relecture humaine requise */
@@ -77,7 +79,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
           `он ${CURATED_CHITAT.present.sg3} (${CURATED_CHITAT.endings.sg3})`,
         ],
         layout: "vertical",
-        caption: "Présent — trois personnes, trois terminaisons",
+        caption: "Illustration — présent (trois personnes)",
       },
       commonMistake: `Ne confonds pas ${CURATED_CHITAT.present.sg2} (présent, 2e pers.) et ${CURATED_CHITAT.past.m} (passé).`,
       reuse: [
@@ -125,7 +127,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
     visual: {
       nodes: [CURATED_CHITAT.infinitive, CURATED_PROCHITAT.infinitive],
       layout: "comparison",
-      caption: "Paire aspectuelle : processus vs résultat",
+      caption: "Illustration — paire aspectuelle (processus vs résultat)",
     },
     commonMistake: `Ne confonds pas ${CURATED_CHITAT.infinitive} (processus, imperfectif) et ${CURATED_PROCHITAT.infinitive} (résultat, perfectif).`,
     reuse: [
@@ -174,7 +176,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
         CURATED_MOTION.priehat,
       ],
       layout: "vertical",
-      caption: "Préfixes de déplacement : base → по- / у- / при-",
+      caption: "Illustration — préfixes de déplacement (по- / у- / при-)",
     },
     commonMistake: `Ne confonds pas ${CURATED_MOTION.poehat} (véhicule) et ${CURATED_MOTION.pojti} (à pied) — le préfixe по- s'attache à la bonne base.`,
     reuse: [
@@ -204,7 +206,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
         CURATED_MOTION.ezdit,
       ],
       layout: "comparison",
-      caption: "Pied : идти́ / ходи́ть — véhicule : е́хать / е́здить",
+      caption: "Illustration — pied (идти́ / ходи́ть) vs véhicule (е́хать / е́здить)",
     },
     commonMistake: `N'utilise pas ${CURATED_MOTION.idti} pour un trajet en voiture — prends ${CURATED_MOTION.ehat}.`,
     reuse: [
@@ -229,7 +231,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
     visual: {
       nodes: [CURATED_POSSESSIVE.moj, CURATED_POSSESSIVE.svoj],
       layout: "comparison",
-      caption: "Possession : locuteur vs possesseur de la phrase",
+      caption: "Illustration — possession (locuteur vs possesseur de la phrase)",
     },
     commonMistake: `Ne traduis pas ${CURATED_POSSESSIVE.svoj} par « mon » systématiquement — regarde qui possède dans la phrase.`,
     reuse: [
@@ -257,7 +259,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
         `${CURATED_KNIGA.gen} (génitif)`,
       ],
       layout: "vertical",
-      caption: "Même nom, cas différents = rôles différents",
+      caption: "Illustration — même nom, cas différents (rôles)",
     },
     commonMistake: `N'apprends pas les cas comme une liste : ${CURATED_KNIGA.acc} existe parce que le nom est objet direct.`,
     reuse: [
@@ -283,7 +285,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
         `${CURATED_NOUNS_GENDER.okno} (n.)`,
       ],
       layout: "vertical",
-      caption: "Trois genres = trois familles d'accord",
+      caption: "Illustration — trois genres, trois familles d'accord",
     },
     commonMistake: `Vérifie le genre avant l'accord : ${CURATED_NOUNS_GENDER.kniga} → ${CURATED_ADJECTIVES.novaya}.`,
     reuse: [
@@ -311,7 +313,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
         `${CURATED_ADJECTIVES.novoe} ${CURATED_NOUNS_GENDER.okno}`,
       ],
       layout: "vertical",
-      caption: "Même adjectif, trois genres",
+      caption: "Illustration — même adjectif, trois genres",
     },
     commonMistake: `N'oublie pas le pluriel : ${CURATED_ADJECTIVES.novye} ${CURATED_AGREEMENT_NOUNS.knigi} — l'accord continue.`,
     reuse: [
@@ -324,6 +326,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
   "preposition-government": {
     intuition:
       "Chaque préposition russe impose un cas — ce n'est pas un choix libre.",
+    // Défaut canonique : в / на (direction vs lieu) — remplacé si variante match.
     fact: `Après в : l'accusatif marque куда́ (${CURATED_MOSKVA.direction}) ; le prépositionnel marque где (${CURATED_MOSKVA.location}).`,
     contrast: [
       {
@@ -339,12 +342,96 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
         `${CURATED_MOSKVA.location} (prépositionnel)`,
       ],
       layout: "comparison",
-      caption: "в + cas : куда́ vs где",
+      caption: "Illustration — в + cas (куда́ vs где)",
     },
     commonMistake: `Ne mélange pas ${CURATED_MOSKVA.direction} (куда́, accusatif) et ${CURATED_MOSKVA.location} (где, prépositionnel).`,
     reuse: [
       `${CURATED_EXAMPLE_PHRASES.yaEduVMoskvu} / ${CURATED_EXAMPLE_PHRASES.yaVMoskve} — même opposition partout.`,
     ],
     memoryAnchor: `в + accusatif = куда́ ; в + prépositionnel = где.`,
+    illustrationVariants: [
+      {
+        id: "genitive",
+        cases: ["genitive"],
+        prepositions: ["до", "из", "от", "у", "без", "для", "после", "около"],
+        fact: `Après до / из / от : le génitif est obligatoire — ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.doSvidaniya}, ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.izMoskvy}.`,
+        contrast: [
+          {
+            fromForm: CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.doSvidaniya,
+            toForm: CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.otStola,
+            explanation:
+              "Même cas (génitif) : до et от imposent la forme génitive au nom qui suit.",
+          },
+        ],
+        visual: {
+          nodes: [
+            CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.doSvidaniya,
+            CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.izMoskvy,
+            CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.otStola,
+          ],
+          layout: "vertical",
+          caption: "Illustration — до / из / от + génitif",
+        },
+        commonMistake: `Après до, le génitif est fixe : ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.doSvidaniya} — pas un autre cas.`,
+        reuse: [
+          `${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.izMoskvy}, ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.otStola} — même régence génitive.`,
+        ],
+        memoryAnchor: `до / из / от + génitif (ex. ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.doSvidaniya}).`,
+      },
+      {
+        id: "dative",
+        cases: ["dative"],
+        prepositions: ["к", "по"],
+        fact: `Après к : le datif est obligatoire — ${CURATED_PREP_GOVERNMENT_EXAMPLES.dative.kStolu}.`,
+        contrast: [
+          {
+            fromForm: CURATED_STOL.nom,
+            toForm: CURATED_PREP_GOVERNMENT_EXAMPLES.dative.kStolu,
+            explanation: "к impose le datif : стол → к столу́.",
+          },
+        ],
+        visual: {
+          nodes: [
+            CURATED_PREP_GOVERNMENT_EXAMPLES.dative.kStolu,
+            CURATED_PREP_GOVERNMENT_EXAMPLES.dative.kDrugu,
+          ],
+          layout: "vertical",
+          caption: "Illustration — к + datif",
+        },
+        commonMistake: `Après к, utilise le datif : ${CURATED_PREP_GOVERNMENT_EXAMPLES.dative.kStolu}, pas le nominatif.`,
+        reuse: [
+          `${CURATED_PREP_GOVERNMENT_EXAMPLES.dative.kDrugu} — même régence datif après к.`,
+        ],
+        memoryAnchor: `к + datif (ex. ${CURATED_PREP_GOVERNMENT_EXAMPLES.dative.kStolu}).`,
+      },
+      {
+        id: "direction-location",
+        cases: ["accusative", "prepositional"],
+        prepositions: ["в", "во", "на"],
+        fact: `Après в / на : l'accusatif marque куда́ (${CURATED_MOSKVA.direction}) ; le prépositionnel marque где (${CURATED_MOSKVA.location}).`,
+        contrast: [
+          {
+            fromForm: CURATED_MOSKVA.direction,
+            toForm: CURATED_MOSKVA.location,
+            explanation:
+              "Même préposition в : accusatif (куда́) vs prépositionnel (где).",
+          },
+        ],
+        visual: {
+          nodes: [
+            `${CURATED_MOSKVA.direction} (accusatif)`,
+            `${CURATED_MOSKVA.location} (prépositionnel)`,
+            `${CURATED_PREP_GOVERNMENT_EXAMPLES.directionLocation.naDirection} / ${CURATED_PREP_GOVERNMENT_EXAMPLES.directionLocation.naLocation}`,
+          ],
+          layout: "comparison",
+          caption: "Illustration — в / на + cas (куда́ vs где)",
+        },
+        commonMistake: `Ne mélange pas ${CURATED_MOSKVA.direction} (куда́, accusatif) et ${CURATED_MOSKVA.location} (где, prépositionnel).`,
+        reuse: [
+          `${CURATED_EXAMPLE_PHRASES.yaEduVMoskvu} / ${CURATED_EXAMPLE_PHRASES.yaVMoskve} — même opposition partout.`,
+        ],
+        memoryAnchor: `в / на + accusatif = куда́ ; + prépositionnel = где.`,
+      },
+    ],
   },
 };

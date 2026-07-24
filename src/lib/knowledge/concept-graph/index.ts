@@ -15,4 +15,9 @@ export {
   getTeachingGraphEdges,
 } from "./teaching-graph";
 export { matchConceptSignals, buildLemmaConceptLinks } from "./match-signals";
+export {
+  applyPedagogicalHierarchy,
+  isMotionVerbLemma,
+  FRAGILE_SCORE_PAIRS,
+} from "./pedagogical-hierarchy";
 export { loadConceptGraphFromDb } from "./load-from-db";

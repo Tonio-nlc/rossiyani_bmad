@@ -13,10 +13,9 @@ interface RouteParams {
 
 /**
  * Scénario canonique d'un concept (phénomène) — sans bridge lemme.
- * Destiné à l'ouverture depuis l'ExplorerPanel du Reader.
- * Une route page `/concepts/[slug]` dédiée reste à créer plus tard.
+ * Query optionnelle : ?prep=до&case=genitive → illustration alignée sur la rencontre.
  */
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(request: Request, { params }: RouteParams) {
   const { slug } = await params;
   const supabase = await createClient();
   const {
@@ -35,7 +34,16 @@ export async function GET(_request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Concept introuvable" }, { status: 404 });
   }
 
-  const scenario = composeCanonicalConceptScenario(concept);
+  const url = new URL(request.url);
+  const prep = url.searchParams.get("prep")?.trim() || null;
+  const governedCase = url.searchParams.get("case")?.trim() || null;
+
+  const scenario = composeCanonicalConceptScenario(
+    concept,
+    prep || governedCase
+      ? { preposition: prep, governedCase }
+      : null,
+  );
 
   return NextResponse.json({
     concept: {

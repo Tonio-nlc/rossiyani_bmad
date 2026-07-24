@@ -11,6 +11,10 @@ import { validateTeachingScenario } from "@/lib/knowledge/teaching-engine/scenar
 import { resolveConceptGraph } from "@/lib/knowledge/concept-graph";
 import { analyzeLinguisticContext } from "@/lib/knowledge/teaching/analyze-linguistic-context";
 import { normalizeEncounterSurface } from "@/lib/knowledge/concept/build-hero-chips";
+import {
+  detectPrepositionGovernment,
+  inferMorphologicalCaseFromParadigms,
+} from "@/lib/knowledge/morphology/curated";
 import { stripTrailingPunctuationForDisplay } from "@/lib/utils/russian";
 import { getNaturalFunctionalRoleLabel } from "@/lib/utils/russian";
 import { parseExplanationCachePayload } from "@/lib/vocabulary/parse-explanation-cache";
@@ -187,6 +191,22 @@ export async function prepareAndPersistWordTeachingScenario(input: {
         ? stripTrailingPunctuationForDisplay(encounter.surface)
         : null);
 
+    const caseEntries = [
+      ...(built.paradigms.cases ?? []),
+      ...(built.morphology.caseParadigm ?? []),
+    ];
+    const morphologicalCase = encounteredForm
+      ? inferMorphologicalCaseFromParadigms(encounteredForm, caseEntries)
+      : null;
+    const government =
+      encounteredForm && encounter?.sentence
+        ? detectPrepositionGovernment({
+            surface: encounteredForm,
+            sentence: encounter.sentence,
+            morphologicalCase,
+          })
+        : null;
+
     // 2–3. Concept (principe) + démonstration composée pour CE lemme
     const scenario = composeTeachingScenario({
       concept: graph.primary,
@@ -207,6 +227,12 @@ export async function prepareAndPersistWordTeachingScenario(input: {
           }
         : null,
       profile,
+      illustrationHint: government
+        ? {
+            preposition: government.preposition,
+            governedCase: government.governedCase,
+          }
+        : null,
     });
 
     // Gate : bloquer uniquement les formes d'un autre lemme (SCENARIO_FOREIGN_LEMMA_FORM).

@@ -154,6 +154,12 @@ async function attachConceptResolution(
     conceptSlug: concept.conceptSlug,
     conceptTitle: concept.conceptTitle,
     conceptSummary: concept.conceptSummary,
+    ...(concept.prepositionGovernment
+      ? {
+          conceptPreposition: concept.prepositionGovernment.preposition,
+          conceptGovernedCase: concept.prepositionGovernment.governedCase,
+        }
+      : {}),
   };
 }
 

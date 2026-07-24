@@ -247,6 +247,8 @@ function ExplorerContent({
         <ExplorerConceptDeepLink
           conceptSlug={explanation.conceptSlug}
           conceptTitle={explanation.conceptTitle}
+          conceptPreposition={explanation.conceptPreposition}
+          conceptGovernedCase={explanation.conceptGovernedCase}
         />
       ) : null}
 

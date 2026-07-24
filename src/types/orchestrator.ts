@@ -22,6 +22,9 @@ export interface TWordExplanationResponse {
   conceptSlug?: string;
   conceptTitle?: string;
   conceptSummary?: string;
+  /** Régence détectée — pour l'illustration du concept (Reader). */
+  conceptPreposition?: string;
+  conceptGovernedCase?: string;
   /** Depuis linguistic_knowledge — pas d'heuristique LLM. */
   partOfSpeech?: string | null;
   aspect?: string | null;
