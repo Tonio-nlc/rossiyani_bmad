@@ -120,13 +120,21 @@ function main() {
     `-- Relations ignorées (extrémité absente) : ${skippedEdges.length}`,
     `-- Concepts manquants référencés : ${missingSorted.length}`,
     "",
-    "-- Upsert des concepts seed (statut a-valider = relecture professeur)",
-    "-- validation_status / validated existants sont préservés (relecture professeur).",
+    "-- Upsert des concepts seed",
+    "-- validation_status : brouillon (lots en relecture) ou a-valider ; jamais « valide » ici.",
+    "-- validation_status / validated déjà en base sont préservés (relecture professeur).",
     "",
   ];
 
   for (const concept of SEED_LINGUISTIC_CONCEPTS) {
     const payload = buildPayload(concept);
+    const validationStatus = concept.validationStatus ?? "a-valider";
+
+    if (validationStatus === "valide") {
+      throw new Error(
+        `Refuse d'émettre validation_status=valide pour ${concept.id} — réservé à la relecture enseignant.`,
+      );
+    }
 
     lines.push(
       `INSERT INTO linguistic_concepts (`,
@@ -140,7 +148,7 @@ function main() {
       `  ${sqlString(concept.difficulty)},`,
       `  ${sqlString(concept.summary)},`,
       `  ${sqlJson(payload)}::jsonb,`,
-      `  'a-valider',`,
+      `  ${sqlString(validationStatus)},`,
       `  false,`,
       `  now()`,
       `)`,
@@ -251,11 +259,11 @@ function main() {
     "> Généré automatiquement par `npm run concept-graph:generate-seed`.",
     `> Date : ${generatedAt}`,
     "",
-    "Les **11 concepts seed** référencent (via `TEACHING_GRAPH_EDGES` ou `relatedConcepts`)",
+    "Les concepts seed référencent (via `TEACHING_GRAPH_EDGES` ou `relatedConcepts`)",
     "des concepts qui ne sont **pas encore écrits** dans le registry / la base.",
     "Cette liste guide l’extension du catalogue (objectif 50, puis 200–300).",
     "",
-    "## Concepts seed présents (11)",
+    `## Concepts seed présents (${SEED_LINGUISTIC_CONCEPTS.length})`,
     "",
     ...SEED_LINGUISTIC_CONCEPTS.map((c) => `- \`${c.id}\` — ${c.title}`),
     "",

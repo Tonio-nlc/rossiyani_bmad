@@ -20,6 +20,8 @@ export {
   CURATED_PRESENT_SG2,
   CURATED_PROCHITAT,
   CURATED_STOL,
+  CURATED_UNIVERSITET,
+  CURATED_VRACH,
 } from "./forms";
 
 export {

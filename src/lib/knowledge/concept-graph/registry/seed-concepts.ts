@@ -443,7 +443,12 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
       family: ["стол", "стола", "столу"],
     },
     commonMistakes: ["Apprendre les cas comme une liste sans fonction."],
-    relatedConcepts: ["noun-gender", "noun-animacy", "preposition-government"],
+    relatedConcepts: [
+      "noun-gender",
+      "noun-animacy",
+      "case-accusative",
+      "preposition-government",
+    ],
     relatedLemmas: ["стол", "книга", "город"],
     examples: ["На столе книга.", "Я вижу стол."],
     progression: {
@@ -551,9 +556,120 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
       family: ["в", "на", "к", "у"],
     },
     commonMistakes: ["Mélanger direction et lieu."],
-    relatedConcepts: ["noun-declension"],
+    relatedConcepts: ["noun-declension", "case-accusative"],
     relatedLemmas: ["в", "на", "к"],
     examples: ["Я еду в Москву.", "Я в Москве."],
     progression: { beginner: "Préposition + cas fixe." },
+  },
+  {
+    id: "case-accusative",
+    slug: "case-accusative",
+    title: "Accusatif",
+    category: "Case System",
+    difficulty: "A1",
+    validationStatus: "brouillon",
+    summary:
+      "L'accusatif marque l'objet direct (corail) et la destination avec в/на.",
+    coreIdea:
+      "Quand un nom reçoit l'action — objet direct (corail) — le russe le marque sur le nom.",
+    whyItExists:
+      "Sans marque sur le nom, l'ordre libre des mots russes ne dirait pas clairement qui subit l'action.",
+    mentalModel: "Action → nom qui reçoit l'action → forme d'objet (accusatif)",
+    visualModel: {
+      type: "comparison",
+      nodes: ["кни́га", "кни́гу"],
+      caption: "Illustration — citation vs objet direct",
+    },
+    canonicalExplanation: {
+      understand: [
+        "L'objet direct (corail) est le nom sur lequel porte l'action : on le marque souvent à l'accusatif.",
+        "Avec в/на, le même cas marque aussi la destination (куда́) : в университе́т.",
+      ],
+      scheme: ["кни́га", "кни́гу", "в университе́т"],
+      contrasts: [
+        {
+          fromForm: "кни́га",
+          toForm: "кни́гу",
+          question: "Qu'est-ce qui change ?",
+          explanation:
+            "Même nom : citation (nominatif) vs objet direct (accusatif).",
+        },
+      ],
+      miniTable: null,
+      retentionPoints: [
+        "Objet direct (corail) → souvent accusatif.",
+        "в/на + accusatif = destination.",
+      ],
+      family: ["книга", "стол", "университет", "врач"],
+    },
+    commonMistakes: [
+      "Nommer le cas avant d'identifier le rôle (objet direct) dans la phrase.",
+    ],
+    relatedConcepts: [
+      "noun-declension",
+      "noun-animacy",
+      "preposition-government",
+    ],
+    relatedLemmas: ["книга", "университет", "стол"],
+    examples: ["Я читаю книгу.", "Они входят в университет."],
+    progression: {
+      beginner: "Rôle objet direct d'abord, nom « accusatif » ensuite.",
+      intermediate: "Destination в/на + accusatif.",
+    },
+    teacherNotes:
+      "Statut brouillon — lot 01. Couleur fonctionnelle : objet direct = corail.",
+  },
+  {
+    id: "noun-animacy",
+    slug: "noun-animacy",
+    title: "Animation (animé / inanimé)",
+    category: "Animacy",
+    difficulty: "A2",
+    validationStatus: "brouillon",
+    summary:
+      "L'animation décide la forme de l'accusatif du masculin : animé = génitif, inanimé = nominatif.",
+    coreIdea:
+      "Pour un masculin objet d'action, la forme dépend de l'animation : être vivant ou chose.",
+    whyItExists:
+      "Le russe distingue les êtres (animés) des choses (inanimés) là où la forme d'objet pourrait se confondre avec le sujet.",
+    mentalModel: "Masculin objet → animé ? → forme du génitif : oui / forme du nominatif : non",
+    visualModel: {
+      type: "comparison",
+      nodes: ["стол", "врача́"],
+      caption: "Illustration — inanimé vs animé (objet)",
+    },
+    canonicalExplanation: {
+      understand: [
+        "стол (inanimé) : l'objet garde la forme du dictionnaire.",
+        "врача́ (animé) : l'objet prend la forme du génitif.",
+      ],
+      scheme: ["стол", "врача́"],
+      contrasts: [
+        {
+          fromForm: "стол",
+          toForm: "врача́",
+          question: "Qu'est-ce qui change ?",
+          explanation:
+            "Même rôle d'objet : seul l'animé change la forme (chose vs être).",
+        },
+      ],
+      miniTable: null,
+      retentionPoints: [
+        "Masculin animé objet → forme du génitif.",
+        "Masculin inanimé objet → forme du nominatif.",
+      ],
+      family: ["стол", "врач", "книга"],
+    },
+    commonMistakes: [
+      "Appliquer la forme dictionnaire à un masculin animé objet (врач au lieu de врача́).",
+    ],
+    relatedConcepts: ["case-accusative", "noun-declension", "noun-gender"],
+    relatedLemmas: ["врач", "стол"],
+    examples: ["Я вижу стол.", "Я вижу врача."],
+    progression: {
+      beginner: "Animé vs inanimé sur l'objet masculin.",
+      intermediate: "Lien avec l'accusatif pluriel (tous genres).",
+    },
+    teacherNotes: "Statut brouillon — lot 01. Dépend de case-accusative.",
   },
 ];

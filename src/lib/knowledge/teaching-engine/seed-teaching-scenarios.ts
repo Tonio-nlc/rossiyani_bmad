@@ -24,6 +24,8 @@ import {
   CURATED_PRESENT_SG2,
   CURATED_PROCHITAT,
   CURATED_STOL,
+  CURATED_UNIVERSITET,
+  CURATED_VRACH,
 } from "@/lib/knowledge/morphology/curated";
 
 /** à valider — relecture humaine requise */
@@ -433,5 +435,61 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
         memoryAnchor: `в / на + accusatif = куда́ ; + prépositionnel = где.`,
       },
     ],
+  },
+
+  // ─── brouillon — lot 01 ────────────────────────────────────
+  "case-accusative": {
+    principle:
+      "Quand un nom reçoit l'action — objet direct (corail dans Rossiyani) — le russe le marque sur le nom.",
+    fact: `${CURATED_KNIGA.acc} est à l'accusatif : c'est l'objet direct (on agit sur ce livre).`,
+    contrast: [
+      {
+        fromForm: CURATED_KNIGA.nom,
+        toForm: CURATED_KNIGA.acc,
+        explanation:
+          "Même nom : citation (nominatif) vs objet direct (accusatif).",
+      },
+    ],
+    visual: {
+      nodes: [
+        `${CURATED_KNIGA.nom} (citation)`,
+        `${CURATED_KNIGA.acc} (objet direct)`,
+      ],
+      layout: "comparison",
+      caption: "Illustration — objet direct (accusatif)",
+    },
+    commonMistake: `Identifie d'abord le rôle objet direct (corail) : ${CURATED_KNIGA.acc} est l'accusatif de ${CURATED_KNIGA.nom}.`,
+    reuse: [
+      `в ${CURATED_UNIVERSITET.acc} : même accusatif pour la destination avec в (texte « Premier jour »).`,
+    ],
+    memoryAnchor: `${CURATED_KNIGA.acc} = accusatif : objet direct (corail) du livre.`,
+  },
+
+  // ─── brouillon — lot 01 ────────────────────────────────────
+  "noun-animacy": {
+    principle:
+      "Pour un masculin objet d'action, la forme dépend de l'animation : être vivant ou chose.",
+    fact: `${CURATED_VRACH.acc} (forme du génitif) marque un masculin animé objet ; ${CURATED_STOL.acc} (forme du nominatif) marque un masculin inanimé objet.`,
+    contrast: [
+      {
+        fromForm: CURATED_STOL.acc,
+        toForm: CURATED_VRACH.acc,
+        explanation:
+          "Même rôle d'objet : seul l'animé change la forme (chose vs être).",
+      },
+    ],
+    visual: {
+      nodes: [
+        `${CURATED_STOL.acc} (inanimé)`,
+        `${CURATED_VRACH.acc} (animé)`,
+      ],
+      layout: "comparison",
+      caption: "Illustration — inanimé vs animé (objet masculin)",
+    },
+    commonMistake: `Pour un animé objet, prends ${CURATED_VRACH.acc}, pas ${CURATED_VRACH.nom} (texte « У врача »).`,
+    reuse: [
+      `${CURATED_STOL.acc} garde la forme dictionnaire ; ${CURATED_VRACH.acc} reprend ${CURATED_VRACH.gen}.`,
+    ],
+    memoryAnchor: `Masculin objet : animé → ${CURATED_VRACH.acc} (génitif) ; inanimé → ${CURATED_STOL.acc} (nominatif).`,
   },
 };

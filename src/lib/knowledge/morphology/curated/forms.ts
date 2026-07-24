@@ -72,8 +72,35 @@ export const CURATED_KNIGA = {
 
 export const CURATED_STOL = {
   nom: "стол",
+  /** Accusatif sg. = nominatif (inanimé) — OpenRussian стол */
+  acc: "стол",
   gen: "стола́",
   dat: "столу́",
+} as const;
+
+/**
+ * врач — masculin animé (texte gold « У врача »).
+ * validé manuellement — ne pas générer par LLM
+ * Source formes : OpenRussian врач (acc. sg. = gen. sg. врача́)
+ */
+export const CURATED_VRACH = {
+  nom: "врач",
+  gen: "врача́",
+  dat: "врачу́",
+  /** Accusatif sg. = génitif (animé) */
+  acc: "врача́",
+} as const;
+
+/**
+ * университе́т — masculin inanimé (textes gold « Premier jour », « Jour d'étudiant »).
+ * validé manuellement — ne pas générer par LLM
+ * Source formes : OpenRussian университе́т (acc. sg. = nom. sg.)
+ */
+export const CURATED_UNIVERSITET = {
+  nom: "университе́т",
+  /** Accusatif sg. = nominatif (inanimé) — destination : в университе́т */
+  acc: "университе́т",
+  prep: "университе́те",
 } as const;
 
 export const CURATED_ADJECTIVES = {
