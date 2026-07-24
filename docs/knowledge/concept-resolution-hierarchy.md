@@ -1,45 +1,80 @@
 # Hiérarchie de résolution de concept
 
-> Source code : `src/lib/knowledge/concept-graph/pedagogical-hierarchy.ts`
-> Scores bruts : `src/lib/knowledge/concept-graph/match-signals.ts`
+> Source code :
+> - `src/lib/knowledge/concept-graph/pedagogical-hierarchy.ts` (familles)
+> - `src/lib/knowledge/concept-graph/case-concept-routing.ts` (cas → concept)
+> - `src/lib/knowledge/concept-graph/match-signals.ts` (règles + scores intra-famille)
 
-## Scores bruts des règles (`matchConceptSignals`)
+## Principe
 
-| Concept | Score | Weight défaut |
-|---------|------:|---------------|
-| `preposition-government` | 96 | primary |
-| `verb-perfective-aspect` | 95 | primary |
-| `verb-movement-prefixes` | 92 | primary |
-| `verb-present-conjugation` | 90 | primary |
-| `reflexive-possessive` | 88 | primary |
-| `verbs-of-motion` | 80 | secondary |
-| `noun-declension` | 80 | primary |
-| `adjective-agreement` | 78 | primary |
-| `verb-imperfective-aspect` | 70 | secondary |
-| `aspect-pairs` | 65 | secondary |
-| `noun-gender` | 55 | secondary |
+**Interdit** de trancher entre phénomènes par un écart de score de 2–3 points.
 
-## Cas fragiles (écart &lt; 10 points)
+1. Chaque concept appartient à une **famille**.
+2. L’ordre des familles est **déclaratif** (`FAMILY_PRIORITY`).
+3. Les **scores** des règles ne départagent **qu’à l’intérieur** d’une même famille
+   (et un ordre intra-famille explicite : ex. `verbs-of-motion` > préfixes).
 
-| Paire | Scores | Δ | Risque |
-|-------|--------|--:|--------|
-| perfectif vs préfixes de mouvement | 95 / 92 | 3 | **пойдём** → perfectif au lieu de mouvement |
-| préfixes vs présent | 92 / 90 | 2 | conflit préfixe + présent |
-| présent vs possessif réfléchi | 90 / 88 | 2 | POS différent en pratique |
-| mouvement vs déclinaison | 80 / 80 | 0 | POS différent |
-| déclinaison vs accord | 80 / 78 | 2 | POS différent |
+## Familles (priorité décroissante)
 
-Le réglage par scores rapprochés est **interdit** comme seul levier : une hiérarchie pédagogique explicite tranche.
+| Rang | Famille | Concepts |
+|-----:|---------|----------|
+| 100 | `preposition-government` | régence |
+| 90 | `motion` | verbes de mouvement, préfixes de mouvement |
+| 80 | `specific-case` | `case-accusative` (+ futurs `case-genitive` …) |
+| 70 | `conjugation` | présent |
+| 65 | `agreement` | accord adjectival |
+| 60 | `pronoun` | possessif réfléchi |
+| 50 | `aspect` | perfectif, imperfectif, paires |
+| 40 | `noun-umbrella` | **`noun-declension` (parapluie)** |
+| 35 | `animacy` | `noun-animacy` (lié, pas primary si cas précis) |
+| 30 | `gender` | genre |
+| 10 | `other` | reste |
 
-## Hiérarchie retenue
+### Règles dérivées
 
-Du plus spécifique au plus général :
+- **Régence > cas seul > déclinaison** : si `preposition-government` matche, il gagne ;
+  sinon si le cas morphologique a un concept dédié, ce concept gagne ;
+  `noun-declension` seulement si aucun cas précis ne s’applique (nominatif, cas sans concept, ou cas inconnu avec indices de déclinaison).
+- **Mouvement > aspect > conjugaison** : un verbe de mouvement ne résout jamais vers l’aspect en primary.
 
-1. **Régence prépositionnelle** — si détectée (préposition curée + cas)
-2. **Famille mouvement** — si `movementType` ou lemme de mouvement (curé / famille)
-   - primaire : `verbs-of-motion` (sinon `verb-movement-prefixes`)
-   - secondaire : l’autre concept mouvement + **tout aspect** (perfectif, imperfectif, paires)
-3. Autres primaires POS (conjugaison, déclinaison, accord…)
-4. Aspect — primaire seulement hors verbe de mouvement
+## Table cas → concept
 
-Exemple : `пойдём` → lemme `пойти́` (mouvement + perfectif) → concept principal **Verbes de mouvement** ; aspect perfectif en concept lié.
+| Cas | Concept | Statut |
+|-----|---------|--------|
+| nominative | — (parapluie `noun-declension`) | — |
+| accusative | `case-accusative` | lot 01 |
+| genitive | `null` → parapluie | prochain lot |
+| dative | `null` → parapluie | prochain lot |
+| instrumental | `null` → parapluie | prochain lot |
+| prepositional | `null` → parapluie | prochain lot |
+
+Source du cas (dans l’ordre) : paradigme `linguistic_knowledge` → formes curées univoques →
+désambiguïsation (rôle fonctionnel `object_direct`, régence, prose d’explication).
+
+## Exemples
+
+| Surface | Primary | Secondaire typique |
+|---------|---------|-------------------|
+| кни́гу | `case-accusative` | — |
+| врача́ | `case-accusative` | `noun-animacy` |
+| до свида́ния | `preposition-government` | — |
+| пойдём → пойти́ | `verbs-of-motion` | aspect perfectif |
+| стол (nom. / cas inconnu) | `noun-declension` | genre |
+
+## Pourquoi les scores bruts restent listés
+
+| Concept | Score brut | Rôle |
+|---------|----------:|------|
+| `preposition-government` | 96 | intra-famille régence |
+| `verb-perfective-aspect` | 95 | intra-famille aspect |
+| `verb-movement-prefixes` | 92 | intra-famille motion |
+| `case-accusative` | 88 | intra-famille cas |
+| `noun-declension` | 80 | parapluie (souvent secondary) |
+
+Écarts historiques fragiles (Δ≤3) : perfectif vs préfixes, préfixes vs présent —
+**ne plus jamais « corriger » en ±5** : passer par `FAMILY_PRIORITY`.
+
+## Audit orphelins
+
+`auditOrphanConcepts()` / `docs/knowledge/orphan-concepts.md` :
+signale tout concept du catalogue jamais atteignable (ni primary ni secondary).

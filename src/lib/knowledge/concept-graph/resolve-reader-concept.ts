@@ -1,11 +1,12 @@
 import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-linguistic-context";
 import {
   detectPrepositionGovernment,
-  inferMorphologicalCaseFromParadigms,
+  type TGovernedCase,
 } from "@/lib/knowledge/morphology/curated";
 import type { TLinguisticProfile } from "@/types/knowledge";
 import type { TVocabularyContextEncounter } from "@/types/vocabulary";
 
+import { inferAnimacyFromCurated, inferMorphologicalCase } from "./case-concept-routing";
 import {
   matchConceptSignals,
   type TConceptMatchProfile,
@@ -23,6 +24,18 @@ export interface TReaderConceptResolution {
     preposition: string;
     governedCase: string;
   } | null;
+}
+
+function readAnimacy(
+  morph: TLinguisticProfile["morphology"] | null | undefined,
+): "animate" | "inanimate" | null {
+  const raw = morph?.animacy;
+
+  if (raw === "animate" || raw === "inanimate") {
+    return raw;
+  }
+
+  return null;
 }
 
 export function resolveReaderConcept(input: {
@@ -49,18 +62,21 @@ export function resolveReaderConcept(input: {
  * Résolution Reader : POS / aspect / morphologie viennent de linguistic_knowledge
  * (via le profil), jamais d'heuristiques sur la prose LLM.
  * Régence : préposition immédiatement avant le mot + table curée.
+ * Cas précis : table cas→concept (repli noun-declension).
  */
 export function resolveReaderConceptFromSignals(input: {
   partOfSpeech?: string | null;
   aspect?: string | null;
   gender?: string | null;
   movementType?: string | null;
+  animacy?: "animate" | "inanimate" | null;
   morphology?: TLinguisticProfile["morphology"] | null;
   paradigms?: TLinguisticProfile["paradigms"] | null;
   explanation?: string;
   suffixExplanation?: string;
   surface?: string;
   lemma?: string;
+  functionalRole?: string | null;
   /** Phrase d'origine — requise pour détecter la préposition précédente. */
   sentence?: string | null;
 }): TReaderConceptResolution | null {
@@ -72,28 +88,58 @@ export function resolveReaderConceptFromSignals(input: {
     ...(morph?.caseParadigm ?? []),
   ];
 
-  const morphologicalCase = input.surface
-    ? inferMorphologicalCaseFromParadigms(input.surface, caseEntries)
-    : null;
-
   const government =
     input.surface && input.sentence
       ? detectPrepositionGovernment({
           surface: input.surface,
           sentence: input.sentence,
-          morphologicalCase,
+          morphologicalCase: null,
         })
       : null;
+
+  const morphologicalCase = input.surface
+    ? inferMorphologicalCase({
+        surface: input.surface,
+        caseEntries,
+        functionalRole: input.functionalRole,
+        governmentCase: (government?.governedCase ?? null) as TGovernedCase | null,
+        explanation: input.explanation ?? null,
+      })
+    : null;
+
+  // Re-détecte la régence avec le cas connu (в/на sense-dependent).
+  const governmentResolved =
+    input.surface && input.sentence
+      ? detectPrepositionGovernment({
+          surface: input.surface,
+          sentence: input.sentence,
+          morphologicalCase:
+            morphologicalCase && morphologicalCase !== "nominative"
+              ? morphologicalCase
+              : null,
+        })
+      : null;
+
+  const animacy =
+    input.animacy ??
+    readAnimacy(morph) ??
+    inferAnimacyFromCurated({
+      surface: input.surface,
+      lemma: input.lemma,
+    });
 
   const profile: TConceptMatchProfile = {
     partOfSpeech: input.partOfSpeech ?? null,
     aspect,
     gender: input.gender ?? morph?.gender ?? null,
     movementType: input.movementType ?? morph?.movementType ?? null,
-    prepositionGovernment: government
+    animacy,
+    morphologicalCase,
+    functionalRole: input.functionalRole ?? null,
+    prepositionGovernment: governmentResolved
       ? {
-          preposition: government.preposition,
-          governedCase: government.governedCase,
+          preposition: governmentResolved.preposition,
+          governedCase: governmentResolved.governedCase,
         }
       : null,
     morphology: {
@@ -101,6 +147,7 @@ export function resolveReaderConceptFromSignals(input: {
       tense: morph?.tense ?? null,
       person: morph?.person ?? null,
       gender: morph?.gender ?? input.gender ?? null,
+      animacy,
       preverbs: morph?.preverbs ?? [],
       caseParadigm: morph?.caseParadigm ?? [],
       governedCases: morph?.governedCases ?? [],
@@ -121,9 +168,12 @@ export function resolveReaderConceptFromSignals(input: {
     suffix: null,
     roleLabel: null,
     sentence: input.sentence ?? null,
-    morphSignals: government
-      ? [`régence:${government.preposition}+${government.governedCase}`]
-      : [],
+    morphSignals: [
+      ...(governmentResolved
+        ? [`régence:${governmentResolved.preposition}+${governmentResolved.governedCase}`]
+        : []),
+      ...(morphologicalCase ? [`cas:${morphologicalCase}`] : []),
+    ],
     alternativeForms: [],
     encounterExplanation: input.explanation ?? null,
     suffixExplanation: input.suffixExplanation ?? null,
@@ -136,23 +186,37 @@ export function resolveReaderConceptFromSignals(input: {
         explanation: input.explanation,
         suffix: "",
         suffixExplanation: input.suffixExplanation ?? "",
-        functionalRole: "",
+        functionalRole: input.functionalRole ?? "",
         functionColor: null,
         roleLabel: "",
       } as TVocabularyContextEncounter)
     : null;
 
-  const signals = matchConceptSignals(profile, analysis, encounter);
-  const best = signals[0];
+  // Même chemin que le graphe (hiérarchie déclarative + liens secondaires).
+  const graph = resolveConceptGraph(profile, analysis, encounter);
+  const concept = graph.primary;
 
-  if (!best) {
-    return null;
-  }
+  if (!concept?.id) {
+    const signals = matchConceptSignals(profile, analysis, encounter);
+    const best = signals[0];
 
-  const concept = getConceptById(best.conceptId);
+    if (!best) {
+      return null;
+    }
 
-  if (!concept) {
-    return null;
+    const fallback = getConceptById(best.conceptId);
+
+    if (!fallback) {
+      return null;
+    }
+
+    return {
+      conceptId: fallback.id,
+      conceptSlug: fallback.slug,
+      conceptTitle: fallback.title,
+      conceptSummary: fallback.summary,
+      prepositionGovernment: profile.prepositionGovernment ?? null,
+    };
   }
 
   return {
@@ -160,11 +224,6 @@ export function resolveReaderConceptFromSignals(input: {
     conceptSlug: concept.slug,
     conceptTitle: concept.title,
     conceptSummary: concept.summary,
-    prepositionGovernment: government
-      ? {
-          preposition: government.preposition,
-          governedCase: government.governedCase,
-        }
-      : null,
+    prepositionGovernment: profile.prepositionGovernment ?? null,
   };
 }

@@ -5,16 +5,24 @@ import type {
 } from "@/types/linguistic-concept";
 import type { TVocabularyContextEncounter } from "@/types/vocabulary";
 
+import {
+  resolveCaseConceptId,
+  type TMorphologicalCase,
+} from "./case-concept-routing";
 import { applyPedagogicalHierarchy } from "./pedagogical-hierarchy";
+import { isKnownConceptId } from "./registry";
 
 export interface TConceptMatchProfile {
   partOfSpeech: string | null;
   aspect?: string | null;
   gender?: string | null;
   movementType?: string | null;
+  animacy?: string | null;
+  morphologicalCase?: TMorphologicalCase | null;
+  functionalRole?: string | null;
   /**
    * Régence détectée déterministe (préposition avant le mot + table curée).
-   * Prioritaire sur noun-declension.
+   * Prioritaire sur le cas seul et sur noun-declension.
    */
   prepositionGovernment?: {
     preposition: string;
@@ -25,6 +33,7 @@ export interface TConceptMatchProfile {
     person?: string | null;
     aspect?: string | null;
     gender?: string | null;
+    animacy?: string | null;
     preverbs?: Array<{ prefix: string; verb: string }>;
     caseParadigm?: Array<{ label: string; form: string }>;
     governedCases?: unknown[];
@@ -45,6 +54,7 @@ export interface TConceptMatchProfile {
 interface SignalRule {
   conceptId: string;
   weight: TConceptLinkWeight;
+  /** Score intra-famille uniquement — la hiérarchie tranche entre familles. */
   score: number;
   matches: (ctx: {
     profile: TConceptMatchProfile;
@@ -135,10 +145,6 @@ const SIGNAL_RULES: SignalRule[] = [
   },
   {
     conceptId: "verbs-of-motion",
-    /**
-     * Weight/score bruts : la hiérarchie pédagogique (pedagogical-hierarchy)
-     * promeut ce concept en PRIMARY dès que le lemme est un verbe de mouvement.
-     */
     weight: "secondary",
     score: 80,
     signal: "verbe de mouvement",
@@ -180,17 +186,63 @@ const SIGNAL_RULES: SignalRule[] = [
     },
   },
   {
+    conceptId: "case-accusative",
+    weight: "primary",
+    score: 88,
+    signal: "accusatif (cas précis)",
+    matches: ({ profile }) => {
+      if (
+        profile.partOfSpeech !== "noun" &&
+        profile.partOfSpeech !== "pronoun" &&
+        profile.partOfSpeech !== "adjective"
+      ) {
+        return false;
+      }
+
+      if (!isKnownConceptId("case-accusative")) {
+        return false;
+      }
+
+      if (profile.morphologicalCase === "accusative") {
+        return true;
+      }
+
+      const role = (profile.functionalRole ?? "").toLowerCase();
+
+      return role === "object_direct" || role === "object";
+    },
+  },
+  {
+    conceptId: "noun-animacy",
+    weight: "secondary",
+    score: 75,
+    signal: "animation (effet sur l'accusatif)",
+    matches: ({ profile }) => {
+      if (profile.partOfSpeech !== "noun" || !isKnownConceptId("noun-animacy")) {
+        return false;
+      }
+
+      const animacy = profile.animacy ?? profile.morphology.animacy;
+      const isAccusativeContext =
+        profile.morphologicalCase === "accusative" ||
+        (profile.functionalRole ?? "").toLowerCase() === "object_direct";
+
+      return Boolean(animacy) && isAccusativeContext;
+    },
+  },
+  {
     conceptId: "noun-declension",
     weight: "primary",
     score: 80,
-    signal: "déclinaison",
+    signal: "déclinaison (parapluie)",
     matches: ({ profile, encounter }) =>
       profile.partOfSpeech === "noun" &&
       (/cas|génitif|datif|accusatif|nominatif|instrumental|prépositionnel/i.test(
         `${encounter?.explanation ?? ""} ${encounter?.suffixExplanation ?? ""}`,
       ) ||
         Boolean(profile.morphology.caseParadigm?.length) ||
-        Boolean(profile.paradigms.cases?.length)),
+        Boolean(profile.paradigms.cases?.length) ||
+        Boolean(profile.morphologicalCase)),
   },
   {
     conceptId: "noun-gender",
@@ -215,7 +267,6 @@ const SIGNAL_RULES: SignalRule[] = [
   {
     conceptId: "preposition-government",
     weight: "primary",
-    /** Au-dessus de noun-declension (80) : la régence est le phénomène précis. */
     score: 96,
     signal: "régence prépositionnelle",
     matches: ({ profile }) =>
@@ -225,17 +276,14 @@ const SIGNAL_RULES: SignalRule[] = [
   },
 ];
 
+/** IDs que les règles de signal peuvent produire (pour audit orphelins). */
+export function listSignalRuleConceptIds(): string[] {
+  return [...new Set(SIGNAL_RULES.map((rule) => rule.conceptId))];
+}
+
 /**
- * Scores bruts des règles — diagnostic (écarts &lt; 10 = fragiles) :
- *   preposition-government 96
- *   verb-perfective-aspect 95  ↔  verb-movement-prefixes 92 (Δ3)
- *   verb-movement-prefixes 92  ↔  verb-present-conjugation 90 (Δ2)
- *   verb-present-conjugation 90  ↔  reflexive-possessive 88 (Δ2)
- *   verbs-of-motion 80  ↔  noun-declension 80 (Δ0)
- *   noun-declension 80  ↔  adjective-agreement 78 (Δ2)
- *
- * Ne pas « corriger » en jouant ±5 sur ces scores : utiliser
- * applyPedagogicalHierarchy (mouvement > aspect, etc.).
+ * Matching + hiérarchie déclarative.
+ * Scores = départage intra-famille seulement.
  */
 export function matchConceptSignals(
   profile: TConceptMatchProfile,
@@ -258,9 +306,17 @@ export function matchConceptSignals(
     });
   }
 
-  const sorted = matches.sort((left, right) => right.score - left.score);
+  const caseConceptId = resolveCaseConceptId(profile.morphologicalCase ?? null);
 
-  return applyPedagogicalHierarchy(sorted, profile, analysis);
+  return applyPedagogicalHierarchy(matches, {
+    movementType: profile.movementType,
+    morphologicalCase: profile.morphologicalCase,
+    prepositionGovernment: profile.prepositionGovernment,
+    functionalRole: profile.functionalRole,
+    caseConceptAvailable: caseConceptId
+      ? isKnownConceptId(caseConceptId)
+      : false,
+  }, analysis);
 }
 
 export function buildLemmaConceptLinks(

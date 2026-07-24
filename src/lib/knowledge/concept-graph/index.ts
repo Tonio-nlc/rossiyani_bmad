@@ -14,10 +14,21 @@ export {
   getRelatedConceptIds,
   getTeachingGraphEdges,
 } from "./teaching-graph";
-export { matchConceptSignals, buildLemmaConceptLinks } from "./match-signals";
+export { matchConceptSignals, buildLemmaConceptLinks, listSignalRuleConceptIds } from "./match-signals";
 export {
   applyPedagogicalHierarchy,
   isMotionVerbLemma,
+  familyOfConcept,
+  FAMILY_PRIORITY,
   FRAGILE_SCORE_PAIRS,
 } from "./pedagogical-hierarchy";
+export {
+  CASE_CONCEPT_BY_CASE,
+  inferMorphologicalCase,
+  resolveCaseConceptId,
+} from "./case-concept-routing";
+export {
+  auditOrphanConcepts,
+  formatOrphanConceptsMarkdown,
+} from "./orphan-concepts";
 export { loadConceptGraphFromDb } from "./load-from-db";

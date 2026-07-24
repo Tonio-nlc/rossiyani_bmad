@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 
 import { SEED_LINGUISTIC_CONCEPTS } from "../src/lib/knowledge/concept-graph/registry/seed-concepts";
 import { TEACHING_GRAPH_EDGES } from "../src/lib/knowledge/concept-graph/teaching-graph";
+import { formatOrphanConceptsMarkdown } from "../src/lib/knowledge/concept-graph/orphan-concepts";
 import { SEED_TEACHING_SCENARIOS } from "../src/lib/knowledge/teaching-engine/seed-teaching-scenarios";
 import type {
   TConceptGraphEdge,
@@ -29,6 +30,7 @@ const sqlOutPath = path.join(
   "supabase/migrations/021_seed_linguistic_concept_graph.sql",
 );
 const reportOutPath = path.join(root, "docs/knowledge/missing-concepts.md");
+const orphanOutPath = path.join(root, "docs/knowledge/orphan-concepts.md");
 
 function sqlString(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
@@ -334,9 +336,11 @@ function main() {
   );
 
   fs.writeFileSync(reportOutPath, reportLines.join("\n"), "utf8");
+  fs.writeFileSync(orphanOutPath, formatOrphanConceptsMarkdown(), "utf8");
 
   console.log(`Wrote ${sqlOutPath}`);
   console.log(`Wrote ${reportOutPath}`);
+  console.log(`Wrote ${orphanOutPath}`);
   console.log(
     `Concepts: ${SEED_LINGUISTIC_CONCEPTS.length}, relations emitted: ${emittedEdges.length}, skipped: ${skippedEdges.length}, missing concepts: ${missingSorted.length}`,
   );

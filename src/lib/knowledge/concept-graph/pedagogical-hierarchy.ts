@@ -1,15 +1,8 @@
 /**
- * Hiérarchie pédagogique de résolution de concept.
+ * Hiérarchie DÉCLARATIVE de résolution de concept.
  *
- * Les scores numériques de matchConceptSignals sont un filet de sécurité ;
- * quand deux phénomènes coexistent, cette hiérarchie tranche (pas un écart
- * de 3 points entre 95 et 92).
- *
- * Ordre retenu (du plus spécifique au plus général) :
- * 1. Régence prépositionnelle (détectée) — déjà score 96
- * 2. Famille mouvement : verbs-of-motion > verb-movement-prefixes
- * 3. Conjugaison / accord / déclinaison selon POS
- * 4. Aspect (perfectif / imperfectif / paires) — secondaire si mouvement
+ * Les scores de matchConceptSignals ne départagent QU'À L'INTÉRIEUR d'une famille.
+ * Entre familles, l'ordre ci-dessous tranche — jamais un écart de 2–3 points.
  *
  * Voir docs/knowledge/concept-resolution-hierarchy.md
  */
@@ -18,13 +11,66 @@ import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-lingu
 import { CURATED_MOTION } from "@/lib/knowledge/morphology/curated";
 import type { TConceptSignalMatch } from "@/types/linguistic-concept";
 
+import {
+  resolveCaseConceptId,
+  type TMorphologicalCase,
+} from "./case-concept-routing";
+
 /** Sous-ensemble du profil nécessaire à la hiérarchie (évite import circulaire). */
 export interface THierarchyProfile {
   movementType?: string | null;
+  morphologicalCase?: TMorphologicalCase | null;
+  prepositionGovernment?: { preposition: string; governedCase: string } | null;
+  functionalRole?: string | null;
+  /**
+   * true si le concept cible du cas existe dans le registry
+   * (injecté par matchConceptSignals pour éviter un import circulaire).
+   */
+  caseConceptAvailable?: boolean;
 }
 
-/** Score de rang hiérarchique — au-dessus de tout score de règle. */
-export const HIERARCHY_PRIMARY_SCORE = 200;
+/**
+ * Familles pédagogiques — priorité décroissante (rang plus élevé = plus prioritaire).
+ */
+export type TConceptFamily =
+  | "preposition-government"
+  | "motion"
+  | "specific-case"
+  | "conjugation"
+  | "agreement"
+  | "pronoun"
+  | "aspect"
+  | "noun-umbrella"
+  | "animacy"
+  | "gender"
+  | "other";
+
+/** Rang déclaratif entre familles (pas un score de règle). */
+export const FAMILY_PRIORITY: Record<TConceptFamily, number> = {
+  "preposition-government": 100,
+  motion: 90,
+  "specific-case": 80,
+  conjugation: 70,
+  agreement: 65,
+  pronoun: 60,
+  aspect: 50,
+  "noun-umbrella": 40,
+  animacy: 35,
+  gender: 30,
+  other: 10,
+};
+
+/** Ordre intra-famille (plus haut = préféré). Les scores de règle affinent ensuite. */
+const INTRA_FAMILY_ORDER: Record<string, number> = {
+  "verbs-of-motion": 20,
+  "verb-movement-prefixes": 10,
+  "case-accusative": 20,
+  "case-genitive": 20,
+  "case-dative": 20,
+  "case-instrumental": 20,
+  "case-prepositional": 20,
+  "noun-animacy": 5,
+};
 
 export const MOTION_CONCEPT_IDS = [
   "verbs-of-motion",
@@ -37,8 +83,61 @@ export const ASPECT_CONCEPT_IDS = [
   "aspect-pairs",
 ] as const;
 
+export const SPECIFIC_CASE_CONCEPT_IDS = [
+  "case-accusative",
+  "case-genitive",
+  "case-dative",
+  "case-instrumental",
+  "case-prepositional",
+] as const;
+
 const ASPECT_SET = new Set<string>(ASPECT_CONCEPT_IDS);
 const MOTION_SET = new Set<string>(MOTION_CONCEPT_IDS);
+const SPECIFIC_CASE_SET = new Set<string>(SPECIFIC_CASE_CONCEPT_IDS);
+
+export function familyOfConcept(conceptId: string): TConceptFamily {
+  if (conceptId === "preposition-government") {
+    return "preposition-government";
+  }
+
+  if (MOTION_SET.has(conceptId)) {
+    return "motion";
+  }
+
+  if (SPECIFIC_CASE_SET.has(conceptId)) {
+    return "specific-case";
+  }
+
+  if (conceptId === "noun-animacy") {
+    return "animacy";
+  }
+
+  if (conceptId === "noun-declension") {
+    return "noun-umbrella";
+  }
+
+  if (conceptId === "verb-present-conjugation") {
+    return "conjugation";
+  }
+
+  if (conceptId === "adjective-agreement") {
+    return "agreement";
+  }
+
+  if (conceptId === "reflexive-possessive") {
+    return "pronoun";
+  }
+
+  if (ASPECT_SET.has(conceptId)) {
+    return "aspect";
+  }
+
+  if (conceptId === "noun-gender") {
+    return "gender";
+  }
+
+  return "other";
+}
 
 function stripStress(text: string): string {
   return text
@@ -53,9 +152,6 @@ const CURATED_MOTION_LEMMAS = new Set(
   Object.values(CURATED_MOTION).map((form) => stripStress(form)),
 );
 
-/**
- * Verbe de mouvement : movementType knowledge, lemme curé, ou famille morphologique.
- */
 export function isMotionVerbLemma(
   profile: THierarchyProfile,
   analysis: TLinguisticAnalysis,
@@ -71,7 +167,6 @@ export function isMotionVerbLemma(
     return true;
   }
 
-  // Bases / préfixés de mouvement courants (pas « понять » etc.)
   return (
     /^(по|при|у|вы|пере)?(йти|идти|ходить|ехать|ездить|бежать|лететь|плыть|нести|везти)/u.test(
       lemma,
@@ -79,67 +174,124 @@ export function isMotionVerbLemma(
   );
 }
 
+function compareMatches(
+  left: TConceptSignalMatch,
+  right: TConceptSignalMatch,
+): number {
+  const familyDelta =
+    FAMILY_PRIORITY[familyOfConcept(right.conceptId)] -
+    FAMILY_PRIORITY[familyOfConcept(left.conceptId)];
+
+  if (familyDelta !== 0) {
+    return familyDelta;
+  }
+
+  const intraDelta =
+    (INTRA_FAMILY_ORDER[right.conceptId] ?? 0) -
+    (INTRA_FAMILY_ORDER[left.conceptId] ?? 0);
+
+  if (intraDelta !== 0) {
+    return intraDelta;
+  }
+
+  return right.score - left.score;
+}
+
 /**
- * Quand le lemme est un verbe de mouvement :
- * - concept mouvement (préféré) ou préfixe = PRIMARY
- * - aspect = SECONDARY (concepts liés), score abaissé
+ * Applique la hiérarchie déclarative :
+ * régence > cas spécifique > déclinaison ;
+ * mouvement > aspect > conjugaison.
+ * Les scores ne départagent qu'à l'intérieur d'une famille.
  */
 export function applyPedagogicalHierarchy(
   matches: TConceptSignalMatch[],
   profile: THierarchyProfile,
   analysis: TLinguisticAnalysis,
 ): TConceptSignalMatch[] {
-  if (matches.length === 0 || !isMotionVerbLemma(profile, analysis)) {
+  if (matches.length === 0) {
     return matches;
   }
 
-  const hasVerbsOfMotion = matches.some(
-    (item) => item.conceptId === "verbs-of-motion",
-  );
-  const hasMovementPrefixes = matches.some(
-    (item) => item.conceptId === "verb-movement-prefixes",
-  );
+  let result = [...matches];
 
-  const primaryMotionId = hasVerbsOfMotion
-    ? "verbs-of-motion"
-    : hasMovementPrefixes
-      ? "verb-movement-prefixes"
-      : null;
+  const caseConceptId = resolveCaseConceptId(profile.morphologicalCase ?? null);
+  const wantsSpecificCase =
+    Boolean(caseConceptId) &&
+    profile.caseConceptAvailable !== false &&
+    (Boolean(profile.morphologicalCase && profile.morphologicalCase !== "nominative") ||
+      profile.functionalRole === "object_direct");
 
-  if (!primaryMotionId) {
-    return matches;
+  if (
+    wantsSpecificCase &&
+    caseConceptId &&
+    !result.some((item) => item.conceptId === caseConceptId)
+  ) {
+    result.push({
+      conceptId: caseConceptId,
+      score: 88,
+      weight: "primary",
+      signal: `cas ${profile.morphologicalCase ?? "objet"} · table cas→concept`,
+    });
   }
 
-  const adjusted = matches.map((item) => {
-    if (item.conceptId === primaryMotionId) {
-      return {
-        ...item,
-        weight: "primary" as const,
-        score: HIERARCHY_PRIMARY_SCORE,
-        signal: `${item.signal} · hiérarchie mouvement`,
+  const isMotion = isMotionVerbLemma(profile, analysis);
+  const hasMotionFamily = result.some(
+    (item) => familyOfConcept(item.conceptId) === "motion",
+  );
+  const hasSpecificCase = result.some(
+    (item) => familyOfConcept(item.conceptId) === "specific-case",
+  );
+  const hasPrep = result.some(
+    (item) => item.conceptId === "preposition-government",
+  );
+
+  result = result.map((item) => {
+    let next = { ...item };
+
+    if (
+      item.conceptId === "noun-declension" &&
+      (hasSpecificCase || hasPrep || wantsSpecificCase)
+    ) {
+      next = {
+        ...next,
+        weight: "secondary",
+        signal: `${item.signal} · parapluie (cas précis prioritaire)`,
       };
     }
 
-    if (MOTION_SET.has(item.conceptId) || ASPECT_SET.has(item.conceptId)) {
-      return {
-        ...item,
-        weight: "secondary" as const,
-        score: ASPECT_SET.has(item.conceptId)
-          ? Math.min(item.score, 55)
-          : Math.min(item.score, 70),
-        signal: ASPECT_SET.has(item.conceptId)
-          ? `${item.signal} · secondaire (sous mouvement)`
-          : item.signal,
+    if (isMotion && hasMotionFamily && ASPECT_SET.has(item.conceptId)) {
+      next = {
+        ...next,
+        weight: "secondary",
+        signal: `${item.signal} · secondaire (sous mouvement)`,
       };
     }
 
-    return item;
+    return next;
   });
 
-  return adjusted.sort((left, right) => right.score - left.score);
+  if (isMotion && hasMotionFamily) {
+    result = result.filter((item) => {
+      if (ASPECT_SET.has(item.conceptId)) {
+        return true;
+      }
+
+      return true;
+    });
+  }
+
+  result.sort(compareMatches);
+
+  return result.map((item, index) => ({
+    ...item,
+    weight: index === 0 ? ("primary" as const) : ("secondary" as const),
+  }));
 }
 
-/** Écarts de scores bruts < 10 pts — fragiles sans hiérarchie. */
+/** @deprecated Conservé pour le diagnostic documentaire. */
+export const HIERARCHY_PRIMARY_SCORE = 200;
+
+/** Écarts de scores bruts < 10 pts — pourquoi la hiérarchie par familles existe. */
 export const FRAGILE_SCORE_PAIRS: Array<{
   a: string;
   b: string;
@@ -159,21 +311,15 @@ export const FRAGILE_SCORE_PAIRS: Array<{
     delta: 2,
   },
   {
-    a: "verb-present-conjugation",
-    b: "reflexive-possessive",
-    scores: [90, 88],
-    delta: 2,
+    a: "noun-declension",
+    b: "case-accusative",
+    scores: [80, 88],
+    delta: 8,
   },
   {
     a: "verbs-of-motion",
     b: "noun-declension",
     scores: [80, 80],
     delta: 0,
-  },
-  {
-    a: "noun-declension",
-    b: "adjective-agreement",
-    scores: [80, 78],
-    delta: 2,
   },
 ];

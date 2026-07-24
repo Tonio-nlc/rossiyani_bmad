@@ -135,12 +135,18 @@ async function attachConceptResolution(
     aspect: profile.aspect,
     gender: profile.gender,
     movementType: profile.movementType,
+    animacy:
+      profile.morphology.animacy === "animate" ||
+      profile.morphology.animacy === "inanimate"
+        ? profile.morphology.animacy
+        : null,
     morphology: profile.morphology,
     paradigms: profile.paradigms,
     surface: withPos.surface,
     lemma: withPos.lemma,
     explanation: withPos.explanation,
     suffixExplanation: withPos.suffixExplanation,
+    functionalRole: withPos.functionalRole,
     sentence,
   });
 
