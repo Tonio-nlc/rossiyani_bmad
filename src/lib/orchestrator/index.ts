@@ -13,6 +13,7 @@ import {
 } from "@/lib/orchestrator/cache";
 import { generateWordExplanation } from "@/lib/orchestrator/llm";
 import { computeContextHash } from "@/lib/orchestrator/hasher";
+import { createPerfTimer } from "@/lib/utils/perf-timer";
 import type {
   TLlmExplanationPayload,
   TWordExplanationRequest,
@@ -200,23 +201,31 @@ export async function explainWord(
   request: TWordExplanationRequest,
 ): Promise<TWordExplanationResponseExtended> {
   const { surface, sentence } = request;
+  const mark = createPerfTimer(`explain:${surface}`);
   const contextHash = computeContextHash(surface, sentence);
   const cached = await getCachedExplanation(contextHash);
+  mark(`cache lookup (${cached ? "hit" : "miss"})`);
 
   if (cached) {
     const withLemma = await applyCuratedLemmaToResponse(
       mapCacheToResponse(cached, surface),
     );
+    mark("applyCuratedLemmaToResponse");
     const response = await attachConceptResolution(withLemma, sentence);
+    mark("attachConceptResolution");
 
     void incrementUsageCount(cached.id, cached.usageCount).catch(() => undefined);
+
+    mark("total (avant sérialisation JSON par la route)");
 
     return response;
   }
 
   const llmRaw = await generateWordExplanation(surface, sentence);
+  mark("LLM generateWordExplanation");
   const llmPayload = applyCuratedLemmaToPayload(surface, llmRaw);
   const lemmaId = await resolveOrCreateLemma(llmPayload.lemma);
+  mark("resolveOrCreateLemma");
   const explanationCacheId = await storeExplanationInCache({
     contextHash,
     lemmaId,
@@ -224,8 +233,9 @@ export async function explainWord(
     sentence,
     payload: llmPayload,
   });
+  mark("storeExplanationInCache");
 
-  return attachConceptResolution(
+  const response = await attachConceptResolution(
     {
       surface,
       lemma: llmPayload.lemma,
@@ -243,6 +253,10 @@ export async function explainWord(
     },
     sentence,
   );
+  mark("attachConceptResolution");
+  mark("total (avant sérialisation JSON par la route)");
+
+  return response;
 }
 
 export type { TWordExplanationRequest, TWordExplanationResponseExtended };

@@ -17,6 +17,7 @@ import {
 } from "@/lib/knowledge/morphology/curated";
 import { stripTrailingPunctuationForDisplay } from "@/lib/utils/russian";
 import { getNaturalFunctionalRoleLabel } from "@/lib/utils/russian";
+import { createPerfTimer } from "@/lib/utils/perf-timer";
 import { parseExplanationCachePayload } from "@/lib/vocabulary/parse-explanation-cache";
 import { resolveDisplayLemma } from "@/lib/vocabulary/resolve-display-lemma";
 import { extractTranslation } from "@/lib/vocabulary/extract-translation";
@@ -117,6 +118,7 @@ export async function prepareAndPersistWordTeachingScenario(input: {
   explanationCacheId?: string | null;
 }): Promise<TTeachingScenario | null> {
   const admin = createAdminClient();
+  const mark = createPerfTimer(`teaching-scenario:${input.lemmaId}`);
 
   try {
     const { data: lemmaRow, error: lemmaError } = await admin
@@ -124,6 +126,7 @@ export async function prepareAndPersistWordTeachingScenario(input: {
       .select("form")
       .eq("id", input.lemmaId)
       .maybeSingle();
+    mark("select lemme");
 
     if (lemmaError || !lemmaRow?.form) {
       console.warn(
@@ -135,21 +138,26 @@ export async function prepareAndPersistWordTeachingScenario(input: {
 
     // 1. Garantir linguistic_knowledge (coquille) — pas de LLM synchrone
     await ensureKnowledgeExists(input.lemmaId);
+    mark("ensureKnowledgeExists (coquille garantie)");
 
-    // Enrichissement LLM en arrière-plan (ne bloque pas l'enregistrement)
+    // Enrichissement LLM en arrière-plan (ne bloque pas l'enregistrement) —
+    // volontairement non attendu : c'est le point vérifié à l'étape 2.
     void buildKnowledge(input.lemmaId).catch((error) => {
       console.warn(
         `[teaching-scenario] Enrichissement async impossible pour ${input.lemmaId}`,
         error instanceof Error ? error.message : error,
       );
     });
+    mark("buildKnowledge déclenché en arrière-plan (void, non attendu)");
 
     const knowledge = await ensureKnowledgeExists(input.lemmaId);
+    mark("ensureKnowledgeExists (relecture — coquille identique, pas de LLM)");
     const { encounter, lemmaStressed, explanationFr } =
       await loadEncounterFromCache(
         input.explanationCacheId,
         input.lemmaId,
       );
+    mark("loadEncounterFromCache");
 
     const translation = extractTranslation(explanationFr) || "";
     const displayLemma = resolveDisplayLemma(lemmaRow.form, lemmaStressed);
@@ -240,6 +248,7 @@ export async function prepareAndPersistWordTeachingScenario(input: {
           }
         : null,
     });
+    mark("composeTeachingScenario (déterministe, pas de LLM)");
 
     // Gate : bloquer uniquement les formes d'un autre lemme (SCENARIO_FOREIGN_LEMMA_FORM).
     // Les autres issues qualité restent en warning — ne doivent pas empêcher la persistance.
@@ -270,6 +279,7 @@ export async function prepareAndPersistWordTeachingScenario(input: {
       .from("user_vocabulary")
       .update({ teaching_scenario: scenario })
       .eq("id", input.userVocabularyId);
+    mark("update user_vocabulary.teaching_scenario");
 
     if (updateError) {
       console.warn(

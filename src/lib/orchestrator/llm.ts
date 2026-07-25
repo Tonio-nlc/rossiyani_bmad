@@ -102,7 +102,20 @@ function parseLlmJson(content: string): TLlmExplanationPayload {
   );
 }
 
-export async function generateWordExplanation(
+/**
+ * Timeout par tentative — évite qu'un appel LLM accroché bloque l'Explorer
+ * indéfiniment (le SDK OpenAI attend sinon plusieurs minutes par défaut).
+ */
+const LLM_REQUEST_TIMEOUT_MS = 20_000;
+/** 1 essai + 2 reprises silencieuses, backoff court — étape 3 robustesse clic mot. */
+const LLM_MAX_ATTEMPTS = 3;
+const LLM_RETRY_BACKOFF_MS = [300, 900];
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function callWordExplanationOnce(
   surface: string,
   sentence: string,
 ): Promise<TLlmExplanationPayload> {
@@ -117,7 +130,14 @@ export async function generateWordExplanation(
     throw new Error("OPENAI_MODEL manquante");
   }
 
-  const client = new OpenAI({ apiKey });
+  // maxRetries: 0 — le retry est géré explicitement par generateWordExplanation
+  // (backoff court et visible en dev) plutôt que par le retry interne du SDK,
+  // pour un nombre de tentatives prévisible côté utilisateur.
+  const client = new OpenAI({
+    apiKey,
+    timeout: LLM_REQUEST_TIMEOUT_MS,
+    maxRetries: 0,
+  });
 
   const response = await client.responses.create({
     model,
@@ -132,4 +152,41 @@ export async function generateWordExplanation(
   }
 
   return parseLlmJson(outputText);
+}
+
+/**
+ * Retry silencieux (timeout / erreur réseau / JSON invalide passager) avant
+ * de faire remonter l'échec — l'utilisateur ne doit voir "Impossible de
+ * charger ce mot" qu'après épuisement des tentatives.
+ */
+export async function generateWordExplanation(
+  surface: string,
+  sentence: string,
+): Promise<TLlmExplanationPayload> {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= LLM_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      return await callWordExplanationOnce(surface, sentence);
+    } catch (error) {
+      lastError = error;
+
+      if (process.env.NODE_ENV === "development") {
+        console.warn(
+          `[LLM explain] Tentative ${attempt}/${LLM_MAX_ATTEMPTS} échouée pour « ${surface} »`,
+          error instanceof Error ? error.message : error,
+        );
+      }
+
+      const backoff = LLM_RETRY_BACKOFF_MS[attempt - 1];
+
+      if (attempt < LLM_MAX_ATTEMPTS && backoff !== undefined) {
+        await wait(backoff);
+      }
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Échec de l'explication LLM après plusieurs tentatives");
 }

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getUserVocabulary } from "@/lib/vocabulary/get-user-vocabulary";
 import { prepareAndPersistWordTeachingScenario } from "@/lib/vocabulary/prepare-and-persist-word-scenario";
 import { createClient } from "@/lib/supabase/server";
+import { createPerfTimer } from "@/lib/utils/perf-timer";
 
 const saveSchema = z.object({
   lemmaId: z.string().uuid(),
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
   }
 
   const { lemmaId, explanationCacheId, textId } = parsed.data;
+  const mark = createPerfTimer(`save-vocabulary:${lemmaId}`);
 
   const { data: vocabulary, error: vocabularyError } = await supabase
     .from("user_vocabulary")
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
     )
     .select("id")
     .single();
+  mark("user_vocabulary upsert");
 
   if (vocabularyError || !vocabulary) {
     return NextResponse.json(
@@ -93,13 +96,17 @@ export async function POST(request: Request) {
       next_review_at: nextReviewAt.toISOString(),
     });
   }
+  mark("srs_reviews lookup + insert éventuel");
 
-  // Scénario personnalisé (principe partagé + démo/bridge du mot) — ne bloque pas l'UX
+  // Scénario personnalisé (principe partagé + démo/bridge du mot) — ne bloque
+  // pas l'UX : buildKnowledge (LLM) part en arrière-plan à l'intérieur de
+  // cette fonction, seules des opérations déterministes sont attendues ici.
   const teachingScenario = await prepareAndPersistWordTeachingScenario({
     userVocabularyId: vocabulary.id,
     lemmaId,
     explanationCacheId,
   });
+  mark("prepareAndPersistWordTeachingScenario (composition + persistance, sans LLM synchrone)");
 
   return NextResponse.json({
     success: true,

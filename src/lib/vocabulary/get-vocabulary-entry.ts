@@ -1,6 +1,8 @@
 import type { TVocabularyEntry } from "@/types/vocabulary";
 import { buildKnowledge } from "@/lib/knowledge/build-knowledge";
 import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
+import { ensureKnowledgeExists } from "@/lib/knowledge/get-knowledge";
+import { isKnowledgeComplete } from "@/lib/knowledge/is-knowledge-complete";
 import { composeConceptLesson } from "@/lib/knowledge/concept/compose-concept-lesson";
 import { collectVocabularyExamples } from "@/lib/vocabulary/collect-vocabulary-examples";
 import { extractTranslation } from "@/lib/vocabulary/extract-translation";
@@ -9,6 +11,7 @@ import { parseExplanationCachePayload } from "@/lib/vocabulary/parse-explanation
 import { parsePersistedTeachingScenario } from "@/lib/vocabulary/prepare-and-persist-word-scenario";
 import { resolveDisplayLemma } from "@/lib/vocabulary/resolve-display-lemma";
 import { getNaturalFunctionalRoleLabel } from "@/lib/utils/russian";
+import { createPerfTimer } from "@/lib/utils/perf-timer";
 import { createClient } from "@/lib/supabase/server";
 import type { TLinguisticKnowledge } from "@/types/knowledge";
 
@@ -180,6 +183,7 @@ export async function getVocabularyEntry(
   lemmaId: string,
 ): Promise<TVocabularyEntry | null> {
   const supabase = await createClient();
+  const mark = createPerfTimer(`vocabulary-entry:${lemmaId}`);
 
   const { data, error } = await supabase
     .from("user_vocabulary")
@@ -205,6 +209,7 @@ export async function getVocabularyEntry(
     .eq("user_id", userId)
     .eq("lemma_id", lemmaId)
     .maybeSingle();
+  mark("select user_vocabulary (+ jointures)");
 
   if (error) {
     throw new Error(error.message);
@@ -223,7 +228,24 @@ export async function getVocabularyEntry(
   }
 
   const linkedCache = getExplanationCacheRelation(row.explanation_cache);
-  const knowledge = await buildKnowledge(lemmaId);
+
+  // RC-PERF — `buildKnowledge` appelle un LLM (génération structurée lourde,
+  // ~10-12s mesurés) quand la fiche n'est pas encore complète. L'attendre ici
+  // bloquait l'affichage de la fiche (10s au premier chargement après
+  // sauvegarde). On affiche la coquille existante immédiatement (dégradée si
+  // pas encore enrichie) et on ne déclenche l'enrichissement en arrière-plan
+  // que s'il n'est pas déjà en cours (le flux de sauvegarde le lance déjà).
+  const knowledge = await ensureKnowledgeExists(lemmaId);
+  mark("ensureKnowledgeExists (lecture/coquille — pas de LLM)");
+
+  if (!isKnowledgeComplete(knowledge)) {
+    void buildKnowledge(lemmaId).catch((error) => {
+      console.warn(
+        `[getVocabularyEntry] Enrichissement async impossible pour ${lemmaId}`,
+        error instanceof Error ? error.message : error,
+      );
+    });
+  }
 
   const srsRelation = row.srs_reviews;
   const srsReview = Array.isArray(srsRelation) ? srsRelation[0] : srsRelation;
@@ -240,6 +262,7 @@ export async function getVocabularyEntry(
     }),
     resolveContextEncounter(supabase, lemmaId, linkedCache),
   ]);
+  mark("Promise.all (translation + examples + contextEncounter)");
 
   const displayLemma = resolveDisplayLemma(
     lemma.form,
@@ -263,6 +286,7 @@ export async function getVocabularyEntry(
       row.teaching_scenario,
     ),
   });
+  mark("composeConceptLesson (déterministe, pas de LLM) + total");
 
   return {
     lemma: lemma.form,
