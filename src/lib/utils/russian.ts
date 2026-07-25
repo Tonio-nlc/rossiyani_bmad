@@ -4,6 +4,8 @@ const FUNCTION_COLOR_MAP = {
   green: "#22C55E",
   violet: "#A78BFA",
   amber: "#F59E0B",
+  /** Moyen / instrument (case-instrumental) — dérivé du cas, jamais d'une devinette LLM. */
+  teal: "#0D9488",
 } as const;
 
 export type TReaderFunctionColor = keyof typeof FUNCTION_COLOR_MAP;
@@ -276,6 +278,8 @@ export const FUNCTIONAL_ROLE_LABELS: Record<string, string> = {
   location: "Lieu",
   time: "Temps",
   manner: "Manière",
+  /** Badge learner-facing : le rôle ("avec quoi"), jamais le nom du cas ("instrumental"). */
+  instrument: "Moyen",
 };
 
 export const NATURAL_FUNCTIONAL_ROLE_LABELS: Record<string, string> = {
@@ -286,6 +290,7 @@ export const NATURAL_FUNCTIONAL_ROLE_LABELS: Record<string, string> = {
   location: "indique où",
   time: "indique quand",
   manner: "indique comment",
+  instrument: "indique le moyen",
   subject_complement: "décrit le sujet",
   predicate: "dit quelque chose du sujet",
   attribute: "qualifie le nom",

@@ -60,6 +60,11 @@ Couleurs pédagogiques — `role.*` dans Tailwind, source `src/lib/utils/russian
 | Lieu/temps | `role-location` | `#22C55E` |
 | Possession | `role-possession` | `#A78BFA` |
 | Destinataire | `role-recipient` | `#F59E0B` |
+| Moyen/instrument | `role-instrument` | `#0D9488` |
+
+Le rôle « moyen/instrument » (badge « Moyen ») est le seul dérivé directement du
+cas morphologique (instrumental) plutôt que d'une estimation LLM par phrase —
+voir `detectReliableCase()` dans `src/lib/knowledge/concept-graph/resolve-reader-concept.ts`.
 
 ### Interdit
 

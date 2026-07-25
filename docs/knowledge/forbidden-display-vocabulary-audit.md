@@ -1,6 +1,6 @@
 # Audit — vocabulaire de conception interdit
 
-> Généré le 2026-07-25T20:33:21.880Z
+> Généré le 2026-07-25T20:57:34.270Z
 > Règle : `SCENARIO_FORBIDDEN_DISPLAY_VOCAB` — docs/knowledge/forbidden-display-vocabulary.md
 
 ## Synthèse

@@ -37,6 +37,7 @@ function toFunctionColor(
     "green",
     "violet",
     "amber",
+    "teal",
   ];
 
   if (valid.includes(color as TReaderFunctionColor)) {

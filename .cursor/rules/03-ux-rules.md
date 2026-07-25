@@ -24,6 +24,7 @@ Elles ne sont utilisées QUE pour les terminaisons et annotations linguistiques.
 --color-role-location: #22C55E;       /* Vert — lieu et temps */
 --color-role-possession: #A78BFA;     /* Violet — possession et relation */
 --color-role-recipient: #F59E0B;      /* Ambre — destinataire */
+--color-role-instrument: #0D9488;     /* Teal — moyen/instrument (dérivé du cas, jamais du LLM) */
 
 /* Couleurs UI générales */
 --color-primary: #1E3A5F;             /* Bleu marine — CTAs principaux */

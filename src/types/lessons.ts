@@ -4,6 +4,8 @@ export type TLessonWordRole =
   | "place"
   | "possession"
   | "recipient"
+  /** Moyen/instrument (case-instrumental) — dérivé du cas, jamais d'une devinette LLM. */
+  | "instrument"
   | null;
 
 export interface TLessonExampleWord {

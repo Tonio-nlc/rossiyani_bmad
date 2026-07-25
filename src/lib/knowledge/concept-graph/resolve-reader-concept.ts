@@ -6,13 +6,86 @@ import {
 import type { TLinguisticProfile } from "@/types/knowledge";
 import type { TVocabularyContextEncounter } from "@/types/vocabulary";
 
-import { inferAnimacyFromCurated, inferMorphologicalCase } from "./case-concept-routing";
+import {
+  inferAnimacyFromCurated,
+  inferMorphologicalCase,
+  type TMorphologicalCase,
+} from "./case-concept-routing";
 import {
   matchConceptSignals,
   type TConceptMatchProfile,
 } from "./match-signals";
 import { getConceptById } from "./registry";
 import { NO_CONCEPT_ID, resolveConceptGraph } from "./resolve-concept-graph";
+
+export interface TReliableCaseDetection {
+  /** null = cas non déterminé de façon fiable (pas de paradigme/curated/régence). */
+  morphologicalCase: TMorphologicalCase | null;
+  government: { preposition: string; governedCase: string } | null;
+}
+
+/**
+ * Détecte le cas morphologique à partir de sources fiables uniquement :
+ * paradigmes `linguistic_knowledge`, morphologie curée, ou régence
+ * prépositionnelle déterministe. Jamais une prose LLM non sourcée.
+ * Réutilisé par la résolution de concept ET par tout override de rôle
+ * fonctionnel dérivé du cas (ex. instrumental → "moyen").
+ */
+export function detectReliableCase(input: {
+  surface?: string | null;
+  sentence?: string | null;
+  paradigms?: TLinguisticProfile["paradigms"] | null;
+  morphology?: TLinguisticProfile["morphology"] | null;
+  functionalRole?: string | null;
+  explanation?: string | null;
+}): TReliableCaseDetection {
+  const caseEntries = [
+    ...(input.paradigms?.cases ?? []),
+    ...(input.morphology?.caseParadigm ?? []),
+  ];
+
+  const government =
+    input.surface && input.sentence
+      ? detectPrepositionGovernment({
+          surface: input.surface,
+          sentence: input.sentence,
+          morphologicalCase: null,
+        })
+      : null;
+
+  const morphologicalCase = input.surface
+    ? inferMorphologicalCase({
+        surface: input.surface,
+        caseEntries,
+        functionalRole: input.functionalRole,
+        governmentCase: (government?.governedCase ?? null) as TGovernedCase | null,
+        explanation: input.explanation ?? null,
+      })
+    : null;
+
+  // Re-détecte la régence avec le cas connu (в/на sense-dependent).
+  const governmentResolved =
+    input.surface && input.sentence
+      ? detectPrepositionGovernment({
+          surface: input.surface,
+          sentence: input.sentence,
+          morphologicalCase:
+            morphologicalCase && morphologicalCase !== "nominative"
+              ? morphologicalCase
+              : null,
+        })
+      : null;
+
+  return {
+    morphologicalCase,
+    government: governmentResolved
+      ? {
+          preposition: governmentResolved.preposition,
+          governedCase: governmentResolved.governedCase,
+        }
+      : null,
+  };
+}
 
 export interface TReaderConceptResolution {
   conceptId: string;
@@ -89,42 +162,14 @@ export function resolveReaderConceptFromSignals(input: {
   const morph = input.morphology;
   const aspect = input.aspect ?? morph?.aspect ?? null;
 
-  const caseEntries = [
-    ...(input.paradigms?.cases ?? []),
-    ...(morph?.caseParadigm ?? []),
-  ];
-
-  const government =
-    input.surface && input.sentence
-      ? detectPrepositionGovernment({
-          surface: input.surface,
-          sentence: input.sentence,
-          morphologicalCase: null,
-        })
-      : null;
-
-  const morphologicalCase = input.surface
-    ? inferMorphologicalCase({
-        surface: input.surface,
-        caseEntries,
-        functionalRole: input.functionalRole,
-        governmentCase: (government?.governedCase ?? null) as TGovernedCase | null,
-        explanation: input.explanation ?? null,
-      })
-    : null;
-
-  // Re-détecte la régence avec le cas connu (в/на sense-dependent).
-  const governmentResolved =
-    input.surface && input.sentence
-      ? detectPrepositionGovernment({
-          surface: input.surface,
-          sentence: input.sentence,
-          morphologicalCase:
-            morphologicalCase && morphologicalCase !== "nominative"
-              ? morphologicalCase
-              : null,
-        })
-      : null;
+  const { morphologicalCase, government: governmentResolved } = detectReliableCase({
+    surface: input.surface,
+    sentence: input.sentence,
+    paradigms: input.paradigms,
+    morphology: morph,
+    functionalRole: input.functionalRole,
+    explanation: input.explanation,
+  });
 
   const animacy =
     input.animacy ??

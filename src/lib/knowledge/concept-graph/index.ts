@@ -7,7 +7,11 @@ export {
   isKnownConceptId,
 } from "./registry";
 export { NO_CONCEPT_ID, resolveConceptGraph } from "./resolve-concept-graph";
-export { resolveReaderConcept, resolveReaderConceptFromSignals } from "./resolve-reader-concept";
+export {
+  detectReliableCase,
+  resolveReaderConcept,
+  resolveReaderConceptFromSignals,
+} from "./resolve-reader-concept";
 export {
   buildTeachingPath,
   getPrerequisiteIds,

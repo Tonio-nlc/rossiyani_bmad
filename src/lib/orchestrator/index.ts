@@ -1,4 +1,5 @@
 import {
+  detectReliableCase,
   ensureConceptGraphHydrated,
   resolveReaderConceptFromSignals,
 } from "@/lib/knowledge/concept-graph";
@@ -14,6 +15,7 @@ import {
 import { generateWordExplanation } from "@/lib/orchestrator/llm";
 import { computeContextHash } from "@/lib/orchestrator/hasher";
 import { createPerfTimer } from "@/lib/utils/perf-timer";
+import type { TLinguisticProfile } from "@/types/knowledge";
 import type {
   TLlmExplanationPayload,
   TWordExplanationRequest,
@@ -102,6 +104,51 @@ const POS_WITHOUT_RELIABLE_SUFFIX = new Set([
 ]);
 
 /**
+ * 6e rôle fonctionnel : "moyen/instrument", dérivé du cas instrumental.
+ * Contrairement aux 5 autres rôles (choisis librement par le LLM par phrase),
+ * celui-ci n'est JAMAIS une devinette LLM : il n'écrase functionalRole/functionColor
+ * que si detectReliableCase() a établi le cas instrumental depuis une source fiable
+ * (paradigme linguistic_knowledge, morphologie curée, ou régence prépositionnelle
+ * déterministe). Si le cas n'est pas connu de façon fiable, aucun override —
+ * le mot garde le rôle du LLM (ou rien), jamais une couleur "moyen" au hasard.
+ */
+const INSTRUMENT_FUNCTIONAL_ROLE = "instrument";
+const INSTRUMENT_FUNCTION_COLOR = "teal";
+
+/**
+ * Applique l'override "moyen" quand le cas instrumental est connu de façon fiable.
+ * Ne s'applique jamais aux verbes (pas de rôle fonctionnel).
+ */
+function applyInstrumentRoleOverride(
+  response: TWordExplanationResponseExtended,
+  profile: TLinguisticProfile | null,
+  sentence: string,
+): TWordExplanationResponseExtended {
+  if (!profile || response.partOfSpeech === "verb") {
+    return response;
+  }
+
+  const { morphologicalCase } = detectReliableCase({
+    surface: response.surface,
+    sentence,
+    paradigms: profile.paradigms,
+    morphology: profile.morphology,
+    functionalRole: response.functionalRole,
+    explanation: response.explanation,
+  });
+
+  if (morphologicalCase !== "instrumental") {
+    return response;
+  }
+
+  return {
+    ...response,
+    functionalRole: INSTRUMENT_FUNCTIONAL_ROLE,
+    functionColor: INSTRUMENT_FUNCTION_COLOR,
+  };
+}
+
+/**
  * Attache concept + POS/aspect depuis linguistic_knowledge.
  * Les verbes n'ont pas de rôle fonctionnel (sujet/objet…) : on le retire ici.
  */
@@ -155,7 +202,7 @@ async function attachConceptResolution(
   };
 
   if (!profile?.partOfSpeech) {
-    return withPos;
+    return applyInstrumentRoleOverride(withPos, profile, sentence);
   }
 
   const concept = resolveReaderConceptFromSignals({
@@ -178,12 +225,14 @@ async function attachConceptResolution(
     sentence,
   });
 
+  const withRole = applyInstrumentRoleOverride(withPos, profile, sentence);
+
   if (!concept) {
-    return withPos;
+    return withRole;
   }
 
   return {
-    ...withPos,
+    ...withRole,
     conceptId: concept.conceptId,
     conceptSlug: concept.conceptSlug,
     conceptTitle: concept.conceptTitle,

@@ -846,7 +846,7 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
       intermediate: "с + instrumental — même cas, préposition d'accompagnement en plus.",
     },
     teacherNotes:
-      "Statut brouillon — lot 03. Rôle fonctionnel Rossiyani à confirmer : aucune couleur dédiée au moyen/instrument n'existe encore dans le système de rôles (subject=bleu, object=corail, place=vert, possession=violet, recipient=ambre — voir src/lib/lessons/lesson-colors.ts). Proposition à trancher hors de ce lot : introduire un rôle « moyen » ou laisser non coloré. Ne pas ajouter de couleur dans ce lot (hors périmètre Teaching Engine/design).",
+      "Statut brouillon — lot 03. Rôle fonctionnel « moyen/instrument » (teal, #0D9488) — voir src/lib/lessons/lesson-colors.ts et src/lib/utils/russian.ts. Dérivé du cas instrumental détecté de façon fiable (paradigme linguistic_knowledge, morphologie curée ou régence prépositionnelle déterministe) ; jamais une devinette LLM.",
   },
   {
     id: "case-prepositional",

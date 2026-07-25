@@ -14,6 +14,7 @@ const ROLE_COLOR_MAP: Record<
   place: "green",
   possession: "violet",
   recipient: "amber",
+  instrument: "teal",
 };
 
 const COLOR_ROLE_MAP: Record<TReaderFunctionColor, Exclude<TLessonWordRole, null>> =
@@ -23,6 +24,7 @@ const COLOR_ROLE_MAP: Record<TReaderFunctionColor, Exclude<TLessonWordRole, null
     green: "place",
     violet: "possession",
     amber: "recipient",
+    teal: "instrument",
   };
 
 export function lessonRoleToFunctionColor(
@@ -68,6 +70,8 @@ export function functionalRoleToLessonRole(
     case "location":
     case "place":
       return "place";
+    case "instrument":
+      return "instrument";
     default:
       return null;
   }

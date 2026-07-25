@@ -37,6 +37,14 @@ export type TFunctionalRole =
   | "possession"
   | "location"
   | "time"
-  | "manner";
+  | "manner"
+  /** Dérivé du cas instrumental (linguistic_knowledge / morphologie curée), jamais du LLM. */
+  | "instrument";
 
-export type TFunctionColor = "blue" | "coral" | "green" | "violet" | "amber";
+export type TFunctionColor =
+  | "blue"
+  | "coral"
+  | "green"
+  | "violet"
+  | "amber"
+  | "teal";
