@@ -253,7 +253,7 @@ export function TeachingScenarioView({
             {scenario.contrastIsCanonical ? (
               <p className={LESSON_PROSE_CLASS}>
                 Exemple du concept « {scenario.conceptTitle} », pas une forme de
-                ce lemme.
+                ce mot.
               </p>
             ) : null}
             {scenario.contrast.map((item) => (

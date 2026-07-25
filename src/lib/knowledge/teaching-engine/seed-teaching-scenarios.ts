@@ -251,7 +251,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
       {
         fromForm: CURATED_KNIGA.nom,
         toForm: CURATED_KNIGA.acc,
-        explanation: "Nominatif (sujet / citation) vs accusatif (objet direct).",
+        explanation: "Nominatif (sujet / forme de départ) vs accusatif (objet).",
       },
     ],
     visual: {
@@ -440,36 +440,36 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
   // ─── brouillon — lot 01 ────────────────────────────────────
   "case-accusative": {
     principle:
-      "Quand un nom reçoit l'action — objet direct (corail dans Rossiyani) — le russe le marque sur le nom.",
-    fact: `${CURATED_KNIGA.acc} est à l'accusatif : c'est l'objet direct (on agit sur ce livre).`,
+      "En français, l'ordre des mots dit qui fait quoi. En russe, c'est souvent la fin du mot qui le dit.",
+    fact: `En français, « le chat voit le chien » n'est pas « le chien voit le chat » : l'ordre décide. En russe, ${CURATED_KNIGA.acc} (terminaison -у) est ce qu'on lit — l'objet — où qu'il soit dans la phrase. Cette forme s'appelle l'accusatif.`,
     contrast: [
       {
         fromForm: CURATED_KNIGA.nom,
         toForm: CURATED_KNIGA.acc,
         explanation:
-          "Même nom : citation (nominatif) vs objet direct (accusatif).",
+          "Même mot : forme de départ (sujet) vs objet (ce qu'on lit).",
       },
     ],
     visual: {
       nodes: [
-        `${CURATED_KNIGA.nom} (citation)`,
-        `${CURATED_KNIGA.acc} (objet direct)`,
+        `${CURATED_KNIGA.nom} (sujet)`,
+        `${CURATED_KNIGA.acc} (objet)`,
       ],
       layout: "comparison",
-      caption: "Illustration — objet direct (accusatif)",
+      caption: "Illustration — sujet → objet (terminaison)",
     },
-    commonMistake: `Identifie d'abord le rôle objet direct (corail) : ${CURATED_KNIGA.acc} est l'accusatif de ${CURATED_KNIGA.nom}.`,
+    commonMistake: `Repère d'abord l'objet dans la phrase : ${CURATED_KNIGA.acc} (ce qu'on lit), avant de nommer le cas.`,
     reuse: [
-      `в ${CURATED_UNIVERSITET.acc} : même accusatif pour la destination avec в (texte « Premier jour »).`,
+      `в ${CURATED_UNIVERSITET.acc} : même logique de forme pour dire où l'on va avec в (texte « Premier jour »).`,
     ],
-    memoryAnchor: `${CURATED_KNIGA.acc} = accusatif : objet direct (corail) du livre.`,
+    memoryAnchor: `${CURATED_KNIGA.acc} = objet (ce qu'on lit) ; la terminaison -у porte ce rôle — c'est l'accusatif.`,
   },
 
   // ─── brouillon — lot 01 ────────────────────────────────────
   "noun-animacy": {
     principle:
-      "Pour un masculin objet d'action, la forme dépend de l'animation : être vivant ou chose.",
-    fact: `${CURATED_VRACH.acc} (forme du génitif) marque un masculin animé objet ; ${CURATED_STOL.acc} (forme du nominatif) marque un masculin inanimé objet.`,
+      "Pour un masculin qui est l'objet de l'action, la forme dépend de l'animation : être vivant ou chose.",
+    fact: `${CURATED_VRACH.acc} (même forme que le génitif) marque un masculin animé objet ; ${CURATED_STOL.acc} (même forme que le nominatif) marque un masculin inanimé objet.`,
     contrast: [
       {
         fromForm: CURATED_STOL.acc,
@@ -480,16 +480,16 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
     ],
     visual: {
       nodes: [
-        `${CURATED_STOL.acc} (inanimé)`,
-        `${CURATED_VRACH.acc} (animé)`,
+        `${CURATED_STOL.acc} (chose)`,
+        `${CURATED_VRACH.acc} (être)`,
       ],
       layout: "comparison",
-      caption: "Illustration — inanimé vs animé (objet masculin)",
+      caption: "Illustration — chose vs être (objet masculin)",
     },
-    commonMistake: `Pour un animé objet, prends ${CURATED_VRACH.acc}, pas ${CURATED_VRACH.nom} (texte « У врача »).`,
+    commonMistake: `Pour un être objet, prends ${CURATED_VRACH.acc}, pas ${CURATED_VRACH.nom} (texte « У врача »).`,
     reuse: [
-      `${CURATED_STOL.acc} garde la forme dictionnaire ; ${CURATED_VRACH.acc} reprend ${CURATED_VRACH.gen}.`,
+      `${CURATED_STOL.acc} garde la forme de départ ; ${CURATED_VRACH.acc} reprend ${CURATED_VRACH.gen}.`,
     ],
-    memoryAnchor: `Masculin objet : animé → ${CURATED_VRACH.acc} (génitif) ; inanimé → ${CURATED_STOL.acc} (nominatif).`,
+    memoryAnchor: `Masculin objet : être → ${CURATED_VRACH.acc} (forme du génitif) ; chose → ${CURATED_STOL.acc} (forme du nominatif).`,
   },
 };

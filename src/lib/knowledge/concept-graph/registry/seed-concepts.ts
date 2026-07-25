@@ -18,7 +18,7 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     visualModel: {
       type: "diagram",
       nodes: ["infinitif", "я …", "ты …", "он …"],
-      caption: "Du lemme à la forme conjuguée — la terminaison porte la personne",
+      caption: "De l'infinitif à la forme conjuguée — la terminaison porte la personne",
     },
     canonicalExplanation: {
       understand: [
@@ -569,21 +569,21 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     difficulty: "A1",
     validationStatus: "brouillon",
     summary:
-      "L'accusatif marque l'objet direct (corail) et la destination avec в/на.",
+      "L'accusatif marque l'objet (ce qu'on lit, voit, prend) et la destination avec в/на.",
     coreIdea:
-      "Quand un nom reçoit l'action — objet direct (corail) — le russe le marque sur le nom.",
+      "En français, l'ordre des mots dit qui fait quoi ; en russe, c'est souvent la fin du mot.",
     whyItExists:
-      "Sans marque sur le nom, l'ordre libre des mots russes ne dirait pas clairement qui subit l'action.",
-    mentalModel: "Action → nom qui reçoit l'action → forme d'objet (accusatif)",
+      "Sans marque sur le mot, l'ordre libre des mots russes ne dirait pas clairement qui subit l'action.",
+    mentalModel: "Action → mot qui reçoit l'action → forme d'objet (accusatif)",
     visualModel: {
       type: "comparison",
-      nodes: ["кни́га", "кни́гу"],
-      caption: "Illustration — citation vs objet direct",
+      nodes: ["кни́га (sujet)", "кни́гу (objet)"],
+      caption: "Illustration — sujet → objet (terminaison)",
     },
     canonicalExplanation: {
       understand: [
-        "L'objet direct (corail) est le nom sur lequel porte l'action : on le marque souvent à l'accusatif.",
-        "Avec в/на, le même cas marque aussi la destination (куда́) : в университе́т.",
+        "En russe, la terminaison dit souvent qui est l'objet : кни́гу (avec -у) est ce qu'on lit.",
+        "Avec в/на, la même logique de forme marque aussi la destination (куда́) : в университе́т.",
       ],
       scheme: ["кни́га", "кни́гу", "в университе́т"],
       contrasts: [
@@ -592,18 +592,18 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
           toForm: "кни́гу",
           question: "Qu'est-ce qui change ?",
           explanation:
-            "Même nom : citation (nominatif) vs objet direct (accusatif).",
+            "Même mot : forme de départ (sujet) vs objet (ce qu'on lit).",
         },
       ],
       miniTable: null,
       retentionPoints: [
-        "Objet direct (corail) → souvent accusatif.",
+        "Objet (ce qu'on lit / voit) → souvent accusatif.",
         "в/на + accusatif = destination.",
       ],
       family: ["книга", "стол", "университет", "врач"],
     },
     commonMistakes: [
-      "Nommer le cas avant d'identifier le rôle (objet direct) dans la phrase.",
+      "Nommer le cas avant d'identifier l'objet dans la phrase.",
     ],
     relatedConcepts: [
       "noun-declension",
@@ -613,11 +613,11 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     relatedLemmas: ["книга", "университет", "стол"],
     examples: ["Я читаю книгу.", "Они входят в университет."],
     progression: {
-      beginner: "Rôle objet direct d'abord, nom « accusatif » ensuite.",
+      beginner: "Repérer l'objet d'abord, nommer l'accusatif ensuite.",
       intermediate: "Destination в/на + accusatif.",
     },
     teacherNotes:
-      "Statut brouillon — lot 01. Couleur fonctionnelle : objet direct = corail.",
+      "Statut brouillon — lot 01. Couleur UI objet direct = corail (ne pas nommer à l'apprenant).",
   },
   {
     id: "noun-animacy",
@@ -627,21 +627,21 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     difficulty: "A2",
     validationStatus: "brouillon",
     summary:
-      "L'animation décide la forme de l'accusatif du masculin : animé = génitif, inanimé = nominatif.",
+      "L'animation décide la forme de l'accusatif du masculin : être = comme le génitif, chose = comme le nominatif.",
     coreIdea:
-      "Pour un masculin objet d'action, la forme dépend de l'animation : être vivant ou chose.",
+      "Pour un masculin qui est l'objet de l'action, la forme dépend de l'animation : être vivant ou chose.",
     whyItExists:
-      "Le russe distingue les êtres (animés) des choses (inanimés) là où la forme d'objet pourrait se confondre avec le sujet.",
-    mentalModel: "Masculin objet → animé ? → forme du génitif : oui / forme du nominatif : non",
+      "Le russe distingue les êtres des choses là où la forme d'objet pourrait se confondre avec le sujet.",
+    mentalModel: "Masculin objet → être ? → forme du génitif : oui / forme du nominatif : non",
     visualModel: {
       type: "comparison",
-      nodes: ["стол", "врача́"],
-      caption: "Illustration — inanimé vs animé (objet)",
+      nodes: ["стол (chose)", "врача́ (être)"],
+      caption: "Illustration — chose vs être (objet)",
     },
     canonicalExplanation: {
       understand: [
-        "стол (inanimé) : l'objet garde la forme du dictionnaire.",
-        "врача́ (animé) : l'objet prend la forme du génitif.",
+        "стол (chose) : l'objet garde la forme de départ.",
+        "врача́ (être) : l'objet prend la forme du génitif.",
       ],
       scheme: ["стол", "врача́"],
       contrasts: [
@@ -655,19 +655,19 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
       ],
       miniTable: null,
       retentionPoints: [
-        "Masculin animé objet → forme du génitif.",
-        "Masculin inanimé objet → forme du nominatif.",
+        "Masculin être objet → forme du génitif.",
+        "Masculin chose objet → forme du nominatif.",
       ],
       family: ["стол", "врач", "книга"],
     },
     commonMistakes: [
-      "Appliquer la forme dictionnaire à un masculin animé objet (врач au lieu de врача́).",
+      "Garder la forme de départ pour un masculin être objet (врач au lieu de врача́).",
     ],
     relatedConcepts: ["case-accusative", "noun-declension", "noun-gender"],
     relatedLemmas: ["врач", "стол"],
     examples: ["Я вижу стол.", "Я вижу врача."],
     progression: {
-      beginner: "Animé vs inanimé sur l'objet masculin.",
+      beginner: "Être vs chose sur l'objet masculin.",
       intermediate: "Lien avec l'accusatif pluriel (tous genres).",
     },
     teacherNotes: "Statut brouillon — lot 01. Dépend de case-accusative.",

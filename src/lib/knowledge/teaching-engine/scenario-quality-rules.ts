@@ -15,7 +15,10 @@ import {
   stripStressMarks,
 } from "@/lib/knowledge/morphology/curated";
 
-import { bridgeMentionsForm } from "./compose-teaching-bridge";
+import {
+  bridgeMentionsForm,
+} from "./compose-teaching-bridge";
+import { findForbiddenDisplayVocabularyInFields } from "./forbidden-display-vocabulary";
 import { normalizeTeachingScenarioContent } from "./normalize-teaching-scenario";
 
 const CYRILLIC_TOKEN = /[а-яёА-ЯЁіІїЇєЄґҐ́]{2,}/gu;
@@ -463,6 +466,124 @@ function warnEncyclopedic(
   }
 }
 
+function collectDisplayFields(
+  content: TTeachingScenarioContent,
+): Array<{ field: string; text: string | null | undefined }> {
+  const normalized = normalizeTeachingScenarioContent(content);
+  const fields: Array<{ field: string; text: string | null | undefined }> = [
+    { field: "principle", text: content.principle },
+    { field: "fact", text: normalized.fact },
+    { field: "memoryAnchor", text: normalized.memoryAnchor },
+    { field: "hook", text: normalized.hook },
+    { field: "question", text: normalized.question },
+    { field: "intuition", text: normalized.intuition },
+    { field: "commonMistake", text: normalized.commonMistake },
+    { field: "visual.caption", text: normalized.visual?.caption },
+  ];
+
+  for (const [index, node] of (normalized.visual?.nodes ?? []).entries()) {
+    fields.push({ field: `visual.nodes[${index}]`, text: node });
+  }
+
+  for (const [index, item] of normalized.contrast.entries()) {
+    fields.push({ field: `contrast[${index}].fromForm`, text: item.fromForm });
+    fields.push({ field: `contrast[${index}].toForm`, text: item.toForm });
+    fields.push({
+      field: `contrast[${index}].explanation`,
+      text: item.explanation,
+    });
+  }
+
+  for (const [index, line] of (normalized.reuse ?? []).entries()) {
+    fields.push({ field: `reuse[${index}]`, text: line });
+  }
+
+  if (content.illustration) {
+    const ill = content.illustration;
+    fields.push(
+      { field: "illustration.fact", text: ill.fact },
+      { field: "illustration.label", text: ill.label },
+      { field: "illustration.memoryAnchor", text: ill.memoryAnchor },
+      { field: "illustration.commonMistake", text: ill.commonMistake },
+      { field: "illustration.visual.caption", text: ill.visual?.caption },
+    );
+
+    for (const [index, node] of (ill.visual?.nodes ?? []).entries()) {
+      fields.push({ field: `illustration.visual.nodes[${index}]`, text: node });
+    }
+
+    for (const [index, item] of (ill.contrast ?? []).entries()) {
+      fields.push({
+        field: `illustration.contrast[${index}].explanation`,
+        text: item.explanation,
+      });
+    }
+
+    for (const [index, line] of (ill.reuse ?? []).entries()) {
+      fields.push({ field: `illustration.reuse[${index}]`, text: line });
+    }
+  }
+
+  for (const [vIndex, variant] of (content.illustrationVariants ?? []).entries()) {
+    fields.push(
+      { field: `illustrationVariants[${vIndex}].fact`, text: variant.fact },
+      {
+        field: `illustrationVariants[${vIndex}].memoryAnchor`,
+        text: variant.memoryAnchor,
+      },
+      {
+        field: `illustrationVariants[${vIndex}].commonMistake`,
+        text: variant.commonMistake,
+      },
+      {
+        field: `illustrationVariants[${vIndex}].visual.caption`,
+        text: variant.visual?.caption,
+      },
+    );
+
+    for (const [index, node] of (variant.visual?.nodes ?? []).entries()) {
+      fields.push({
+        field: `illustrationVariants[${vIndex}].visual.nodes[${index}]`,
+        text: node,
+      });
+    }
+
+    for (const [index, item] of (variant.contrast ?? []).entries()) {
+      fields.push({
+        field: `illustrationVariants[${vIndex}].contrast[${index}].explanation`,
+        text: item.explanation,
+      });
+    }
+
+    for (const [index, line] of (variant.reuse ?? []).entries()) {
+      fields.push({
+        field: `illustrationVariants[${vIndex}].reuse[${index}]`,
+        text: line,
+      });
+    }
+  }
+
+  return fields;
+}
+
+function checkForbiddenDisplayVocabulary(
+  content: TTeachingScenarioContent,
+  issues: TTeachingScenarioIssue[],
+): void {
+  const hits = findForbiddenDisplayVocabularyInFields(
+    collectDisplayFields(content),
+  );
+
+  for (const hit of hits) {
+    issues.push({
+      severity: "error",
+      code: "SCENARIO_FORBIDDEN_DISPLAY_VOCAB",
+      message: `Vocabulaire de conception interdit « ${hit.term} » dans ${hit.field} (« ${hit.excerpt} »). Voir docs/knowledge/forbidden-display-vocabulary.md`,
+      field: hit.field,
+    });
+  }
+}
+
 /**
  * Quality Gate anti-meublage.
  * Un slot absent est SAIN. Un slot rempli de vide / doublon / négation est rejeté.
@@ -473,6 +594,8 @@ export function validateTeachingScenarioContent(
 ): TTeachingScenarioQualityReport {
   const issues: TTeachingScenarioIssue[] = [];
   const normalized = normalizeTeachingScenarioContent(content);
+
+  checkForbiddenDisplayVocabulary(content, issues);
 
   if (!normalized.fact) {
     issues.push({
