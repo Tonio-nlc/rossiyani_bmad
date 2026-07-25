@@ -10,6 +10,7 @@ import type { TTeachingScenarioContent } from "@/types/teaching-scenario";
 import {
   CURATED_ADJECTIVES,
   CURATED_AGREEMENT_NOUNS,
+  CURATED_ANNA,
   CURATED_CHITAT,
   CURATED_DELAT,
   CURATED_EXAMPLE_PHRASES,
@@ -491,5 +492,62 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
       `${CURATED_STOL.acc} garde la forme de départ ; ${CURATED_VRACH.acc} reprend ${CURATED_VRACH.gen}.`,
     ],
     memoryAnchor: `Masculin objet : être → ${CURATED_VRACH.acc} (forme du génitif) ; chose → ${CURATED_STOL.acc} (forme du nominatif).`,
+  },
+
+  // ─── brouillon — lot 02 ────────────────────────────────────
+  "case-genitive": {
+    principle:
+      "En français, la possession ajoute une préposition : « le livre DE Anna ». En russe, c'est А́нна qui change de forme.",
+    fact: `Dans « кни́га ${CURATED_ANNA.gen} » (le livre d'Anna), ${CURATED_ANNA.gen} — et non ${CURATED_ANNA.nom} — dit qui possède le livre. Cette forme s'appelle le génitif.`,
+    contrast: [
+      {
+        fromForm: CURATED_ANNA.nom,
+        toForm: CURATED_ANNA.gen,
+        explanation:
+          "А́нна = forme de départ. А́нны = qui possède (le livre est à elle).",
+      },
+    ],
+    visual: {
+      nodes: [
+        `${CURATED_ANNA.nom} (forme de départ)`,
+        `${CURATED_ANNA.gen} (qui possède)`,
+      ],
+      layout: "comparison",
+      caption: "Illustration — qui possède",
+    },
+    commonMistake: `Garde la forme du possesseur : dis « кни́га ${CURATED_ANNA.gen} », pas « кни́га ${CURATED_ANNA.nom} ».`,
+    reuse: [
+      `L'absence suit la même logique : « У Луи́ нет ${CURATED_KNIGA.gen} » (Louis n'a pas de livre, texte « У врача ») — ${CURATED_KNIGA.gen} reste au génitif après нет.`,
+      `до, из, от, у, без imposent aussi le génitif (ex. « из ${CURATED_MOSKVA.genitive} », texte « Знакомство ») — c'est la préposition qui décide, pas ce concept seul.`,
+    ],
+    memoryAnchor: `${CURATED_ANNA.gen} = qui possède ; c'est le génitif.`,
+  },
+
+  // ─── brouillon — lot 02 ────────────────────────────────────
+  "case-dative": {
+    principle:
+      "En français, on ajoute une préposition pour dire à qui : « je parle À Anna ». En russe, c'est А́нна qui change de forme.",
+    fact: `Dans « Луи́ говори́т ${CURATED_ANNA.dat} » (Louis parle à Anna), ${CURATED_ANNA.dat} — et non ${CURATED_ANNA.nom} — dit à qui il parle. Cette forme s'appelle le datif.`,
+    contrast: [
+      {
+        fromForm: CURATED_ANNA.nom,
+        toForm: CURATED_ANNA.dat,
+        explanation:
+          "А́нна = forme de départ. А́нне = à qui (celle qui reçoit la parole).",
+      },
+    ],
+    visual: {
+      nodes: [
+        `${CURATED_ANNA.nom} (forme de départ)`,
+        `${CURATED_ANNA.dat} (à qui)`,
+      ],
+      layout: "comparison",
+      caption: "Illustration — à qui",
+    },
+    commonMistake: `Garde la forme de départ pour le destinataire : dis « говори́т ${CURATED_ANNA.dat} », pas « говори́т ${CURATED_ANNA.nom} ».`,
+    reuse: [
+      `к suit la même logique de forme (texte « У врача » : « Пойдём к ${CURATED_VRACH.dat} ») — mais c'est la préposition к qui impose le datif, pas ce concept seul.`,
+    ],
+    memoryAnchor: `${CURATED_ANNA.dat} = à qui ; c'est le datif.`,
   },
 };

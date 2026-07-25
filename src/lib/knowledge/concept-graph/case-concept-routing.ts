@@ -2,10 +2,11 @@
  * Cas morphologique → concept de cas précis.
  * Les concepts absents (null) tombent sur le parapluie `noun-declension`.
  *
- * Lots futurs : remplir genitive / dative / … sans toucher au routeur.
+ * Lots futurs : remplir instrumental / prepositional … sans toucher au routeur.
  */
 
 import {
+  CURATED_ANNA,
   CURATED_KNIGA,
   CURATED_STOL,
   CURATED_UNIVERSITET,
@@ -25,8 +26,8 @@ export type TMorphologicalCase = TGovernedCase | "nominative";
 export const CASE_CONCEPT_BY_CASE: Record<TMorphologicalCase, string | null> = {
   nominative: null,
   accusative: "case-accusative",
-  genitive: null,
-  dative: null,
+  genitive: "case-genitive",
+  dative: "case-dative",
   instrumental: null,
   prepositional: null,
 };
@@ -79,6 +80,10 @@ const UNAMBIGUOUS_CURATED_CASE_FORMS: Array<{
   { form: CURATED_STOL.dat, morphologicalCase: "dative" },
   { form: CURATED_VRACH.dat, morphologicalCase: "dative" },
   { form: CURATED_UNIVERSITET.prep, morphologicalCase: "prepositional" },
+  { form: CURATED_ANNA.nom, morphologicalCase: "nominative" },
+  { form: CURATED_ANNA.gen, morphologicalCase: "genitive" },
+  { form: CURATED_ANNA.dat, morphologicalCase: "dative" },
+  { form: CURATED_ANNA.acc, morphologicalCase: "accusative" },
 ];
 
 /** Formes ambiguës : candidates possibles selon le contexte. */

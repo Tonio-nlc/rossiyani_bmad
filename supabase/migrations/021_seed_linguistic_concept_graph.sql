@@ -7,11 +7,11 @@
 -- Idempotent / rejouable : ON CONFLICT + INSERT … SELECT … WHERE EXISTS.
 -- Aucune suppression de données.
 -- À coller dans le SQL Editor Supabase (après 019).
--- Généré le 2026-07-25T03:41:39.399Z
+-- Généré le 2026-07-25T14:51:12.374Z
 -- ============================================
 
--- Concepts seed : 13
--- Relations émises : 17 / 17
+-- Concepts seed : 15
+-- Relations émises : 23 / 23
 -- Relations ignorées (extrémité absente) : 0
 -- Concepts manquants référencés : 0
 
@@ -357,6 +357,58 @@ ON CONFLICT (id) DO UPDATE SET
   validated = linguistic_concepts.validated,
   updated_at = now();
 
+INSERT INTO linguistic_concepts (
+  id, slug, title, category, difficulty, summary,
+  payload, validation_status, validated, updated_at
+) VALUES (
+  'case-genitive',
+  'case-genitive',
+  'Génitif',
+  'Case System',
+  'A2',
+  'Le génitif marque qui possède, l''absence (нет + génitif) et suit до/из/от/у/без.',
+  '{"coreIdea":"En français, « le livre DE Anna » ajoute une préposition ; en russe, c''est А́нна qui change de forme.","whyItExists":"Sans préposition obligatoire devant chaque complément, le russe marque directement sur le mot qui possède — ou qui manque.","mentalModel":"Qui possède ? → ce mot-là change de forme, pas le mot possédé.","visualModel":{"type":"comparison","nodes":["А́нна (forme de départ)","А́нны (qui possède)"],"caption":"Illustration — qui possède"},"canonicalExplanation":{"understand":["En français, « le livre de А́нна » ajoute une préposition (de) devant А́нна. En russe, c''est А́нна qui change de forme : кни́га А́нны.","Le génitif marque aussi l''absence : « У Луи́ нет кни́ги » dit que Louis n''a pas de livre — кни́ги reste au génitif après нет."],"scheme":["А́нна","А́нны","кни́ги"],"contrasts":[{"fromForm":"А́нна","toForm":"А́нны","question":"Qu''est-ce qui change ?","explanation":"А́нна = forme de départ. А́нны = qui possède (le livre est à elle)."}],"miniTable":null,"retentionPoints":["Qui possède → le mot qui possède change de forme (génitif).","нет + génitif = absence.","до, из, от, у, без imposent aussi le génitif."],"family":["книга","Анна","стол"]},"teachingScenario":{"principle":"En français, la possession ajoute une préposition : « le livre DE Anna ». En russe, c''est А́нна qui change de forme.","fact":"Dans « кни́га А́нны » (le livre d''Anna), А́нны — et non А́нна — dit qui possède le livre. Cette forme s''appelle le génitif.","contrast":[{"fromForm":"А́нна","toForm":"А́нны","explanation":"А́нна = forme de départ. А́нны = qui possède (le livre est à elle)."}],"visual":{"nodes":["А́нна (forme de départ)","А́нны (qui possède)"],"layout":"comparison","caption":"Illustration — qui possède"},"commonMistake":"Garde la forme du possesseur : dis « кни́га А́нны », pas « кни́га А́нна ».","reuse":["L''absence suit la même logique : « У Луи́ нет кни́ги » (Louis n''a pas de livre, texte « У врача ») — кни́ги reste au génitif après нет.","до, из, от, у, без imposent aussi le génitif (ex. « из Москвы́ », texte « Знакомство ») — c''est la préposition qui décide, pas ce concept seul."],"memoryAnchor":"А́нны = qui possède ; c''est le génitif."},"commonMistakes":["Garder la forme de départ du possesseur : dire « кни́га А́нна » au lieu de « кни́га А́нны »."],"relatedConcepts":["noun-declension","case-accusative","preposition-government"],"relatedLemmas":["книга","Анна"],"examples":["Кни́га А́нны.","У Луи́ нет кни́ги."],"progression":{"beginner":"Repérer qui possède, avant de nommer le génitif.","intermediate":"Absence (нет) et prépositions до/из/от/у/без — même cas, rôles différents.","advanced":"Quantité (мно́го + génitif) — hors lot, même logique de cas."},"teacherNotes":"Statut brouillon — lot 02. Rôle fonctionnel Rossiyani : possession (violet, ne pas nommer à l''apprenant)."}'::jsonb,
+  'brouillon',
+  false,
+  now()
+)
+ON CONFLICT (id) DO UPDATE SET
+  slug = EXCLUDED.slug,
+  title = EXCLUDED.title,
+  category = EXCLUDED.category,
+  difficulty = EXCLUDED.difficulty,
+  summary = EXCLUDED.summary,
+  payload = EXCLUDED.payload,
+  validation_status = COALESCE(linguistic_concepts.validation_status, EXCLUDED.validation_status),
+  validated = linguistic_concepts.validated,
+  updated_at = now();
+
+INSERT INTO linguistic_concepts (
+  id, slug, title, category, difficulty, summary,
+  payload, validation_status, validated, updated_at
+) VALUES (
+  'case-dative',
+  'case-dative',
+  'Datif',
+  'Case System',
+  'A2',
+  'Le datif marque le destinataire — à qui on donne, dit, écrit — et suit к.',
+  '{"coreIdea":"En français, « je parle À Anna » ajoute une préposition ; en russe, c''est А́нна qui change de forme.","whyItExists":"Le russe marque directement sur le mot qui reçoit l''action (parole, don) sans dépendre de l''ordre des mots.","mentalModel":"À qui ? → ce mot-là change de forme, pas le verbe.","visualModel":{"type":"comparison","nodes":["А́нна (forme de départ)","А́нне (à qui)"],"caption":"Illustration — à qui"},"canonicalExplanation":{"understand":["En français, « Louis parle à А́нна » ajoute une préposition (à) devant А́нна. En russe, c''est А́нна qui change de forme : говори́т А́нне.","Cette forme dit à qui s''adresse l''action — donner, dire, écrire — sans préposition obligatoire."],"scheme":["А́нна","А́нне"],"contrasts":[{"fromForm":"А́нна","toForm":"А́нне","question":"Qu''est-ce qui change ?","explanation":"А́нна = forme de départ. А́нне = à qui (celle qui reçoit la parole)."}],"miniTable":null,"retentionPoints":["À qui → le destinataire change de forme (datif).","к impose aussi le datif (destination vers quelqu''un)."],"family":["Анна","врач"]},"teachingScenario":{"principle":"En français, on ajoute une préposition pour dire à qui : « je parle À Anna ». En russe, c''est А́нна qui change de forme.","fact":"Dans « Луи́ говори́т А́нне » (Louis parle à Anna), А́нне — et non А́нна — dit à qui il parle. Cette forme s''appelle le datif.","contrast":[{"fromForm":"А́нна","toForm":"А́нне","explanation":"А́нна = forme de départ. А́нне = à qui (celle qui reçoit la parole)."}],"visual":{"nodes":["А́нна (forme de départ)","А́нне (à qui)"],"layout":"comparison","caption":"Illustration — à qui"},"commonMistake":"Garde la forme de départ pour le destinataire : dis « говори́т А́нне », pas « говори́т А́нна ».","reuse":["к suit la même logique de forme (texte « У врача » : « Пойдём к врачу́ ») — mais c''est la préposition к qui impose le datif, pas ce concept seul."],"memoryAnchor":"А́нне = à qui ; c''est le datif."},"commonMistakes":["Garder la forme de départ pour le destinataire : dire « говори́т А́нна » au lieu de « говори́т А́нне »."],"relatedConcepts":["noun-declension","case-accusative","preposition-government"],"relatedLemmas":["Анна","врач"],"examples":["Луи́ говори́т А́нне.","Пойдём к врачу́."],"progression":{"beginner":"Repérer à qui s''adresse l''action, avant de nommer le datif.","intermediate":"к + datif — même cas, préposition en plus."},"teacherNotes":"Statut brouillon — lot 02. Rôle fonctionnel Rossiyani : destinataire (ambre, ne pas nommer à l''apprenant)."}'::jsonb,
+  'brouillon',
+  false,
+  now()
+)
+ON CONFLICT (id) DO UPDATE SET
+  slug = EXCLUDED.slug,
+  title = EXCLUDED.title,
+  category = EXCLUDED.category,
+  difficulty = EXCLUDED.difficulty,
+  summary = EXCLUDED.summary,
+  payload = EXCLUDED.payload,
+  validation_status = COALESCE(linguistic_concepts.validation_status, EXCLUDED.validation_status),
+  validated = linguistic_concepts.validated,
+  updated_at = now();
+
 -- Relations concept ↔ concept (teaching path)
 -- Uniquement si les deux extrémités existent déjà en base.
 
@@ -523,6 +575,84 @@ SELECT
   'related'
 WHERE EXISTS (
   SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-accusative'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'preposition-government'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-genitive',
+  'noun-declension',
+  'extends'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-genitive'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'noun-declension'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-genitive',
+  'case-accusative',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-genitive'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-accusative'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-genitive',
+  'preposition-government',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-genitive'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'preposition-government'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-dative',
+  'noun-declension',
+  'extends'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-dative'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'noun-declension'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-dative',
+  'case-accusative',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-dative'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-accusative'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-dative',
+  'preposition-government',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-dative'
 )
 AND EXISTS (
   SELECT 1 FROM linguistic_concepts c WHERE c.id = 'preposition-government'
@@ -969,6 +1099,42 @@ FROM lemmas l
 WHERE l.form = 'стол'
   AND EXISTS (
     SELECT 1 FROM linguistic_concepts c WHERE c.id = 'noun-animacy'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-genitive', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'книга'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-genitive'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-genitive', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'Анна'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-genitive'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-dative', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'Анна'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-dative'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-dative', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'врач'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-dative'
   )
 ON CONFLICT (lemma_id, concept_id) DO NOTHING;
 

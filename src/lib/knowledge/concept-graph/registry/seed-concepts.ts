@@ -672,4 +672,122 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     },
     teacherNotes: "Statut brouillon — lot 01. Dépend de case-accusative.",
   },
+  {
+    id: "case-genitive",
+    slug: "case-genitive",
+    title: "Génitif",
+    category: "Case System",
+    difficulty: "A2",
+    validationStatus: "brouillon",
+    summary:
+      "Le génitif marque qui possède, l'absence (нет + génitif) et suit до/из/от/у/без.",
+    coreIdea:
+      "En français, « le livre DE Anna » ajoute une préposition ; en russe, c'est А́нна qui change de forme.",
+    whyItExists:
+      "Sans préposition obligatoire devant chaque complément, le russe marque directement sur le mot qui possède — ou qui manque.",
+    mentalModel: "Qui possède ? → ce mot-là change de forme, pas le mot possédé.",
+    visualModel: {
+      type: "comparison",
+      nodes: ["А́нна (forme de départ)", "А́нны (qui possède)"],
+      caption: "Illustration — qui possède",
+    },
+    canonicalExplanation: {
+      understand: [
+        "En français, « le livre de А́нна » ajoute une préposition (de) devant А́нна. En russe, c'est А́нна qui change de forme : кни́га А́нны.",
+        "Le génitif marque aussi l'absence : « У Луи́ нет кни́ги » dit que Louis n'a pas de livre — кни́ги reste au génitif après нет.",
+      ],
+      scheme: ["А́нна", "А́нны", "кни́ги"],
+      contrasts: [
+        {
+          fromForm: "А́нна",
+          toForm: "А́нны",
+          question: "Qu'est-ce qui change ?",
+          explanation:
+            "А́нна = forme de départ. А́нны = qui possède (le livre est à elle).",
+        },
+      ],
+      miniTable: null,
+      retentionPoints: [
+        "Qui possède → le mot qui possède change de forme (génitif).",
+        "нет + génitif = absence.",
+        "до, из, от, у, без imposent aussi le génitif.",
+      ],
+      family: ["книга", "Анна", "стол"],
+    },
+    commonMistakes: [
+      "Garder la forme de départ du possesseur : dire « кни́га А́нна » au lieu de « кни́га А́нны ».",
+    ],
+    relatedConcepts: [
+      "noun-declension",
+      "case-accusative",
+      "preposition-government",
+    ],
+    relatedLemmas: ["книга", "Анна"],
+    examples: ["Кни́га А́нны.", "У Луи́ нет кни́ги."],
+    progression: {
+      beginner: "Repérer qui possède, avant de nommer le génitif.",
+      intermediate:
+        "Absence (нет) et prépositions до/из/от/у/без — même cas, rôles différents.",
+      advanced: "Quantité (мно́го + génitif) — hors lot, même logique de cas.",
+    },
+    teacherNotes:
+      "Statut brouillon — lot 02. Rôle fonctionnel Rossiyani : possession (violet, ne pas nommer à l'apprenant).",
+  },
+  {
+    id: "case-dative",
+    slug: "case-dative",
+    title: "Datif",
+    category: "Case System",
+    difficulty: "A2",
+    validationStatus: "brouillon",
+    summary: "Le datif marque le destinataire — à qui on donne, dit, écrit — et suit к.",
+    coreIdea:
+      "En français, « je parle À Anna » ajoute une préposition ; en russe, c'est А́нна qui change de forme.",
+    whyItExists:
+      "Le russe marque directement sur le mot qui reçoit l'action (parole, don) sans dépendre de l'ordre des mots.",
+    mentalModel: "À qui ? → ce mot-là change de forme, pas le verbe.",
+    visualModel: {
+      type: "comparison",
+      nodes: ["А́нна (forme de départ)", "А́нне (à qui)"],
+      caption: "Illustration — à qui",
+    },
+    canonicalExplanation: {
+      understand: [
+        "En français, « Louis parle à А́нна » ajoute une préposition (à) devant А́нна. En russe, c'est А́нна qui change de forme : говори́т А́нне.",
+        "Cette forme dit à qui s'adresse l'action — donner, dire, écrire — sans préposition obligatoire.",
+      ],
+      scheme: ["А́нна", "А́нне"],
+      contrasts: [
+        {
+          fromForm: "А́нна",
+          toForm: "А́нне",
+          question: "Qu'est-ce qui change ?",
+          explanation:
+            "А́нна = forme de départ. А́нне = à qui (celle qui reçoit la parole).",
+        },
+      ],
+      miniTable: null,
+      retentionPoints: [
+        "À qui → le destinataire change de forme (datif).",
+        "к impose aussi le datif (destination vers quelqu'un).",
+      ],
+      family: ["Анна", "врач"],
+    },
+    commonMistakes: [
+      "Garder la forme de départ pour le destinataire : dire « говори́т А́нна » au lieu de « говори́т А́нне ».",
+    ],
+    relatedConcepts: [
+      "noun-declension",
+      "case-accusative",
+      "preposition-government",
+    ],
+    relatedLemmas: ["Анна", "врач"],
+    examples: ["Луи́ говори́т А́нне.", "Пойдём к врачу́."],
+    progression: {
+      beginner: "Repérer à qui s'adresse l'action, avant de nommer le datif.",
+      intermediate: "к + datif — même cas, préposition en plus.",
+    },
+    teacherNotes:
+      "Statut brouillon — lot 02. Rôle fonctionnel Rossiyani : destinataire (ambre, ne pas nommer à l'apprenant).",
+  },
 ];

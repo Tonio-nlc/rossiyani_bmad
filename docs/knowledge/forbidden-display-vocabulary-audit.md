@@ -1,15 +1,15 @@
 # Audit — vocabulaire de conception interdit
 
-> Généré le 2026-07-25T03:41:57.126Z
+> Généré le 2026-07-25T14:51:17.988Z
 > Règle : `SCENARIO_FORBIDDEN_DISPLAY_VOCAB` — docs/knowledge/forbidden-display-vocabulary.md
 
 ## Synthèse
 
 | Métrique | Valeur |
 |----------|--------|
-| Concepts audités | 13 |
+| Concepts audités | 15 |
 | Non conformes | 0 |
-| Conformes | 13 |
+| Conformes | 15 |
 
 ## Concepts non conformes
 
@@ -30,6 +30,8 @@ _Tous les scénarios seed passent la règle._
 - `preposition-government` — Régence des prépositions
 - `case-accusative` — Accusatif
 - `noun-animacy` — Animation (animé / inanimé)
+- `case-genitive` — Génitif
+- `case-dative` — Datif
 
 ## Note (lot purge 2026-07-25)
 

@@ -103,6 +103,21 @@ export const CURATED_UNIVERSITET = {
   prep: "университе́те",
 } as const;
 
+/**
+ * А́нна — personnage des textes gold (ex. « Знакомство », « Premier jour »).
+ * validé manuellement — ne pas générer par LLM
+ * Déclinaison régulière du féminin dur en -а (même paradigme que кни́га/ма́ма,
+ * accent fixe sur la première syllabe à tous les cas).
+ */
+export const CURATED_ANNA = {
+  nom: "А́нна",
+  /** Génitif singulier — possession (« кни́га А́нны ») */
+  gen: "А́нны",
+  /** Datif singulier — destinataire (« говори́т А́нне ») */
+  dat: "А́нне",
+  acc: "А́нну",
+} as const;
+
 export const CURATED_ADJECTIVES = {
   novyj: "но́вый",
   novaya: "но́вая",
