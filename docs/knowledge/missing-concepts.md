@@ -1,13 +1,13 @@
 # Concepts manquants — feuille de route catalogue
 
 > Généré automatiquement par `npm run concept-graph:generate-seed`.
-> Date : 2026-07-25T14:51:12.374Z
+> Date : 2026-07-25T20:31:15.248Z
 
 Les concepts seed référencent (via `TEACHING_GRAPH_EDGES` ou `relatedConcepts`)
 des concepts qui ne sont **pas encore écrits** dans le registry / la base.
 Cette liste guide l’extension du catalogue (objectif 50, puis 200–300).
 
-## Concepts seed présents (15)
+## Concepts seed présents (17)
 
 - `verb-present-conjugation` — Conjugaison du présent
 - `verb-imperfective-aspect` — Aspect imperfectif
@@ -24,6 +24,8 @@ Cette liste guide l’extension du catalogue (objectif 50, puis 200–300).
 - `noun-animacy` — Animation (animé / inanimé)
 - `case-genitive` — Génitif
 - `case-dative` — Datif
+- `case-instrumental` — Instrumental
+- `case-prepositional` — Prépositionnel
 
 ## Concepts référencés mais absents
 

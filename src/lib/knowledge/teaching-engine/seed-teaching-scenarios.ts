@@ -11,14 +11,17 @@ import {
   CURATED_ADJECTIVES,
   CURATED_AGREEMENT_NOUNS,
   CURATED_ANNA,
+  CURATED_AUDITORIYA,
   CURATED_CHITAT,
   CURATED_DELAT,
   CURATED_EXAMPLE_PHRASES,
   CURATED_GOVORIT,
+  CURATED_KARTA,
   CURATED_KNIGA,
   CURATED_MOSKVA,
   CURATED_MOTION,
   CURATED_NOUNS_GENDER,
+  CURATED_OKNO_CASES,
   CURATED_PISAT,
   CURATED_POSSESSIVE,
   CURATED_PREP_GOVERNMENT_EXAMPLES,
@@ -356,7 +359,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
       {
         id: "genitive",
         cases: ["genitive"],
-        prepositions: ["до", "из", "от", "у", "без", "для", "после", "около"],
+        prepositions: ["до", "из", "от", "без", "для", "после", "около"],
         fact: `Après до / из / от : le génitif est obligatoire — ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.doSvidaniya}, ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.izMoskvy}.`,
         contrast: [
           {
@@ -380,6 +383,32 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
           `${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.izMoskvy}, ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.otStola} — même régence génitive.`,
         ],
         memoryAnchor: `до / из / от + génitif (ex. ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitive.doSvidaniya}).`,
+      },
+      {
+        id: "genitive-near",
+        cases: ["genitive"],
+        prepositions: ["у"],
+        fact: `Après у : le génitif dit « près de » — ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitiveNear.uOkna} (près de la fenêtre), et non « chez » comme до/из/от.`,
+        contrast: [
+          {
+            fromForm: CURATED_OKNO_CASES.nom,
+            toForm: CURATED_PREP_GOVERNMENT_EXAMPLES.genitiveNear.uOkna,
+            explanation: "у impose le génitif : окно́ → у окна́ (près de la fenêtre).",
+          },
+        ],
+        visual: {
+          nodes: [
+            CURATED_PREP_GOVERNMENT_EXAMPLES.genitiveNear.uOkna,
+            CURATED_PREP_GOVERNMENT_EXAMPLES.genitiveNear.uStola,
+          ],
+          layout: "vertical",
+          caption: "Illustration — у + génitif (près de)",
+        },
+        commonMistake: `Après у, garde le génitif même pour un lieu : ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitiveNear.uOkna}, pas ${CURATED_OKNO_CASES.nom}.`,
+        reuse: [
+          `${CURATED_PREP_GOVERNMENT_EXAMPLES.genitiveNear.uStola} — même régence génitive, sens « près de ».`,
+        ],
+        memoryAnchor: `у + génitif = près de (ex. ${CURATED_PREP_GOVERNMENT_EXAMPLES.genitiveNear.uOkna}).`,
       },
       {
         id: "dative",
@@ -549,5 +578,61 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
       `к suit la même logique de forme (texte « У врача » : « Пойдём к ${CURATED_VRACH.dat} ») — mais c'est la préposition к qui impose le datif, pas ce concept seul.`,
     ],
     memoryAnchor: `${CURATED_ANNA.dat} = à qui ; c'est le datif.`,
+  },
+
+  // ─── brouillon — lot 03 ────────────────────────────────────
+  "case-instrumental": {
+    principle:
+      "En français, « avec » ajoute une préposition devant l'outil. En russe, c'est souvent le mot lui-même qui change de forme.",
+    fact: `Dans « Луи́ пла́тит ${CURATED_KARTA.instr} » (Louis paie par carte), ${CURATED_KARTA.instr} — et non ${CURATED_KARTA.nom} — dit avec quoi il paie, sans aucun mot en plus. Cette forme s'appelle l'instrumental.`,
+    contrast: [
+      {
+        fromForm: CURATED_KARTA.nom,
+        toForm: CURATED_KARTA.instr,
+        explanation:
+          `${CURATED_KARTA.nom} = forme de départ. ${CURATED_KARTA.instr} = avec quoi (le moyen), sans préposition.`,
+      },
+    ],
+    visual: {
+      nodes: [
+        `${CURATED_KARTA.nom} (forme de départ)`,
+        `${CURATED_KARTA.instr} (avec quoi)`,
+      ],
+      layout: "comparison",
+      caption: "Illustration — avec quoi (le moyen)",
+    },
+    commonMistake: `Ne garde pas ${CURATED_KARTA.nom} après плати́ть : dis « пла́тит ${CURATED_KARTA.instr} », pas « пла́тит ${CURATED_KARTA.nom} ».`,
+    reuse: [
+      `с ${CURATED_ANNA.instr} suit la même forme pour dire avec qui on est (accompagnement) — mais c'est la préposition с qui impose l'instrumental, pas ce concept seul.`,
+    ],
+    memoryAnchor: `${CURATED_KARTA.instr} = avec quoi (le moyen), sans préposition ; c'est l'instrumental.`,
+  },
+
+  // ─── brouillon — lot 03 ────────────────────────────────────
+  "case-prepositional": {
+    principle:
+      "En français, « à Moscou » ajoute une préposition. En russe, la préposition ET la forme du mot changent ensemble — ce cas n'existe jamais seul.",
+    fact: `Dans « В ${CURATED_AUDITORIYA.prep} уже́ есть студе́нты » (Dans la salle, il y a déjà des étudiants), ${CURATED_AUDITORIYA.prep} — et non ${CURATED_AUDITORIYA.nom} — dit où sont les étudiants. Cette forme s'appelle le prépositionnel : elle n'apparaît jamais sans préposition (в, на ou о).`,
+    contrast: [
+      {
+        fromForm: CURATED_AUDITORIYA.nom,
+        toForm: CURATED_AUDITORIYA.prep,
+        explanation: `${CURATED_AUDITORIYA.nom} = forme de départ. ${CURATED_AUDITORIYA.prep} = où (le lieu), après в.`,
+      },
+    ],
+    visual: {
+      nodes: [
+        `${CURATED_AUDITORIYA.nom} (forme de départ)`,
+        `в ${CURATED_AUDITORIYA.prep} (où)`,
+      ],
+      layout: "comparison",
+      caption: "Illustration — où, après в",
+    },
+    commonMistake: `Ne dis pas « в ${CURATED_AUDITORIYA.nom} » : pour dire où l'on est, il faut в ${CURATED_AUDITORIYA.prep} (prépositionnel), pas la forme de départ.`,
+    reuse: [
+      `${CURATED_MOSKVA.location} suit la même logique — à distinguer de ${CURATED_MOSKVA.direction} (accusatif, destination, куда́, régi par la même préposition в).`,
+      `о + prépositionnel suit la même forme pour parler de quelque chose : « говори́т о ${CURATED_MOSKVA.prepositional} » (il parle de Moscou) — même cas, sujet différent.`,
+    ],
+    memoryAnchor: `${CURATED_AUDITORIYA.prep} = où (après в) ; ce cas ne va jamais sans préposition — c'est le prépositionnel.`,
   },
 };

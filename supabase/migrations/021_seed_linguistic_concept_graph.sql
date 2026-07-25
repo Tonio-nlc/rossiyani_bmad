@@ -7,11 +7,11 @@
 -- Idempotent / rejouable : ON CONFLICT + INSERT … SELECT … WHERE EXISTS.
 -- Aucune suppression de données.
 -- À coller dans le SQL Editor Supabase (après 019).
--- Généré le 2026-07-25T14:51:12.374Z
+-- Généré le 2026-07-25T20:31:15.248Z
 -- ============================================
 
--- Concepts seed : 15
--- Relations émises : 23 / 23
+-- Concepts seed : 17
+-- Relations émises : 29 / 29
 -- Relations ignorées (extrémité absente) : 0
 -- Concepts manquants référencés : 0
 
@@ -289,7 +289,7 @@ INSERT INTO linguistic_concepts (
   'Prepositions',
   'A2',
   'Chaque préposition impose un cas précis au nom qui suit.',
-  '{"coreIdea":"в + accusatif (direction) vs в + prépositionnel (lieu).","whyItExists":"Le cas après une préposition n''est pas libre — c''est une convention fixe à mémoriser par préposition.","mentalModel":"Préposition → cas obligatoire","visualModel":{"type":"diagram","nodes":["в","→ Acc.","в","→ Prép."]},"canonicalExplanation":{"understand":["в Москву (accusatif) = direction. в Москве (prépositionnel) = lieu. La préposition в ne change pas, le cas oui."],"scheme":["в + Acc.","в + Prép.","на + Acc.","на + Prép."],"contrasts":[{"fromForm":"в Москву","toForm":"в Москве","question":"Qu''est-ce qui change ?","explanation":"Direction (accusatif) vs lieu (prépositionnel)."}],"miniTable":null,"retentionPoints":["Chaque préposition a son cas.","в/на + Acc. = direction."],"family":["в","на","к","у"]},"teachingScenario":{"intuition":"Chaque préposition russe impose un cas — ce n''est pas un choix libre.","fact":"Après в : l''accusatif marque куда́ (в Москву́) ; le prépositionnel marque где (в Москве́).","contrast":[{"fromForm":"в Москву́","toForm":"в Москве́","explanation":"Même préposition в : accusatif (куда́) vs prépositionnel (где)."}],"visual":{"nodes":["в Москву́ (accusatif)","в Москве́ (prépositionnel)"],"layout":"comparison","caption":"Illustration — в + cas (куда́ vs где)"},"commonMistake":"Ne mélange pas в Москву́ (куда́, accusatif) et в Москве́ (где, prépositionnel).","reuse":["Я е́ду в Москву́ / Я в Москве́ — même opposition partout."],"memoryAnchor":"в + accusatif = куда́ ; в + prépositionnel = где.","illustrationVariants":[{"id":"genitive","cases":["genitive"],"prepositions":["до","из","от","у","без","для","после","около"],"fact":"Après до / из / от : le génitif est obligatoire — до свида́ния, из Москвы́.","contrast":[{"fromForm":"до свида́ния","toForm":"от стола́","explanation":"Même cas (génitif) : до et от imposent la forme génitive au nom qui suit."}],"visual":{"nodes":["до свида́ния","из Москвы́","от стола́"],"layout":"vertical","caption":"Illustration — до / из / от + génitif"},"commonMistake":"Après до, le génitif est fixe : до свида́ния — pas un autre cas.","reuse":["из Москвы́, от стола́ — même régence génitive."],"memoryAnchor":"до / из / от + génitif (ex. до свида́ния)."},{"id":"dative","cases":["dative"],"prepositions":["к","по"],"fact":"Après к : le datif est obligatoire — к столу́.","contrast":[{"fromForm":"стол","toForm":"к столу́","explanation":"к impose le datif : стол → к столу́."}],"visual":{"nodes":["к столу́","к дру́гу"],"layout":"vertical","caption":"Illustration — к + datif"},"commonMistake":"Après к, utilise le datif : к столу́, pas le nominatif.","reuse":["к дру́гу — même régence datif après к."],"memoryAnchor":"к + datif (ex. к столу́)."},{"id":"direction-location","cases":["accusative","prepositional"],"prepositions":["в","во","на"],"fact":"Après в / на : l''accusatif marque куда́ (в Москву́) ; le prépositionnel marque где (в Москве́).","contrast":[{"fromForm":"в Москву́","toForm":"в Москве́","explanation":"Même préposition в : accusatif (куда́) vs prépositionnel (где)."}],"visual":{"nodes":["в Москву́ (accusatif)","в Москве́ (prépositionnel)","на рабо́ту / на рабо́те"],"layout":"comparison","caption":"Illustration — в / на + cas (куда́ vs где)"},"commonMistake":"Ne mélange pas в Москву́ (куда́, accusatif) et в Москве́ (где, prépositionnel).","reuse":["Я е́ду в Москву́ / Я в Москве́ — même opposition partout."],"memoryAnchor":"в / на + accusatif = куда́ ; + prépositionnel = где."}]},"commonMistakes":["Mélanger direction et lieu."],"relatedConcepts":["noun-declension","case-accusative"],"relatedLemmas":["в","на","к"],"examples":["Я еду в Москву.","Я в Москве."],"progression":{"beginner":"Préposition + cas fixe."},"teacherNotes":null}'::jsonb,
+  '{"coreIdea":"в + accusatif (direction) vs в + prépositionnel (lieu).","whyItExists":"Le cas après une préposition n''est pas libre — c''est une convention fixe à mémoriser par préposition.","mentalModel":"Préposition → cas obligatoire","visualModel":{"type":"diagram","nodes":["в","→ Acc.","в","→ Prép."]},"canonicalExplanation":{"understand":["в Москву (accusatif) = direction. в Москве (prépositionnel) = lieu. La préposition в ne change pas, le cas oui."],"scheme":["в + Acc.","в + Prép.","на + Acc.","на + Prép."],"contrasts":[{"fromForm":"в Москву","toForm":"в Москве","question":"Qu''est-ce qui change ?","explanation":"Direction (accusatif) vs lieu (prépositionnel)."}],"miniTable":null,"retentionPoints":["Chaque préposition a son cas.","в/на + Acc. = direction."],"family":["в","на","к","у"]},"teachingScenario":{"intuition":"Chaque préposition russe impose un cas — ce n''est pas un choix libre.","fact":"Après в : l''accusatif marque куда́ (в Москву́) ; le prépositionnel marque где (в Москве́).","contrast":[{"fromForm":"в Москву́","toForm":"в Москве́","explanation":"Même préposition в : accusatif (куда́) vs prépositionnel (где)."}],"visual":{"nodes":["в Москву́ (accusatif)","в Москве́ (prépositionnel)"],"layout":"comparison","caption":"Illustration — в + cas (куда́ vs где)"},"commonMistake":"Ne mélange pas в Москву́ (куда́, accusatif) et в Москве́ (где, prépositionnel).","reuse":["Я е́ду в Москву́ / Я в Москве́ — même opposition partout."],"memoryAnchor":"в + accusatif = куда́ ; в + prépositionnel = где.","illustrationVariants":[{"id":"genitive","cases":["genitive"],"prepositions":["до","из","от","без","для","после","около"],"fact":"Après до / из / от : le génitif est obligatoire — до свида́ния, из Москвы́.","contrast":[{"fromForm":"до свида́ния","toForm":"от стола́","explanation":"Même cas (génitif) : до et от imposent la forme génitive au nom qui suit."}],"visual":{"nodes":["до свида́ния","из Москвы́","от стола́"],"layout":"vertical","caption":"Illustration — до / из / от + génitif"},"commonMistake":"Après до, le génitif est fixe : до свида́ния — pas un autre cas.","reuse":["из Москвы́, от стола́ — même régence génitive."],"memoryAnchor":"до / из / от + génitif (ex. до свида́ния)."},{"id":"genitive-near","cases":["genitive"],"prepositions":["у"],"fact":"Après у : le génitif dit « près de » — у окна́ (près de la fenêtre), et non « chez » comme до/из/от.","contrast":[{"fromForm":"окно́","toForm":"у окна́","explanation":"у impose le génitif : окно́ → у окна́ (près de la fenêtre)."}],"visual":{"nodes":["у окна́","у стола́"],"layout":"vertical","caption":"Illustration — у + génitif (près de)"},"commonMistake":"Après у, garde le génitif même pour un lieu : у окна́, pas окно́.","reuse":["у стола́ — même régence génitive, sens « près de »."],"memoryAnchor":"у + génitif = près de (ex. у окна́)."},{"id":"dative","cases":["dative"],"prepositions":["к","по"],"fact":"Après к : le datif est obligatoire — к столу́.","contrast":[{"fromForm":"стол","toForm":"к столу́","explanation":"к impose le datif : стол → к столу́."}],"visual":{"nodes":["к столу́","к дру́гу"],"layout":"vertical","caption":"Illustration — к + datif"},"commonMistake":"Après к, utilise le datif : к столу́, pas le nominatif.","reuse":["к дру́гу — même régence datif après к."],"memoryAnchor":"к + datif (ex. к столу́)."},{"id":"direction-location","cases":["accusative","prepositional"],"prepositions":["в","во","на"],"fact":"Après в / на : l''accusatif marque куда́ (в Москву́) ; le prépositionnel marque где (в Москве́).","contrast":[{"fromForm":"в Москву́","toForm":"в Москве́","explanation":"Même préposition в : accusatif (куда́) vs prépositionnel (где)."}],"visual":{"nodes":["в Москву́ (accusatif)","в Москве́ (prépositionnel)","на рабо́ту / на рабо́те"],"layout":"comparison","caption":"Illustration — в / на + cas (куда́ vs где)"},"commonMistake":"Ne mélange pas в Москву́ (куда́, accusatif) et в Москве́ (где, prépositionnel).","reuse":["Я е́ду в Москву́ / Я в Москве́ — même opposition partout."],"memoryAnchor":"в / на + accusatif = куда́ ; + prépositionnel = где."}]},"commonMistakes":["Mélanger direction et lieu."],"relatedConcepts":["noun-declension","case-accusative"],"relatedLemmas":["в","на","к"],"examples":["Я еду в Москву.","Я в Москве."],"progression":{"beginner":"Préposition + cas fixe."},"teacherNotes":null}'::jsonb,
   'a-valider',
   false,
   now()
@@ -394,6 +394,58 @@ INSERT INTO linguistic_concepts (
   'A2',
   'Le datif marque le destinataire — à qui on donne, dit, écrit — et suit к.',
   '{"coreIdea":"En français, « je parle À Anna » ajoute une préposition ; en russe, c''est А́нна qui change de forme.","whyItExists":"Le russe marque directement sur le mot qui reçoit l''action (parole, don) sans dépendre de l''ordre des mots.","mentalModel":"À qui ? → ce mot-là change de forme, pas le verbe.","visualModel":{"type":"comparison","nodes":["А́нна (forme de départ)","А́нне (à qui)"],"caption":"Illustration — à qui"},"canonicalExplanation":{"understand":["En français, « Louis parle à А́нна » ajoute une préposition (à) devant А́нна. En russe, c''est А́нна qui change de forme : говори́т А́нне.","Cette forme dit à qui s''adresse l''action — donner, dire, écrire — sans préposition obligatoire."],"scheme":["А́нна","А́нне"],"contrasts":[{"fromForm":"А́нна","toForm":"А́нне","question":"Qu''est-ce qui change ?","explanation":"А́нна = forme de départ. А́нне = à qui (celle qui reçoit la parole)."}],"miniTable":null,"retentionPoints":["À qui → le destinataire change de forme (datif).","к impose aussi le datif (destination vers quelqu''un)."],"family":["Анна","врач"]},"teachingScenario":{"principle":"En français, on ajoute une préposition pour dire à qui : « je parle À Anna ». En russe, c''est А́нна qui change de forme.","fact":"Dans « Луи́ говори́т А́нне » (Louis parle à Anna), А́нне — et non А́нна — dit à qui il parle. Cette forme s''appelle le datif.","contrast":[{"fromForm":"А́нна","toForm":"А́нне","explanation":"А́нна = forme de départ. А́нне = à qui (celle qui reçoit la parole)."}],"visual":{"nodes":["А́нна (forme de départ)","А́нне (à qui)"],"layout":"comparison","caption":"Illustration — à qui"},"commonMistake":"Garde la forme de départ pour le destinataire : dis « говори́т А́нне », pas « говори́т А́нна ».","reuse":["к suit la même logique de forme (texte « У врача » : « Пойдём к врачу́ ») — mais c''est la préposition к qui impose le datif, pas ce concept seul."],"memoryAnchor":"А́нне = à qui ; c''est le datif."},"commonMistakes":["Garder la forme de départ pour le destinataire : dire « говори́т А́нна » au lieu de « говори́т А́нне »."],"relatedConcepts":["noun-declension","case-accusative","preposition-government"],"relatedLemmas":["Анна","врач"],"examples":["Луи́ говори́т А́нне.","Пойдём к врачу́."],"progression":{"beginner":"Repérer à qui s''adresse l''action, avant de nommer le datif.","intermediate":"к + datif — même cas, préposition en plus."},"teacherNotes":"Statut brouillon — lot 02. Rôle fonctionnel Rossiyani : destinataire (ambre, ne pas nommer à l''apprenant)."}'::jsonb,
+  'brouillon',
+  false,
+  now()
+)
+ON CONFLICT (id) DO UPDATE SET
+  slug = EXCLUDED.slug,
+  title = EXCLUDED.title,
+  category = EXCLUDED.category,
+  difficulty = EXCLUDED.difficulty,
+  summary = EXCLUDED.summary,
+  payload = EXCLUDED.payload,
+  validation_status = COALESCE(linguistic_concepts.validation_status, EXCLUDED.validation_status),
+  validated = linguistic_concepts.validated,
+  updated_at = now();
+
+INSERT INTO linguistic_concepts (
+  id, slug, title, category, difficulty, summary,
+  payload, validation_status, validated, updated_at
+) VALUES (
+  'case-instrumental',
+  'case-instrumental',
+  'Instrumental',
+  'Case System',
+  'A2',
+  'L''instrumental marque le moyen (avec quoi on fait quelque chose) et, avec с, l''accompagnement.',
+  '{"coreIdea":"En français, « avec » ajoute une préposition devant l''outil ; en russe, c''est souvent le mot lui-même qui change de forme.","whyItExists":"Le russe marque directement sur le mot le moyen d''une action, sans dépendre d''une préposition à chaque fois.","mentalModel":"Avec quoi ? → ce mot-là change de forme, sans mot ajouté.","visualModel":{"type":"comparison","nodes":["ка́рта (forme de départ)","ка́ртой (avec quoi)"],"caption":"Illustration — avec quoi (le moyen)"},"canonicalExplanation":{"understand":["En français, « Louis paie AVEC la carte » ajoute une préposition (avec) devant carte. En russe, c''est ка́рта qui change de forme : плати́т ка́ртой — sans aucun mot en plus.","Cette même forme sert aussi après с (« avec ») pour dire avec qui on est : с А́нной. Là, une préposition reste nécessaire, mais c''est toujours la forme instrumentale."],"scheme":["ка́рта","ка́ртой","с А́нной"],"contrasts":[{"fromForm":"ка́рта","toForm":"ка́ртой","question":"Qu''est-ce qui change ?","explanation":"ка́рта = forme de départ. ка́ртой = avec quoi (le moyen), sans préposition."}],"miniTable":null,"retentionPoints":["Avec quoi (le moyen) → le mot change de forme, sans préposition (instrumental).","с + instrumental = avec qui (accompagnement) — la préposition s''ajoute, la forme reste la même logique."],"family":["карта","Анна"]},"teachingScenario":{"principle":"En français, « avec » ajoute une préposition devant l''outil. En russe, c''est souvent le mot lui-même qui change de forme.","fact":"Dans « Луи́ пла́тит ка́ртой » (Louis paie par carte), ка́ртой — et non ка́рта — dit avec quoi il paie, sans aucun mot en plus. Cette forme s''appelle l''instrumental.","contrast":[{"fromForm":"ка́рта","toForm":"ка́ртой","explanation":"ка́рта = forme de départ. ка́ртой = avec quoi (le moyen), sans préposition."}],"visual":{"nodes":["ка́рта (forme de départ)","ка́ртой (avec quoi)"],"layout":"comparison","caption":"Illustration — avec quoi (le moyen)"},"commonMistake":"Ne garde pas ка́рта après плати́ть : dis « пла́тит ка́ртой », pas « пла́тит ка́рта ».","reuse":["с А́нной suit la même forme pour dire avec qui on est (accompagnement) — mais c''est la préposition с qui impose l''instrumental, pas ce concept seul."],"memoryAnchor":"ка́ртой = avec quoi (le moyen), sans préposition ; c''est l''instrumental."},"commonMistakes":["Garder la forme de départ pour le moyen : dire « плати́т ка́рта » au lieu de « плати́т ка́ртой »."],"relatedConcepts":["noun-declension","case-accusative","preposition-government"],"relatedLemmas":["карта","Анна"],"examples":["Луи́ пла́тит ка́ртой.","Он идёт с А́нной."],"progression":{"beginner":"Repérer le moyen (avec quoi), avant de nommer l''instrumental.","intermediate":"с + instrumental — même cas, préposition d''accompagnement en plus."},"teacherNotes":"Statut brouillon — lot 03. Rôle fonctionnel Rossiyani à confirmer : aucune couleur dédiée au moyen/instrument n''existe encore dans le système de rôles (subject=bleu, object=corail, place=vert, possession=violet, recipient=ambre — voir src/lib/lessons/lesson-colors.ts). Proposition à trancher hors de ce lot : introduire un rôle « moyen » ou laisser non coloré. Ne pas ajouter de couleur dans ce lot (hors périmètre Teaching Engine/design)."}'::jsonb,
+  'brouillon',
+  false,
+  now()
+)
+ON CONFLICT (id) DO UPDATE SET
+  slug = EXCLUDED.slug,
+  title = EXCLUDED.title,
+  category = EXCLUDED.category,
+  difficulty = EXCLUDED.difficulty,
+  summary = EXCLUDED.summary,
+  payload = EXCLUDED.payload,
+  validation_status = COALESCE(linguistic_concepts.validation_status, EXCLUDED.validation_status),
+  validated = linguistic_concepts.validated,
+  updated_at = now();
+
+INSERT INTO linguistic_concepts (
+  id, slug, title, category, difficulty, summary,
+  payload, validation_status, validated, updated_at
+) VALUES (
+  'case-prepositional',
+  'case-prepositional',
+  'Prépositionnel',
+  'Case System',
+  'A2',
+  'Le prépositionnel marque le lieu où l''on est (в/на + prépositionnel) et le sujet dont on parle (о + prépositionnel) — jamais seul.',
+  '{"coreIdea":"En français, « à Moscou » ajoute une préposition ; en russe, la préposition ET la forme du mot changent ensemble — ce cas n''existe jamais sans préposition.","whyItExists":"Le russe marque sur le mot le lieu où l''on se trouve (et non où l''on va) : la forme distingue être là de s''y rendre.","mentalModel":"Où est-on (pas où va-t-on) ? → le mot après в/на/о change de forme.","visualModel":{"type":"comparison","nodes":["аудито́рия (forme de départ)","аудито́рии (où, après в)"],"caption":"Illustration — où, après в"},"canonicalExplanation":{"understand":["En français, « à l''université » ajoute une préposition (à) devant université. En russe, в аудито́рии change la forme du mot après в : аудито́рии — et non аудито́рия — dit où sont les étudiants.","Ce cas ne se rencontre jamais seul : toujours après в, на ou о. Après о, la même forme dit de quoi on parle : говори́т о Москве́ (il parle de Moscou)."],"scheme":["аудито́рия","в аудито́рии","о Москве́"],"contrasts":[{"fromForm":"аудито́рия","toForm":"аудито́рии","question":"Qu''est-ce qui change ?","explanation":"аудито́рия = forme de départ. аудито́рии = où (le lieu), après в."}],"miniTable":null,"retentionPoints":["Où l''on est (pas où l''on va) → в/на + prépositionnel.","Ce cas n''apparaît jamais sans préposition (в, на ou о).","о + prépositionnel = de quoi on parle."],"family":["аудитория","Москва","университет"]},"teachingScenario":{"principle":"En français, « à Moscou » ajoute une préposition. En russe, la préposition ET la forme du mot changent ensemble — ce cas n''existe jamais seul.","fact":"Dans « В аудито́рии уже́ есть студе́нты » (Dans la salle, il y a déjà des étudiants), аудито́рии — et non аудито́рия — dit où sont les étudiants. Cette forme s''appelle le prépositionnel : elle n''apparaît jamais sans préposition (в, на ou о).","contrast":[{"fromForm":"аудито́рия","toForm":"аудито́рии","explanation":"аудито́рия = forme de départ. аудито́рии = où (le lieu), après в."}],"visual":{"nodes":["аудито́рия (forme de départ)","в аудито́рии (où)"],"layout":"comparison","caption":"Illustration — où, après в"},"commonMistake":"Ne dis pas « в аудито́рия » : pour dire où l''on est, il faut в аудито́рии (prépositionnel), pas la forme de départ.","reuse":["в Москве́ suit la même logique — à distinguer de в Москву́ (accusatif, destination, куда́, régi par la même préposition в).","о + prépositionnel suit la même forme pour parler de quelque chose : « говори́т о Москве́ » (il parle de Moscou) — même cas, sujet différent."],"memoryAnchor":"аудито́рии = où (après в) ; ce cas ne va jamais sans préposition — c''est le prépositionnel."},"commonMistakes":["Utiliser в + accusatif (destination, куда́) pour un lieu où l''on est déjà — le prépositionnel répond à где, pas à куда́."],"relatedConcepts":["noun-declension","case-accusative","preposition-government"],"relatedLemmas":["аудитория","Москва","университет"],"examples":["В аудито́рии уже́ есть студе́нты.","А́нна в Москве́."],"progression":{"beginner":"Repérer où l''on est, avant de nommer le prépositionnel.","intermediate":"в/на + prépositionnel (lieu, где) vs в/на + accusatif (destination, куда́) — même préposition, cas différent selon le sens.","advanced":"о + prépositionnel (sujet dont on parle) — même cas, rôle différent."},"teacherNotes":"Statut brouillon — lot 03. Rôle fonctionnel Rossiyani : lieu (vert, ne pas nommer à l''apprenant) pour l''emploi locatif (в/на + prépositionnel). L''emploi avec о (sujet dont on parle) n''a pas de rôle fonctionnel coloré dédié dans le système actuel."}'::jsonb,
   'brouillon',
   false,
   now()
@@ -653,6 +705,84 @@ SELECT
   'related'
 WHERE EXISTS (
   SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-dative'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'preposition-government'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-instrumental',
+  'noun-declension',
+  'extends'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-instrumental'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'noun-declension'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-instrumental',
+  'case-accusative',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-instrumental'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-accusative'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-instrumental',
+  'preposition-government',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-instrumental'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'preposition-government'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-prepositional',
+  'noun-declension',
+  'extends'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-prepositional'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'noun-declension'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-prepositional',
+  'case-accusative',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-prepositional'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-accusative'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-prepositional',
+  'preposition-government',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-prepositional'
 )
 AND EXISTS (
   SELECT 1 FROM linguistic_concepts c WHERE c.id = 'preposition-government'
@@ -1135,6 +1265,51 @@ FROM lemmas l
 WHERE l.form = 'врач'
   AND EXISTS (
     SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-dative'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-instrumental', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'карта'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-instrumental'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-instrumental', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'Анна'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-instrumental'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-prepositional', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'аудитория'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-prepositional'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-prepositional', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'Москва'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-prepositional'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-prepositional', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'университет'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-prepositional'
   )
 ON CONFLICT (lemma_id, concept_id) DO NOTHING;
 

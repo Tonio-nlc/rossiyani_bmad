@@ -3,7 +3,7 @@
 > Généré par `auditOrphanConcepts()` — un concept orphelin est dans le catalogue
 > mais **jamais** atteint comme primary ni secondary par le routeur.
 
-Catalogue : **15** concepts.
+Catalogue : **17** concepts.
 
 ## Orphelins (invisibles)
 
@@ -20,6 +20,8 @@ _Tous les concepts peuvent être primary._
 - `case-accusative`
 - `case-dative`
 - `case-genitive`
+- `case-instrumental`
+- `case-prepositional`
 - `noun-animacy`
 - `noun-declension`
 - `noun-gender`

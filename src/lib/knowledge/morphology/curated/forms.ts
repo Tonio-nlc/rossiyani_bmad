@@ -116,6 +116,13 @@ export const CURATED_ANNA = {
   /** Datif singulier — destinataire (« говори́т А́нне ») */
   dat: "А́нне",
   acc: "А́нну",
+  /**
+   * Instrumental singulier — accompagnement (« с А́нной »).
+   * Forme régulière déduite (féminin dur en -а, désinence -ой à l'instrumental,
+   * même paradigme que А́нны/А́нне déjà validées) — pas encore attestée dans les
+   * textes gold actuels. À vérifier par un enseignant (lot 03).
+   */
+  instr: "А́нной",
 } as const;
 
 export const CURATED_ADJECTIVES = {
@@ -154,6 +161,51 @@ export const CURATED_MOSKVA = {
   location: "в Москве́",
   /** Génitif — après из / от / до… */
   genitive: "Москвы́",
+  /**
+   * Prépositionnel nu (sans préposition collée) — même forme que `location`,
+   * réutilisée pour illustrer о + prépositionnel (« о Москве́ », parler DE Moscou).
+   * Le prépositionnel russe ne change pas selon la préposition qui le régit.
+   */
+  prepositional: "Москве́",
+} as const;
+
+/**
+ * ка́рта — objet des textes gold (« В булочной » : « Луи́ платит ка́ртой »).
+ * validé manuellement — ne pas générer par LLM
+ * Source formes : texte gold (ка́ртой, instrumental attesté) ; nominatif ка́рта
+ * régulier (féminin dur en -а, même paradigme que кни́га).
+ */
+export const CURATED_KARTA = {
+  nom: "ка́рта",
+  /** Instrumental — moyen de paiement (texte gold « В булочной »). */
+  instr: "ка́ртой",
+} as const;
+
+/**
+ * аудито́рия — lieu des textes gold (« Первый день в университете »).
+ * validé manuellement — ne pas générer par LLM
+ * Source formes : texte gold (аудито́рии, prépositionnel attesté :
+ * « В аудито́рии уже́ есть студе́нты. ») ; nominatif аудито́рия régulier
+ * (féminin en -ия, désinence -ии au prépositionnel, comme Росси́я/в Росси́и).
+ */
+export const CURATED_AUDITORIYA = {
+  nom: "аудито́рия",
+  /** Prépositionnel — lieu où l'on est (texte gold « Первый день в университете »). */
+  prep: "аудито́рии",
+} as const;
+
+/**
+ * окно́ — neutre régulier, illustration de régence (у окна́, texte non-gold).
+ * validé manuellement — ne pas générer par LLM
+ * Source formes : nominatif окно́ déjà curé (`CURATED_NOUNS_GENDER.okno`) ;
+ * génitif окна́ régulier (neutre dur, désinence -а, accent qui se déplace sur
+ * la finale — paradigme standard окно́/окна́/окну́…, cf. OpenRussian окно).
+ * Distinct de о́кна (nominatif pluriel, accent radical) — homographe non
+ * accentué, tranché par l'accent en amont (case-concept-routing.ts).
+ */
+export const CURATED_OKNO_CASES = {
+  nom: "окно́",
+  gen: "окна́",
 } as const;
 
 /**
@@ -165,6 +217,11 @@ export const CURATED_PREP_GOVERNMENT_EXAMPLES = {
     doSvidaniya: "до свида́ния",
     izMoskvy: `из ${CURATED_MOSKVA.genitive}`,
     otStola: `от ${CURATED_STOL.gen}`,
+  },
+  /** у + génitif : proximité (« près de »), distinct de до/из/от. */
+  genitiveNear: {
+    uOkna: `у ${CURATED_OKNO_CASES.gen}`,
+    uStola: `у ${CURATED_STOL.gen}`,
   },
   dative: {
     kStolu: `к ${CURATED_STOL.dat}`,

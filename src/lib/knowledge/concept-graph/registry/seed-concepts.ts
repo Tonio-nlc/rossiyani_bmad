@@ -790,4 +790,122 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     teacherNotes:
       "Statut brouillon — lot 02. Rôle fonctionnel Rossiyani : destinataire (ambre, ne pas nommer à l'apprenant).",
   },
+  {
+    id: "case-instrumental",
+    slug: "case-instrumental",
+    title: "Instrumental",
+    category: "Case System",
+    difficulty: "A2",
+    validationStatus: "brouillon",
+    summary:
+      "L'instrumental marque le moyen (avec quoi on fait quelque chose) et, avec с, l'accompagnement.",
+    coreIdea:
+      "En français, « avec » ajoute une préposition devant l'outil ; en russe, c'est souvent le mot lui-même qui change de forme.",
+    whyItExists:
+      "Le russe marque directement sur le mot le moyen d'une action, sans dépendre d'une préposition à chaque fois.",
+    mentalModel: "Avec quoi ? → ce mot-là change de forme, sans mot ajouté.",
+    visualModel: {
+      type: "comparison",
+      nodes: ["ка́рта (forme de départ)", "ка́ртой (avec quoi)"],
+      caption: "Illustration — avec quoi (le moyen)",
+    },
+    canonicalExplanation: {
+      understand: [
+        "En français, « Louis paie AVEC la carte » ajoute une préposition (avec) devant carte. En russe, c'est ка́рта qui change de forme : плати́т ка́ртой — sans aucun mot en plus.",
+        "Cette même forme sert aussi après с (« avec ») pour dire avec qui on est : с А́нной. Là, une préposition reste nécessaire, mais c'est toujours la forme instrumentale.",
+      ],
+      scheme: ["ка́рта", "ка́ртой", "с А́нной"],
+      contrasts: [
+        {
+          fromForm: "ка́рта",
+          toForm: "ка́ртой",
+          question: "Qu'est-ce qui change ?",
+          explanation:
+            "ка́рта = forme de départ. ка́ртой = avec quoi (le moyen), sans préposition.",
+        },
+      ],
+      miniTable: null,
+      retentionPoints: [
+        "Avec quoi (le moyen) → le mot change de forme, sans préposition (instrumental).",
+        "с + instrumental = avec qui (accompagnement) — la préposition s'ajoute, la forme reste la même logique.",
+      ],
+      family: ["карта", "Анна"],
+    },
+    commonMistakes: [
+      "Garder la forme de départ pour le moyen : dire « плати́т ка́рта » au lieu de « плати́т ка́ртой ».",
+    ],
+    relatedConcepts: [
+      "noun-declension",
+      "case-accusative",
+      "preposition-government",
+    ],
+    relatedLemmas: ["карта", "Анна"],
+    examples: ["Луи́ пла́тит ка́ртой.", "Он идёт с А́нной."],
+    progression: {
+      beginner: "Repérer le moyen (avec quoi), avant de nommer l'instrumental.",
+      intermediate: "с + instrumental — même cas, préposition d'accompagnement en plus.",
+    },
+    teacherNotes:
+      "Statut brouillon — lot 03. Rôle fonctionnel Rossiyani à confirmer : aucune couleur dédiée au moyen/instrument n'existe encore dans le système de rôles (subject=bleu, object=corail, place=vert, possession=violet, recipient=ambre — voir src/lib/lessons/lesson-colors.ts). Proposition à trancher hors de ce lot : introduire un rôle « moyen » ou laisser non coloré. Ne pas ajouter de couleur dans ce lot (hors périmètre Teaching Engine/design).",
+  },
+  {
+    id: "case-prepositional",
+    slug: "case-prepositional",
+    title: "Prépositionnel",
+    category: "Case System",
+    difficulty: "A2",
+    validationStatus: "brouillon",
+    summary:
+      "Le prépositionnel marque le lieu où l'on est (в/на + prépositionnel) et le sujet dont on parle (о + prépositionnel) — jamais seul.",
+    coreIdea:
+      "En français, « à Moscou » ajoute une préposition ; en russe, la préposition ET la forme du mot changent ensemble — ce cas n'existe jamais sans préposition.",
+    whyItExists:
+      "Le russe marque sur le mot le lieu où l'on se trouve (et non où l'on va) : la forme distingue être là de s'y rendre.",
+    mentalModel: "Où est-on (pas où va-t-on) ? → le mot après в/на/о change de forme.",
+    visualModel: {
+      type: "comparison",
+      nodes: ["аудито́рия (forme de départ)", "аудито́рии (où, après в)"],
+      caption: "Illustration — où, après в",
+    },
+    canonicalExplanation: {
+      understand: [
+        "En français, « à l'université » ajoute une préposition (à) devant université. En russe, в аудито́рии change la forme du mot après в : аудито́рии — et non аудито́рия — dit où sont les étudiants.",
+        "Ce cas ne se rencontre jamais seul : toujours après в, на ou о. Après о, la même forme dit de quoi on parle : говори́т о Москве́ (il parle de Moscou).",
+      ],
+      scheme: ["аудито́рия", "в аудито́рии", "о Москве́"],
+      contrasts: [
+        {
+          fromForm: "аудито́рия",
+          toForm: "аудито́рии",
+          question: "Qu'est-ce qui change ?",
+          explanation: "аудито́рия = forme de départ. аудито́рии = où (le lieu), après в.",
+        },
+      ],
+      miniTable: null,
+      retentionPoints: [
+        "Où l'on est (pas où l'on va) → в/на + prépositionnel.",
+        "Ce cas n'apparaît jamais sans préposition (в, на ou о).",
+        "о + prépositionnel = de quoi on parle.",
+      ],
+      family: ["аудитория", "Москва", "университет"],
+    },
+    commonMistakes: [
+      "Utiliser в + accusatif (destination, куда́) pour un lieu où l'on est déjà — le prépositionnel répond à где, pas à куда́.",
+    ],
+    relatedConcepts: [
+      "noun-declension",
+      "case-accusative",
+      "preposition-government",
+    ],
+    relatedLemmas: ["аудитория", "Москва", "университет"],
+    examples: ["В аудито́рии уже́ есть студе́нты.", "А́нна в Москве́."],
+    progression: {
+      beginner: "Repérer où l'on est, avant de nommer le prépositionnel.",
+      intermediate:
+        "в/на + prépositionnel (lieu, где) vs в/на + accusatif (destination, куда́) — même préposition, cas différent selon le sens.",
+      advanced: "о + prépositionnel (sujet dont on parle) — même cas, rôle différent.",
+    },
+    teacherNotes:
+      "Statut brouillon — lot 03. Rôle fonctionnel Rossiyani : lieu (vert, ne pas nommer à l'apprenant) pour l'emploi locatif (в/на + prépositionnel). L'emploi avec о (sujet dont on parle) n'a pas de rôle fonctionnel coloré dédié dans le système actuel.",
+  },
 ];

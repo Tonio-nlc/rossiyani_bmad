@@ -20,7 +20,7 @@
 |-----:|---------|----------|
 | 100 | `preposition-government` | régence |
 | 90 | `motion` | verbes de mouvement, préfixes de mouvement |
-| 80 | `specific-case` | `case-accusative` (+ futurs `case-genitive` …) |
+| 80 | `specific-case` | `case-accusative`, `case-genitive`, `case-dative`, `case-instrumental`, `case-prepositional` |
 | 70 | `conjugation` | présent |
 | 65 | `agreement` | accord adjectival |
 | 60 | `pronoun` | possessif réfléchi |
@@ -43,10 +43,12 @@
 |-----|---------|--------|
 | nominative | — (parapluie `noun-declension`) | — |
 | accusative | `case-accusative` | lot 01 |
-| genitive | `null` → parapluie | prochain lot |
-| dative | `null` → parapluie | prochain lot |
-| instrumental | `null` → parapluie | prochain lot |
-| prepositional | `null` → parapluie | prochain lot |
+| genitive | `case-genitive` | lot 02 |
+| dative | `case-dative` | lot 02 |
+| instrumental | `case-instrumental` | lot 03 |
+| prepositional | `case-prepositional` | lot 03 |
+
+Les six cas russes ont désormais chacun un concept dédié (lot 03).
 
 Source du cas (dans l’ordre) : paradigme `linguistic_knowledge` → formes curées univoques →
 désambiguïsation (rôle fonctionnel `object_direct`, régence, prose d’explication).
@@ -58,6 +60,10 @@ désambiguïsation (rôle fonctionnel `object_direct`, régence, prose d’expli
 | кни́гу | `case-accusative` | — |
 | врача́ | `case-accusative` | `noun-animacy` |
 | до свида́ния | `preposition-government` | — |
+| у окна́ | `preposition-government` (variante illustration `genitive-near`) | `case-genitive` |
+| в Москве́ | `preposition-government` (variante illustration `direction-location`) | `case-prepositional` |
+| ка́ртой (sans régence) | `case-instrumental` | — |
+| аудито́рии (sans régence) | `case-prepositional` | — |
 | пойдём → пойти́ | `verbs-of-motion` | aspect perfectif |
 | стол (nom. / cas inconnu) | `noun-declension` | genre |
 

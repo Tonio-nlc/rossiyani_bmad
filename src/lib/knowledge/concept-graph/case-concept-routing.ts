@@ -2,12 +2,15 @@
  * Cas morphologique → concept de cas précis.
  * Les concepts absents (null) tombent sur le parapluie `noun-declension`.
  *
- * Lots futurs : remplir instrumental / prepositional … sans toucher au routeur.
+ * Lot 03 : les six cas ont désormais chacun un concept dédié.
  */
 
 import {
   CURATED_ANNA,
+  CURATED_AUDITORIYA,
+  CURATED_KARTA,
   CURATED_KNIGA,
+  CURATED_MOSKVA,
   CURATED_STOL,
   CURATED_UNIVERSITET,
   CURATED_VRACH,
@@ -28,8 +31,8 @@ export const CASE_CONCEPT_BY_CASE: Record<TMorphologicalCase, string | null> = {
   accusative: "case-accusative",
   genitive: "case-genitive",
   dative: "case-dative",
-  instrumental: null,
-  prepositional: null,
+  instrumental: "case-instrumental",
+  prepositional: "case-prepositional",
 };
 
 const NOMINATIVE_LABELS = new Set([
@@ -91,6 +94,10 @@ const UNAMBIGUOUS_CURATED_CASE_FORMS: Array<{
   { form: CURATED_ANNA.gen, morphologicalCase: "genitive" },
   { form: CURATED_ANNA.dat, morphologicalCase: "dative" },
   { form: CURATED_ANNA.acc, morphologicalCase: "accusative" },
+  { form: CURATED_ANNA.instr, morphologicalCase: "instrumental" },
+  { form: CURATED_KARTA.instr, morphologicalCase: "instrumental" },
+  { form: CURATED_AUDITORIYA.prep, morphologicalCase: "prepositional" },
+  { form: CURATED_MOSKVA.prepositional, morphologicalCase: "prepositional" },
 ];
 
 /** Formes ambiguës : candidates possibles selon le contexte. */
