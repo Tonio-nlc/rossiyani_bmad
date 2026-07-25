@@ -12,7 +12,7 @@ import {
   type TConceptMatchProfile,
 } from "./match-signals";
 import { getConceptById } from "./registry";
-import { resolveConceptGraph } from "./resolve-concept-graph";
+import { NO_CONCEPT_ID, resolveConceptGraph } from "./resolve-concept-graph";
 
 export interface TReaderConceptResolution {
   conceptId: string;
@@ -42,12 +42,18 @@ export function resolveReaderConcept(input: {
   profile: TConceptMatchProfile;
   analysis: TLinguisticAnalysis;
   encounter: TVocabularyContextEncounter | null;
-}): TReaderConceptResolution {
+}): TReaderConceptResolution | null {
   const graph = resolveConceptGraph(
     input.profile,
     input.analysis,
     input.encounter,
   );
+
+  if (graph.primary.id === NO_CONCEPT_ID) {
+    // POS invariable / pronom sans traitement dédié : dégradation propre,
+    // pas de concept affiché plutôt qu'un concept faux.
+    return null;
+  }
 
   return {
     conceptId: graph.primary.id,
@@ -195,6 +201,12 @@ export function resolveReaderConceptFromSignals(input: {
   // Même chemin que le graphe (hiérarchie déclarative + liens secondaires).
   const graph = resolveConceptGraph(profile, analysis, encounter);
   const concept = graph.primary;
+
+  if (concept.id === NO_CONCEPT_ID) {
+    // POS invariable (adverbe…) ou pronom sans traitement dédié : ne pas
+    // afficher de concept plutôt qu'un concept d'une autre famille (RC).
+    return null;
+  }
 
   if (!concept?.id) {
     const signals = matchConceptSignals(profile, analysis, encounter);

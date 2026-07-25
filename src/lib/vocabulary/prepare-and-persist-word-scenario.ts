@@ -8,7 +8,7 @@ import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile
 import { ensureKnowledgeExists } from "@/lib/knowledge/get-knowledge";
 import { composeTeachingScenario } from "@/lib/knowledge/teaching-engine/compose-teaching-scenario";
 import { validateTeachingScenario } from "@/lib/knowledge/teaching-engine/scenario-quality-rules";
-import { resolveConceptGraph } from "@/lib/knowledge/concept-graph";
+import { NO_CONCEPT_ID, resolveConceptGraph } from "@/lib/knowledge/concept-graph";
 import { analyzeLinguisticContext } from "@/lib/knowledge/teaching/analyze-linguistic-context";
 import { normalizeEncounterSurface } from "@/lib/knowledge/concept/build-hero-chips";
 import {
@@ -184,6 +184,12 @@ export async function prepareAndPersistWordTeachingScenario(input: {
       encounter,
     );
     const graph = resolveConceptGraph(profile, analysis, encounter);
+
+    if (graph.primary.id === NO_CONCEPT_ID) {
+      // POS invariable (adverbe…) ou pronom sans traitement dédié :
+      // pas de scénario d'enseignement plutôt qu'un concept faux (RC).
+      return null;
+    }
 
     const encounteredForm =
       normalizeEncounterSurface(encounter) ??

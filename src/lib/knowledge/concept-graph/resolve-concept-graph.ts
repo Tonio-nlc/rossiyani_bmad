@@ -1,5 +1,6 @@
 import type {
   TLemmaConceptLink,
+  TLinguisticConcept,
   TResolvedConceptGraph,
 } from "@/types/linguistic-concept";
 import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-linguistic-context";
@@ -48,10 +49,20 @@ function normalizeConceptId(rawId: string | null | undefined): string | null {
   return null;
 }
 
+/**
+ * Concept id du primary, ou `null` si aucun concept ne s'applique légitimement.
+ *
+ * RC — Résolution non-nominale (adverbes, pronoms non couverts) : un POS sans
+ * signal dédié ne doit JAMAIS retomber sur un concept d'une autre famille
+ * grammaticale (ex. adverbe → "Conjugaison du présent", pronom → "Possessif
+ * réfléchi"). Seuls verbe/nom/adjectif/préposition ont un repli « parapluie »
+ * défendable dans leur PROPRE famille ; les autres POS renvoient `null`
+ * (dégradation propre) tant qu'aucun concept dédié n'existe au catalogue.
+ */
 function pickPrimaryConceptId(
   profile: TConceptMatchProfile,
   signals: ReturnType<typeof buildLemmaConceptLinks>,
-): string {
+): string | null {
   const fromKnowledge = normalizeConceptId(profile.pedagogy?.concept?.phenomenonId);
 
   if (fromKnowledge) {
@@ -70,7 +81,7 @@ function pickPrimaryConceptId(
     return bestSignal.conceptId;
   }
 
-  const pos = profile.partOfSpeech ?? "word";
+  const pos = profile.partOfSpeech ?? null;
 
   if (pos === "verb") {
     return "verb-imperfective-aspect";
@@ -88,11 +99,45 @@ function pickPrimaryConceptId(
     return "preposition-government";
   }
 
-  if (pos === "pronoun") {
-    return "reflexive-possessive";
-  }
+  // pronom sans signal dédié (ex. никто́, кто, что…), adverbe, conjonction,
+  // particule, interjection, numéral, POS inconnu : aucun concept de cas/
+  // conjugaison n'existe pour ces mots — ne pas en fabriquer un.
+  return null;
+}
 
-  return "verb-present-conjugation";
+/** Id synthétique — jamais un concept du catalogue, jamais persisté comme tel. */
+export const NO_CONCEPT_ID = "no-concept";
+
+/**
+ * Coquille honnête quand aucun concept ne s'applique (POS invariable, pronom
+ * non couvert…). Remplace un concept fabriqué faux par une absence assumée.
+ */
+function buildNoConceptPlaceholder(): TLinguisticConcept {
+  return {
+    id: NO_CONCEPT_ID,
+    slug: NO_CONCEPT_ID,
+    title: "Notion linguistique",
+    category: "General",
+    difficulty: "A1",
+    summary: "Ce mot n'a pas encore de concept dédié dans le catalogue.",
+    coreIdea: "Ce mot n'a pas encore de concept dédié dans le catalogue.",
+    whyItExists: "",
+    mentalModel: "",
+    visualModel: { type: "diagram", nodes: [] },
+    canonicalExplanation: {
+      understand: ["Ce mot n'a pas encore de concept dédié dans le catalogue."],
+      scheme: [],
+      contrasts: [],
+      miniTable: null,
+      retentionPoints: [],
+      family: [],
+    },
+    commonMistakes: [],
+    relatedConcepts: [],
+    relatedLemmas: [],
+    examples: [],
+    progression: { beginner: "À compléter." },
+  };
 }
 
 function buildLinks(
@@ -149,44 +194,28 @@ export function resolveConceptGraph(
 ): TResolvedConceptGraph {
   const signals = buildLemmaConceptLinks(profile, analysis, encounter);
   const primaryId = pickPrimaryConceptId(profile, signals);
-  const primary =
-    getConceptById(primaryId) ??
-    getConceptById("verb-present-conjugation") ??
-    getAllConcepts()[0];
+
+  if (!primaryId) {
+    // POS invariable / pronom sans traitement dédié : dégradation propre,
+    // pas de concept fabriqué (voir pickPrimaryConceptId).
+    return {
+      primary: buildNoConceptPlaceholder(),
+      secondary: [],
+      advanced: [],
+      teachingPath: [],
+      links: [],
+    };
+  }
+
+  const primary = getConceptById(primaryId) ?? getAllConcepts()[0];
 
   if (!primary) {
     console.warn(
       `[Concept Graph] Aucun concept disponible (primaryId=${primaryId}) — graphe vide`,
     );
-    // Dernier recours : coquille minimale pour ne pas casser le rendu
-    const fallback = {
-      id: "fallback-concept",
-      slug: "fallback-concept",
-      title: "Notion linguistique",
-      category: "General" as const,
-      difficulty: "A1" as const,
-      summary: "Explication en cours de construction.",
-      coreIdea: "Ce lemme illustre une notion linguistique russe.",
-      whyItExists: "",
-      mentalModel: "",
-      visualModel: { type: "diagram" as const, nodes: [] },
-      canonicalExplanation: {
-        understand: ["Explication en cours de construction."],
-        scheme: [],
-        contrasts: [],
-        miniTable: null,
-        retentionPoints: [],
-        family: [],
-      },
-      commonMistakes: [],
-      relatedConcepts: [],
-      relatedLemmas: [],
-      examples: [],
-      progression: { beginner: "À compléter." },
-    };
 
     return {
-      primary: fallback,
+      primary: buildNoConceptPlaceholder(),
       secondary: [],
       advanced: [],
       teachingPath: [],

@@ -6,7 +6,7 @@ export {
   getConceptsByIds,
   isKnownConceptId,
 } from "./registry";
-export { resolveConceptGraph } from "./resolve-concept-graph";
+export { NO_CONCEPT_ID, resolveConceptGraph } from "./resolve-concept-graph";
 export { resolveReaderConcept, resolveReaderConceptFromSignals } from "./resolve-reader-concept";
 export {
   buildTeachingPath,

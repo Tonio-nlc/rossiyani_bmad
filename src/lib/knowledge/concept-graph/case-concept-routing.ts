@@ -64,6 +64,13 @@ function formKey(form: string): string {
   return stripStressMarks(normalizeToken(form));
 }
 
+/** Clé accent-sensible (NFC) — distingue les homographes qui ne diffèrent que par l'accent. */
+function stressedFormKey(form: string): string {
+  return normalizeToken(form).normalize("NFC").toLowerCase();
+}
+
+const STRESS_MARK = /\u0301/;
+
 /**
  * Formes curées univoques (une seule étiquette de cas).
  * Les ambiguïtés (стол nom=acc, врача́ gen=acc) sont tranchées ailleurs
@@ -137,6 +144,25 @@ export function inferMorphologicalCase(input: {
   }
 
   if (input.caseEntries?.length) {
+    // Désambiguïsation accent-sensible d'abord (ex. окна́ génitif sg vs о́кна
+    // nominatif pl : la même forme sans accent ne doit PAS renvoyer le
+    // premier paradigme trouvé au hasard si l'accent permet de trancher).
+    const surfaceStressed = stressedFormKey(input.surface);
+
+    if (STRESS_MARK.test(surfaceStressed)) {
+      for (const entry of input.caseEntries) {
+        if (stressedFormKey(entry.form) !== surfaceStressed) {
+          continue;
+        }
+
+        const fromLabel = normalizeMorphologicalCaseLabel(entry.label);
+
+        if (fromLabel) {
+          return fromLabel;
+        }
+      }
+    }
+
     for (const entry of input.caseEntries) {
       if (formKey(entry.form) !== surfaceKey) {
         continue;

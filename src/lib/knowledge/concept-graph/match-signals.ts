@@ -174,10 +174,18 @@ const SIGNAL_RULES: SignalRule[] = [
     score: 88,
     signal: "possessif réfléchi",
     matches: ({ profile, analysis }) => {
-      const surface = (analysis.surfaceForm ?? analysis.baseLemma).toLowerCase();
+      // RC — un pronom n'est PAS automatiquement réfléchi/possessif (ex. никто́, кто,
+      // что, я…). Ne matcher que свой/sa famille ou un pronounType explicite —
+      // jamais tout POS "pronoun" sans distinction (dégradation propre sinon).
+      if (profile.partOfSpeech !== "pronoun") {
+        return false;
+      }
+
+      const surface = (analysis.surfaceForm ?? analysis.baseLemma)
+        .normalize("NFC")
+        .toLowerCase();
 
       return (
-        profile.partOfSpeech === "pronoun" ||
         surface.includes("сво") ||
         /possessif|réfléchi|reflexive/i.test(
           profile.morphology.pronounType ?? "",

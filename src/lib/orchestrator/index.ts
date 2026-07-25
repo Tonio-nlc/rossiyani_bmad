@@ -81,6 +81,26 @@ async function applyCuratedLemmaToResponse(
 }
 
 /**
+ * POS pour lesquels aucune segmentation radical/désinence fiable n'existe
+ * aujourd'hui (ni morphologie curée, ni paradigme déterministe) :
+ * - adverbe / conjonction / particule / interjection / numéral : invariables,
+ *   une désinence serait par construction fabriquée.
+ * - pronom : aucune table de déclinaison curée pour l'instant (никто́, кто,
+ *   что…) — dégradation propre plutôt qu'un découpage LLM inventé (ex.
+ *   "-о" présenté comme désinence du nominatif, qui n'existe pas).
+ * Étape 2/4 — résolution non-nominale : si une segmentation fiable existe un
+ * jour pour l'un de ces POS, la retirer explicitement de cette liste.
+ */
+const POS_WITHOUT_RELIABLE_SUFFIX = new Set([
+  "adverb",
+  "conjunction",
+  "particle",
+  "interjection",
+  "numeral",
+  "pronoun",
+]);
+
+/**
  * Attache concept + POS/aspect depuis linguistic_knowledge.
  * Les verbes n'ont pas de rôle fonctionnel (sujet/objet…) : on le retire ici.
  */
@@ -113,6 +133,7 @@ async function attachConceptResolution(
   const partOfSpeech = profile?.partOfSpeech ?? "verb";
   const aspect = profile?.aspect ?? null;
   const isVerb = partOfSpeech === "verb" || Boolean(curatedSurface);
+  const hasNoReliableSuffix = POS_WITHOUT_RELIABLE_SUFFIX.has(partOfSpeech);
 
   const withPos: TWordExplanationResponseExtended = {
     ...response,
@@ -122,6 +143,12 @@ async function attachConceptResolution(
       ? {
           functionalRole: "",
           functionColor: "",
+        }
+      : {}),
+    ...(hasNoReliableSuffix
+      ? {
+          suffix: "",
+          suffixExplanation: "",
         }
       : {}),
   };
