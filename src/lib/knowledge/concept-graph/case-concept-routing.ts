@@ -3,6 +3,15 @@
  * Les concepts absents (null) tombent sur le parapluie `noun-declension`.
  *
  * Lot 03 : les six cas ont désormais chacun un concept dédié.
+ *
+ * Lot 04 — nominative reste volontairement `null` ICI (le concept
+ * `case-nominative` existe bien au catalogue) : le nominatif est aussi la
+ * forme de repli d'ambiguïté (`disambiguateCase` ci-dessous — cas
+ * nom/acc syncrétique sans rôle objet) et la forme de départ des paradigmes.
+ * Router "cas nominatif → concept" sans condition ferait passer un mot dont
+ * le cas est juste indéterminé (ou un attribut/apposition au nominatif) pour
+ * "le sujet". `case-nominative` n'est donc atteint QUE via sa règle dédiée
+ * dans match-signals.ts, qui exige en plus `functionalRole === "subject"`.
  */
 
 import {

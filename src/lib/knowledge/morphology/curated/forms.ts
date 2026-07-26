@@ -209,6 +209,38 @@ export const CURATED_OKNO_CASES = {
 } as const;
 
 /**
+ * найти́ (perfectif) — texte gold « Как найти дорогу? » : « Ты бы́стро нашёл доро́гу! ».
+ * validé manuellement — ne pas générer par LLM
+ * Source forme masculine : attestée telle quelle dans le texte gold (нашёл).
+ * Féminin/neutre/pluriel : déduits par règle régulière (composés en -йти se
+ * conjuguent comme идти́ au passé : шёл/шла́/шло́/шли́ → нашёл/нашла́/нашло́/нашли́ ;
+ * cf. OpenRussian найти, Wiktionnaire найти). Absents des textes gold actuels —
+ * à vérifier par un enseignant (lot 04).
+ */
+export const CURATED_NAJTI_PAST = {
+  infinitive: "найти́",
+  m: "нашёл",
+  f: "нашла́",
+  n: "нашло́",
+  pl: "нашли́",
+} as const;
+
+/**
+ * случи́ться (surtout impersonnel) — texte gold « У врача » : « Что случи́лось? ».
+ * validé manuellement — ne pas générer par LLM
+ * Source : attestée telle quelle dans le texte gold (случи́лось).
+ * Pas grammaticalement défectif au sens strict (une beда peut « случи́ться »,
+ * fém.), mais dans son emploi le plus courant — l'évènement sans sujet nommé,
+ * comme dans « Что случи́лось? » — la forme reste au neutre singulier (cf.
+ * CURATED_SLUCHITSYA, present-verbs.ts — même défectivité au présent :
+ * слу́чится/слу́чатся, 3e personne surtout).
+ */
+export const CURATED_SLUCHITSYA_PAST = {
+  infinitive: "случи́ться",
+  n: "случи́лось",
+} as const;
+
+/**
  * Illustrations de régence — formes curées (pas de LLM).
  * Groupées par cas imposé par la préposition.
  */

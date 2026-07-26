@@ -7,11 +7,11 @@
 -- Idempotent / rejouable : ON CONFLICT + INSERT … SELECT … WHERE EXISTS.
 -- Aucune suppression de données.
 -- À coller dans le SQL Editor Supabase (après 019).
--- Généré le 2026-07-25T20:57:33.792Z
+-- Généré le 2026-07-26T11:04:26.468Z
 -- ============================================
 
--- Concepts seed : 17
--- Relations émises : 29 / 29
+-- Concepts seed : 19
+-- Relations émises : 33 / 33
 -- Relations ignorées (extrémité absente) : 0
 -- Concepts manquants référencés : 0
 
@@ -31,6 +31,32 @@ INSERT INTO linguistic_concepts (
   'Le russe modifie la terminaison du verbe pour indiquer qui agit maintenant.',
   '{"coreIdea":"La terminaison du verbe répond à la question : qui fait l''action, maintenant ?","whyItExists":"Contrairement au français, le russe intègre souvent le pronom dans la forme verbale : la terminaison dit qui agit, maintenant.","mentalModel":"Pense à une grille : lignes = personnes (я, ты, он…), colonne = présent. Chaque case a sa terminaison.","visualModel":{"type":"diagram","nodes":["infinitif","я …","ты …","он …"],"caption":"De l''infinitif à la forme conjuguée — la terminaison porte la personne"},"canonicalExplanation":{"understand":["En russe, la terminaison du verbe dit qui fait l''action, maintenant.","Ce n''est jamais une terminaison au hasard : la phrase exige une personne précise, et la forme du verbe la marque."],"scheme":["infinitif","я …","ты …","он …"],"contrasts":[{"fromForm":"infinitif","toForm":"forme conjuguée","question":"Pourquoi ?","explanation":"L''infinitif nomme l''action. La forme conjuguée ajoute qui agit, au présent."}],"miniTable":{"title":"Présent — logique","rows":[{"label":"я","form":"…"},{"label":"ты","form":"…"},{"label":"он/она","form":"…"}]},"retentionPoints":["Terminaison du présent = qui agit, maintenant.","La démonstration se lit toujours sur le verbe consulté, pas sur un autre verbe."],"family":["читать","говорить","болеть","делать"]},"teachingScenario":{"principle":"En russe, la terminaison du verbe dit qui fait l''action, maintenant.","fact":"En russe, la terminaison du verbe dit qui fait l''action, maintenant.","intuition":"Contrairement au français, le russe intègre souvent le pronom dans la terminaison : une seule forme suffit à dire qui agit.","contrast":[{"fromForm":"ты чита́ешь","toForm":"он чита́ет","explanation":"Même présent, seule la personne change."}],"visual":{"nodes":["я чита́ю (-ю)","ты чита́ешь (-ешь)","он чита́ет (-ет)"],"layout":"vertical","caption":"Illustration — présent (1re conjugaison)"},"commonMistake":"Ne confonds pas чита́ешь (présent, 2e pers.) et чита́л (passé).","reuse":["Ты де́лаешь, ты говори́шь, ты пи́шешь — même logique de personne au présent."],"memoryAnchor":"Terminaison du présent = qui agit, maintenant.","illustration":{"label":"conjugaison au présent","fact":"La terminaison -ешь marque la 2e personne du singulier au présent (exemple : чита́ть).","contrast":[{"fromForm":"ты чита́ешь","toForm":"он чита́ет","explanation":"Même présent, seule la personne change."}],"visual":{"nodes":["я чита́ю (-ю)","ты чита́ешь (-ешь)","он чита́ет (-ет)"],"layout":"vertical","caption":"Illustration — présent (trois personnes)"},"commonMistake":"Ne confonds pas чита́ешь (présent, 2e pers.) et чита́л (passé).","reuse":["Ты де́лаешь, ты говори́шь, ты пи́шешь — même terminaison -ешь, même logique."],"memoryAnchor":"-ешь = 2e personne du singulier, présent."}},"commonMistakes":["Oublier que le pronom est souvent omis — la terminaison suffit.","Appliquer le paradigme d''un autre verbe (ex. читать) au verbe consulté.","Confondre présent et futur perfectif."],"relatedConcepts":["verb-imperfective-aspect","verb-perfective-aspect","aspect-pairs"],"relatedLemmas":["читать","делать","говорить","писать"],"examples":["Ты читаешь книгу.","Он читает газету."],"progression":{"beginner":"Une seule idée : la terminaison dit qui agit, maintenant.","intermediate":"Comparer les personnes sur le verbe consulté (pas sur un autre verbe).","advanced":"Repérer conjugaison 1 vs 2 et les paradigmes défectifs (болеть « avoir mal », случиться)."},"teacherNotes":"RC-025 : une explication canonique = le principe. La démonstration (terminaison, paradigme) se compose depuis le lemme + la forme rencontrée."}'::jsonb,
   'a-valider',
+  false,
+  now()
+)
+ON CONFLICT (id) DO UPDATE SET
+  slug = EXCLUDED.slug,
+  title = EXCLUDED.title,
+  category = EXCLUDED.category,
+  difficulty = EXCLUDED.difficulty,
+  summary = EXCLUDED.summary,
+  payload = EXCLUDED.payload,
+  validation_status = COALESCE(linguistic_concepts.validation_status, EXCLUDED.validation_status),
+  validated = linguistic_concepts.validated,
+  updated_at = now();
+
+INSERT INTO linguistic_concepts (
+  id, slug, title, category, difficulty, summary,
+  payload, validation_status, validated, updated_at
+) VALUES (
+  'verb-past-tense',
+  'verb-past-tense',
+  'Passé',
+  'Verb Conjugation',
+  'A1',
+  'Le passé russe s''accorde au genre et au nombre du sujet — jamais à la personne, contrairement au présent.',
+  '{"coreIdea":"Au passé, ce n''est pas qui parle (je/tu/il) qui change la forme du verbe, mais le genre et le nombre du sujet.","whyItExists":"Le russe simplifie le passé en un seul système d''accord (genre/nombre), là où le présent distingue plusieurs personnes.","mentalModel":"Passé = radical + -л, puis accord au sujet : -л (masculin), -ла (féminin), -ло (neutre), -ли (pluriel).","visualModel":{"type":"comparison","nodes":["нашёл (masculin)","нашла́ (féminin)","нашли́ (pluriel)"],"caption":"Illustration — accord du passé au genre/nombre du sujet"},"canonicalExplanation":{"understand":["Au présent, la terminaison du verbe dit qui parle : я чита́ю, ты чита́ешь, он чита́ет — une forme par personne. Au passé, ce principe change complètement : нашёл reste identique que le sujet soit я, ты ou он (au masculin) — c''est le genre du sujet qui décide la forme, pas la personne.","Dès que le sujet est féminin, нашёл devient нашла́ ; s''il est pluriel, нашли́. Le français accorde parfois son participe passé (« elle est allée »), mais pas toujours (« il a trouvé » / « elle a trouvé », même forme) — le russe, lui, accorde systématiquement."],"scheme":["нашёл","нашла́","нашли́"],"contrasts":[{"fromForm":"нашёл","toForm":"нашла́","question":"Qu''est-ce qui change ?","explanation":"нашёл = sujet masculin (il). нашла́ = sujet féminin (elle) — seul le genre change, jamais la personne."}],"miniTable":{"title":"Passé — accord","rows":[{"label":"m.","form":"нашёл"},{"label":"f.","form":"нашла́"},{"label":"n.","form":"нашло́"},{"label":"pl.","form":"нашли́"}]},"retentionPoints":["Le passé s''accorde au genre et au nombre du sujet — jamais à la personne.","я/ты/он нашёл sont identiques au masculin : seul le sujet change la forme, pas le pronom qui l''accompagne.","случи́лось (« il s''est passé ») reste au neutre singulier dans son emploi le plus courant : un évènement sans sujet nommé, pas une personne précise."],"family":["найти́","случи́ться"]},"teachingScenario":{"principle":"Au présent, la terminaison dit qui parle (je/tu/il). Au passé, c''est le genre et le nombre du sujet qui comptent — jamais la personne.","fact":"нашёл (il a trouvé) devient нашла́ dès que le sujet est féminin, et нашли́ au pluriel. C''est l''accord du passé.","contrast":[{"fromForm":"нашёл","toForm":"нашла́","explanation":"нашёл = sujet masculin. нашла́ = sujet féminin — seul le genre change."}],"visual":{"nodes":["нашёл (m.)","нашла́ (f.)","нашли́ (pl.)"],"layout":"vertical","caption":"Illustration — accord du passé (genre/nombre du sujet)"},"commonMistake":"Ne cherche pas une terminaison par personne comme au présent : я/ты/он нашёл sont identiques au masculin — seul le genre du sujet change la forme.","reuse":["случи́лось (« que s''est-il passé ? ») reste au neutre singulier dans son emploi le plus courant : случи́ться décrit un évènement sans sujet nommé."],"memoryAnchor":"нашёл / нашла́ / нашли́ : le passé suit le genre et le nombre du sujet, pas la personne."},"commonMistakes":["Chercher une terminaison par personne comme au présent : au passé, c''est le genre du sujet qui compte, pas je/tu/il.","Garder нашёл pour un sujet féminin : il faut нашла́ (« она нашла́ », pas « она нашёл »)."],"relatedConcepts":["verb-present-conjugation","verb-perfective-aspect"],"relatedLemmas":["найти","случиться"],"examples":["Ты бы́стро нашёл доро́гу!","Что случи́лось?"],"progression":{"beginner":"Une seule idée : au passé, le sujet impose son genre et son nombre — jamais sa personne.","intermediate":"Comparer avec le présent (personne) sur le même verbe pour bien sentir la différence de système.","advanced":"Verbes surtout impersonnels au passé : случи́ться reste au neutre singulier dans son emploi le plus courant (évènement sans sujet nommé)."},"teacherNotes":"Statut brouillon — lot 04. Aucun rôle fonctionnel Rossiyani associé (les verbes n''ont pas de rôle fonctionnel — cf. lots précédents). случи́ться n''est pas grammaticalement défectif au sens strict (une беда́ peut « случи́ться », féminin), mais son emploi le plus courant est impersonnel au neutre singulier (cf. CURATED_SLUCHITSYA, present-verbs.ts : même défectivité pratique au présent — 3e personne surtout)."}'::jsonb,
+  'brouillon',
   false,
   now()
 )
@@ -291,6 +317,32 @@ INSERT INTO linguistic_concepts (
   'Chaque préposition impose un cas précis au nom qui suit.',
   '{"coreIdea":"в + accusatif (direction) vs в + prépositionnel (lieu).","whyItExists":"Le cas après une préposition n''est pas libre — c''est une convention fixe à mémoriser par préposition.","mentalModel":"Préposition → cas obligatoire","visualModel":{"type":"diagram","nodes":["в","→ Acc.","в","→ Prép."]},"canonicalExplanation":{"understand":["в Москву (accusatif) = direction. в Москве (prépositionnel) = lieu. La préposition в ne change pas, le cas oui."],"scheme":["в + Acc.","в + Prép.","на + Acc.","на + Prép."],"contrasts":[{"fromForm":"в Москву","toForm":"в Москве","question":"Qu''est-ce qui change ?","explanation":"Direction (accusatif) vs lieu (prépositionnel)."}],"miniTable":null,"retentionPoints":["Chaque préposition a son cas.","в/на + Acc. = direction."],"family":["в","на","к","у"]},"teachingScenario":{"intuition":"Chaque préposition russe impose un cas — ce n''est pas un choix libre.","fact":"Après в : l''accusatif marque куда́ (в Москву́) ; le prépositionnel marque где (в Москве́).","contrast":[{"fromForm":"в Москву́","toForm":"в Москве́","explanation":"Même préposition в : accusatif (куда́) vs prépositionnel (где)."}],"visual":{"nodes":["в Москву́ (accusatif)","в Москве́ (prépositionnel)"],"layout":"comparison","caption":"Illustration — в + cas (куда́ vs где)"},"commonMistake":"Ne mélange pas в Москву́ (куда́, accusatif) et в Москве́ (где, prépositionnel).","reuse":["Я е́ду в Москву́ / Я в Москве́ — même opposition partout."],"memoryAnchor":"в + accusatif = куда́ ; в + prépositionnel = где.","illustrationVariants":[{"id":"genitive","cases":["genitive"],"prepositions":["до","из","от","без","для","после","около"],"fact":"Après до / из / от : le génitif est obligatoire — до свида́ния, из Москвы́.","contrast":[{"fromForm":"до свида́ния","toForm":"от стола́","explanation":"Même cas (génitif) : до et от imposent la forme génitive au nom qui suit."}],"visual":{"nodes":["до свида́ния","из Москвы́","от стола́"],"layout":"vertical","caption":"Illustration — до / из / от + génitif"},"commonMistake":"Après до, le génitif est fixe : до свида́ния — pas un autre cas.","reuse":["из Москвы́, от стола́ — même régence génitive."],"memoryAnchor":"до / из / от + génitif (ex. до свида́ния)."},{"id":"genitive-near","cases":["genitive"],"prepositions":["у"],"fact":"Après у : le génitif dit « près de » — у окна́ (près de la fenêtre), et non « chez » comme до/из/от.","contrast":[{"fromForm":"окно́","toForm":"у окна́","explanation":"у impose le génitif : окно́ → у окна́ (près de la fenêtre)."}],"visual":{"nodes":["у окна́","у стола́"],"layout":"vertical","caption":"Illustration — у + génitif (près de)"},"commonMistake":"Après у, garde le génitif même pour un lieu : у окна́, pas окно́.","reuse":["у стола́ — même régence génitive, sens « près de »."],"memoryAnchor":"у + génitif = près de (ex. у окна́)."},{"id":"dative","cases":["dative"],"prepositions":["к","по"],"fact":"Après к : le datif est obligatoire — к столу́.","contrast":[{"fromForm":"стол","toForm":"к столу́","explanation":"к impose le datif : стол → к столу́."}],"visual":{"nodes":["к столу́","к дру́гу"],"layout":"vertical","caption":"Illustration — к + datif"},"commonMistake":"Après к, utilise le datif : к столу́, pas le nominatif.","reuse":["к дру́гу — même régence datif après к."],"memoryAnchor":"к + datif (ex. к столу́)."},{"id":"direction-location","cases":["accusative","prepositional"],"prepositions":["в","во","на"],"fact":"Après в / на : l''accusatif marque куда́ (в Москву́) ; le prépositionnel marque где (в Москве́).","contrast":[{"fromForm":"в Москву́","toForm":"в Москве́","explanation":"Même préposition в : accusatif (куда́) vs prépositionnel (где)."}],"visual":{"nodes":["в Москву́ (accusatif)","в Москве́ (prépositionnel)","на рабо́ту / на рабо́те"],"layout":"comparison","caption":"Illustration — в / на + cas (куда́ vs где)"},"commonMistake":"Ne mélange pas в Москву́ (куда́, accusatif) et в Москве́ (где, prépositionnel).","reuse":["Я е́ду в Москву́ / Я в Москве́ — même opposition partout."],"memoryAnchor":"в / на + accusatif = куда́ ; + prépositionnel = где."}]},"commonMistakes":["Mélanger direction et lieu."],"relatedConcepts":["noun-declension","case-accusative"],"relatedLemmas":["в","на","к"],"examples":["Я еду в Москву.","Я в Москве."],"progression":{"beginner":"Préposition + cas fixe."},"teacherNotes":null}'::jsonb,
   'a-valider',
+  false,
+  now()
+)
+ON CONFLICT (id) DO UPDATE SET
+  slug = EXCLUDED.slug,
+  title = EXCLUDED.title,
+  category = EXCLUDED.category,
+  difficulty = EXCLUDED.difficulty,
+  summary = EXCLUDED.summary,
+  payload = EXCLUDED.payload,
+  validation_status = COALESCE(linguistic_concepts.validation_status, EXCLUDED.validation_status),
+  validated = linguistic_concepts.validated,
+  updated_at = now();
+
+INSERT INTO linguistic_concepts (
+  id, slug, title, category, difficulty, summary,
+  payload, validation_status, validated, updated_at
+) VALUES (
+  'case-nominative',
+  'case-nominative',
+  'Nominatif',
+  'Case System',
+  'A1',
+  'Le nominatif marque le sujet — celui qui fait l''action — et sert de point de repère pour tous les autres cas.',
+  '{"coreIdea":"En russe, chaque mot a une forme neutre, celle du dictionnaire ; c''est cette forme que porte le sujet, celui qui fait l''action.","whyItExists":"Sans cette forme de référence, aucun autre cas ne se comprendrait : chaque cas se définit par ce qu''il change par rapport au nominatif.","mentalModel":"Qui fait l''action ? → ce mot garde sa forme de départ (nominatif).","visualModel":{"type":"comparison","nodes":["А́нна (sujet, fait l''action)","А́нну (objet, subit l''action)"],"caption":"Illustration — le nominatif ne change pas, les autres cas si"},"canonicalExplanation":{"understand":["А́нна, comme tous les mots russes, a une forme neutre : celle qu''on trouve dans le dictionnaire. Quand А́нна fait l''action — « А́нна говори́т » (Anna parle) — elle garde exactement cette forme : c''est le nominatif.","Le nominatif est le point de repère : les cinq autres cas se définissent par ce qu''ils changent par rapport à lui (objet, possession, destinataire, moyen, lieu). Sans lui, aucun autre cas ne se comprendrait."],"scheme":["А́нна","говори́т","чита́ет"],"contrasts":[{"fromForm":"А́нна","toForm":"А́нну","question":"Qu''est-ce qui change ?","explanation":"А́нна fait l''action : c''est le sujet, la forme de départ. А́нну subit l''action : la forme change pour devenir l''objet."}],"miniTable":null,"retentionPoints":["Le nominatif est la forme de départ — celle du dictionnaire.","Le sujet (qui fait l''action) porte toujours cette forme.","Repère : « qui fait l''action ? » → nominatif."],"family":["Анна","преподаватель","они"]},"teachingScenario":{"principle":"En russe, chaque mot a une forme neutre — celle du dictionnaire. C''est cette forme que porte le sujet, celui qui fait l''action.","fact":"Dans « А́нна говори́т » (Anna parle), А́нна garde sa forme de départ : c''est elle qui fait l''action. Cette forme s''appelle le nominatif.","contrast":[{"fromForm":"А́нна","toForm":"А́нну","explanation":"А́нна fait l''action : c''est le sujet, la forme de départ. А́нну subit l''action : la forme change pour devenir l''objet."}],"visual":{"nodes":["А́нна (sujet, fait l''action)","А́нну (objet, subit l''action)"],"layout":"comparison","caption":"Illustration — le nominatif ne change pas, les autres cas si"},"commonMistake":"Ne crois pas qu''un mot non fléchi est toujours le sujet : au nominatif, un mot peut aussi être un attribut (« Он врач », il est médecin) sans être le sujet de la phrase.","reuse":["Le nominatif est aussi la forme qui s''affiche pour chaque mot que tu consultes — c''est la forme de référence à partir de laquelle les autres cas se comprennent."],"memoryAnchor":"А́нна = qui fait l''action ; c''est le nominatif, la forme de départ."},"commonMistakes":["Croire qu''un mot non fléchi est automatiquement le sujet : au nominatif, un mot peut aussi être un attribut (« Он врач », il est médecin) sans être le sujet de la phrase."],"relatedConcepts":["noun-declension","case-accusative"],"relatedLemmas":["Анна","преподаватель"],"examples":["Преподава́тель улыба́ется.","Они́ вхо́дят в университе́т."],"progression":{"beginner":"Repérer qui fait l''action — c''est lui qui porte le nominatif.","intermediate":"Le nominatif est le point de départ à partir duquel les cinq autres cas se comprennent."},"teacherNotes":"Statut brouillon — lot 04. Rôle fonctionnel Rossiyani : sujet (bleu, déjà existant). Aligné sur docs/lessons/content/six-cas/02-nominatif.json (même logique : forme du dictionnaire + cas du sujet) — aucun écart constaté. Résolution : ne route vers ce concept que si functionalRole === \"subject\" (cf. match-signals.ts) — le nominatif seul (mot non fléchi/attribut) ne suffit pas."}'::jsonb,
+  'brouillon',
   false,
   now()
 )
@@ -791,6 +843,58 @@ ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
 
 INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
 SELECT
+  'case-nominative',
+  'noun-declension',
+  'extends'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-nominative'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'noun-declension'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'case-nominative',
+  'case-accusative',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-nominative'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-accusative'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'verb-past-tense',
+  'verb-present-conjugation',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'verb-past-tense'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'verb-present-conjugation'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
+  'verb-past-tense',
+  'verb-perfective-aspect',
+  'related'
+WHERE EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'verb-past-tense'
+)
+AND EXISTS (
+  SELECT 1 FROM linguistic_concepts c WHERE c.id = 'verb-perfective-aspect'
+)
+ON CONFLICT (from_concept_id, to_concept_id, relation) DO NOTHING;
+
+INSERT INTO concept_relations (from_concept_id, to_concept_id, relation)
+SELECT
   'adjective-agreement',
   'noun-gender',
   'prerequisite'
@@ -878,6 +982,24 @@ FROM lemmas l
 WHERE l.form = 'писать'
   AND EXISTS (
     SELECT 1 FROM linguistic_concepts c WHERE c.id = 'verb-present-conjugation'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'verb-past-tense', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'найти'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'verb-past-tense'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'verb-past-tense', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'случиться'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'verb-past-tense'
   )
 ON CONFLICT (lemma_id, concept_id) DO NOTHING;
 
@@ -1184,6 +1306,24 @@ FROM lemmas l
 WHERE l.form = 'к'
   AND EXISTS (
     SELECT 1 FROM linguistic_concepts c WHERE c.id = 'preposition-government'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-nominative', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'Анна'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-nominative'
+  )
+ON CONFLICT (lemma_id, concept_id) DO NOTHING;
+
+INSERT INTO lemma_concept_links (lemma_id, concept_id, weight, signal)
+SELECT l.id, 'case-nominative', 'secondary', 'seed:relatedLemmas'
+FROM lemmas l
+WHERE l.form = 'преподаватель'
+  AND EXISTS (
+    SELECT 1 FROM linguistic_concepts c WHERE c.id = 'case-nominative'
   )
 ON CONFLICT (lemma_id, concept_id) DO NOTHING;
 

@@ -69,6 +69,7 @@ const INTRA_FAMILY_ORDER: Record<string, number> = {
   "case-dative": 20,
   "case-instrumental": 20,
   "case-prepositional": 20,
+  "case-nominative": 20,
   "noun-animacy": 5,
 };
 
@@ -89,6 +90,7 @@ export const SPECIFIC_CASE_CONCEPT_IDS = [
   "case-dative",
   "case-instrumental",
   "case-prepositional",
+  "case-nominative",
 ] as const;
 
 const ASPECT_SET = new Set<string>(ASPECT_CONCEPT_IDS);
@@ -116,7 +118,7 @@ export function familyOfConcept(conceptId: string): TConceptFamily {
     return "noun-umbrella";
   }
 
-  if (conceptId === "verb-present-conjugation") {
+  if (conceptId === "verb-present-conjugation" || conceptId === "verb-past-tense") {
     return "conjugation";
   }
 

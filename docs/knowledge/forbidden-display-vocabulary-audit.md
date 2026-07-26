@@ -1,15 +1,15 @@
 # Audit — vocabulaire de conception interdit
 
-> Généré le 2026-07-25T20:57:34.270Z
+> Généré le 2026-07-26T11:04:27.243Z
 > Règle : `SCENARIO_FORBIDDEN_DISPLAY_VOCAB` — docs/knowledge/forbidden-display-vocabulary.md
 
 ## Synthèse
 
 | Métrique | Valeur |
 |----------|--------|
-| Concepts audités | 17 |
+| Concepts audités | 19 |
 | Non conformes | 0 |
-| Conformes | 17 |
+| Conformes | 19 |
 
 ## Concepts non conformes
 
@@ -18,6 +18,7 @@ _Tous les scénarios seed passent la règle._
 ## Concepts conformes
 
 - `verb-present-conjugation` — Conjugaison du présent
+- `verb-past-tense` — Passé
 - `verb-imperfective-aspect` — Aspect imperfectif
 - `verb-perfective-aspect` — Aspect perfectif
 - `aspect-pairs` — Paires aspectuelles
@@ -28,6 +29,7 @@ _Tous les scénarios seed passent la règle._
 - `noun-gender` — Genre des noms
 - `adjective-agreement` — Accord de l'adjectif
 - `preposition-government` — Régence des prépositions
+- `case-nominative` — Nominatif
 - `case-accusative` — Accusatif
 - `noun-animacy` — Animation (animé / inanimé)
 - `case-genitive` — Génitif

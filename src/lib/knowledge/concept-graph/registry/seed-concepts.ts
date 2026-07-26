@@ -70,6 +70,75 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
       "RC-025 : une explication canonique = le principe. La démonstration (terminaison, paradigme) se compose depuis le lemme + la forme rencontrée.",
   },
   {
+    id: "verb-past-tense",
+    slug: "verb-past-tense",
+    title: "Passé",
+    category: "Verb Conjugation",
+    difficulty: "A1",
+    validationStatus: "brouillon",
+    summary:
+      "Le passé russe s'accorde au genre et au nombre du sujet — jamais à la personne, contrairement au présent.",
+    coreIdea:
+      "Au passé, ce n'est pas qui parle (je/tu/il) qui change la forme du verbe, mais le genre et le nombre du sujet.",
+    whyItExists:
+      "Le russe simplifie le passé en un seul système d'accord (genre/nombre), là où le présent distingue plusieurs personnes.",
+    mentalModel:
+      "Passé = radical + -л, puis accord au sujet : -л (masculin), -ла (féminin), -ло (neutre), -ли (pluriel).",
+    visualModel: {
+      type: "comparison",
+      nodes: ["нашёл (masculin)", "нашла́ (féminin)", "нашли́ (pluriel)"],
+      caption: "Illustration — accord du passé au genre/nombre du sujet",
+    },
+    canonicalExplanation: {
+      understand: [
+        "Au présent, la terminaison du verbe dit qui parle : я чита́ю, ты чита́ешь, он чита́ет — une forme par personne. Au passé, ce principe change complètement : нашёл reste identique que le sujet soit я, ты ou он (au masculin) — c'est le genre du sujet qui décide la forme, pas la personne.",
+        "Dès que le sujet est féminin, нашёл devient нашла́ ; s'il est pluriel, нашли́. Le français accorde parfois son participe passé (« elle est allée »), mais pas toujours (« il a trouvé » / « elle a trouvé », même forme) — le russe, lui, accorde systématiquement.",
+      ],
+      scheme: ["нашёл", "нашла́", "нашли́"],
+      contrasts: [
+        {
+          fromForm: "нашёл",
+          toForm: "нашла́",
+          question: "Qu'est-ce qui change ?",
+          explanation:
+            "нашёл = sujet masculin (il). нашла́ = sujet féminin (elle) — seul le genre change, jamais la personne.",
+        },
+      ],
+      miniTable: {
+        title: "Passé — accord",
+        rows: [
+          { label: "m.", form: "нашёл" },
+          { label: "f.", form: "нашла́" },
+          { label: "n.", form: "нашло́" },
+          { label: "pl.", form: "нашли́" },
+        ],
+      },
+      retentionPoints: [
+        "Le passé s'accorde au genre et au nombre du sujet — jamais à la personne.",
+        "я/ты/он нашёл sont identiques au masculin : seul le sujet change la forme, pas le pronom qui l'accompagne.",
+        "случи́лось (« il s'est passé ») reste au neutre singulier dans son emploi le plus courant : un évènement sans sujet nommé, pas une personne précise.",
+      ],
+      family: ["найти́", "случи́ться"],
+    },
+    commonMistakes: [
+      "Chercher une terminaison par personne comme au présent : au passé, c'est le genre du sujet qui compte, pas je/tu/il.",
+      "Garder нашёл pour un sujet féminin : il faut нашла́ (« она нашла́ », pas « она нашёл »).",
+    ],
+    relatedConcepts: ["verb-present-conjugation", "verb-perfective-aspect"],
+    relatedLemmas: ["найти", "случиться"],
+    examples: ["Ты бы́стро нашёл доро́гу!", "Что случи́лось?"],
+    progression: {
+      beginner:
+        "Une seule idée : au passé, le sujet impose son genre et son nombre — jamais sa personne.",
+      intermediate:
+        "Comparer avec le présent (personne) sur le même verbe pour bien sentir la différence de système.",
+      advanced:
+        "Verbes surtout impersonnels au passé : случи́ться reste au neutre singulier dans son emploi le plus courant (évènement sans sujet nommé).",
+    },
+    teacherNotes:
+      "Statut brouillon — lot 04. Aucun rôle fonctionnel Rossiyani associé (les verbes n'ont pas de rôle fonctionnel — cf. lots précédents). случи́ться n'est pas grammaticalement défectif au sens strict (une беда́ peut « случи́ться », féminin), mais son emploi le plus courant est impersonnel au neutre singulier (cf. CURATED_SLUCHITSYA, present-verbs.ts : même défectivité pratique au présent — 3e personne surtout).",
+  },
+  {
     id: "verb-imperfective-aspect",
     slug: "verb-imperfective-aspect",
     title: "Aspect imperfectif",
@@ -560,6 +629,62 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     relatedLemmas: ["в", "на", "к"],
     examples: ["Я еду в Москву.", "Я в Москве."],
     progression: { beginner: "Préposition + cas fixe." },
+  },
+  {
+    id: "case-nominative",
+    slug: "case-nominative",
+    title: "Nominatif",
+    category: "Case System",
+    difficulty: "A1",
+    validationStatus: "brouillon",
+    summary:
+      "Le nominatif marque le sujet — celui qui fait l'action — et sert de point de repère pour tous les autres cas.",
+    coreIdea:
+      "En russe, chaque mot a une forme neutre, celle du dictionnaire ; c'est cette forme que porte le sujet, celui qui fait l'action.",
+    whyItExists:
+      "Sans cette forme de référence, aucun autre cas ne se comprendrait : chaque cas se définit par ce qu'il change par rapport au nominatif.",
+    mentalModel: "Qui fait l'action ? → ce mot garde sa forme de départ (nominatif).",
+    visualModel: {
+      type: "comparison",
+      nodes: ["А́нна (sujet, fait l'action)", "А́нну (objet, subit l'action)"],
+      caption: "Illustration — le nominatif ne change pas, les autres cas si",
+    },
+    canonicalExplanation: {
+      understand: [
+        "А́нна, comme tous les mots russes, a une forme neutre : celle qu'on trouve dans le dictionnaire. Quand А́нна fait l'action — « А́нна говори́т » (Anna parle) — elle garde exactement cette forme : c'est le nominatif.",
+        "Le nominatif est le point de repère : les cinq autres cas se définissent par ce qu'ils changent par rapport à lui (objet, possession, destinataire, moyen, lieu). Sans lui, aucun autre cas ne se comprendrait.",
+      ],
+      scheme: ["А́нна", "говори́т", "чита́ет"],
+      contrasts: [
+        {
+          fromForm: "А́нна",
+          toForm: "А́нну",
+          question: "Qu'est-ce qui change ?",
+          explanation:
+            "А́нна fait l'action : c'est le sujet, la forme de départ. А́нну subit l'action : la forme change pour devenir l'objet.",
+        },
+      ],
+      miniTable: null,
+      retentionPoints: [
+        "Le nominatif est la forme de départ — celle du dictionnaire.",
+        "Le sujet (qui fait l'action) porte toujours cette forme.",
+        "Repère : « qui fait l'action ? » → nominatif.",
+      ],
+      family: ["Анна", "преподаватель", "они"],
+    },
+    commonMistakes: [
+      "Croire qu'un mot non fléchi est automatiquement le sujet : au nominatif, un mot peut aussi être un attribut (« Он врач », il est médecin) sans être le sujet de la phrase.",
+    ],
+    relatedConcepts: ["noun-declension", "case-accusative"],
+    relatedLemmas: ["Анна", "преподаватель"],
+    examples: ["Преподава́тель улыба́ется.", "Они́ вхо́дят в университе́т."],
+    progression: {
+      beginner: "Repérer qui fait l'action — c'est lui qui porte le nominatif.",
+      intermediate:
+        "Le nominatif est le point de départ à partir duquel les cinq autres cas se comprennent.",
+    },
+    teacherNotes:
+      'Statut brouillon — lot 04. Rôle fonctionnel Rossiyani : sujet (bleu, déjà existant). Aligné sur docs/lessons/content/six-cas/02-nominatif.json (même logique : forme du dictionnaire + cas du sujet) — aucun écart constaté. Résolution : ne route vers ce concept que si functionalRole === "subject" (cf. match-signals.ts) — le nominatif seul (mot non fléchi/attribut) ne suffit pas.',
   },
   {
     id: "case-accusative",

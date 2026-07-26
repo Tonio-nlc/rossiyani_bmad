@@ -20,6 +20,7 @@ import {
   CURATED_KNIGA,
   CURATED_MOSKVA,
   CURATED_MOTION,
+  CURATED_NAJTI_PAST,
   CURATED_NOUNS_GENDER,
   CURATED_OKNO_CASES,
   CURATED_PISAT,
@@ -27,6 +28,7 @@ import {
   CURATED_PREP_GOVERNMENT_EXAMPLES,
   CURATED_PRESENT_SG2,
   CURATED_PROCHITAT,
+  CURATED_SLUCHITSYA_PAST,
   CURATED_STOL,
   CURATED_UNIVERSITET,
   CURATED_VRACH,
@@ -634,5 +636,63 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
       `о + prépositionnel suit la même forme pour parler de quelque chose : « говори́т о ${CURATED_MOSKVA.prepositional} » (il parle de Moscou) — même cas, sujet différent.`,
     ],
     memoryAnchor: `${CURATED_AUDITORIYA.prep} = où (après в) ; ce cas ne va jamais sans préposition — c'est le prépositionnel.`,
+  },
+
+  // ─── brouillon — lot 04 ────────────────────────────────────
+  "case-nominative": {
+    principle:
+      "En russe, chaque mot a une forme neutre — celle du dictionnaire. C'est cette forme que porte le sujet, celui qui fait l'action.",
+    fact: `Dans « ${CURATED_ANNA.nom} говори́т » (Anna parle), ${CURATED_ANNA.nom} garde sa forme de départ : c'est elle qui fait l'action. Cette forme s'appelle le nominatif.`,
+    contrast: [
+      {
+        fromForm: CURATED_ANNA.nom,
+        toForm: CURATED_ANNA.acc,
+        explanation:
+          `${CURATED_ANNA.nom} fait l'action : c'est le sujet, la forme de départ. ${CURATED_ANNA.acc} subit l'action : la forme change pour devenir l'objet.`,
+      },
+    ],
+    visual: {
+      nodes: [
+        `${CURATED_ANNA.nom} (sujet, fait l'action)`,
+        `${CURATED_ANNA.acc} (objet, subit l'action)`,
+      ],
+      layout: "comparison",
+      caption: "Illustration — le nominatif ne change pas, les autres cas si",
+    },
+    commonMistake:
+      "Ne crois pas qu'un mot non fléchi est toujours le sujet : au nominatif, un mot peut aussi être un attribut (« Он врач », il est médecin) sans être le sujet de la phrase.",
+    reuse: [
+      "Le nominatif est aussi la forme qui s'affiche pour chaque mot que tu consultes — c'est la forme de référence à partir de laquelle les autres cas se comprennent.",
+    ],
+    memoryAnchor: `${CURATED_ANNA.nom} = qui fait l'action ; c'est le nominatif, la forme de départ.`,
+  },
+
+  // ─── brouillon — lot 04 ────────────────────────────────────
+  "verb-past-tense": {
+    principle:
+      "Au présent, la terminaison dit qui parle (je/tu/il). Au passé, c'est le genre et le nombre du sujet qui comptent — jamais la personne.",
+    fact: `${CURATED_NAJTI_PAST.m} (il a trouvé) devient ${CURATED_NAJTI_PAST.f} dès que le sujet est féminin, et ${CURATED_NAJTI_PAST.pl} au pluriel. C'est l'accord du passé.`,
+    contrast: [
+      {
+        fromForm: CURATED_NAJTI_PAST.m,
+        toForm: CURATED_NAJTI_PAST.f,
+        explanation:
+          `${CURATED_NAJTI_PAST.m} = sujet masculin. ${CURATED_NAJTI_PAST.f} = sujet féminin — seul le genre change.`,
+      },
+    ],
+    visual: {
+      nodes: [
+        `${CURATED_NAJTI_PAST.m} (m.)`,
+        `${CURATED_NAJTI_PAST.f} (f.)`,
+        `${CURATED_NAJTI_PAST.pl} (pl.)`,
+      ],
+      layout: "vertical",
+      caption: "Illustration — accord du passé (genre/nombre du sujet)",
+    },
+    commonMistake: `Ne cherche pas une terminaison par personne comme au présent : я/ты/он ${CURATED_NAJTI_PAST.m} sont identiques au masculin — seul le genre du sujet change la forme.`,
+    reuse: [
+      `${CURATED_SLUCHITSYA_PAST.n} (« que s'est-il passé ? ») reste au neutre singulier dans son emploi le plus courant : ${CURATED_SLUCHITSYA_PAST.infinitive} décrit un évènement sans sujet nommé.`,
+    ],
+    memoryAnchor: `${CURATED_NAJTI_PAST.m} / ${CURATED_NAJTI_PAST.f} / ${CURATED_NAJTI_PAST.pl} : le passé suit le genre et le nombre du sujet, pas la personne.`,
   },
 };

@@ -9,7 +9,10 @@ import {
   resolveCaseConceptId,
   type TMorphologicalCase,
 } from "./case-concept-routing";
-import { applyPedagogicalHierarchy } from "./pedagogical-hierarchy";
+import {
+  applyPedagogicalHierarchy,
+  isMotionVerbLemma,
+} from "./pedagogical-hierarchy";
 import { isKnownConceptId } from "./registry";
 
 export interface TConceptMatchProfile {
@@ -86,6 +89,26 @@ const SIGNAL_RULES: SignalRule[] = [
     },
   },
   {
+    conceptId: "verb-past-tense",
+    weight: "primary",
+    score: 90,
+    signal: "passé conjugué",
+    matches: ({ profile, analysis, encounter }) => {
+      if (profile.partOfSpeech !== "verb") {
+        return false;
+      }
+
+      const haystack = [
+        profile.morphology.tense ?? "",
+        encounter?.explanation ?? "",
+        encounter?.suffixExplanation ?? "",
+        ...(analysis.morphSignals ?? []),
+      ].join(" ");
+
+      return /passé|past/i.test(haystack);
+    },
+  },
+  {
     conceptId: "verb-perfective-aspect",
     weight: "primary",
     score: 95,
@@ -132,6 +155,23 @@ const SIGNAL_RULES: SignalRule[] = [
     signal: "préfixe de mouvement",
     matches: ({ profile, analysis }) => {
       if (profile.partOfSpeech !== "verb") {
+        return false;
+      }
+
+      // RC — lot 04 : le préfixe seul (по-/у-/при-/вы-/в-/с-/пере-) ne suffit
+      // pas, sinon TOUT verbe qui commence par ces lettres matcherait à tort
+      // (ex. случи́ться via "с", сде́лать) et volerait le primary à un concept
+      // sans lien avec le mouvement. Exiger en plus une racine de mouvement
+      // connue (isMotionVerbLemma).
+      if (!isMotionVerbLemma(
+        {
+          movementType: profile.movementType,
+          morphologicalCase: profile.morphologicalCase,
+          prepositionGovernment: profile.prepositionGovernment,
+          functionalRole: profile.functionalRole,
+        },
+        analysis,
+      )) {
         return false;
       }
 
@@ -191,6 +231,34 @@ const SIGNAL_RULES: SignalRule[] = [
           profile.morphology.pronounType ?? "",
         )
       );
+    },
+  },
+  {
+    conceptId: "case-nominative",
+    weight: "primary",
+    score: 88,
+    signal: "nominatif (sujet réel)",
+    matches: ({ profile }) => {
+      // RC — le nominatif est aussi la forme de départ / repli d'ambiguïté
+      // (cf. disambiguateCase, case-concept-routing.ts) : un mot au nominatif
+      // n'est PAS forcément le sujet (attribut du sujet, apposition…). Ne
+      // matcher que si le rôle fonctionnel confirme explicitement "subject" —
+      // jamais sur le seul cas, sous peine de fabriquer un faux "sujet".
+      if (
+        profile.partOfSpeech !== "noun" &&
+        profile.partOfSpeech !== "pronoun" &&
+        profile.partOfSpeech !== "adjective"
+      ) {
+        return false;
+      }
+
+      if (!isKnownConceptId("case-nominative")) {
+        return false;
+      }
+
+      const role = (profile.functionalRole ?? "").toLowerCase();
+
+      return profile.morphologicalCase === "nominative" && role === "subject";
     },
   },
   {
