@@ -13,7 +13,9 @@
     "test": "tsx --test src/lib/import/**/*.test.ts",
     "test:import": "tsx --test src/lib/import/**/*.test.ts",
     "knowledge:bootstrap": "tsx scripts/knowledge-bootstrap.ts",
-    "concept-graph:generate-seed": "tsx scripts/generate-concept-graph-seed.ts"
+    "concept-graph:generate-seed": "tsx scripts/generate-concept-graph-seed.ts",
+    "cache:prefill-audit": "tsx scripts/cache-prefill-audit.ts",
+    "cache:prefill-run": "tsx scripts/prefill-explanation-cache.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
