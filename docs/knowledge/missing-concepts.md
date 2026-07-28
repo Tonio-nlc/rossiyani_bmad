@@ -1,7 +1,7 @@
 # Concepts manquants — feuille de route catalogue
 
 > Généré automatiquement par `npm run concept-graph:generate-seed`.
-> Date : 2026-07-26T11:04:26.468Z
+> Date : 2026-07-28T15:27:04.391Z
 
 Les concepts seed référencent (via `TEACHING_GRAPH_EDGES` ou `relatedConcepts`)
 des concepts qui ne sont **pas encore écrits** dans le registry / la base.

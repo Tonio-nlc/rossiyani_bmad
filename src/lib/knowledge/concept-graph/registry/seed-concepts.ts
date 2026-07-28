@@ -728,7 +728,7 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
       family: ["книга", "стол", "университет", "врач"],
     },
     commonMistakes: [
-      "Nommer le cas avant d'identifier l'objet dans la phrase.",
+      "Repérer d'abord l'objet dans la phrase : c'est ce qu'on lit.",
     ],
     relatedConcepts: [
       "noun-declension",
@@ -738,7 +738,7 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     relatedLemmas: ["книга", "университет", "стол"],
     examples: ["Я читаю книгу.", "Они входят в университет."],
     progression: {
-      beginner: "Repérer l'objet d'abord, nommer l'accusatif ensuite.",
+      beginner: "Repérer l'objet dans la phrase : c'est ce qu'on lit.",
       intermediate: "Destination в/на + accusatif.",
     },
     teacherNotes:
@@ -850,7 +850,7 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     relatedLemmas: ["книга", "Анна"],
     examples: ["Кни́га А́нны.", "У Луи́ нет кни́ги."],
     progression: {
-      beginner: "Repérer qui possède, avant de nommer le génitif.",
+      beginner: "Repérer qui possède dans la phrase.",
       intermediate:
         "Absence (нет) et prépositions до/из/от/у/без — même cas, rôles différents.",
       advanced: "Quantité (мно́го + génitif) — hors lot, même logique de cas.",
@@ -909,7 +909,7 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     relatedLemmas: ["Анна", "врач"],
     examples: ["Луи́ говори́т А́нне.", "Пойдём к врачу́."],
     progression: {
-      beginner: "Repérer à qui s'adresse l'action, avant de nommer le datif.",
+      beginner: "Repérer à qui s'adresse l'action dans la phrase.",
       intermediate: "к + datif — même cas, préposition en plus.",
     },
     teacherNotes:
@@ -967,7 +967,7 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     relatedLemmas: ["карта", "Анна"],
     examples: ["Луи́ пла́тит ка́ртой.", "Он идёт с А́нной."],
     progression: {
-      beginner: "Repérer le moyen (avec quoi), avant de nommer l'instrumental.",
+      beginner: "Repérer le moyen (avec quoi) dans la phrase.",
       intermediate: "с + instrumental — même cas, préposition d'accompagnement en plus.",
     },
     teacherNotes:
@@ -1025,7 +1025,7 @@ export const SEED_LINGUISTIC_CONCEPTS: TLinguisticConcept[] = [
     relatedLemmas: ["аудитория", "Москва", "университет"],
     examples: ["В аудито́рии уже́ есть студе́нты.", "А́нна в Москве́."],
     progression: {
-      beginner: "Repérer où l'on est, avant de nommer le prépositionnel.",
+      beginner: "Repérer où l'on est dans la phrase.",
       intermediate:
         "в/на + prépositionnel (lieu, где) vs в/на + accusatif (destination, куда́) — même préposition, cas différent selon le sens.",
       advanced: "о + prépositionnel (sujet dont on parle) — même cas, rôle différent.",

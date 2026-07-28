@@ -100,7 +100,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
   // ─── à valider ─────────────────────────────────────────────
   "verb-imperfective-aspect": {
     intuition:
-      "Avant de nommer l'imperfectif : le russe peut suivre une action comme un film — sans fixer le résultat.",
+      "Le russe peut suivre une action comme un film — sans fixer le résultat.",
     fact: `${CURATED_CHITAT.infinitive} est à l'aspect imperfectif : il décrit un processus ou une habitude, pas un résultat fini.`,
     contrast: [
       {
@@ -236,16 +236,11 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
           "мой = à moi (locuteur). свой = au possesseur déjà nommé dans la phrase.",
       },
     ],
-    visual: {
-      nodes: [CURATED_POSSESSIVE.moj, CURATED_POSSESSIVE.svoj],
-      layout: "comparison",
-      caption: "Illustration — possession (locuteur vs possesseur de la phrase)",
-    },
     commonMistake: `Ne traduis pas ${CURATED_POSSESSIVE.svoj} par « mon » systématiquement — regarde qui possède dans la phrase.`,
     reuse: [
       `${CURATED_EXAMPLE_PHRASES.onLyubitSvoyuRabotu} — ${CURATED_POSSESSIVE.svoj} suit le sujet он.`,
     ],
-    memoryAnchor: `${CURATED_POSSESSIVE.svoj} = au possesseur de la phrase ; ${CURATED_POSSESSIVE.moj} = à moi (locuteur).`,
+    memoryAnchor: `Demande-toi « à qui appartient, dans cette phrase ? » : si c'est le sujet, ${CURATED_POSSESSIVE.svoj} — jamais ${CURATED_POSSESSIVE.moj}, твой ou его pour lui-même.`,
   },
 
   // ─── à valider ─────────────────────────────────────────────
@@ -344,19 +339,11 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
           "Même préposition в : accusatif (куда́) vs prépositionnel (где).",
       },
     ],
-    visual: {
-      nodes: [
-        `${CURATED_MOSKVA.direction} (accusatif)`,
-        `${CURATED_MOSKVA.location} (prépositionnel)`,
-      ],
-      layout: "comparison",
-      caption: "Illustration — в + cas (куда́ vs где)",
-    },
     commonMistake: `Ne mélange pas ${CURATED_MOSKVA.direction} (куда́, accusatif) et ${CURATED_MOSKVA.location} (где, prépositionnel).`,
     reuse: [
       `${CURATED_EXAMPLE_PHRASES.yaEduVMoskvu} / ${CURATED_EXAMPLE_PHRASES.yaVMoskve} — même opposition partout.`,
     ],
-    memoryAnchor: `в + accusatif = куда́ ; в + prépositionnel = где.`,
+    memoryAnchor: `Une préposition ne change jamais de sens toute seule : c'est le cas qui suit qui décide (в + accusatif = куда́, в + prépositionnel = где).`,
     illustrationVariants: [
       {
         id: "genitive",
@@ -490,7 +477,7 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
       layout: "comparison",
       caption: "Illustration — sujet → objet (terminaison)",
     },
-    commonMistake: `Repère d'abord l'objet dans la phrase : ${CURATED_KNIGA.acc} (ce qu'on lit), avant de nommer le cas.`,
+    commonMistake: `Repère d'abord l'objet dans la phrase : ${CURATED_KNIGA.acc}, c'est ce qu'on lit.`,
     reuse: [
       `в ${CURATED_UNIVERSITET.acc} : même logique de forme pour dire où l'on va avec в (texte « Premier jour »).`,
     ],
@@ -538,20 +525,12 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
           "А́нна = forme de départ. А́нны = qui possède (le livre est à elle).",
       },
     ],
-    visual: {
-      nodes: [
-        `${CURATED_ANNA.nom} (forme de départ)`,
-        `${CURATED_ANNA.gen} (qui possède)`,
-      ],
-      layout: "comparison",
-      caption: "Illustration — qui possède",
-    },
     commonMistake: `Garde la forme du possesseur : dis « кни́га ${CURATED_ANNA.gen} », pas « кни́га ${CURATED_ANNA.nom} ».`,
     reuse: [
       `L'absence suit la même logique : « У Луи́ нет ${CURATED_KNIGA.gen} » (Louis n'a pas de livre, texte « У врача ») — ${CURATED_KNIGA.gen} reste au génitif après нет.`,
       `до, из, от, у, без imposent aussi le génitif (ex. « из ${CURATED_MOSKVA.genitive} », texte « Знакомство ») — c'est la préposition qui décide, pas ce concept seul.`,
     ],
-    memoryAnchor: `${CURATED_ANNA.gen} = qui possède ; c'est le génitif.`,
+    memoryAnchor: `Demande-toi « qui possède ? » : la réponse porte le génitif, pas la forme de départ.`,
   },
 
   // ─── brouillon — lot 02 ────────────────────────────────────
@@ -567,19 +546,11 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
           "А́нна = forme de départ. А́нне = à qui (celle qui reçoit la parole).",
       },
     ],
-    visual: {
-      nodes: [
-        `${CURATED_ANNA.nom} (forme de départ)`,
-        `${CURATED_ANNA.dat} (à qui)`,
-      ],
-      layout: "comparison",
-      caption: "Illustration — à qui",
-    },
     commonMistake: `Garde la forme de départ pour le destinataire : dis « говори́т ${CURATED_ANNA.dat} », pas « говори́т ${CURATED_ANNA.nom} ».`,
     reuse: [
       `к suit la même logique de forme (texte « У врача » : « Пойдём к ${CURATED_VRACH.dat} ») — mais c'est la préposition к qui impose le datif, pas ce concept seul.`,
     ],
-    memoryAnchor: `${CURATED_ANNA.dat} = à qui ; c'est le datif.`,
+    memoryAnchor: `Demande-toi « à qui ? » : la réponse porte le datif, comme ${CURATED_ANNA.dat}, même sans préposition.`,
   },
 
   // ─── brouillon — lot 03 ────────────────────────────────────
@@ -595,19 +566,11 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
           `${CURATED_KARTA.nom} = forme de départ. ${CURATED_KARTA.instr} = avec quoi (le moyen), sans préposition.`,
       },
     ],
-    visual: {
-      nodes: [
-        `${CURATED_KARTA.nom} (forme de départ)`,
-        `${CURATED_KARTA.instr} (avec quoi)`,
-      ],
-      layout: "comparison",
-      caption: "Illustration — avec quoi (le moyen)",
-    },
     commonMistake: `Ne garde pas ${CURATED_KARTA.nom} après плати́ть : dis « пла́тит ${CURATED_KARTA.instr} », pas « пла́тит ${CURATED_KARTA.nom} ».`,
     reuse: [
       `с ${CURATED_ANNA.instr} suit la même forme pour dire avec qui on est (accompagnement) — mais c'est la préposition с qui impose l'instrumental, pas ce concept seul.`,
     ],
-    memoryAnchor: `${CURATED_KARTA.instr} = avec quoi (le moyen), sans préposition ; c'est l'instrumental.`,
+    memoryAnchor: `Demande-toi « avec quoi ? » : ${CURATED_KARTA.instr} répond seule (le moyen) ou après с (l'accompagnement) — c'est toujours l'instrumental.`,
   },
 
   // ─── brouillon — lot 03 ────────────────────────────────────
@@ -651,20 +614,12 @@ export const SEED_TEACHING_SCENARIOS: Record<string, TTeachingScenarioContent> =
           `${CURATED_ANNA.nom} fait l'action : c'est le sujet, la forme de départ. ${CURATED_ANNA.acc} subit l'action : la forme change pour devenir l'objet.`,
       },
     ],
-    visual: {
-      nodes: [
-        `${CURATED_ANNA.nom} (sujet, fait l'action)`,
-        `${CURATED_ANNA.acc} (objet, subit l'action)`,
-      ],
-      layout: "comparison",
-      caption: "Illustration — le nominatif ne change pas, les autres cas si",
-    },
     commonMistake:
       "Ne crois pas qu'un mot non fléchi est toujours le sujet : au nominatif, un mot peut aussi être un attribut (« Он врач », il est médecin) sans être le sujet de la phrase.",
     reuse: [
       "Le nominatif est aussi la forme qui s'affiche pour chaque mot que tu consultes — c'est la forme de référence à partir de laquelle les autres cas se comprennent.",
     ],
-    memoryAnchor: `${CURATED_ANNA.nom} = qui fait l'action ; c'est le nominatif, la forme de départ.`,
+    memoryAnchor: `Demande-toi « qui fait l'action ? » : la réponse garde la forme de départ — c'est le repère pour comprendre tous les autres cas.`,
   },
 
   // ─── brouillon — lot 04 ────────────────────────────────────
