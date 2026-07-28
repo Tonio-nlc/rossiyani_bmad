@@ -107,25 +107,27 @@ const POS_WITHOUT_RELIABLE_SUFFIX = new Set([
 ]);
 
 /**
- * Applique l'override "moyen" quand le cas instrumental est connu de façon fiable.
- * Ne s'applique jamais aux verbes (pas de rôle fonctionnel). Logique partagée :
- * voir deriveInstrumentRoleOverride (concept-graph/resolve-reader-concept.ts).
+ * Applique l'override déterministe "moyen/instrument" si le cas instrumental
+ * est confirmé de façon fiable (régence ou forme curée univoque). Ne s'applique
+ * jamais aux verbes (pas de rôle fonctionnel). Logique partagée : voir
+ * deriveInstrumentRoleOverride (concept-graph/resolve-reader-concept.ts).
+ *
+ * Ne dépend PAS strictement de `profile` : la détection par forme curée
+ * (ex. ка́ртой, А́нной) et par régence prépositionnelle fonctionne sur la
+ * seule surface/phrase, donc doit s'appliquer même quand `linguistic_knowledge`
+ * n'est pas encore bootstrappé pour ce lemme (profile = null).
  */
 function applyInstrumentRoleOverride(
   response: TWordExplanationResponseExtended,
   profile: TLinguisticProfile | null,
   sentence: string,
 ): TWordExplanationResponseExtended {
-  if (!profile) {
-    return response;
-  }
-
   const override = deriveInstrumentRoleOverride({
     surface: response.surface,
     sentence,
-    partOfSpeech: response.partOfSpeech,
-    paradigms: profile.paradigms,
-    morphology: profile.morphology,
+    partOfSpeech: response.partOfSpeech ?? profile?.partOfSpeech ?? null,
+    paradigms: profile?.paradigms ?? null,
+    morphology: profile?.morphology ?? null,
     functionalRole: response.functionalRole,
     explanation: response.explanation,
   });
@@ -164,7 +166,10 @@ async function attachConceptResolution(
       );
     }
 
-    return response;
+    // Le profil complet manque encore (knowledge non bootstrappée), mais
+    // l'override instrumental (forme curée / régence) ne dépend pas du
+    // profil : on tente quand même avant d'abandonner la résolution.
+    return applyInstrumentRoleOverride(response, profile, sentence);
   }
 
   const partOfSpeech = profile?.partOfSpeech ?? "verb";
