@@ -5,7 +5,10 @@ import {
 } from "@/lib/knowledge/concept-graph";
 import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
 import { getKnowledgeForConceptResolution } from "@/lib/knowledge/get-knowledge";
-import { resolveCuratedLemmaFromSurface } from "@/lib/knowledge/morphology/curated";
+import {
+  getCuratedPastTenseSuffix,
+  resolveCuratedLemmaFromSurface,
+} from "@/lib/knowledge/morphology/curated";
 import {
   getCachedExplanation,
   incrementUsageCount,
@@ -182,6 +185,12 @@ async function attachConceptResolution(
   const aspect = profile?.aspect ?? null;
   const isVerb = partOfSpeech === "verb" || Boolean(curatedSurface);
   const hasNoReliableSuffix = POS_WITHOUT_RELIABLE_SUFFIX.has(partOfSpeech);
+  // Découpe radical/désinence du passé : n'écrase la sortie LLM (souvent fausse,
+  // ex. нашёл -> "ёл") que lorsque la morphologie curée confirme la forme exacte.
+  // Sinon, on ne touche à rien plutôt que de risquer une découpe non fiable.
+  const reliablePastSuffix = curatedSurface
+    ? getCuratedPastTenseSuffix(curatedSurface, response.surface)
+    : null;
 
   const withPos: TWordExplanationResponseExtended = {
     ...response,
@@ -197,6 +206,12 @@ async function attachConceptResolution(
       ? {
           suffix: "",
           suffixExplanation: "",
+        }
+      : {}),
+    ...(reliablePastSuffix
+      ? {
+          suffix: reliablePastSuffix.suffix,
+          suffixExplanation: reliablePastSuffix.suffixExplanation,
         }
       : {}),
   };

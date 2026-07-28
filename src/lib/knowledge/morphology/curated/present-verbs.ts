@@ -26,7 +26,7 @@ export interface TCuratedVerbPresent {
   defective?: TCuratedVerbDefectivity;
   present: Partial<Record<TPresentPersonKey, string>>;
   endings: Partial<Record<TPresentPersonKey, string>>;
-  past?: { m: string };
+  past?: { m: string; f?: string; n?: string; pl?: string };
 }
 
 const PERSON_PRONOUNS: Record<TPresentPersonKey, string> = {
@@ -154,12 +154,31 @@ export const CURATED_POJTI_PRESENT: TCuratedVerbPresent = {
   },
 };
 
+/**
+ * найти́ (perfectif) — texte gold « — Ты бы́стро нашёл доро́гу! » : нашёл attesté.
+ * validé manuellement — ne pas générer par LLM
+ * Verbe perfectif : pas de présent (seule forme non-passée = futur, non curée ici
+ * faute de besoin actuel). Passé complet nécessaire pour corriger la lemmatisation
+ * de surface нашёл → находи́ть constatée dans explanation_cache (cf.
+ * docs/knowledge/concept-resolution-hierarchy.md et docs/knowledge/lot-04-sources.md
+ * pour la source des formes нашёл/нашла́/нашло́/нашли́).
+ */
+export const CURATED_NAJTI_PRESENT: TCuratedVerbPresent = {
+  lemma: "найти́",
+  aliases: ["найти", "найти́"],
+  conjugationClass: 1,
+  present: {},
+  endings: {},
+  past: { m: "нашёл", f: "нашла́", n: "нашло́", pl: "нашли́" },
+};
+
 export const CURATED_PRESENT_VERBS: TCuratedVerbPresent[] = [
   CURATED_BOLET_HURT,
   CURATED_SLUCHITSYA,
   CURATED_CHITAT_PRESENT,
   CURATED_GOVORIT_PRESENT,
   CURATED_POJTI_PRESENT,
+  CURATED_NAJTI_PRESENT,
 ];
 
 const byAlias = new Map<string, TCuratedVerbPresent>();
@@ -177,8 +196,10 @@ for (const verb of CURATED_PRESENT_VERBS) {
     }
   }
 
-  if (verb.past?.m) {
-    bySurfaceForm.set(stripStressMarks(verb.past.m), verb);
+  for (const form of Object.values(verb.past ?? {})) {
+    if (form) {
+      bySurfaceForm.set(stripStressMarks(form), verb);
+    }
   }
 }
 
@@ -200,6 +221,57 @@ export function resolveCuratedLemmaFromSurface(
 
 export function isDefectivePresentVerb(lemma: string): boolean {
   return Boolean(getCuratedPresentVerb(lemma)?.defective);
+}
+
+/**
+ * Découpe radical/désinence du passé depuis la morphologie curée uniquement
+ * (jamais depuis le LLM). La désinence du passé russe est toujours -л/-ла/-ло/-ли
+ * quelle que soit la classe de conjugaison : dès qu'on reconnaît la forme de
+ * surface dans le paradigme curé du verbe (ex. нашёл), la désinence en découle
+ * directement, sans dépendre d'une segmentation devinée par le LLM.
+ * Retourne null si la forme n'est pas une des formes de passé curées de ce
+ * verbe (ex. c'est en fait une forme de présent) — dans ce cas, ne rien afficher
+ * plutôt qu'une découpe non fiable.
+ */
+export function getCuratedPastTenseSuffix(
+  verb: TCuratedVerbPresent,
+  surface: string,
+): { suffix: string; suffixExplanation: string } | null {
+  const bare = stripStressMarks(surface);
+
+  if (verb.past?.m && stripStressMarks(verb.past.m) === bare) {
+    return {
+      suffix: "-л",
+      suffixExplanation:
+        "Terminaison du passé masculin singulier : action accomplie, sujet masculin.",
+    };
+  }
+
+  if (verb.past?.f && stripStressMarks(verb.past.f) === bare) {
+    return {
+      suffix: "-ла",
+      suffixExplanation:
+        "Terminaison du passé féminin singulier : action accomplie, sujet féminin.",
+    };
+  }
+
+  if (verb.past?.n && stripStressMarks(verb.past.n) === bare) {
+    return {
+      suffix: "-ло",
+      suffixExplanation:
+        "Terminaison du passé neutre singulier : action accomplie, sujet neutre.",
+    };
+  }
+
+  if (verb.past?.pl && stripStressMarks(verb.past.pl) === bare) {
+    return {
+      suffix: "-ли",
+      suffixExplanation:
+        "Terminaison du passé pluriel : action accomplie, sujet au pluriel.",
+    };
+  }
+
+  return null;
 }
 
 export type TPresentPersonInfo = {
