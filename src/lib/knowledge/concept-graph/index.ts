@@ -9,8 +9,12 @@ export {
 export { NO_CONCEPT_ID, resolveConceptGraph } from "./resolve-concept-graph";
 export {
   detectReliableCase,
+  deriveInstrumentRoleOverride,
+  INSTRUMENT_FUNCTIONAL_ROLE,
+  INSTRUMENT_FUNCTION_COLOR,
   resolveReaderConcept,
   resolveReaderConceptFromSignals,
+  type TInstrumentRoleOverrideInput,
 } from "./resolve-reader-concept";
 export {
   buildTeachingPath,

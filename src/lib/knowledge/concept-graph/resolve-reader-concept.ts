@@ -87,6 +87,63 @@ export function detectReliableCase(input: {
   };
 }
 
+/**
+ * 6e rôle fonctionnel : "moyen/instrument", dérivé du cas instrumental.
+ * Contrairement aux 5 autres rôles (choisis librement par le LLM par phrase),
+ * celui-ci n'est JAMAIS une devinette LLM : il n'écrase functionalRole/functionColor
+ * que si detectReliableCase() a établi le cas instrumental depuis une source fiable
+ * (paradigme linguistic_knowledge, morphologie curée, ou régence prépositionnelle
+ * déterministe). Si le cas n'est pas connu de façon fiable, aucun override.
+ *
+ * Source UNIQUE de vérité pour cet override — réutilisée par l'orchestrateur
+ * (Reader/Explorer) ET par la fiche vocabulaire (carte "rencontre"), pour que les
+ * 3 surfaces affichent toujours un rôle cohérent. Ne pas dupliquer cette logique.
+ */
+export const INSTRUMENT_FUNCTIONAL_ROLE = "instrument";
+export const INSTRUMENT_FUNCTION_COLOR = "teal";
+
+export interface TInstrumentRoleOverrideInput {
+  surface?: string | null;
+  sentence?: string | null;
+  /** Les verbes n'ont pas de rôle fonctionnel : jamais d'override sur un verbe. */
+  partOfSpeech?: string | null;
+  paradigms?: TLinguisticProfile["paradigms"] | null;
+  morphology?: TLinguisticProfile["morphology"] | null;
+  functionalRole?: string | null;
+  explanation?: string | null;
+}
+
+/**
+ * Dérive l'override "moyen" (rôle + couleur) quand le cas instrumental est connu
+ * de façon fiable. Retourne `null` si aucun override ne s'applique (verbe, ou cas
+ * non fiable) : le rôle/couleur d'origine doivent alors rester inchangés.
+ */
+export function deriveInstrumentRoleOverride(
+  input: TInstrumentRoleOverrideInput,
+): { functionalRole: string; functionColor: string } | null {
+  if (input.partOfSpeech === "verb") {
+    return null;
+  }
+
+  const { morphologicalCase } = detectReliableCase({
+    surface: input.surface,
+    sentence: input.sentence,
+    paradigms: input.paradigms,
+    morphology: input.morphology,
+    functionalRole: input.functionalRole,
+    explanation: input.explanation,
+  });
+
+  if (morphologicalCase !== "instrumental") {
+    return null;
+  }
+
+  return {
+    functionalRole: INSTRUMENT_FUNCTIONAL_ROLE,
+    functionColor: INSTRUMENT_FUNCTION_COLOR,
+  };
+}
+
 export interface TReaderConceptResolution {
   conceptId: string;
   conceptSlug: string;

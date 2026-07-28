@@ -1,5 +1,6 @@
 import type { TLessonExampleWord, TLessonWordRole } from "@/types/lessons";
 import {
+  getFunctionColorHex,
   normalizeToken,
   tokenizeSentence,
   type TReaderFunctionColor,
@@ -16,6 +17,52 @@ const ROLE_COLOR_MAP: Record<
   recipient: "amber",
   instrument: "teal",
 };
+
+/**
+ * Libellé pédagogique "learner-facing" par rôle — jamais le nom du cas
+ * (ex. "instrumental"), toujours le sens concret ("avec quoi"). `Record`
+ * exhaustif sur `TLessonWordRole` : un futur ajout de rôle fait échouer le
+ * build tant que son libellé n'est pas renseigné ici (pas de légende figée
+ * qui prendrait du retard sur les rôles réels).
+ */
+const ROLE_ONBOARDING_LABEL: Record<Exclude<TLessonWordRole, null>, string> = {
+  subject: "fait l'action (le sujet)",
+  object: "reçoit l'action (l'objet)",
+  place: "indique où ou quand",
+  possession: "indique une possession",
+  recipient: "indique à qui",
+  instrument: "indique le moyen (avec quoi)",
+};
+
+/** Ordre d'affichage de la légende (pédagogique : agent → patient → circonstances). */
+const ROLE_LEGEND_ORDER: Array<Exclude<TLessonWordRole, null>> = [
+  "subject",
+  "object",
+  "place",
+  "possession",
+  "recipient",
+  "instrument",
+];
+
+export interface TRoleLegendItem {
+  role: Exclude<TLessonWordRole, null>;
+  color: string;
+  label: string;
+}
+
+/**
+ * Légende complète des rôles fonctionnels — dérivée de la source de vérité
+ * (ROLE_COLOR_MAP + FUNCTION_COLOR_MAP dans russian.ts), jamais une liste de
+ * hex codée en dur. Utilisée par l'onboarding pour rester synchronisée avec
+ * les couleurs réellement utilisées dans le Reader/Explorer.
+ */
+export function buildRoleLegend(): TRoleLegendItem[] {
+  return ROLE_LEGEND_ORDER.map((role) => ({
+    role,
+    color: getFunctionColorHex(ROLE_COLOR_MAP[role]) ?? "",
+    label: ROLE_ONBOARDING_LABEL[role],
+  }));
+}
 
 const COLOR_ROLE_MAP: Record<TReaderFunctionColor, Exclude<TLessonWordRole, null>> =
   {

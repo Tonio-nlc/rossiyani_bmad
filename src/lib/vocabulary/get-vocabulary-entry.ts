@@ -1,6 +1,11 @@
-import type { TVocabularyEntry } from "@/types/vocabulary";
+import type {
+  TVocabularyContextEncounter,
+  TVocabularyEntry,
+  TVocabularyLinguisticProfile,
+} from "@/types/vocabulary";
 import { buildKnowledge } from "@/lib/knowledge/build-knowledge";
 import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
+import { deriveInstrumentRoleOverride } from "@/lib/knowledge/concept-graph";
 import { ensureKnowledgeExists } from "@/lib/knowledge/get-knowledge";
 import { isKnowledgeComplete } from "@/lib/knowledge/is-knowledge-complete";
 import { composeConceptLesson } from "@/lib/knowledge/concept/compose-concept-lesson";
@@ -168,6 +173,45 @@ async function resolveContextEncounter(
   };
 }
 
+/**
+ * Applique le MÊME override "moyen/instrument" que le Reader/Explorer
+ * (deriveInstrumentRoleOverride, dérivé du cas confirmé — jamais une devinette
+ * LLM). `explanation_cache.functional_role/function_color` restent bruts (rôle
+ * LLM d'origine, cf. orchestrator/index.ts) : sans cet override, la carte
+ * "rencontre" du vocabulaire afficherait un rôle différent du Reader/Explorer
+ * pour un même mot instrumental. Ne modifie que l'affichage — aucune structure
+ * de scénario, aucun moteur.
+ */
+function applyInstrumentOverrideToEncounter(
+  encounter: TVocabularyContextEncounter | null,
+  profile: TVocabularyLinguisticProfile,
+): TVocabularyContextEncounter | null {
+  if (!encounter) {
+    return encounter;
+  }
+
+  const override = deriveInstrumentRoleOverride({
+    surface: encounter.surface,
+    sentence: encounter.sentence,
+    partOfSpeech: profile.partOfSpeech,
+    paradigms: profile.paradigms,
+    morphology: profile.morphology,
+    functionalRole: encounter.functionalRole,
+    explanation: encounter.explanation,
+  });
+
+  if (!override) {
+    return encounter;
+  }
+
+  return {
+    ...encounter,
+    functionalRole: override.functionalRole,
+    functionColor: override.functionColor,
+    roleLabel: getNaturalFunctionalRoleLabel(override.functionalRole),
+  };
+}
+
 function resolveLemmaStressed(
   linkedCache: ExplanationCacheRelation | null,
 ): string | undefined {
@@ -276,11 +320,19 @@ export async function getVocabularyEntry(
     knowledge,
   );
 
+  // Aligne le rôle affiché sur celui du Reader/Explorer (override "moyen"
+  // dérivé du cas fiable) — sans quoi la carte "rencontre" pourrait afficher
+  // le rôle LLM brut, incohérent avec les 2 autres surfaces.
+  const encounterForDisplay = applyInstrumentOverrideToEncounter(
+    contextEncounter,
+    linguisticProfile,
+  );
+
   const { lesson: conceptLesson, card: learningCard } = composeConceptLesson({
     profile: linguisticProfile,
     displayLemma,
     translation,
-    encounter: contextEncounter,
+    encounter: encounterForDisplay,
     examples,
     persistedTeachingScenario: parsePersistedTeachingScenario(
       row.teaching_scenario,
@@ -295,7 +347,7 @@ export async function getVocabularyEntry(
     linguisticProfile,
     learningCard,
     conceptLesson,
-    contextEncounter,
+    contextEncounter: encounterForDisplay,
     linguisticData: {
       lemma: lemma.form,
       translation,

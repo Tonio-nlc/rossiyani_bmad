@@ -6,6 +6,8 @@ import { useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { RussianText } from "@/components/reader/RussianText";
+import { buildRoleLegend } from "@/lib/lessons/lesson-colors";
+import { getFunctionColorHex } from "@/lib/utils/russian";
 import { cn } from "@/lib/utils";
 
 const TOTAL_STEPS = 5;
@@ -59,13 +61,12 @@ const DEMO_EXPLANATIONS: Record<TDemoWord, IDemoExplanation> = {
   },
 };
 
-const ROLE_LEGEND = [
-  { color: "#3B82F6", label: "fait l'action (le sujet)" },
-  { color: "#EF7C5A", label: "reçoit l'action (l'objet)" },
-  { color: "#22C55E", label: "indique où ou quand" },
-  { color: "#A78BFA", label: "indique une possession" },
-  { color: "#F59E0B", label: "indique à qui" },
-] as const;
+/**
+ * Dérivée de la source de vérité des rôles (russian.ts + lesson-colors.ts) —
+ * pas une liste codée en dur : un futur ajout de rôle (nouvelle couleur)
+ * apparaît ici automatiquement sans recréer le décalage vu avec "moyen/teal".
+ */
+const ROLE_LEGEND = buildRoleLegend();
 
 export function OnboardingFlow() {
   const router = useRouter();
@@ -243,7 +244,7 @@ function StepOne() {
 
 function RoleSubject({ children }: { children: ReactNode }) {
   return (
-    <span className="font-russian" style={{ color: "#3B82F6" }}>
+    <span className="font-russian" style={{ color: getFunctionColorHex("blue") }}>
       {children}
     </span>
   );
@@ -253,7 +254,7 @@ function RoleObject() {
   return (
     <span className="font-russian">
       <span className="text-ink">Маш</span>
-      <span style={{ color: "#EF7C5A" }}>у</span>
+      <span style={{ color: getFunctionColorHex("coral") }}>у</span>
     </span>
   );
 }
@@ -283,7 +284,7 @@ function StepTwo() {
 
       <ul className="space-y-4">
         {ROLE_LEGEND.map((item) => (
-          <li key={item.label} className="flex items-center">
+          <li key={item.role} className="flex items-center">
             <span
               className="mr-2 inline-block size-3 shrink-0 rounded-full align-middle"
               style={{ backgroundColor: item.color }}
@@ -338,7 +339,7 @@ function StepThree({
             ariaLabel="Машу — reçoit l'action, l'objet"
           >
             <span className="text-ink">Маш</span>
-            <span style={{ color: "#EF7C5A" }}>у</span>
+            <span style={{ color: getFunctionColorHex("coral") }}>у</span>
           </DemoWordButton>
           .
         </p>
@@ -394,7 +395,7 @@ function DemoWordButton({
         variant === "verb" &&
           "border-b border-dashed border-ink-3 text-ink",
       )}
-      style={variant === "subject" ? { color: "#3B82F6" } : undefined}
+      style={variant === "subject" ? { color: getFunctionColorHex("blue") } : undefined}
     >
       {children}
     </button>

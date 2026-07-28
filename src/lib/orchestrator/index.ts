@@ -1,5 +1,5 @@
 import {
-  detectReliableCase,
+  deriveInstrumentRoleOverride,
   ensureConceptGraphHydrated,
   resolveReaderConceptFromSignals,
 } from "@/lib/knowledge/concept-graph";
@@ -107,48 +107,34 @@ const POS_WITHOUT_RELIABLE_SUFFIX = new Set([
 ]);
 
 /**
- * 6e rôle fonctionnel : "moyen/instrument", dérivé du cas instrumental.
- * Contrairement aux 5 autres rôles (choisis librement par le LLM par phrase),
- * celui-ci n'est JAMAIS une devinette LLM : il n'écrase functionalRole/functionColor
- * que si detectReliableCase() a établi le cas instrumental depuis une source fiable
- * (paradigme linguistic_knowledge, morphologie curée, ou régence prépositionnelle
- * déterministe). Si le cas n'est pas connu de façon fiable, aucun override —
- * le mot garde le rôle du LLM (ou rien), jamais une couleur "moyen" au hasard.
- */
-const INSTRUMENT_FUNCTIONAL_ROLE = "instrument";
-const INSTRUMENT_FUNCTION_COLOR = "teal";
-
-/**
  * Applique l'override "moyen" quand le cas instrumental est connu de façon fiable.
- * Ne s'applique jamais aux verbes (pas de rôle fonctionnel).
+ * Ne s'applique jamais aux verbes (pas de rôle fonctionnel). Logique partagée :
+ * voir deriveInstrumentRoleOverride (concept-graph/resolve-reader-concept.ts).
  */
 function applyInstrumentRoleOverride(
   response: TWordExplanationResponseExtended,
   profile: TLinguisticProfile | null,
   sentence: string,
 ): TWordExplanationResponseExtended {
-  if (!profile || response.partOfSpeech === "verb") {
+  if (!profile) {
     return response;
   }
 
-  const { morphologicalCase } = detectReliableCase({
+  const override = deriveInstrumentRoleOverride({
     surface: response.surface,
     sentence,
+    partOfSpeech: response.partOfSpeech,
     paradigms: profile.paradigms,
     morphology: profile.morphology,
     functionalRole: response.functionalRole,
     explanation: response.explanation,
   });
 
-  if (morphologicalCase !== "instrumental") {
+  if (!override) {
     return response;
   }
 
-  return {
-    ...response,
-    functionalRole: INSTRUMENT_FUNCTIONAL_ROLE,
-    functionColor: INSTRUMENT_FUNCTION_COLOR,
-  };
+  return { ...response, ...override };
 }
 
 /**
