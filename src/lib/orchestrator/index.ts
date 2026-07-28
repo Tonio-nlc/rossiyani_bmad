@@ -17,7 +17,7 @@ import {
 } from "@/lib/orchestrator/cache";
 import { generateWordExplanation } from "@/lib/orchestrator/llm";
 import { computeContextHash } from "@/lib/orchestrator/hasher";
-import { createPerfTimer } from "@/lib/utils/perf-timer";
+import { createPerfTimer, type TPerfMark } from "@/lib/utils/perf-timer";
 import type { TLinguisticProfile } from "@/types/knowledge";
 import type {
   TLlmExplanationPayload,
@@ -142,18 +142,32 @@ function applyInstrumentRoleOverride(
 /**
  * Attache concept + POS/aspect depuis linguistic_knowledge.
  * Les verbes n'ont pas de rôle fonctionnel (sujet/objet…) : on le retire ici.
+ *
+ * `mark` optionnel — décomposition fine (diagnostic perf cache HIT, cf.
+ * docs/knowledge/perf-cache-hit-diagnostic.md) : chaque étape asynchrone est
+ * chronométrée séparément pour distinguer hydratation du Concept Graph,
+ * lecture linguistic_knowledge (avec repli sur lemmes équivalents) et
+ * résolution de concept (pure, en mémoire).
  */
 async function attachConceptResolution(
   response: TWordExplanationResponseExtended,
   sentence: string,
+  mark: TPerfMark = () => undefined,
 ): Promise<TWordExplanationResponseExtended> {
-  await ensureConceptGraphHydrated();
-
   const curatedSurface = resolveCuratedLemmaFromSurface(response.surface);
-  const knowledge = await getKnowledgeForConceptResolution({
-    lemmaId: response.lemmaId,
-    lemmaForm: response.lemma,
-  });
+
+  // Perf : ces deux lectures sont indépendantes (hydratation Concept Graph en
+  // mémoire vs linguistic_knowledge en DB) — les paralléliser évite de payer
+  // les deux latences en série, surtout sur un process/instance à froid où
+  // l'hydratation n'est pas encore mise en cache.
+  const [, knowledge] = await Promise.all([
+    ensureConceptGraphHydrated(),
+    getKnowledgeForConceptResolution({
+      lemmaId: response.lemmaId,
+      lemmaForm: response.lemma,
+    }),
+  ]);
+  mark("  ensureConceptGraphHydrated + getKnowledgeForConceptResolution (parallèle)");
 
   const profile = knowledge?.partOfSpeech && knowledge.partOfSpeech !== "unknown"
     ? buildLinguisticProfile(knowledge)
@@ -169,7 +183,10 @@ async function attachConceptResolution(
     // Le profil complet manque encore (knowledge non bootstrappée), mais
     // l'override instrumental (forme curée / régence) ne dépend pas du
     // profil : on tente quand même avant d'abandonner la résolution.
-    return applyInstrumentRoleOverride(response, profile, sentence);
+    const overridden = applyInstrumentRoleOverride(response, profile, sentence);
+    mark("  applyInstrumentRoleOverride (sans profil)");
+
+    return overridden;
   }
 
   const partOfSpeech = profile?.partOfSpeech ?? "verb";
@@ -208,7 +225,10 @@ async function attachConceptResolution(
   };
 
   if (!profile?.partOfSpeech) {
-    return applyInstrumentRoleOverride(withPos, profile, sentence);
+    const overridden = applyInstrumentRoleOverride(withPos, profile, sentence);
+    mark("  applyInstrumentRoleOverride (POS sans profil complet)");
+
+    return overridden;
   }
 
   const concept = resolveReaderConceptFromSignals({
@@ -230,8 +250,10 @@ async function attachConceptResolution(
     functionalRole: withPos.functionalRole,
     sentence,
   });
+  mark("  resolveReaderConceptFromSignals");
 
   const withRole = applyInstrumentRoleOverride(withPos, profile, sentence);
+  mark("  applyInstrumentRoleOverride");
 
   if (!concept) {
     return withRole;
@@ -266,8 +288,9 @@ export async function explainWord(
       mapCacheToResponse(cached, surface),
     );
     mark("applyCuratedLemmaToResponse");
-    const response = await attachConceptResolution(withLemma, sentence);
-    mark("attachConceptResolution");
+    // attachConceptResolution logue ses propres sous-étapes (préfixées "  ")
+    // via `mark` ; le total cumulé reste visible sur le mark suivant.
+    const response = await attachConceptResolution(withLemma, sentence, mark);
 
     void incrementUsageCount(cached.id, cached.usageCount).catch(() => undefined);
 
@@ -307,8 +330,8 @@ export async function explainWord(
       explanationCacheId,
     },
     sentence,
+    mark,
   );
-  mark("attachConceptResolution");
   mark("total (avant sérialisation JSON par la route)");
 
   return response;

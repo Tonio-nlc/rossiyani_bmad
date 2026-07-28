@@ -90,24 +90,36 @@ export async function getKnowledgeForConceptResolution(input: {
       normalizeRussianWord(row.form as string) === normalized,
   );
 
+  if (equivalents.length === 0) {
+    return null;
+  }
+
+  // Perf : un seul aller-retour pour tous les candidats équivalents (accent,
+  // variantes) au lieu d'une requête séquentielle par candidat — le résultat
+  // (premier candidat utilisable, dans l'ordre de `equivalents`) est identique.
+  const { data: rows, error: rowsError } = await admin
+    .from("linguistic_knowledge")
+    .select("*")
+    .in(
+      "lemma_id",
+      equivalents.map((candidate) => candidate.id as string),
+    );
+
+  if (rowsError) {
+    throw new Error(rowsError.message);
+  }
+
+  const knowledgeByLemmaId = new Map(
+    (rows ?? []).map((row) => [
+      (row as LinguisticKnowledgeRow).lemma_id,
+      mapKnowledgeRow(row as LinguisticKnowledgeRow),
+    ]),
+  );
+
   for (const candidate of equivalents) {
-    const { data: row, error } = await admin
-      .from("linguistic_knowledge")
-      .select("*")
-      .eq("lemma_id", candidate.id)
-      .maybeSingle();
+    const knowledge = knowledgeByLemmaId.get(candidate.id as string);
 
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    if (!row) {
-      continue;
-    }
-
-    const knowledge = mapKnowledgeRow(row as LinguisticKnowledgeRow);
-
-    if (hasUsablePartOfSpeech(knowledge)) {
+    if (knowledge && hasUsablePartOfSpeech(knowledge)) {
       return knowledge;
     }
   }
