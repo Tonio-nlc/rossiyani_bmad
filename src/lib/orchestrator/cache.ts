@@ -1,5 +1,9 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { normalizeRussianWord } from "@/lib/vocabulary/normalize-russian-word";
+import {
+  canonicalizeLemmaForm,
+  hasStressMark,
+  stripStressMark,
+} from "@/lib/vocabulary/canonicalize-lemma-form";
 import type {
   TCachedExplanationPayload,
   TLlmExplanationPayload,
@@ -142,55 +146,20 @@ export async function storeExplanationInCache(params: {
 }
 
 /**
- * Résout un lemme existant (y compris variante d'accent) ou en crée un.
- * Préfère le lemme qui a déjà une linguistic_knowledge avec POS
- * (ex. чита́ть plutôt que читать sans fiche).
+ * Résout un lemme existant ou en crée un — canonicalisation à l'insertion.
+ *
+ * Règle d'unicité (voir canonicalize-lemma-form.ts et
+ * docs/knowledge/lemma-canonicalization.md) : la forme canonique est la forme
+ * ACCENTUÉE en NFC. Une forme SANS accent qui désigne le même mot qu'une forme
+ * déjà accentuée en base réutilise cette ligne (jamais de nouvelle ligne).
+ * Deux formes accentuées à des positions DIFFÉRENTES (ex. му́ка / мука́) ne sont
+ * JAMAIS fusionnées : ce sont des mots distincts.
  */
-export async function resolveOrCreateLemma(lemmaForm: string): Promise<string> {
+export async function resolveOrCreateLemma(lemmaFormRaw: string): Promise<string> {
   const admin = createAdminClient();
-  const normalized = normalizeRussianWord(lemmaForm);
+  const lemmaForm = canonicalizeLemmaForm(lemmaFormRaw);
 
-  if (normalized) {
-    const prefix = normalized.slice(0, Math.min(4, normalized.length));
-    const { data: candidates } = await admin
-      .from("lemmas")
-      .select("id, form, linguistic_knowledge(part_of_speech)")
-      .like("form", `${prefix}%`);
-
-    const equivalents = (candidates ?? []).filter(
-      (row) => normalizeRussianWord(row.form as string) === normalized,
-    );
-
-    const withKnowledge = equivalents.find((row) => {
-      const knowledge = row.linguistic_knowledge as
-        | { part_of_speech: string | null }
-        | { part_of_speech: string | null }[]
-        | null;
-      const pos = Array.isArray(knowledge)
-        ? knowledge[0]?.part_of_speech
-        : knowledge?.part_of_speech;
-      return Boolean(pos && pos !== "unknown");
-    });
-
-    if (withKnowledge?.id) {
-      return withKnowledge.id as string;
-    }
-
-    const withAccent = equivalents.find((row) =>
-      (row.form as string).normalize("NFD").includes("\u0301"),
-    );
-
-    if (withAccent?.id) {
-      return withAccent.id as string;
-    }
-
-    const exact = equivalents.find((row) => row.form === lemmaForm);
-
-    if (exact?.id) {
-      return exact.id as string;
-    }
-  }
-
+  // 1. Correspondance exacte (NFC) — cas le plus fréquent, un aller simple.
   const { data: existing } = await admin
     .from("lemmas")
     .select("id")
@@ -201,6 +170,54 @@ export async function resolveOrCreateLemma(lemmaForm: string): Promise<string> {
     return existing.id;
   }
 
+  // 2. Repli "accent manquant ↔ accent présent" pour le MÊME mot.
+  const strippedIncoming = stripStressMark(lemmaForm);
+  const incomingHasStress = hasStressMark(lemmaForm);
+
+  if (strippedIncoming) {
+    // Préfixe de sécurité : 1 SEUL caractère. L'accent (U+0301) est toujours un
+    // caractère combinant séparé placé APRÈS la voyelle accentuée (le russe n'a
+    // pas de lettre accentuée précomposée) : la toute première lettre d'une
+    // forme n'est donc jamais déplacée par l'accent, quelle que soit sa position
+    // dans le mot — contrairement à un préfixe de plusieurs lettres, qui peut
+    // "sauter" au-dessus d'un accent placé tôt (ex. и́мя) et manquer la ligne
+    // existante.
+    const prefix = strippedIncoming.slice(0, 1);
+    const { data: candidates } = await admin
+      .from("lemmas")
+      .select("id, form")
+      .ilike("form", `${prefix}%`);
+
+    const sameBase = (candidates ?? []).filter(
+      (row) => stripStressMark(row.form as string) === strippedIncoming,
+    );
+
+    const bareExisting = sameBase.filter((row) => !hasStressMark(row.form as string));
+    const accentedExisting = sameBase.filter((row) => hasStressMark(row.form as string));
+    const distinctAccentedForms = new Set(accentedExisting.map((row) => row.form as string));
+
+    if (incomingHasStress && bareExisting.length === 1) {
+      // La forme entrante est accentuée et une ligne "nue" existe déjà pour ce
+      // même mot : on la fait enfin porter sa forme canonique (accentuée) au
+      // lieu de créer une ligne séparée.
+      const target = bareExisting[0]!;
+      await admin.from("lemmas").update({ form: lemmaForm }).eq("id", target.id);
+      return target.id as string;
+    }
+
+    if (!incomingHasStress && bareExisting.length === 0 && distinctAccentedForms.size === 1) {
+      // La forme entrante est nue et EXACTEMENT une forme accentuée existe déjà
+      // pour ce même mot (aucune ambiguïté) : on réutilise cette ligne.
+      return accentedExisting[0]!.id as string;
+    }
+
+    // Sinon : soit aucune correspondance sûre, soit plusieurs formes accentuées
+    // distinctes partagent la même base (ex. му́ка / мука́) — dans ce cas, une
+    // forme nue entrante ne permettrait pas de savoir laquelle est visée : on
+    // ne fusionne jamais, on crée une nouvelle ligne (étape 3).
+  }
+
+  // 3. Aucune correspondance sûre : créer une nouvelle ligne avec la forme canonique.
   const { data: created, error } = await admin
     .from("lemmas")
     .insert({
