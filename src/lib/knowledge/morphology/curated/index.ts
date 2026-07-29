@@ -73,8 +73,10 @@ export {
 
 export {
   CURATED_PRONOUNS,
+  findPronounLemmaForCase,
   getPronounCaseCandidates,
   isCuratedPronounSurface,
+  NEVER_POSSESSIVE_PRONOUN_HINT,
   type TPronounCase,
   type TPronounParadigm,
 } from "./pronouns";

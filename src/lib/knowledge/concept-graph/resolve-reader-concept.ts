@@ -1,8 +1,10 @@
 import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-linguistic-context";
 import {
   detectPrepositionGovernment,
+  findPronounLemmaForCase,
   getPrecedingPrepositionEntry,
   isCuratedPronounSurface,
+  NEVER_POSSESSIVE_PRONOUN_HINT,
   type TGovernedCase,
 } from "@/lib/knowledge/morphology/curated";
 import type { TLinguisticProfile } from "@/types/knowledge";
@@ -219,6 +221,103 @@ export function derivePronounRoleOverride(
   }
 
   return PRONOUN_CASE_ROLE_OVERRIDE[morphologicalCase];
+}
+
+/** "au génitif" (consonne) mais "à l'accusatif"/"à l'instrumental" (élision
+ * devant voyelle) — préfixe déjà l'article contracté pour éviter la faute. */
+const CASE_LABEL_FR_WITH_ARTICLE: Record<TMorphologicalCase, string> = {
+  nominative: "au nominatif",
+  genitive: "au génitif",
+  dative: "au datif",
+  accusative: "à l'accusatif",
+  instrumental: "à l'instrumental",
+  prepositional: "au prépositionnel",
+};
+
+export interface TPronounCuratedFact {
+  /** Forme de citation, ex. "я". */
+  lemma: string;
+  morphologicalCase: TMorphologicalCase;
+  /** Préposition régissante immédiatement avant le mot, si détectée. */
+  governingPreposition: string | null;
+}
+
+/**
+ * Fait déterministe (lemme + cas) pour une forme de pronom curée — calculé
+ * AVANT l'appel LLM (contrairement à derivePronounRoleOverride, appelé après
+ * coup pour corriger rôle/couleur) afin d'être injecté dans le prompt et
+ * empêcher le LLM d'inventer le statut grammatical du mot dans sa prose.
+ * Retourne `null` si la surface n'est pas un pronom curé, ou si le cas n'a
+ * pas pu être résolu de façon fiable.
+ */
+export function resolvePronounCuratedFact(input: {
+  surface?: string | null;
+  sentence?: string | null;
+}): TPronounCuratedFact | null {
+  if (!input.surface || !isCuratedPronounSurface(input.surface)) {
+    return null;
+  }
+
+  const { morphologicalCase, government } = detectReliableCase({
+    surface: input.surface,
+    sentence: input.sentence,
+  });
+
+  if (!morphologicalCase) {
+    return null;
+  }
+
+  const lemma = findPronounLemmaForCase(input.surface, morphologicalCase);
+
+  if (!lemma) {
+    return null;
+  }
+
+  return {
+    lemma,
+    morphologicalCase,
+    governingPreposition: government?.preposition ?? null,
+  };
+}
+
+/**
+ * Construit la consigne de prompt LLM à partir du fait curé — le LLM rédige
+ * toujours la prose (explanation), mais sous cette contrainte : il ne peut
+ * plus qualifier le mot de "possessif", ni lui inventer un statut différent
+ * du pronom personnel réellement rencontré.
+ *
+ * Nuance он/она́/оно́/они́ : его́/её/их doublent aussi comme déterminant
+ * possessif figé ("son/sa/leur") quand ils précèdent directement un nom —
+ * contrairement à меня́/тебя́/нас/вас/себя́, qui ne sont JAMAIS possessifs.
+ * On ne peut donc affirmer categoriquement "jamais possessif" que pour ces
+ * derniers (cf. NEVER_POSSESSIVE_PRONOUN_HINT) ; pour les 3es personnes, la
+ * consigne reste correcte mais plus prudente.
+ */
+export function buildPronounFactPromptHint(fact: TPronounCuratedFact): string {
+  const caseLabelWithArticle = CASE_LABEL_FR_WITH_ARTICLE[fact.morphologicalCase];
+  const neverPossessive = NEVER_POSSESSIVE_PRONOUN_HINT[fact.lemma];
+
+  const lines = [
+    `FAIT GRAMMATICAL CERTAIN (vérifié manuellement, ne pas contredire) : ce mot est le PRONOM PERSONNEL « ${fact.lemma} » ${caseLabelWithArticle}.`,
+  ];
+
+  if (neverPossessive) {
+    lines.push(
+      `Ce n'est JAMAIS un déterminant possessif — le possessif de « ${fact.lemma} » est « ${neverPossessive} », un mot différent. Ne parle donc jamais de "possession" pour ce mot.`,
+    );
+  } else {
+    lines.push(
+      `Ne le présente comme un déterminant possessif (« son/sa/leur ») QUE s'il précède directement un nom dans cette phrase précise ; sinon, c'est le pronom personnel complément, pas un possessif.`,
+    );
+  }
+
+  if (fact.morphologicalCase === "genitive" && fact.governingPreposition === "у") {
+    lines.push(
+      `Ici, la construction « у + génitif » exprime la possession/existence AU NIVEAU DE LA PHRASE (« у меня́ » = « j'ai »), mais le mot lui-même reste le pronom personnel au génitif, pas un possessif — explique la construction sans qualifier le mot de "possessif".`,
+    );
+  }
+
+  return lines.join(" ");
 }
 
 export interface TReaderConceptResolution {

@@ -91,6 +91,35 @@ export async function getCachedExplanation(contextHash: string) {
   };
 }
 
+/**
+ * Régénère la prose d'une ligne existante EN PLACE (id/context_hash conservés)
+ * au lieu de supprimer + réinsérer. Réservé aux lignes qu'on ne peut pas
+ * supprimer sans risque (ex. référencées par `user_vocabulary.explanation_cache_id`,
+ * une sauvegarde personnelle — la contrainte de clé étrangère bloquerait de
+ * toute façon un DELETE). Réutilise `serializeCachedPayload`, donc le format
+ * stocké reste identique à `storeExplanationInCache`.
+ */
+export async function updateExplanationInCache(params: {
+  cacheId: string;
+  payload: TLlmExplanationPayload;
+}) {
+  const admin = createAdminClient();
+
+  const { error } = await admin
+    .from("explanation_cache")
+    .update({
+      explanation_fr: serializeCachedPayload(params.payload),
+      functional_role: params.payload.functionalRole,
+      function_color: params.payload.functionColor,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", params.cacheId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 export async function incrementUsageCount(cacheId: string, usageCount: number) {
   const admin = createAdminClient();
   const nextUsageCount = usageCount + 1;

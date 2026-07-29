@@ -1,7 +1,9 @@
 import {
+  buildPronounFactPromptHint,
   deriveInstrumentRoleOverride,
   derivePronounRoleOverride,
   ensureConceptGraphHydrated,
+  resolvePronounCuratedFact,
   resolveReaderConceptFromSignals,
 } from "@/lib/knowledge/concept-graph";
 import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
@@ -353,7 +355,16 @@ export async function explainWord(
     return response;
   }
 
-  const llmRaw = await generateWordExplanation(surface, sentence);
+  // Pronom curé : fait déterministe (lemme + cas) injecté dans le prompt AVANT
+  // l'appel LLM, pour que la prose ne puisse plus inventer un statut
+  // grammatical faux (ex. "possessif" pour меня́). Calculé une seule fois ici
+  // — c'est le même mécanisme (detectReliableCase) que l'override de rôle
+  // appliqué après coup par attachConceptResolution, pas un chemin parallèle.
+  const pronounFact = resolvePronounCuratedFact({ surface, sentence });
+  const curatedFactHint = pronounFact
+    ? buildPronounFactPromptHint(pronounFact)
+    : undefined;
+  const llmRaw = await generateWordExplanation(surface, sentence, curatedFactHint);
   mark("LLM generateWordExplanation");
   const llmPayload = applyCuratedLemmaToPayload(surface, llmRaw);
   const lemmaId = await resolveOrCreateLemma(llmPayload.lemma);

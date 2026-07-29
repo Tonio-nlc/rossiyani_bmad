@@ -204,3 +204,112 @@ régression (§9).
 - Aucune forme de pronom générée par LLM — les 9 paradigmes sont écrits à la
   main et vérifiés contre 4 sources externes indépendantes.
 - Build TypeScript strict : `npx tsc --noEmit` passe sans erreur.
+
+## 11. Suite — prose LLM sous contrainte du fait curé (ticket « Prose LLM des pronoms »)
+
+Le §5-6 ci-dessus corrige le **badge** (rôle/couleur) et la **segmentation**
+(suffix), tous deux appliqués à la lecture. La **prose** (`explanation`, texte
+libre écrit par le LLM et mis en cache) restait, elle, celle générée AVANT la
+curation — ex. `меня́` : « est la forme possessive du pronom je… on exprime la
+possession avec ce cas ». Cette prose n'est jamais touchée par les overrides
+(§6, dernier paragraphe) : il fallait donc (1) empêcher le LLM de la générer
+fausse à l'avenir, et (2) purger + régénérer les entrées déjà en cache.
+
+### 11.1 Injection du fait curé dans le prompt (avant l'appel LLM)
+
+Nouveau : `concept-graph/resolve-reader-concept.ts::resolvePronounCuratedFact`
+calcule, **avant** l'appel LLM (pas après comme `derivePronounRoleOverride`),
+le lemme + cas résolu d'une surface de pronom curée via le même
+`detectReliableCase` déjà utilisé pour l'override de rôle — aucun chemin
+parallèle. `buildPronounFactPromptHint` transforme ce fait en consigne
+française injectée dans le prompt (`orchestrator/llm.ts::generateWordExplanation`,
+3e paramètre optionnel `curatedFactHint`, concaténé à l'input ; le
+`SYSTEM_PROMPT` a une règle 6 explicite lui demandant de respecter tout bloc
+« FAIT GRAMMATICAL CERTAIN » sans le contredire). Câblé dans
+`orchestrator/index.ts::explainWord` juste avant l'appel LLM (branche cache
+miss).
+
+Nuance importante conservée (cohérente avec la limite §8) : la consigne
+« ce n'est JAMAIS un possessif » n'est envoyée que pour les lemmes qui ne
+peuvent structurellement jamais l'être (`я, ты, мы, вы, себя́` —
+`NEVER_POSSESSIVE_PRONOUN_HINT`). Pour `он/она́/оно́/они́`, la consigne reste
+prudente (« ne le présente comme possessif QUE s'il précède directement un
+nom ») — ce qui laisse le LLM correctement décrire `её` dans « Э́то её
+люби́мый моме́нт дня » comme un vrai déterminant possessif (vérifié §11.3),
+sans pour autant permettre de qualifier `меня́`/`тебя́`/`него́` de possessif.
+Cas `у + génitif` : phrase dédiée expliquant que la construction exprime la
+possession/existence **au niveau de la phrase**, mais que le mot reste le
+pronom personnel au génitif.
+
+### 11.2 Purge ciblée + régénération
+
+`scripts/purge-pronoun-cache.ts` (dry-run par défaut, `--execute` pour agir) :
+1. Liste toutes les lignes `explanation_cache` dont `surface_word` est une
+   forme de pronom curée (`isCuratedPronounSurface`) — **53** lignes trouvées
+   sur les textes gold.
+2. Vérifie les FK entrantes (`user_vocabulary.explanation_cache_id`, colonne
+   sans `ON DELETE`, donc un `DELETE` échouerait/casserait une sauvegarde
+   utilisateur) — **1** ligne protégée (`Ему́`, référencée par une sauvegarde).
+3. Écrit le rapport **avant toute suppression** :
+   `docs/knowledge/pronoun-cache-purge-report.md`.
+4. En mode `--execute` :
+   - la ligne protégée est régénérée **en place** (même `id`/`context_hash`,
+     nouvelle fonction `orchestrator/cache.ts::updateExplanationInCache`,
+     réutilise `serializeCachedPayload`) — aucune sauvegarde perdue ;
+   - les 52 autres sont supprimées (`DELETE ... WHERE id IN (...)`) puis
+     régénérées via `explainWord` (même pipeline que le préremplissage,
+     `scripts/prefill-explanation-cache.ts`) — nouvel `id`, même
+     `context_hash`.
+   - journal détaillé : `docs/knowledge/pronoun-cache-purge-run-log.jsonl`.
+
+Exécuté le 2026-07-29 : 53/53 entrées régénérées sans erreur (~4 min 40).
+
+### 11.3 Vérification post-régénération
+
+Échantillon relu via `explainWord` (donc badge + prose tels qu'affichés à
+l'utilisateur) :
+- `меня́` (« У меня́ боли́т го́рло ») : badge `location`/vert (inchangé), prose
+  → *« […] le mot lui-même reste un pronom personnel au génitif, pas un
+  adjectif possessif »* — **ne dit plus « possessif »**.
+- `него́` (« У него́ боли́т го́рло ») : *« Le pronom garde sa forme personnelle
+  au génitif sans devenir un adjectif possessif »*.
+- `тебя́` (« А тебя́ ? ») : accusatif, aucune mention de possession.
+- `его́` (objet direct, 2 phrases) : *« sans être un possessif car il ne
+  précède pas un nom »*.
+- `Ему́` (ligne protégée, mise à jour en place) : *« Il n'est pas possessif
+  ici car il ne précède pas directement un nom »* — sauvegarde utilisateur
+  intacte (vérifié après coup : `user_vocabulary` référence toujours le même
+  `explanation_cache_id`).
+- `её` (« Э́то её люби́мый моме́нт дня ») : prose correcte, décrit un vrai
+  déterminant possessif — confirme que la nuance §11.1 fonctionne. Le badge
+  reste `object_direct` (accusatif, repli par défaut) au lieu de `possession` :
+  c'est la limite déjà documentée en §8, non modifiée par ce ticket (seule la
+  prose était dans le périmètre demandé).
+
+### 11.4 Effet de bord corrigé : scripts de test
+
+En vérifiant que `resolve-reader-pronoun-fact.test.ts` (nouveau, §11.5)
+s'exécute bien via `npm run test:knowledge`, découverte d'un bug latent
+préexistant : les scripts `test*` de `package.json` utilisaient un glob
+`src/lib/**/*.test.ts` non protégé, expansé par le **shell** avant que `tsx`
+ne le voie. `npm run` exécute ses scripts via `sh` (pas le shell interactif de
+l'utilisateur), qui n'étend `**` que sur un seul niveau de dossier : les
+fichiers à 2 niveaux de profondeur (ex.
+`morphology/curated/pronouns.test.ts`) étaient donc silencieusement ignorés
+par `npm test` / `npm run test:knowledge` depuis leur création — seule
+l'exécution manuelle en zsh (globbing récursif natif) les incluait. Corrigé
+par `scripts/run-node-tests.mjs` (découverte récursive native Node, sans
+dépendance de glob) ; les 4 scripts `test*` de `package.json` l'utilisent
+désormais. `npm test` exécute maintenant 55 tests / 12 suites (au lieu de
+tests silencieusement manquants).
+
+### 11.5 Vérification (nouveaux tests)
+
+- `concept-graph/resolve-reader-pronoun-fact.test.ts` (nouveau) :
+  `resolvePronounCuratedFact` (lemme + cas + préposition régissante) et
+  `buildPronounFactPromptHint` (consigne « jamais possessif » pour
+  `я/ты/мы/вы/себя́`, consigne prudente pour `он/она́/оно́/они́`, accord
+  français « à l'accusatif »/« à l'instrumental » vs « au génitif »/« au
+  datif »).
+- `npm test` (55 tests, 12 suites), `npx tsc --noEmit`, `npx eslint` : tous
+  au vert sur les fichiers modifiés.

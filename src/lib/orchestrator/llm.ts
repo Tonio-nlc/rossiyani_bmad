@@ -23,6 +23,11 @@ RÈGLES ABSOLUES :
 3. Ne jamais donner d'information grammaticale sans expliquer son rôle dans le sens
 4. Utiliser un langage simple — pas de jargon brut sans explication immédiate
 5. L'explication est en français, 2-3 phrases maximum
+6. Si un bloc "FAIT GRAMMATICAL CERTAIN" accompagne le mot : ce fait est vérifié
+   manuellement et absolu — ta prose (explanation) doit le respecter sans jamais
+   le contredire (ex. ne jamais qualifier de "possessif" un mot que ce fait
+   décrit comme un pronom personnel). Rédige toujours la prose toi-même, mais
+   à l'intérieur de cette contrainte.
 
 SYSTÈME DE COULEURS FONCTIONNELLES (noms / pronoms / adjectifs uniquement) :
 - "blue"   → sujet (fait l'action)
@@ -118,6 +123,7 @@ function wait(ms: number): Promise<void> {
 async function callWordExplanationOnce(
   surface: string,
   sentence: string,
+  curatedFactHint?: string,
 ): Promise<TLlmExplanationPayload> {
   const apiKey = process.env.OPENAI_API_KEY;
   const model = process.env.OPENAI_MODEL;
@@ -139,10 +145,14 @@ async function callWordExplanationOnce(
     maxRetries: 0,
   });
 
+  const input = curatedFactHint
+    ? `Mot : ${surface}\nPhrase : ${sentence}\n${curatedFactHint}`
+    : `Mot : ${surface}\nPhrase : ${sentence}`;
+
   const response = await client.responses.create({
     model,
     instructions: SYSTEM_PROMPT,
-    input: `Mot : ${surface}\nPhrase : ${sentence}`,
+    input,
   });
 
   const outputText = response.output_text?.trim();
@@ -158,16 +168,23 @@ async function callWordExplanationOnce(
  * Retry silencieux (timeout / erreur réseau / JSON invalide passager) avant
  * de faire remonter l'échec — l'utilisateur ne doit voir "Impossible de
  * charger ce mot" qu'après épuisement des tentatives.
+ *
+ * `curatedFactHint` (optionnel) : fait grammatical déjà résolu de façon
+ * déterministe (ex. pronoms curés, cf. concept-graph/resolve-reader-concept
+ * ::buildPronounFactPromptHint) et injecté dans le prompt — le LLM rédige
+ * toujours la prose, mais ne peut plus lui inventer un statut grammatical
+ * différent (ex. qualifier меня́ de "possessif").
  */
 export async function generateWordExplanation(
   surface: string,
   sentence: string,
+  curatedFactHint?: string,
 ): Promise<TLlmExplanationPayload> {
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= LLM_MAX_ATTEMPTS; attempt += 1) {
     try {
-      return await callWordExplanationOnce(surface, sentence);
+      return await callWordExplanationOnce(surface, sentence, curatedFactHint);
     } catch (error) {
       lastError = error;
 

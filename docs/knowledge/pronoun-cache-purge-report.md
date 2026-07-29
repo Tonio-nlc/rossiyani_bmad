@@ -1,0 +1,119 @@
+# Purge ciblée du cache de prose — pronoms curés
+
+Généré : 2026-07-29T15:01:05.900Z
+
+Total des entrées `explanation_cache` dont la surface est un pronom curé : **53**
+- À purger + régénérer (DELETE puis réinsertion via `explainWord`, comme le préremplissage) : **52**
+- Protégées (référencées par une entrée `user_vocabulary` sauvegardée — mise à jour EN PLACE, id conservé, jamais de DELETE) : **1**
+
+## Entrées protégées (référencées par une sauvegarde utilisateur)
+
+- `05c04b35-5d58-4859-978f-cc59db12fa75` — « Ему́ » dans « Ему́ ну́жен хлеб и молоко́. » (rôle actuel : object_indirect/amber)
+  - Prose actuelle : "Le mot « Ему́ » est à la forme donnée pour indiquer que l'action ou le besoin est destiné à cette personne (« il »). Il est au cas datif car il répond à la question « à qui ? ». Cela montre à qui le pain et le lait sont nécessaires."
+
+## Entrées à purger (liste complète, avant suppression)
+
+- `2b61eab5-850d-4234-ac95-b5088f20ee68` — « себя́ » dans « На сле́дующий день Луи́ чу́вствует себя́ плохо́. » (rôle actuel : object_direct/coral)
+  - Prose actuelle : "Dans cette phrase, « себя́ » représente « lui-même » et est le complément direct de « чувствует » (ressent). Il est à la forme accusative pour montrer que c’est lui que Louis ressent, c’est-à-dire son propre état."
+- `450c83ca-e4aa-450a-aa46-3d0024ac4172` — « Ты » dans « — Ты бы́стро нашёл доро́гу! » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est au nominatif parce qu'il fait le rôle de sujet qui effectue l'action de trouver. On utilise la forme simple 'Ты' pour parler directement à la personne qui agit."
+- `aba944c6-803a-4997-93ce-5dd19f37f86b` — « себя́ » dans « Через два дня Луи́ уже́ чу́вствует себя́ хорошо́. » (rôle actuel : object_direct/coral)
+  - Prose actuelle : "Ce mot est à la forme accusative car il exprime l'objet direct du verbe « чувствовать » (ressentir). Ici, « себя́ » signifie que Louis ressent son propre état, c’est un pronom réfléchi qui montre que l'action revient sur le sujet lui-même."
+- `d4ff1faf-8b3b-4144-a4d0-c1fff856d7d8` — « ей » dans « Молодо́й челове́к сра́зу встаёт и отдаёт ей своё ме́сто. » (rôle actuel : object_indirect/amber)
+  - Prose actuelle : "Le mot 'ей' a cette forme car il indique à qui est destiné l'objet de l'action 'отдаёт' (donner). En russe, le pronom personnel au datif montre la personne à qui l'on donne quelque chose, ici la place."
+- `8c341ac4-506a-4134-9f24-8cfca00979c8` — « он » dans « По доро́ге он ви́дит ста́рого дру́га. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est au masculin singulier nominatif car il fait l'action dans la phrase, c'est celui qui voit. En russe, le sujet se met toujours au nominatif pour montrer qu'il exécute l'action du verbe."
+- `c857131a-74c6-4583-9df1-af22993357a4` — « Он » dans « Он ду́мает о предстоя́щем дне. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est au nominatif car il est le sujet de la phrase, celui qui fait l'action de penser. Le sujet en russe est généralement au nominatif pour montrer qui réalise le verbe."
+- `62b1044b-c4ef-4614-85a3-80fa3cb8ea00` — « Она́ » dans « Она́ встаёт в семь часо́в. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est ici sujet car il désigne celui qui fait l'action du verbe « встаёт » (se lève). La forme « Она́ » est au nominatif, qui est la forme utilisée pour le sujet en russe."
+- `ce83248b-8f17-4519-9788-b37b2db58ccf` — « Они́ » dans « Они́ здоро́ваются и немно́го разгова́ривают. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot 'Они́' est au pluriel parce qu'il représente plusieurs personnes qui font l'action. Il est au sujet car c’est celui qui réalise les actions 'здоро́ваются' (saluer) et 'разгова́ривают' (parler). Sa forme souligne donc qu'il s'agit du groupe qui agit dans la phrase."
+- `a0823163-9769-4c3c-9c7c-82b0ee8dabef` — « она́ » dans « Снача́ла она́ идёт на ку́хню. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot « она́ » est au nominatif car il représente le sujet qui fait l'action dans la phrase. Ici, c'est « elle » qui va vers la cuisine, donc cette forme indique que c'est le sujet principal."
+- `f3aa9c30-fa7b-4384-ac03-342eb5972680` — « она́ » dans « Там она́ включа́ет кофема́шину. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est le sujet de la phrase car il réalise l'action d'allumer la cafetière. La forme « она́ » est utilisée pour insister sur le pronom personnel féminin singulier qui fait l'action."
+- `b1a7310e-34e7-4c76-9488-60378919cada` — « она́ » dans « Пока́ ко́фе гото́вится, она́ смо́трит в окно́. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot désigne la personne qui fait l'action de regarder par la fenêtre, donc il est sujet. La forme elle est nominative, qui est utilisée pour le sujet d'une phrase en russe."
+- `753d5ed8-7d05-4a78-b687-927eda36402f` — « Он » dans « Он нахо́дит хлеб на второ́й по́лке. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est le sujet car il fait l'action de trouver quelque chose. Sa forme est au nominatif pour montrer qu'il est celui qui agit dans la phrase."
+- `f729b7f9-234b-479f-873c-d1e839faf583` — « её » dans « Э́то её люби́мый моме́нт дня. » (rôle actuel : possession/violet)
+  - Prose actuelle : "Le mot 'её' indique que le 'моме́нт' appartient à elle. Il est à la forme possessive pour montrer cette relation entre elle et le moment, donc il s'accorde pour exprimer 'son'."
+- `0b2adeb5-6034-4708-9c5c-363555b0d762` — « Он » dans « Он пла́тит ка́ртой. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot 'Он' est utilisé comme sujet parce qu'il réalise l'action de payer dans la phrase. Sa forme est au nominatif, qui est la forme usuelle pour indiquer celui qui fait l'action dans une phrase simple en russe."
+- `598e5146-5e86-4eff-8974-4ddbeeb7026f` — « Он » dans « Он уста́л по́сле рабо́ты. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot désigne la personne qui fait l'action de se fatiguer, donc il est le sujet. Il est au nominatif car le sujet d'une phrase en russe est toujours à cette forme pour montrer qui fait l'action."
+- `df48b73a-2e96-410d-9475-e1fc32987dd1` — « он » dans « Пото́м он идёт на ку́хню. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot 'он' a cette forme car il est le sujet de la phrase, celui qui fait l'action d'aller. En russe, le pronom sujet prend cette forme nominative pour indiquer que c'est lui qui fait quelque chose."
+- `e35b0c25-ae10-4565-b90c-3c367f3efd0e` — « Он » dans « Он снима́ет пальто́ и ту́фли. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est le sujet car c'est celui qui fait l'action de 'retirer'. Il est au nominatif pour montrer que c'est lui qui réalise l'action dans la phrase."
+- `40df7d01-fcac-4408-9a4f-691f76926ce7` — « он » dans « В де́сять часо́в он ложи́тся спать. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot 'он' désigne celui qui fait l'action, ici 'il', le sujet du verbe 'ложится'. Il est donc au nominatif pour montrer que c'est lui qui accomplit l'action."
+- `5fef280a-bfd8-4e45-af00-dfa8bb71acff` — « Ты » dans « — Ты идёшь в университе́т? » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est à la forme nominative car il est le sujet de la phrase, c'est lui qui effectue l'action d'aller à l'université."
+- `9434aea6-0331-4346-9775-40d1d1d4566a` — « нас » dans « — Да, у нас сейча́с уро́к ру́сского языка́. » (rôle actuel : possession/violet)
+  - Prose actuelle : "Le mot « нас » est en génitif après la préposition « у », ce qui indique une relation de possession. Ici, « у нас » signifie « chez nous » ou « dans notre groupe », donc cela montre à qui appartient la leçon de russe."
+- `517f2716-2502-4d02-a96a-9b17115b0505` — « Он » dans « Он ду́мает: » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est à la forme « он » parce qu'il est le sujet de la phrase, celui qui fait l'action de penser. En russe, le pronom sujet masculin singulier est à la forme nominative « он » pour indiquer qui effectue l'action du verbe."
+- `8804a0a8-1e80-4375-84f3-f0743ba8b921` — « ты » dans « — Что ты хо́чешь? » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est utilisé pour indiquer qui fait l'action dans la phrase, c'est la personne à qui on parle. Il est donc au nominatif car il est le sujet qui veut quelque chose."
+- `7f6240b4-a7aa-43ba-b4cb-0ee8e7411e0b` — « Они́ » dans « Они́ выхо́дят из булочной и идут домо́й. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est au pluriel parce qu'il se réfère à plusieurs personnes qui font l'action exprimée par les verbes. Il est à la forme nominative car il est le sujet principal de la phrase, celui qui effectue les actions."
+- `3129ddc8-a342-42f0-b422-2f6514f6897a` — « Я » dans « — Я хочу́ ку́пить хлеб. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot « Я » a cette forme car il est le sujet de la phrase, c'est celui qui fait l'action de vouloir acheter. En russe, le pronom personnel sujet est toujours à la forme nominative, qui ici est « Я »."
+- `c5ac4d0a-878e-49bb-a5df-b8cefb35cf50` — « Меня́ » dans « — Меня́ зову́т Луи́. » (rôle actuel : object_direct/coral)
+  - Prose actuelle : "Меня́ a cette forme car c'est le pronom personnel à l'accusatif qui reçoit l'action de 'зовут' (appeler). Cette forme montre que 'je' suis celui que l'on appelle, donc l'objet direct de l'action."
+- `0554da3c-4615-4abf-8fa7-d8dbe35276c1` — « Меня́ » dans « — Привет! Меня́ зову́т А́нна. А тебя́? » (rôle actuel : object_direct/coral)
+  - Prose actuelle : "Le mot 'Меня́' est utilisé ici pour se référer à soi-même en tant qu'objet direct de l'action 'зову́т' (on appelle). Sa forme en cas accusatif montre que c'est celui qui est appelé, donc il subit l'action du verbe."
+- `7d77b586-d5b8-486d-a1a4-079266420eb2` — « Мне » dans « — Мне то́же. » (rôle actuel : object_indirect/amber)
+  - Prose actuelle : "Le mot « Мне » est à la forme datif car il désigne la personne à qui est adressée une action ou un sentiment implicite, ici « à moi ». Dans la phrase « — Мне то́же. », il indique que quelque chose s'applique également à celui qui parle, d'où l'usage du datif pour montrer le destinataire."
+- `8d3a5f28-4bb6-42e7-8656-72aa2087c7ab` — « ты » dans « — Да, я францу́з. А ты ру́сская? » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce pronom est utilisé ici comme sujet de la question 'А ты русская?'. Sa forme neutre et simple sert à désigner directement la personne à qui on parle, sans changement car c'est le sujet."
+- `07fdd0a8-9656-43ce-b330-7f796658741c` — « Ты » dans « — Ты францу́з? » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot 'ты' désigne la personne qui fait l'action ou dont on parle dans la phrase. Ici, il est au nominatif car il est le sujet qui pose la question 'es-tu français?'. On utilise cette forme pour interroger directement la personne concernée."
+- `f5896b6f-3e77-430f-bdc2-5f675686e910` — « я » dans « — Да, я францу́з. А ты ру́сская? » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot 'я' signifie 'je' et est le sujet qui réalise l'action d'être 'français' dans la phrase. Il est sous forme nominative pour montrer que c'est lui qui parle et affirme son identité."
+- `7ddf11aa-fa1e-4e90-9879-b6dbc2fc1bfa` — « я » dans « — Да, я из Москвы́. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot « я » est le sujet de la phrase, c’est la personne qui parle et qui fait l'action d'être de « Москвы́ ». Il est à la forme nominative car il désigne le fait de s'identifier ou de se présenter."
+- `8563edc7-b38b-4daa-bff1-7b236f342274` — « Ты » dans « — Ты говори́шь по-францу́зски? » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est au nominatif car il est celui qui fait l'action dans la phrase, il est le sujet du verbe « говори́шь ». En russe, le sujet doit toujours être au nominatif pour montrer qui agit."
+- `dd001d29-009f-4fca-9104-f9163ecefffd` — « я » dans « — Нет, но я изуча́ю францу́зский. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est à la première personne du singulier car il fait l'action d'étudier. Dans cette phrase, il est sujet du verbe « изуча́ю » car il indique qui réalise l'action."
+- `6d8ab540-d9c8-4020-a16c-90697bc90711` — « я » dans « — А я изуча́ю ру́сский. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est à la première personne du singulier pour indiquer qui fait l'action d'étudier. Il est au nominatif car c'est le sujet de la phrase qui réalise l'action du verbe « изуча́ть »."
+- `fa6f08db-6ce1-4ca6-8bef-c0d3218f0cd4` — « него́ » dans « У него́ боли́т го́рло. » (rôle actuel : possession/violet)
+  - Prose actuelle : "Le mot « него́ » indique à qui appartient le mal de gorge. Il a la forme de pronom possessif au génitif car il suit la préposition « у », qui exprime la possession ou la présence de quelque chose chez quelqu'un."
+- `d8149e15-4597-4ca2-be7a-20ab81190e15` — « меня́ » dans « — У меня́ боли́т го́рло и немно́го боли́т голова́. » (rôle actuel : possession/violet)
+  - Prose actuelle : "Le mot « меня́ » est la forme possessive du pronom « je » pour montrer que la douleur appartient à la personne qui parle. Il est au génitif parce qu'en russe, après la préposition « у », on exprime la possession avec ce cas. C’est pourquoi le pronom « я » change ici pour indiquer « chez moi » ou « à moi »."
+- `d72ad8d1-b382-40d7-bd6e-c5f48f61a5d7` — « Вам » dans « — Вам ну́жно отдыха́ть и пить больше воды́. » (rôle actuel : object_indirect/amber)
+  - Prose actuelle : "Le mot « Вам » est utilisé pour indiquer à qui s'adresse l'action nécessaire (il faut que vous fassiez quelque chose). C'est la forme de politesse au datif pour montrer que « vous » êtes le destinataire de la nécessité décrite."
+- `466ef785-0a0c-44a5-b4b1-acd2d61c3daa` — « он » dans « Но он не зна́ет, где она́. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot « он » est au sujet parce qu'il désigne la personne qui fait l'action de ne pas savoir. Sa forme est au nominatif, qui est utilisée pour le sujet du verbe."
+- `53b1a441-9675-496b-a022-07f733556a52` — « Он » dans « Он спра́шивает прохо́жего: » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot 'Он' est sujet car c'est lui qui fait l'action de demander dans la phrase. Sa forme est au nominatif car le sujet en russe est toujours au nominatif pour montrer qui accomplit l'action."
+- `f967ee06-753b-4fe7-b0d1-af019e76ff1d` — « Он » dans « Он пьёт ко́фе и ест хлеб. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot 'Он' est le sujet car il désigne qui fait l'action de boire et de manger. Sa forme au nominatif montre qu'il est celui qui accomplit les verbes dans la phrase."
+- `bed9298d-3dcf-4995-95c6-941a939d31d9` — « его́ » dans « А́нна уже́ ждёт его́ внутри́. » (rôle actuel : object_direct/coral)
+  - Prose actuelle : "Le mot « его́ » désigne la personne que Анна attend, donc c'est l'objet direct qui subit l'action d'attendre. La forme « его́ » est utilisée pour montrer que c'est ce « lui » que l'on attend, pas le sujet."
+- `cd3f0d25-670e-486d-b72f-bdd3fc11107e` — « он » dans « Пото́м он идёт в университе́т. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot « он » est utilisé ici pour montrer qui fait l'action de se déplacer. Il est au nominatif parce qu'il est le sujet qui accomplit le verbe « идёт »."
+- `91da6c0c-fc57-49c3-8ab6-2f54be29d55d` — « его́ » dans « А́нна уже́ ждёт его́ у вхо́да. » (rôle actuel : object_direct/coral)
+  - Prose actuelle : "Le mot его́ remplace un nom masculin singulier déjà connu et reçoit la forme accusative car il est l'objet direct du verbe ждёт (attendre). Cette forme indique que l'action est dirigée vers lui, la personne qu'Anna attend."
+- `f61c3121-997c-4a1d-a7a6-db17ab384c5f` — « они́ » dans « Вме́сте они́ иду́т на уро́к ру́сского языка́. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot они́ désigne le groupe qui fait l'action dans la phrase, c'est pourquoi il est au nominatif. Il est le sujet qui va 'aller' (иду́т) au lieu indiqué."
+- `59b8fafa-9640-4a76-8572-233befcf3a44` — « они́ » dans « И́ногда они́ покупа́ют хлеб и молоко́ по доро́ге домо́й. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot они́ a cette forme car il est le sujet du verbe покупа́ют, c'est-à-dire ceux qui font l'action d'acheter. La forme они́ indique un pronom personnel pluriel à la fonction de sujet dans la phrase."
+- `a3c51f7b-3588-4733-9d0c-be2f1b59f85d` — « он » dans « И ка́ждый день он понима́ет немно́го бо́льше. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce pronom est au nominatif car il fait l'action dans la phrase, ici le fait de comprendre. Il désigne le sujet qui effectue le verbe « понимать » (comprendre). La forme « он » montre que c'est un pronom singulier masculin au sujet."
+- `eb97e934-098c-40b8-8ea7-fcf4f788c0a8` — « Ты » dans « — Ты де́лаешь большо́й прогре́сс. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot 'Ты' est au nominatif car il fait l'action dans la phrase, c'est le sujet qui réalise le verbe 'делаешь'. En russe, le sujet au singulier prend cette forme courte simple pour indiquer qui fait l'action."
+- `ceb4d291-6846-448d-b241-1a37c20553a5` — « они́ » dans « После заня́тий они́ иногда́ идут в кафе́. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot 'они́' désigne ici ceux qui font l'action d'aller au café, donc il est le sujet de la phrase. Sa forme est au pluriel pour montrer que c'est un groupe de personnes qui effectue l'action après les cours."
+- `b48b65d3-d50a-4f08-a994-258ffb61828a` — « Он » dans « Он всё ещё изуча́ет ру́сский язы́к ка́ждый день. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est ici le sujet de la phrase car il fait l'action d'étudier. La forme 'Он' est au nominatif singulier, qui est la forme utilisée pour le sujet en russe."
+- `6b570920-3d15-4d11-8788-c7f438965ab1` — « Он » dans « Он зна́ет, что э́то то́лько нача́ло. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Ce mot est 'он' car il désigne celui qui fait l'action dans la phrase, c'est le sujet. Il est au nominatif pour montrer clairement qui réalise l'action de savoir."
+- `61f87069-da17-4520-a702-816e2f124858` — « ты » dans « А ты ча́сто чита́ешь в тра́нспорте? » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot « ты » est au sujet car il désigne qui fait l'action de lire dans la phrase. Sa forme reste invariable car c'est un pronom sujet au nominatif qui identifie la personne qui réalise l'action."
+- `3010d4f2-2ff3-45d4-88f6-14b112fbec81` — « Они́ » dans « Они́ вхо́дят в университе́т вме́сте. » (rôle actuel : subject/blue)
+  - Prose actuelle : "Le mot « Они́ » est au pluriel car il représente plusieurs personnes qui font l'action d'entrer. Il est en forme de sujet parce qu'il réalise l'action exprimée par le verbe « вхо́дят »."

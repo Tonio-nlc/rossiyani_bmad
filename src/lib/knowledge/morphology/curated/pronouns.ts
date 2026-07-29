@@ -230,3 +230,44 @@ export function getPronounCaseCandidates(surface: string): TPronounCase[] {
 export function isCuratedPronounSurface(surface: string): boolean {
   return getPronounCaseCandidates(surface).length > 0;
 }
+
+/**
+ * Lemme d'autorité pour une forme de surface curée UNE FOIS le cas déjà
+ * résolu (désambiguïsation faite en amont, cf. case-concept-routing.ts).
+ * Sert à injecter un fait déterministe (lemme + cas) dans le prompt LLM au
+ * lieu de laisser le LLM deviner le statut grammatical du mot. Retourne
+ * `null` si aucun paradigme curé n'a cette forme à ce cas précis.
+ */
+export function findPronounLemmaForCase(
+  surface: string,
+  pronounCase: TPronounCase,
+): string | null {
+  const key = stripStressMarks(surface);
+
+  for (const paradigm of CURATED_PRONOUNS) {
+    const entry = paradigm.forms[pronounCase];
+
+    if (!entry) {
+      continue;
+    }
+
+    const candidateForms = [entry.plain, entry.withN, ...(entry.alt ?? [])];
+
+    if (candidateForms.some((form) => form && stripStressMarks(form) === key)) {
+      return paradigm.lemma;
+    }
+  }
+
+  return null;
+}
+
+/** Les pronoms qui ne peuvent JAMAIS servir de déterminant possessif figé
+ * (contrairement à он/она́/оно́/они́, dont его́/её/их doublent aussi comme
+ * « son/sa/leur » invariable) — utilisé pour la consigne de prompt LLM. */
+export const NEVER_POSSESSIVE_PRONOUN_HINT: Readonly<Record<string, string>> = {
+  я: "мой",
+  ты: "твой",
+  мы: "наш",
+  вы: "ваш",
+  "себя́": "свой",
+};

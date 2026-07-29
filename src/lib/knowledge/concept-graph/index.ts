@@ -8,14 +8,17 @@ export {
 } from "./registry";
 export { NO_CONCEPT_ID, resolveConceptGraph } from "./resolve-concept-graph";
 export {
+  buildPronounFactPromptHint,
   detectReliableCase,
   deriveInstrumentRoleOverride,
   derivePronounRoleOverride,
   INSTRUMENT_FUNCTIONAL_ROLE,
   INSTRUMENT_FUNCTION_COLOR,
+  resolvePronounCuratedFact,
   resolveReaderConcept,
   resolveReaderConceptFromSignals,
   type TInstrumentRoleOverrideInput,
+  type TPronounCuratedFact,
   type TPronounRoleOverrideInput,
 } from "./resolve-reader-concept";
 export {
