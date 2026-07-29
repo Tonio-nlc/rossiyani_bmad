@@ -10,11 +10,13 @@ export { NO_CONCEPT_ID, resolveConceptGraph } from "./resolve-concept-graph";
 export {
   detectReliableCase,
   deriveInstrumentRoleOverride,
+  derivePronounRoleOverride,
   INSTRUMENT_FUNCTIONAL_ROLE,
   INSTRUMENT_FUNCTION_COLOR,
   resolveReaderConcept,
   resolveReaderConceptFromSignals,
   type TInstrumentRoleOverrideInput,
+  type TPronounRoleOverrideInput,
 } from "./resolve-reader-concept";
 export {
   buildTeachingPath,
@@ -32,6 +34,7 @@ export {
 } from "./pedagogical-hierarchy";
 export {
   CASE_CONCEPT_BY_CASE,
+  disambiguateCase,
   inferMorphologicalCase,
   resolveCaseConceptId,
 } from "./case-concept-routing";

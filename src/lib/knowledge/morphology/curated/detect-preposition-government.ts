@@ -116,6 +116,26 @@ function findPrecedingToken(
 }
 
 /**
+ * Entrée de régence de la préposition immédiatement avant le mot, SANS
+ * résoudre les prépositions sense-dependent (с/за/под…). Utile quand on veut
+ * la liste des cas possibles (`entry.cases`) même si un seul ne peut pas
+ * encore être tranché — ex. désambiguïsation d'un pronom curé (ей/ней =
+ * datif ou instrumental) via l'intersection avec la régence détectée.
+ */
+export function getPrecedingPrepositionEntry(
+  surface: string,
+  sentence: string,
+): TPrepositionGovernmentEntry | null {
+  const preceding = findPrecedingToken(surface, sentence);
+
+  if (!preceding) {
+    return null;
+  }
+
+  return getPrepositionGovernmentEntry(stripStressMarks(preceding));
+}
+
+/**
  * Si le mot est gouverné par une préposition curée immédiatement avant lui.
  * в/на (et assimilés senseDependent) : exige un cas morphologique connu
  * parmi les cas de la table — sinon null (reste sur noun-declension).

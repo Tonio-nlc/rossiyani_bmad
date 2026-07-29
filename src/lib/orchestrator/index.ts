@@ -1,5 +1,6 @@
 import {
   deriveInstrumentRoleOverride,
+  derivePronounRoleOverride,
   ensureConceptGraphHydrated,
   resolveReaderConceptFromSignals,
 } from "@/lib/knowledge/concept-graph";
@@ -7,6 +8,7 @@ import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile
 import { getKnowledgeForConceptResolution } from "@/lib/knowledge/get-knowledge";
 import {
   getCuratedPastTenseSuffix,
+  isCuratedPronounSurface,
   resolveCuratedLemmaFromSurface,
 } from "@/lib/knowledge/morphology/curated";
 import {
@@ -140,6 +142,58 @@ function applyInstrumentRoleOverride(
 }
 
 /**
+ * Pronoms personnels/réfléchi curés (я/ты/он…/себя́) : paradigme fermé, cf.
+ * morphology/curated/pronouns.ts. Corrige deux bugs LLM à la source (ex.
+ * меня́ segmenté "мен-" + "я" avec un rôle "possession" erroné) :
+ * - aucune segmentation LLM affichée (меня́ est une forme supplétive, pas
+ *   radical + désinence régulière) ;
+ * - rôle/couleur dérivés du CAS résolu par le paradigme, jamais de la prose
+ *   LLM (cf. derivePronounRoleOverride — génitif ≠ "possession" pour ces mots).
+ * Ne s'applique qu'aux formes curées (porte `isCuratedPronounSurface`) :
+ * aucun effet sur le reste du vocabulaire.
+ */
+function applyPronounRoleOverride(
+  response: TWordExplanationResponseExtended,
+  sentence: string,
+): TWordExplanationResponseExtended {
+  if (!isCuratedPronounSurface(response.surface)) {
+    return response;
+  }
+
+  const override = derivePronounRoleOverride({
+    surface: response.surface,
+    sentence,
+    functionalRole: response.functionalRole,
+    explanation: response.explanation,
+  });
+
+  return {
+    ...response,
+    partOfSpeech: "pronoun",
+    suffix: "",
+    suffixExplanation: "",
+    ...(override ?? {}),
+  };
+}
+
+/**
+ * Point d'entrée unique des overrides déterministes de rôle/couleur.
+ * Les pronoms curés priment (paradigme fermé, cf. applyPronounRoleOverride) ;
+ * sinon, override "moyen/instrument" classique pour tout le reste.
+ */
+function applyDeterministicRoleOverride(
+  response: TWordExplanationResponseExtended,
+  profile: TLinguisticProfile | null,
+  sentence: string,
+): TWordExplanationResponseExtended {
+  if (isCuratedPronounSurface(response.surface)) {
+    return applyPronounRoleOverride(response, sentence);
+  }
+
+  return applyInstrumentRoleOverride(response, profile, sentence);
+}
+
+/**
  * Attache concept + POS/aspect depuis linguistic_knowledge.
  * Les verbes n'ont pas de rôle fonctionnel (sujet/objet…) : on le retire ici.
  *
@@ -180,11 +234,11 @@ async function attachConceptResolution(
       );
     }
 
-    // Le profil complet manque encore (knowledge non bootstrappée), mais
-    // l'override instrumental (forme curée / régence) ne dépend pas du
-    // profil : on tente quand même avant d'abandonner la résolution.
-    const overridden = applyInstrumentRoleOverride(response, profile, sentence);
-    mark("  applyInstrumentRoleOverride (sans profil)");
+    // Le profil complet manque encore (knowledge non bootstrappée), mais les
+    // overrides déterministes (pronom curé / instrumental) ne dépendent pas
+    // du profil : on tente quand même avant d'abandonner la résolution.
+    const overridden = applyDeterministicRoleOverride(response, profile, sentence);
+    mark("  applyDeterministicRoleOverride (sans profil)");
 
     return overridden;
   }
@@ -225,8 +279,8 @@ async function attachConceptResolution(
   };
 
   if (!profile?.partOfSpeech) {
-    const overridden = applyInstrumentRoleOverride(withPos, profile, sentence);
-    mark("  applyInstrumentRoleOverride (POS sans profil complet)");
+    const overridden = applyDeterministicRoleOverride(withPos, profile, sentence);
+    mark("  applyDeterministicRoleOverride (POS sans profil complet)");
 
     return overridden;
   }
@@ -252,8 +306,8 @@ async function attachConceptResolution(
   });
   mark("  resolveReaderConceptFromSignals");
 
-  const withRole = applyInstrumentRoleOverride(withPos, profile, sentence);
-  mark("  applyInstrumentRoleOverride");
+  const withRole = applyDeterministicRoleOverride(withPos, profile, sentence);
+  mark("  applyDeterministicRoleOverride");
 
   if (!concept) {
     return withRole;

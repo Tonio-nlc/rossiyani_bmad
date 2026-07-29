@@ -1,0 +1,232 @@
+/**
+ * Pronoms personnels + réfléchi — paradigme FERMÉ, curé à la main.
+ * validé manuellement — ne pas générer par LLM
+ *
+ * Bug corrigé : мен-я́ segmenté par le LLM avec un badge de terminaison "я"
+ * (мена́ étant une forme SUPPLÉTIVE de я, pas radical+désinence régulière),
+ * et un rôle fonctionnel "possession" incorrect (меня́ reste le pronom
+ * personnel "je" au génitif, jamais un déterminant possessif comme мой).
+ * Même famille de bug que нашёл (segmentation inventée) et никто́
+ * (désinence inventée) : ensemble fermé et connu → on le cure, on ne laisse
+ * plus le LLM deviner ni la forme, ni la segmentation, ni le rôle.
+ *
+ * Sources vérifiées (croisées) : voir docs/knowledge/curated-pronouns-sources.md.
+ */
+
+import type { TGovernedCase } from "./preposition-government";
+import { stripStressMarks } from "./present-verbs";
+
+export type TPronounCase = TGovernedCase | "nominative";
+
+const ALL_PRONOUN_CASES: readonly TPronounCase[] = [
+  "nominative",
+  "genitive",
+  "dative",
+  "accusative",
+  "instrumental",
+  "prepositional",
+];
+
+interface TPronounCaseForm {
+  /** Forme sans variante н- (ou seule forme existante pour я/ты/мы/вы/себя́). */
+  plain?: string;
+  /**
+   * Variante obligatoire après préposition, réservée à он/она́/оно́/они́
+   * (у него́, с ней, о них…). Absente pour я/ты/мы/вы/себя́, qui ne
+   * prennent jamais de н- (с тобо́й, pas *с нтобой).
+   */
+  withN?: string;
+  /** Variantes orthographiques secondaires (littéraires/rares). */
+  alt?: string[];
+}
+
+export interface TPronounParadigm {
+  /** Forme de citation (lemme), avec accent. */
+  lemma: string;
+  /** себя́ n'a pas de nominatif : jamais sujet. */
+  reflexive?: boolean;
+  forms: Partial<Record<TPronounCase, TPronounCaseForm>>;
+}
+
+/**
+ * я — mне/меня́ : dat = prép (même forme), gén = acc (même forme).
+ */
+const YA: TPronounParadigm = {
+  lemma: "я",
+  forms: {
+    nominative: { plain: "я" },
+    genitive: { plain: "меня́" },
+    dative: { plain: "мне" },
+    accusative: { plain: "меня́" },
+    instrumental: { plain: "мной", alt: ["мно́ю"] },
+    prepositional: { plain: "мне" },
+  },
+};
+
+const TY: TPronounParadigm = {
+  lemma: "ты",
+  forms: {
+    nominative: { plain: "ты" },
+    genitive: { plain: "тебя́" },
+    dative: { plain: "тебе́" },
+    accusative: { plain: "тебя́" },
+    instrumental: { plain: "тобо́й", alt: ["тобо́ю"] },
+    prepositional: { plain: "тебе́" },
+  },
+};
+
+/**
+ * он / оно́ — 3e personne : н- obligatoire après préposition.
+ * Le prépositionnel n'a pas de forme "sans н" (le cas prépositionnel
+ * n'existe jamais sans préposition régissante).
+ */
+const ON: TPronounParadigm = {
+  lemma: "он",
+  forms: {
+    nominative: { plain: "он" },
+    genitive: { plain: "его́", withN: "него́" },
+    dative: { plain: "ему́", withN: "нему́" },
+    accusative: { plain: "его́", withN: "него́" },
+    instrumental: { plain: "им", withN: "ним" },
+    prepositional: { withN: "нём" },
+  },
+};
+
+const ONO: TPronounParadigm = {
+  lemma: "оно́",
+  forms: {
+    nominative: { plain: "оно́" },
+    genitive: { plain: "его́", withN: "него́" },
+    dative: { plain: "ему́", withN: "нему́" },
+    accusative: { plain: "его́", withN: "него́" },
+    instrumental: { plain: "им", withN: "ним" },
+    prepositional: { withN: "нём" },
+  },
+};
+
+const ONA: TPronounParadigm = {
+  lemma: "она́",
+  forms: {
+    nominative: { plain: "она́" },
+    genitive: { plain: "её", withN: "неё" },
+    dative: { plain: "ей", withN: "ней" },
+    accusative: { plain: "её", withN: "неё" },
+    instrumental: { plain: "ей", withN: "ней", alt: ["е́ю"] },
+    prepositional: { withN: "ней" },
+  },
+};
+
+const MY: TPronounParadigm = {
+  lemma: "мы",
+  forms: {
+    nominative: { plain: "мы" },
+    genitive: { plain: "нас" },
+    dative: { plain: "нам" },
+    accusative: { plain: "нас" },
+    instrumental: { plain: "на́ми" },
+    prepositional: { plain: "нас" },
+  },
+};
+
+const VY: TPronounParadigm = {
+  lemma: "вы",
+  forms: {
+    nominative: { plain: "вы" },
+    genitive: { plain: "вас" },
+    dative: { plain: "вам" },
+    accusative: { plain: "вас" },
+    instrumental: { plain: "ва́ми" },
+    prepositional: { plain: "вас" },
+  },
+};
+
+const ONI: TPronounParadigm = {
+  lemma: "они́",
+  forms: {
+    nominative: { plain: "они́" },
+    genitive: { plain: "их", withN: "них" },
+    dative: { plain: "им", withN: "ним" },
+    accusative: { plain: "их", withN: "них" },
+    instrumental: { plain: "и́ми", withN: "ни́ми" },
+    prepositional: { withN: "них" },
+  },
+};
+
+/** Réfléchi : pas de nominatif (ne peut jamais être sujet). */
+const SEBYA: TPronounParadigm = {
+  lemma: "себя́",
+  reflexive: true,
+  forms: {
+    genitive: { plain: "себя́" },
+    dative: { plain: "себе́" },
+    accusative: { plain: "себя́" },
+    instrumental: { plain: "собо́й", alt: ["собо́ю"] },
+    prepositional: { plain: "себе́" },
+  },
+};
+
+export const CURATED_PRONOUNS: readonly TPronounParadigm[] = [
+  YA,
+  TY,
+  ON,
+  ONA,
+  ONO,
+  MY,
+  VY,
+  ONI,
+  SEBYA,
+];
+
+const surfaceToCases = new Map<string, Set<TPronounCase>>();
+
+function registerForm(form: string | undefined, pronounCase: TPronounCase): void {
+  if (!form) {
+    return;
+  }
+
+  const key = stripStressMarks(form);
+  const existing = surfaceToCases.get(key) ?? new Set<TPronounCase>();
+  existing.add(pronounCase);
+  surfaceToCases.set(key, existing);
+}
+
+for (const paradigm of CURATED_PRONOUNS) {
+  for (const pronounCase of ALL_PRONOUN_CASES) {
+    const entry = paradigm.forms[pronounCase];
+
+    if (!entry) {
+      continue;
+    }
+
+    registerForm(entry.plain, pronounCase);
+    registerForm(entry.withN, pronounCase);
+
+    for (const alt of entry.alt ?? []) {
+      registerForm(alt, pronounCase);
+    }
+  }
+}
+
+/**
+ * Cas candidats pour une forme de surface curée (pronoms uniquement).
+ * Plusieurs cas possibles = syncrétisme réel du paradigme (ex. меня́ =
+ * génitif ou accusatif) : la désambiguïsation se fait via disambiguateCase
+ * (case-concept-routing.ts), jamais en devinant depuis la prose LLM.
+ * Tableau vide = la forme n'appartient pas au paradigme fermé des pronoms.
+ */
+export function getPronounCaseCandidates(surface: string): TPronounCase[] {
+  const key = stripStressMarks(surface);
+  const candidates = surfaceToCases.get(key);
+
+  return candidates ? Array.from(candidates) : [];
+}
+
+/**
+ * true si la forme appartient au paradigme fermé curé des pronoms
+ * personnels/réfléchi. Sert de porte pour : (1) ne jamais afficher de badge
+ * de terminaison LLM sur ces formes, (2) dériver le rôle fonctionnel du cas
+ * plutôt que de la prose LLM.
+ */
+export function isCuratedPronounSurface(surface: string): boolean {
+  return getPronounCaseCandidates(surface).length > 0;
+}

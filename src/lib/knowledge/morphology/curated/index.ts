@@ -65,7 +65,16 @@ export {
 
 export {
   detectPrepositionGovernment,
+  getPrecedingPrepositionEntry,
   inferMorphologicalCaseFromParadigms,
   normalizeGovernedCaseLabel,
   type TDetectedPrepositionGovernment,
 } from "./detect-preposition-government";
+
+export {
+  CURATED_PRONOUNS,
+  getPronounCaseCandidates,
+  isCuratedPronounSurface,
+  type TPronounCase,
+  type TPronounParadigm,
+} from "./pronouns";

@@ -5,9 +5,13 @@ import type {
 } from "@/types/vocabulary";
 import { buildKnowledge } from "@/lib/knowledge/build-knowledge";
 import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
-import { deriveInstrumentRoleOverride } from "@/lib/knowledge/concept-graph";
+import {
+  deriveInstrumentRoleOverride,
+  derivePronounRoleOverride,
+} from "@/lib/knowledge/concept-graph";
 import { ensureKnowledgeExists } from "@/lib/knowledge/get-knowledge";
 import { isKnowledgeComplete } from "@/lib/knowledge/is-knowledge-complete";
+import { isCuratedPronounSurface } from "@/lib/knowledge/morphology/curated";
 import { composeConceptLesson } from "@/lib/knowledge/concept/compose-concept-lesson";
 import { collectVocabularyExamples } from "@/lib/vocabulary/collect-vocabulary-examples";
 import { extractTranslation } from "@/lib/vocabulary/extract-translation";
@@ -174,6 +178,43 @@ async function resolveContextEncounter(
 }
 
 /**
+ * Pronoms personnels/réfléchi curés (я/ты/он…/себя́) : même override que le
+ * Reader/Explorer (derivePronounRoleOverride, dérivé du CAS résolu par le
+ * paradigme fermé — jamais une devinette LLM), et même suppression du badge
+ * de terminaison (ces formes sont supplétives, aucune segmentation fiable).
+ * Sans ceci, la carte "rencontre" afficherait pour меня́ un rôle "possession"
+ * et une terminaison "я" inventés par le LLM, incohérents avec les 2 autres
+ * surfaces (Reader, Explorer).
+ */
+function applyPronounOverrideToEncounter(
+  encounter: TVocabularyContextEncounter | null,
+): TVocabularyContextEncounter | null {
+  if (!encounter || !isCuratedPronounSurface(encounter.surface)) {
+    return encounter;
+  }
+
+  const override = derivePronounRoleOverride({
+    surface: encounter.surface,
+    sentence: encounter.sentence,
+    functionalRole: encounter.functionalRole,
+    explanation: encounter.explanation,
+  });
+
+  return {
+    ...encounter,
+    suffix: "",
+    suffixExplanation: "",
+    ...(override
+      ? {
+          functionalRole: override.functionalRole,
+          functionColor: override.functionColor,
+          roleLabel: getNaturalFunctionalRoleLabel(override.functionalRole),
+        }
+      : {}),
+  };
+}
+
+/**
  * Applique le MÊME override "moyen/instrument" que le Reader/Explorer
  * (deriveInstrumentRoleOverride, dérivé du cas confirmé — jamais une devinette
  * LLM). `explanation_cache.functional_role/function_color` restent bruts (rôle
@@ -210,6 +251,22 @@ function applyInstrumentOverrideToEncounter(
     functionColor: override.functionColor,
     roleLabel: getNaturalFunctionalRoleLabel(override.functionalRole),
   };
+}
+
+/**
+ * Point d'entrée unique des overrides déterministes de rôle pour la carte
+ * "rencontre" : pronom curé en priorité (paradigme fermé), sinon override
+ * "moyen/instrument" classique.
+ */
+function applyDeterministicRoleOverrideToEncounter(
+  encounter: TVocabularyContextEncounter | null,
+  profile: TVocabularyLinguisticProfile,
+): TVocabularyContextEncounter | null {
+  if (encounter && isCuratedPronounSurface(encounter.surface)) {
+    return applyPronounOverrideToEncounter(encounter);
+  }
+
+  return applyInstrumentOverrideToEncounter(encounter, profile);
 }
 
 function resolveLemmaStressed(
@@ -320,10 +377,10 @@ export async function getVocabularyEntry(
     knowledge,
   );
 
-  // Aligne le rôle affiché sur celui du Reader/Explorer (override "moyen"
-  // dérivé du cas fiable) — sans quoi la carte "rencontre" pourrait afficher
-  // le rôle LLM brut, incohérent avec les 2 autres surfaces.
-  const encounterForDisplay = applyInstrumentOverrideToEncounter(
+  // Aligne le rôle affiché sur celui du Reader/Explorer (override pronom curé
+  // ou "moyen" dérivé du cas fiable) — sans quoi la carte "rencontre" pourrait
+  // afficher le rôle LLM brut, incohérent avec les 2 autres surfaces.
+  const encounterForDisplay = applyDeterministicRoleOverrideToEncounter(
     contextEncounter,
     linguisticProfile,
   );

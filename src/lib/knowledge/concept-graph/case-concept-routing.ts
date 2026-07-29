@@ -27,6 +27,7 @@ import {
 import { stripStressMarks } from "@/lib/knowledge/morphology/curated/present-verbs";
 import { normalizeToken } from "@/lib/utils/russian";
 import { normalizeGovernedCaseLabel } from "@/lib/knowledge/morphology/curated/detect-preposition-government";
+import { getPronounCaseCandidates } from "@/lib/knowledge/morphology/curated/pronouns";
 import type { TGovernedCase } from "@/lib/knowledge/morphology/curated/preposition-government";
 
 export type TMorphologicalCase = TGovernedCase | "nominative";
@@ -143,20 +144,45 @@ export function resolveCaseConceptId(
 }
 
 /**
- * Infère le cas de la surface : paradigmes knowledge → formes curées univoques
- * → désambiguïsation par rôle / régence.
+ * Infère le cas de la surface : pronoms curés (paradigme fermé, prioritaire)
+ * → paradigmes knowledge → formes curées univoques → désambiguïsation par
+ * rôle / régence.
  */
 export function inferMorphologicalCase(input: {
   surface: string;
   caseEntries?: Array<{ label: string; form: string }> | null;
   functionalRole?: string | null;
   governmentCase?: TGovernedCase | null;
+  /**
+   * Cas possibles d'une préposition sense-dependent (с/за/под…) précédant le
+   * mot, même quand elle n'a pas pu être tranchée en amont (governmentCase
+   * null). Permet de désambiguïser un pronom curé par intersection (ex.
+   * "ей/ней" datif=instrumental + "с" instrumental|génitif → instrumental).
+   */
+  governmentCandidateCases?: readonly TGovernedCase[] | null;
   explanation?: string | null;
 }): TMorphologicalCase | null {
   const surfaceKey = formKey(input.surface);
 
   if (!surfaceKey) {
     return null;
+  }
+
+  // Pronoms personnels / réfléchi : paradigme fermé curé à la main,
+  // prioritaire sur toute autre source — jamais de segmentation/rôle LLM
+  // pour ces formes. Cf. docs/knowledge/curated-pronouns-sources.md.
+  const pronounCandidates = getPronounCaseCandidates(input.surface);
+
+  if (pronounCandidates.length === 1) {
+    return pronounCandidates[0]!;
+  }
+
+  if (pronounCandidates.length > 1) {
+    const disambiguated = disambiguateCase(pronounCandidates, input);
+
+    if (disambiguated) {
+      return disambiguated;
+    }
   }
 
   if (input.caseEntries?.length) {
@@ -216,54 +242,85 @@ export function inferMorphologicalCase(input: {
   );
 }
 
-function disambiguateCase(
+export function disambiguateCase(
   candidates: TMorphologicalCase[],
   input: {
     functionalRole?: string | null;
     governmentCase?: TGovernedCase | null;
+    governmentCandidateCases?: readonly TGovernedCase[] | null;
     explanation?: string | null;
   },
 ): TMorphologicalCase | null {
-  if (input.governmentCase && candidates.includes(input.governmentCase)) {
+  const hasGovernmentSignal =
+    Boolean(input.governmentCase) || Boolean(input.governmentCandidateCases?.length);
+
+  // Le prépositionnel n'existe jamais sans préposition régissante : sans
+  // aucun signal de régence, on l'exclut structurellement des candidats
+  // (utile pour les pronoms нас/вас/них : génitif = accusatif = prépositionnel
+  // à la même forme selon le contexte).
+  const effectiveCandidates =
+    candidates.includes("prepositional") && !hasGovernmentSignal
+      ? candidates.filter((candidate) => candidate !== "prepositional")
+      : candidates;
+
+  if (effectiveCandidates.length === 0) {
+    return null;
+  }
+
+  if (input.governmentCase && effectiveCandidates.includes(input.governmentCase)) {
     return input.governmentCase;
+  }
+
+  // Préposition sense-dependent (с/за/под…) non tranchée en amont : on
+  // intersecte quand même ses cas possibles avec les candidats du mot — si
+  // un seul cas survit, il est fiable (ex. "с ней" : с = instrumental|génitif,
+  // ней = datif|instrumental|prépositionnel → instrumental).
+  if (input.governmentCandidateCases?.length) {
+    const intersection = effectiveCandidates.filter((candidate) =>
+      input.governmentCandidateCases!.includes(candidate as TGovernedCase),
+    );
+
+    if (intersection.length === 1) {
+      return intersection[0]!;
+    }
   }
 
   const role = (input.functionalRole ?? "").toLowerCase();
 
   if (
     (role === "object_direct" || role === "object") &&
-    candidates.includes("accusative")
+    effectiveCandidates.includes("accusative")
   ) {
     return "accusative";
   }
 
-  if (role === "subject" && candidates.includes("nominative")) {
+  if (role === "subject" && effectiveCandidates.includes("nominative")) {
     return "nominative";
   }
 
   const haystack = input.explanation ?? "";
 
-  if (/accusatif|accusative/i.test(haystack) && candidates.includes("accusative")) {
+  if (/accusatif|accusative/i.test(haystack) && effectiveCandidates.includes("accusative")) {
     return "accusative";
   }
 
-  if (/nominatif|nominative/i.test(haystack) && candidates.includes("nominative")) {
+  if (/nominatif|nominative/i.test(haystack) && effectiveCandidates.includes("nominative")) {
     return "nominative";
   }
 
-  if (/génitif|genitive/i.test(haystack) && candidates.includes("genitive")) {
+  if (/génitif|genitive/i.test(haystack) && effectiveCandidates.includes("genitive")) {
     return "genitive";
   }
 
-  if (candidates.length === 1) {
-    return candidates[0] ?? null;
+  if (effectiveCandidates.length === 1) {
+    return effectiveCandidates[0] ?? null;
   }
 
   // Syncrétisme inanimé (nom = acc) : sans rôle objet, prioriser le nominatif (citation).
   if (
-    candidates.includes("nominative") &&
-    candidates.includes("accusative") &&
-    candidates.length === 2
+    effectiveCandidates.includes("nominative") &&
+    effectiveCandidates.includes("accusative") &&
+    effectiveCandidates.length === 2
   ) {
     return "nominative";
   }
@@ -271,11 +328,23 @@ function disambiguateCase(
   // Syncrétisme animé (acc = gén) : en Reader, prioriser l'accusatif objet
   // sauf si la régence / l'explication imposent le génitif (déjà géré plus haut).
   if (
-    candidates.includes("accusative") &&
-    candidates.includes("genitive") &&
-    candidates.length === 2
+    effectiveCandidates.includes("accusative") &&
+    effectiveCandidates.includes("genitive") &&
+    effectiveCandidates.length === 2
   ) {
     return "accusative";
+  }
+
+  // Pronoms : "ей/ней" (elle) confond datif et instrumental hors régence
+  // tranchée. Le datif (complément d'attribution sans préposition) est le
+  // plus fréquent en lecture A1-A2 sans autre signal — limite connue et
+  // documentée, cf. docs/knowledge/curated-pronouns-sources.md.
+  if (
+    effectiveCandidates.includes("dative") &&
+    effectiveCandidates.includes("instrumental") &&
+    effectiveCandidates.length === 2
+  ) {
+    return "dative";
   }
 
   return null;

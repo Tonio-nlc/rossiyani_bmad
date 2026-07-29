@@ -1,6 +1,8 @@
 import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-linguistic-context";
 import {
   detectPrepositionGovernment,
+  getPrecedingPrepositionEntry,
+  isCuratedPronounSurface,
   type TGovernedCase,
 } from "@/lib/knowledge/morphology/curated";
 import type { TLinguisticProfile } from "@/types/knowledge";
@@ -53,12 +55,21 @@ export function detectReliableCase(input: {
         })
       : null;
 
+  // Régence sense-dependent (с/за/под…) non tranchée ci-dessus (le cas est
+  // encore inconnu) : on récupère quand même ses cas possibles pour permettre
+  // une désambiguïsation par intersection sur les pronoms curés (ей/ней…).
+  const precedingPrepositionEntry =
+    input.surface && input.sentence
+      ? getPrecedingPrepositionEntry(input.surface, input.sentence)
+      : null;
+
   const morphologicalCase = input.surface
     ? inferMorphologicalCase({
         surface: input.surface,
         caseEntries,
         functionalRole: input.functionalRole,
         governmentCase: (government?.governedCase ?? null) as TGovernedCase | null,
+        governmentCandidateCases: precedingPrepositionEntry?.cases ?? null,
         explanation: input.explanation ?? null,
       })
     : null;
@@ -142,6 +153,72 @@ export function deriveInstrumentRoleOverride(
     functionalRole: INSTRUMENT_FUNCTIONAL_ROLE,
     functionColor: INSTRUMENT_FUNCTION_COLOR,
   };
+}
+
+/**
+ * Rôle/couleur pour un pronom personnel/réfléchi curé, dérivé du CAS résolu
+ * par le paradigme fermé (jamais une devinette LLM). Contrairement aux noms,
+ * où le rôle reste au choix du LLM par phrase, ces 6 mappings sont fixes :
+ * - nominatif → sujet (bleu)
+ * - accusatif → objet direct (corail)
+ * - datif → destinataire (ambre)
+ * - génitif → "indique où" (vert), JAMAIS "possession" : меня́/тебя́/нас…
+ *   ne sont jamais des déterminants possessifs (mon/ton/notre = мой/твой/
+ *   наш) — même après "у" dans "у меня́ есть" (possession-existence), le
+ *   pronom reste au génitif, pas un possessif. On réutilise le rôle
+ *   "location" déjà retenu par cette appli pour "у/до/из/от + génitif".
+ * - instrumental → moyen (teal), identique à deriveInstrumentRoleOverride
+ * - prépositionnel → "indique où" (vert), comme le génitif ci-dessus —
+ *   cohérent avec (о/об/при + prépositionnel) = lieu/sujet dont on parle.
+ */
+const PRONOUN_CASE_ROLE_OVERRIDE: Record<
+  TMorphologicalCase,
+  { functionalRole: string; functionColor: string }
+> = {
+  nominative: { functionalRole: "subject", functionColor: "blue" },
+  accusative: { functionalRole: "object_direct", functionColor: "coral" },
+  dative: { functionalRole: "object_indirect", functionColor: "amber" },
+  genitive: { functionalRole: "location", functionColor: "green" },
+  instrumental: {
+    functionalRole: INSTRUMENT_FUNCTIONAL_ROLE,
+    functionColor: INSTRUMENT_FUNCTION_COLOR,
+  },
+  prepositional: { functionalRole: "location", functionColor: "green" },
+};
+
+export interface TPronounRoleOverrideInput {
+  surface?: string | null;
+  sentence?: string | null;
+  functionalRole?: string | null;
+  explanation?: string | null;
+}
+
+/**
+ * Dérive le rôle/couleur d'un pronom personnel/réfléchi curé depuis son cas
+ * (paradigme fermé, cf. morphology/curated/pronouns.ts). Retourne `null` si
+ * la surface n'est pas une forme de pronom curée : aucun effet sur le reste
+ * du vocabulaire. Source UNIQUE de vérité — réutilisée par l'orchestrateur
+ * (Reader/Explorer) ET par la fiche vocabulaire (carte "rencontre").
+ */
+export function derivePronounRoleOverride(
+  input: TPronounRoleOverrideInput,
+): { functionalRole: string; functionColor: string } | null {
+  if (!input.surface || !isCuratedPronounSurface(input.surface)) {
+    return null;
+  }
+
+  const { morphologicalCase } = detectReliableCase({
+    surface: input.surface,
+    sentence: input.sentence,
+    functionalRole: input.functionalRole,
+    explanation: input.explanation,
+  });
+
+  if (!morphologicalCase) {
+    return null;
+  }
+
+  return PRONOUN_CASE_ROLE_OVERRIDE[morphologicalCase];
 }
 
 export interface TReaderConceptResolution {
