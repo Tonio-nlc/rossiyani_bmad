@@ -39,7 +39,11 @@ export type TFunctionalRole =
   | "time"
   | "manner"
   /** Dérivé du cas instrumental (linguistic_knowledge / morphologie curée), jamais du LLM. */
-  | "instrument";
+  | "instrument"
+  /** Numéral + génitif — override serveur, jamais du LLM ; aucune couleur. */
+  | "quantity"
+  /** Expression figée curée — override serveur, jamais du LLM ; aucune couleur. */
+  | "fixed_expression";
 
 export type TFunctionColor =
   | "blue"

@@ -1,5 +1,7 @@
 import {
   buildPronounFactPromptHint,
+  CLEAR_ROLE_BADGE_OVERRIDE,
+  deriveGenitiveTriggerRoleOverride,
   deriveInstrumentRoleOverride,
   derivePronounRoleOverride,
   ensureConceptGraphHydrated,
@@ -10,7 +12,9 @@ import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile
 import { getKnowledgeForConceptResolution } from "@/lib/knowledge/get-knowledge";
 import {
   getCuratedPastTenseSuffix,
+  isCuratedInvariableSurface,
   isCuratedPronounSurface,
+  isDeterministicVerbForRoleClear,
   resolveCuratedLemmaFromSurface,
 } from "@/lib/knowledge/morphology/curated";
 import {
@@ -178,18 +182,76 @@ function applyPronounRoleOverride(
   };
 }
 
+function readAnimacyFromProfile(
+  profile: TLinguisticProfile | null,
+): "animate" | "inanimate" | null {
+  const raw = profile?.morphology?.animacy;
+
+  if (raw === "animate" || raw === "inanimate") {
+    return raw;
+  }
+
+  return null;
+}
+
+/**
+ * Génitif par déclencheur (après/из/у/без/numéral/figé) — même rail que les
+ * pronoms, appliqué aussi aux noms. Ne dépend PAS d'un profil bootstrappé :
+ * la régence et les listes curées suffisent (évite le bug historique où
+ * l'override ne touchait que les lemmes déjà en linguistic_knowledge).
+ */
+function applyGenitiveTriggerRoleOverride(
+  response: TWordExplanationResponseExtended,
+  profile: TLinguisticProfile | null,
+  sentence: string,
+): TWordExplanationResponseExtended {
+  const override = deriveGenitiveTriggerRoleOverride({
+    surface: response.surface,
+    sentence,
+    partOfSpeech: response.partOfSpeech ?? profile?.partOfSpeech ?? null,
+    paradigms: profile?.paradigms ?? null,
+    morphology: profile?.morphology ?? null,
+    functionalRole: response.functionalRole,
+    explanation: response.explanation,
+    animacy: readAnimacyFromProfile(profile),
+    isCuratedPronoun: false,
+  });
+
+  if (!override) {
+    return response;
+  }
+
+  return { ...response, ...override };
+}
+
 /**
  * Point d'entrée unique des overrides déterministes de rôle/couleur.
- * Les pronoms curés priment (paradigme fermé, cf. applyPronounRoleOverride) ;
- * sinon, override "moyen/instrument" classique pour tout le reste.
+ * Invariables d'abord (aucun badge) ; puis pronoms ; génitif ; instrumental.
  */
 function applyDeterministicRoleOverride(
   response: TWordExplanationResponseExtended,
   profile: TLinguisticProfile | null,
   sentence: string,
 ): TWordExplanationResponseExtended {
+  if (isCuratedInvariableSurface(response.surface)) {
+    return { ...response, ...CLEAR_ROLE_BADGE_OVERRIDE };
+  }
+
   if (isCuratedPronounSurface(response.surface)) {
     return applyPronounRoleOverride(response, sentence);
+  }
+
+  const withGenitive = applyGenitiveTriggerRoleOverride(
+    response,
+    profile,
+    sentence,
+  );
+
+  if (
+    withGenitive.functionalRole !== response.functionalRole ||
+    withGenitive.functionColor !== response.functionColor
+  ) {
+    return withGenitive;
   }
 
   return applyInstrumentRoleOverride(response, profile, sentence);
@@ -245,9 +307,14 @@ async function attachConceptResolution(
     return overridden;
   }
 
-  const partOfSpeech = profile?.partOfSpeech ?? "verb";
   const aspect = profile?.aspect ?? null;
-  const isVerb = partOfSpeech === "verb" || Boolean(curatedSurface);
+  // Même critère partagé que la carte vocabulaire (isDeterministicVerbForRoleClear).
+  const isVerb = isDeterministicVerbForRoleClear({
+    surface: response.surface,
+    partOfSpeech: profile?.partOfSpeech ?? null,
+  });
+  // Profil absent mais forme curée verbale → POS « verb » (filet morphologie).
+  const partOfSpeech = profile?.partOfSpeech ?? "verb";
   const hasNoReliableSuffix = POS_WITHOUT_RELIABLE_SUFFIX.has(partOfSpeech);
   // Découpe radical/désinence du passé : n'écrase la sortie LLM (souvent fausse,
   // ex. нашёл -> "ёл") que lorsque la morphologie curée confirme la forme exacte.

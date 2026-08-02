@@ -27,6 +27,13 @@ describe("isCuratedPronounSurface", () => {
     assert.equal(isCuratedPronounSurface("нашёл"), false);
     assert.equal(isCuratedPronounSurface("никто́"), false);
   });
+
+  it("match malgré ponctuation / majuscule (normalizeToken + stripStressMarks)", () => {
+    assert.equal(isCuratedPronounSurface("меня́."), true);
+    assert.equal(isCuratedPronounSurface("Меня́"), true);
+    assert.equal(isCuratedPronounSurface("нас,"), true);
+    assert.equal(isCuratedPronounSurface("него́ !"), true);
+  });
 });
 
 describe("getPronounCaseCandidates", () => {

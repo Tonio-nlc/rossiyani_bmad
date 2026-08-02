@@ -13,8 +13,19 @@
  * Sources vérifiées (croisées) : voir docs/knowledge/curated-pronouns-sources.md.
  */
 
+import { normalizeToken } from "@/lib/utils/russian";
+
 import type { TGovernedCase } from "./preposition-government";
 import { stripStressMarks } from "./present-verbs";
+
+/**
+ * Clé d'appariement surface → paradigme : même composition que le rail
+ * figé/génitif (`formKey`). Sans normalizeToken, « меня́. » / « нас, »
+ * ratent le paradigme et contournent toute la curation.
+ */
+function pronounSurfaceKey(surface: string): string {
+  return stripStressMarks(normalizeToken(surface));
+}
 
 export type TPronounCase = TGovernedCase | "nominative";
 
@@ -184,7 +195,7 @@ function registerForm(form: string | undefined, pronounCase: TPronounCase): void
     return;
   }
 
-  const key = stripStressMarks(form);
+  const key = pronounSurfaceKey(form);
   const existing = surfaceToCases.get(key) ?? new Set<TPronounCase>();
   existing.add(pronounCase);
   surfaceToCases.set(key, existing);
@@ -215,7 +226,7 @@ for (const paradigm of CURATED_PRONOUNS) {
  * Tableau vide = la forme n'appartient pas au paradigme fermé des pronoms.
  */
 export function getPronounCaseCandidates(surface: string): TPronounCase[] {
-  const key = stripStressMarks(surface);
+  const key = pronounSurfaceKey(surface);
   const candidates = surfaceToCases.get(key);
 
   return candidates ? Array.from(candidates) : [];
@@ -242,7 +253,7 @@ export function findPronounLemmaForCase(
   surface: string,
   pronounCase: TPronounCase,
 ): string | null {
-  const key = stripStressMarks(surface);
+  const key = pronounSurfaceKey(surface);
 
   for (const paradigm of CURATED_PRONOUNS) {
     const entry = paradigm.forms[pronounCase];
@@ -253,7 +264,7 @@ export function findPronounLemmaForCase(
 
     const candidateForms = [entry.plain, entry.withN, ...(entry.alt ?? [])];
 
-    if (candidateForms.some((form) => form && stripStressMarks(form) === key)) {
+    if (candidateForms.some((form) => form && pronounSurfaceKey(form) === key)) {
       return paradigm.lemma;
     }
   }

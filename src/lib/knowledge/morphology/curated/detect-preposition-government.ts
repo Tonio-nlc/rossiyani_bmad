@@ -87,7 +87,12 @@ export function inferMorphologicalCaseFromParadigms(
   return null;
 }
 
-function findPrecedingToken(
+/**
+ * Token immédiatement avant `surface` dans la phrase, normalisé (ponctuation
+ * retirée) mais accents encore présents. Source UNIQUE pour préposition,
+ * numéral et expression figée — ne pas dupliquer un second scan de phrase.
+ */
+export function getPrecedingNormalizedToken(
   surface: string,
   sentence: string,
 ): string | null {
@@ -126,7 +131,7 @@ export function getPrecedingPrepositionEntry(
   surface: string,
   sentence: string,
 ): TPrepositionGovernmentEntry | null {
-  const preceding = findPrecedingToken(surface, sentence);
+  const preceding = getPrecedingNormalizedToken(surface, sentence);
 
   if (!preceding) {
     return null;
@@ -145,7 +150,7 @@ export function detectPrepositionGovernment(input: {
   sentence: string;
   morphologicalCase?: TGovernedCase | null;
 }): TDetectedPrepositionGovernment | null {
-  const preceding = findPrecedingToken(input.surface, input.sentence);
+  const preceding = getPrecedingNormalizedToken(input.surface, input.sentence);
 
   if (!preceding) {
     return null;

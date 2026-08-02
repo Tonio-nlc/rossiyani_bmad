@@ -43,9 +43,14 @@ export const FORBIDDEN_DISPLAY_VOCABULARY: ReadonlyArray<{
     pattern: /\bambres?\b/i,
   },
   {
-    id: "color-indigo",
-    label: "indigo",
-    pattern: /\bindigos?\b/i,
+    id: "color-teal",
+    label: "teal",
+    pattern: /\bteals?\b/i,
+  },
+  {
+    id: "color-turquoise",
+    label: "turquoise",
+    pattern: /\bturquoises?\b/i,
   },
   {
     id: "term-lemme",

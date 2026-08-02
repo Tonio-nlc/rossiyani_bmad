@@ -6,12 +6,18 @@ import type {
 import { buildKnowledge } from "@/lib/knowledge/build-knowledge";
 import { buildLinguisticProfile } from "@/lib/knowledge/build-linguistic-profile";
 import {
+  CLEAR_ROLE_BADGE_OVERRIDE,
+  deriveGenitiveTriggerRoleOverride,
   deriveInstrumentRoleOverride,
   derivePronounRoleOverride,
 } from "@/lib/knowledge/concept-graph";
 import { ensureKnowledgeExists } from "@/lib/knowledge/get-knowledge";
 import { isKnowledgeComplete } from "@/lib/knowledge/is-knowledge-complete";
-import { isCuratedPronounSurface } from "@/lib/knowledge/morphology/curated";
+import {
+  isCuratedInvariableSurface,
+  isCuratedPronounSurface,
+  isDeterministicVerbForRoleClear,
+} from "@/lib/knowledge/morphology/curated";
 import { composeConceptLesson } from "@/lib/knowledge/concept/compose-concept-lesson";
 import { collectVocabularyExamples } from "@/lib/vocabulary/collect-vocabulary-examples";
 import { extractTranslation } from "@/lib/vocabulary/extract-translation";
@@ -207,8 +213,10 @@ function applyPronounOverrideToEncounter(
     ...(override
       ? {
           functionalRole: override.functionalRole,
-          functionColor: override.functionColor,
-          roleLabel: getNaturalFunctionalRoleLabel(override.functionalRole),
+          functionColor: override.functionColor || null,
+          roleLabel: override.functionalRole
+            ? getNaturalFunctionalRoleLabel(override.functionalRole)
+            : "",
         }
       : {}),
   };
@@ -253,17 +261,109 @@ function applyInstrumentOverrideToEncounter(
   };
 }
 
+function readAnimacyFromVocabularyProfile(
+  profile: TVocabularyLinguisticProfile,
+): "animate" | "inanimate" | null {
+  const raw = profile.morphology?.animacy;
+
+  if (raw === "animate" || raw === "inanimate") {
+    return raw;
+  }
+
+  return null;
+}
+
+/**
+ * Même dérivation génitif-par-déclencheur que Reader/Explorer — y compris
+ * quand le lemme n'est pas bootstrappé (régence + listes curées suffisent).
+ */
+function applyGenitiveTriggerOverrideToEncounter(
+  encounter: TVocabularyContextEncounter | null,
+  profile: TVocabularyLinguisticProfile,
+): TVocabularyContextEncounter | null {
+  if (!encounter) {
+    return encounter;
+  }
+
+  const override = deriveGenitiveTriggerRoleOverride({
+    surface: encounter.surface,
+    sentence: encounter.sentence,
+    partOfSpeech: profile.partOfSpeech,
+    paradigms: profile.paradigms,
+    morphology: profile.morphology,
+    functionalRole: encounter.functionalRole,
+    explanation: encounter.explanation,
+    animacy: readAnimacyFromVocabularyProfile(profile),
+    isCuratedPronoun: false,
+  });
+
+  if (!override) {
+    return encounter;
+  }
+
+  return {
+    ...encounter,
+    functionalRole: override.functionalRole,
+    functionColor: override.functionColor || null,
+    roleLabel: override.functionalRole
+      ? getNaturalFunctionalRoleLabel(override.functionalRole)
+      : "",
+  };
+}
+
+function clearRoleBadgeOnEncounter(
+  encounter: TVocabularyContextEncounter,
+): TVocabularyContextEncounter {
+  return {
+    ...encounter,
+    functionalRole: CLEAR_ROLE_BADGE_OVERRIDE.functionalRole,
+    functionColor: null,
+    roleLabel: "",
+  };
+}
+
 /**
  * Point d'entrée unique des overrides déterministes de rôle pour la carte
- * "rencontre" : pronom curé en priorité (paradigme fermé), sinon override
- * "moyen/instrument" classique.
+ * "rencontre" : invariable → verbe (même critère que Reader) → pronom →
+ * déclencheur génitif → instrumental.
  */
 function applyDeterministicRoleOverrideToEncounter(
   encounter: TVocabularyContextEncounter | null,
   profile: TVocabularyLinguisticProfile,
 ): TVocabularyContextEncounter | null {
-  if (encounter && isCuratedPronounSurface(encounter.surface)) {
+  if (!encounter) {
+    return encounter;
+  }
+
+  if (isCuratedInvariableSurface(encounter.surface)) {
+    return clearRoleBadgeOnEncounter(encounter);
+  }
+
+  // Même logique que attachConceptResolution (isDeterministicVerbForRoleClear).
+  if (
+    isDeterministicVerbForRoleClear({
+      surface: encounter.surface,
+      partOfSpeech: profile.partOfSpeech,
+    })
+  ) {
+    return clearRoleBadgeOnEncounter(encounter);
+  }
+
+  if (isCuratedPronounSurface(encounter.surface)) {
     return applyPronounOverrideToEncounter(encounter);
+  }
+
+  const withGenitive = applyGenitiveTriggerOverrideToEncounter(
+    encounter,
+    profile,
+  );
+
+  if (
+    withGenitive &&
+    (withGenitive.functionalRole !== encounter.functionalRole ||
+      withGenitive.functionColor !== encounter.functionColor)
+  ) {
+    return withGenitive;
   }
 
   return applyInstrumentOverrideToEncounter(encounter, profile);

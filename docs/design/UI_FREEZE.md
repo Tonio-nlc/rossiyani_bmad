@@ -126,3 +126,9 @@ Toute modification post-freeze requiert :
 1. Justification (bug / régression / incohérence)
 2. Mise à jour de ce document
 3. Pas de « polish opportuniste »
+
+### Journal post-freeze
+
+| Date | Zone | Justification | Changement |
+|------|------|---------------|------------|
+| 2026-07-31 | Explorer — badge de rôle | Incohérence : badge de rôle contredisant la prose de la même fiche | Pastille conditionnelle pour les rôles serveur sans couleur (`quantity` = pastille neutre ; `fixed_expression` = libellé seul). **Aucune couleur ajoutée** à la palette des 6. |

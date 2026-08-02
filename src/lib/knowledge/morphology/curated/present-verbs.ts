@@ -3,6 +3,8 @@
  * validé manuellement — ne pas générer par LLM
  */
 
+import { normalizeToken } from "@/lib/utils/russian";
+
 export type TPresentPersonKey =
   | "sg1"
   | "sg2"
@@ -212,11 +214,28 @@ export function getCuratedPresentVerb(
 /**
  * Lemme d'autorité depuis une forme fléchie curée (ex. пойдём → пойти́).
  * Pas de LLM — morphologie curée uniquement.
+ * Appariement : stripStressMarks(normalizeToken(…)) — « говори́т: » / majuscule OK.
  */
 export function resolveCuratedLemmaFromSurface(
   surface: string,
 ): TCuratedVerbPresent | null {
-  return bySurfaceForm.get(stripStressMarks(surface)) ?? null;
+  return bySurfaceForm.get(stripStressMarks(normalizeToken(surface))) ?? null;
+}
+
+/**
+ * Verbe déterministe pour clear du badge de rôle — même critère que
+ * attachConceptResolution : POS linguistic_knowledge === "verb" OU forme
+ * curée reconnue. Source UNIQUE Reader/Explorer ET carte vocabulaire.
+ */
+export function isDeterministicVerbForRoleClear(input: {
+  surface: string;
+  partOfSpeech?: string | null;
+}): boolean {
+  if (input.partOfSpeech === "verb") {
+    return true;
+  }
+
+  return resolveCuratedLemmaFromSurface(input.surface) !== null;
 }
 
 export function isDefectivePresentVerb(lemma: string): boolean {
@@ -237,7 +256,7 @@ export function getCuratedPastTenseSuffix(
   verb: TCuratedVerbPresent,
   surface: string,
 ): { suffix: string; suffixExplanation: string } | null {
-  const bare = stripStressMarks(surface);
+  const bare = stripStressMarks(normalizeToken(surface));
 
   if (verb.past?.m && stripStressMarks(verb.past.m) === bare) {
     return {
@@ -287,7 +306,7 @@ export type TPresentPersonInfo = {
 export function inferPresentPersonFromSurface(
   surface: string,
 ): TPresentPersonInfo | null {
-  const bare = stripStressMarks(surface);
+  const bare = stripStressMarks(normalizeToken(surface));
 
   const rules: Array<{ pattern: RegExp; key: TPresentPersonKey }> = [
     { pattern: /(ете|ёте|ите)$/, key: "pl2" },

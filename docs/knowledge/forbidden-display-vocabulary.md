@@ -16,7 +16,7 @@ L'utilisateur a rencontré un **mot** dans une phrase — pas un « lemme ».
 
 | Terme | Pourquoi |
 |-------|----------|
-| corail, bleu, vert, violet, ambre, indigo | Noms internes des couleurs fonctionnelles |
+| corail, bleu, vert, violet, ambre, teal, turquoise | Noms internes des couleurs fonctionnelles (indigo retiré : plus dans la palette) |
 | lemme / lemmes | Terme technique ; dire « mot » |
 | POS, part of speech | Jargon morphologique interne |
 | rôle fonctionnel | Terme d'archi Reader |

@@ -280,6 +280,8 @@ export const FUNCTIONAL_ROLE_LABELS: Record<string, string> = {
   manner: "Manière",
   /** Badge learner-facing : le rôle ("avec quoi"), jamais le nom du cas ("instrumental"). */
   instrument: "Moyen",
+  quantity: "Quantité",
+  fixed_expression: "Expression figée",
 };
 
 export const NATURAL_FUNCTIONAL_ROLE_LABELS: Record<string, string> = {
@@ -291,6 +293,8 @@ export const NATURAL_FUNCTIONAL_ROLE_LABELS: Record<string, string> = {
   time: "indique quand",
   manner: "indique comment",
   instrument: "indique le moyen",
+  quantity: "indique combien",
+  fixed_expression: "se dit tel quel",
   subject_complement: "décrit le sujet",
   predicate: "dit quelque chose du sujet",
   attribute: "qualifie le nom",

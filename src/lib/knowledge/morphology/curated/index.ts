@@ -44,6 +44,7 @@ export {
   getCuratedPresentVerb,
   inferPresentPersonFromSurface,
   isDefectivePresentVerb,
+  isDeterministicVerbForRoleClear,
   personKeyToChipLabel,
   personKeyToFrench,
   resolveCuratedLemmaFromSurface,
@@ -53,6 +54,11 @@ export {
   type TPresentPersonInfo,
   type TPresentPersonKey,
 } from "./present-verbs";
+
+export {
+  CURATED_INVARIABLE_WORDS,
+  isCuratedInvariableSurface,
+} from "./invariable-words";
 
 export { composePresentConjugationDemo } from "./compose-present-conjugation-demo";
 
@@ -65,6 +71,7 @@ export {
 
 export {
   detectPrepositionGovernment,
+  getPrecedingNormalizedToken,
   getPrecedingPrepositionEntry,
   inferMorphologicalCaseFromParadigms,
   normalizeGovernedCaseLabel,
@@ -80,3 +87,14 @@ export {
   type TPronounCase,
   type TPronounParadigm,
 } from "./pronouns";
+
+export {
+  CURATED_FIXED_EXPRESSIONS,
+  findCuratedFixedExpression,
+  type TCuratedFixedExpression,
+} from "./fixed-expressions";
+
+export {
+  CURATED_GENITIVE_GOVERNING_NUMERALS,
+  isCuratedGenitiveGoverningNumeral,
+} from "./genitive-numerals";

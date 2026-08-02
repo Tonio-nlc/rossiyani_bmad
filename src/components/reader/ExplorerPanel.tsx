@@ -183,9 +183,19 @@ function ExplorerContent({
     ? null
     : getFunctionColorHex(explanation.functionColor as TReaderFunctionColor);
   const cleanSurface = stripTrailingPunctuationForDisplay(explanation.surface);
-  const roleLabel = isVerb
-    ? null
-    : getNaturalFunctionalRoleLabel(explanation.functionalRole);
+  // Rôle "" (verbe / без + génitif) → aucun badge. quantity / fixed_expression
+  // gardent un libellé sans couleur fonctionnelle.
+  const roleLabel =
+    isVerb || !explanation.functionalRole
+      ? null
+      : getNaturalFunctionalRoleLabel(explanation.functionalRole);
+  const isQuantityRole = explanation.functionalRole === "quantity";
+  const isFixedExpressionRole =
+    explanation.functionalRole === "fixed_expression";
+  const isNeutralRoleBadge = isQuantityRole || isFixedExpressionRole;
+  // quantity = fonction réelle → pastille neutre ; fixed_expression = pas une
+  // fonction → libellé seul, sans pastille.
+  const showRolePastille = Boolean(roleLabel) && !isFixedExpressionRole;
   const aspectLabel = isVerb
     ? formatAspectLabel(explanation.aspect)
     : null;
@@ -217,7 +227,10 @@ function ExplorerContent({
         <div className={EXPLORER_SPACE.afterTranslation}>
           {roleLabel ? (
             <span
-              className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold",
+                isNeutralRoleBadge && "bg-bg text-ink-2",
+              )}
               style={
                 colorHex
                   ? {
@@ -227,11 +240,16 @@ function ExplorerContent({
                   : undefined
               }
             >
-              <span
-                className="size-1.5 shrink-0 rounded-full"
-                style={colorHex ? { backgroundColor: colorHex } : undefined}
-                aria-hidden="true"
-              />
+              {showRolePastille ? (
+                <span
+                  className={cn(
+                    "size-1.5 shrink-0 rounded-full",
+                    isQuantityRole && !colorHex && "bg-ink-3",
+                  )}
+                  style={colorHex ? { backgroundColor: colorHex } : undefined}
+                  aria-hidden="true"
+                />
+              ) : null}
               {roleLabel}
             </span>
           ) : null}

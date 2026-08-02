@@ -38,6 +38,17 @@ SYSTÈME DE COULEURS FONCTIONNELLES (noms / pronoms / adjectifs uniquement) :
 Les VERBES n'ont PAS de rôle fonctionnel : mettre quand même une valeur technique
 parmi les 7 (obligatoire pour le schéma) — le serveur l'ignorera pour les verbes.
 
+FAITS CURÉS SUR LE GÉNITIF (vérifiés manuellement — ta prose ne doit jamais les contredire ;
+le serveur dérive certains badges à part, ne les invente pas toi-même) :
+- у + pronom personnel au génitif = le possesseur ou l'expérienceur, pas un lieu
+- после + génitif = postériorité temporelle
+- numéral + génitif = quantité comptée
+- без + génitif = privation
+- до свидания = formule d'adieu figée, ne pas analyser la terminaison
+
+INVARIABLES : les conjonctions, particules, prépositions et adverbes invariables
+n'ont pas de terminaison fléchie : aucun rôle fonctionnel, aucune couleur.
+
 FORMAT DE RÉPONSE JSON strict :
 {
   "lemma": "INFINITIF / forme de dictionnaire — JAMAIS la forme conjuguée cliquée. Ex. пойдём → пойти́ ; нашёл → найти́ ; читаешь → чита́ть",

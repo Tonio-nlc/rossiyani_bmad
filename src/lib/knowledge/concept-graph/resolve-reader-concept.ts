@@ -1,12 +1,17 @@
 import type { TLinguisticAnalysis } from "@/lib/knowledge/teaching/analyze-linguistic-context";
 import {
   detectPrepositionGovernment,
+  findCuratedFixedExpression,
   findPronounLemmaForCase,
+  getPrecedingNormalizedToken,
   getPrecedingPrepositionEntry,
+  isCuratedGenitiveGoverningNumeral,
   isCuratedPronounSurface,
   NEVER_POSSESSIVE_PRONOUN_HINT,
+  stripStressMarks,
   type TGovernedCase,
 } from "@/lib/knowledge/morphology/curated";
+import { normalizeToken } from "@/lib/utils/russian";
 import type { TLinguisticProfile } from "@/types/knowledge";
 import type { TVocabularyContextEncounter } from "@/types/vocabulary";
 
@@ -21,6 +26,12 @@ import {
 } from "./match-signals";
 import { getConceptById } from "./registry";
 import { NO_CONCEPT_ID, resolveConceptGraph } from "./resolve-concept-graph";
+
+/** Override déterministe rôle/couleur. Couleur "" = aucune pastille colorée. */
+export type TDeterministicRoleOverride = {
+  functionalRole: string;
+  functionColor: string;
+};
 
 export interface TReliableCaseDetection {
   /** null = cas non déterminé de façon fiable (pas de paradigme/curated/régence). */
@@ -133,7 +144,7 @@ export interface TInstrumentRoleOverrideInput {
  */
 export function deriveInstrumentRoleOverride(
   input: TInstrumentRoleOverrideInput,
-): { functionalRole: string; functionColor: string } | null {
+): TDeterministicRoleOverride | null {
   if (input.partOfSpeech === "verb") {
     return null;
   }
@@ -158,29 +169,31 @@ export function deriveInstrumentRoleOverride(
 }
 
 /**
- * Rôle/couleur pour un pronom personnel/réfléchi curé, dérivé du CAS résolu
- * par le paradigme fermé (jamais une devinette LLM). Contrairement aux noms,
- * où le rôle reste au choix du LLM par phrase, ces 6 mappings sont fixes :
+ * Rôle/couleur pour un pronom personnel/réfléchi curé.
+ *
+ * Pour le génitif : DÉCLENCHEUR D'ABORD (préposition / numéral / expression
+ * figée via getPrecedingPrepositionEntry + tables curées) — jamais « génitif
+ * ⇒ location » en bloc. Le génitif russe porte plusieurs fonctions
+ * (possession-existence après у + pronom, temps après после, privation après
+ * без, quantité après un numéral, formule figée до свида́ния…). Une couleur
+ * unique « lieu » contredirait la prose de la même fiche.
+ *
+ * Pour les autres cas, mapping fixe du paradigme fermé :
  * - nominatif → sujet (bleu)
  * - accusatif → objet direct (corail)
  * - datif → destinataire (ambre)
- * - génitif → "indique où" (vert), JAMAIS "possession" : меня́/тебя́/нас…
- *   ne sont jamais des déterminants possessifs (mon/ton/notre = мой/твой/
- *   наш) — même après "у" dans "у меня́ есть" (possession-existence), le
- *   pronom reste au génitif, pas un possessif. On réutilise le rôle
- *   "location" déjà retenu par cette appli pour "у/до/из/от + génitif".
  * - instrumental → moyen (teal), identique à deriveInstrumentRoleOverride
- * - prépositionnel → "indique où" (vert), comme le génitif ci-dessus —
- *   cohérent avec (о/об/при + prépositionnel) = lieu/sujet dont on parle.
+ * - prépositionnel → "indique où" (vert)
+ * - génitif sans déclencheur listé → repli location/green (comportement
+ *   historique hors table déclencheur)
  */
 const PRONOUN_CASE_ROLE_OVERRIDE: Record<
-  TMorphologicalCase,
-  { functionalRole: string; functionColor: string }
+  Exclude<TMorphologicalCase, "genitive">,
+  TDeterministicRoleOverride
 > = {
   nominative: { functionalRole: "subject", functionColor: "blue" },
   accusative: { functionalRole: "object_direct", functionColor: "coral" },
   dative: { functionalRole: "object_indirect", functionColor: "amber" },
-  genitive: { functionalRole: "location", functionColor: "green" },
   instrumental: {
     functionalRole: INSTRUMENT_FUNCTIONAL_ROLE,
     functionColor: INSTRUMENT_FUNCTION_COLOR,
@@ -188,36 +201,206 @@ const PRONOUN_CASE_ROLE_OVERRIDE: Record<
   prepositional: { functionalRole: "location", functionColor: "green" },
 };
 
-export interface TPronounRoleOverrideInput {
+/** Repli génitif sans déclencheur reconnu — inchangé pour les pronoms. */
+const GENITIVE_FALLBACK_PRONOUN: TDeterministicRoleOverride = {
+  functionalRole: "location",
+  functionColor: "green",
+};
+
+export const QUANTITY_FUNCTIONAL_ROLE = "quantity";
+export const FIXED_EXPRESSION_FUNCTIONAL_ROLE = "fixed_expression";
+
+/**
+ * Aucun badge (même sémantique que le chemin verbe de l'orchestrateur :
+ * functionalRole "" + functionColor "").
+ */
+export const CLEAR_ROLE_BADGE_OVERRIDE: TDeterministicRoleOverride = {
+  functionalRole: "",
+  functionColor: "",
+};
+
+export interface TGenitiveTriggerRoleOverrideInput {
   surface?: string | null;
   sentence?: string | null;
+  partOfSpeech?: string | null;
+  paradigms?: TLinguisticProfile["paradigms"] | null;
+  morphology?: TLinguisticProfile["morphology"] | null;
   functionalRole?: string | null;
   explanation?: string | null;
+  /**
+   * Animacy morphologique connue (`animate` | `inanimate`), sinon null =
+   * inconnu. Ne jamais inférer ici.
+   */
+  animacy?: "animate" | "inanimate" | null;
+  /** true si la surface est un pronom personnel/réfléchi curé. */
+  isCuratedPronoun?: boolean;
 }
 
 /**
- * Dérive le rôle/couleur d'un pronom personnel/réfléchi curé depuis son cas
- * (paradigme fermé, cf. morphology/curated/pronouns.ts). Retourne `null` si
- * la surface n'est pas une forme de pronom curée : aucun effet sur le reste
- * du vocabulaire. Source UNIQUE de vérité — réutilisée par l'orchestrateur
- * (Reader/Explorer) ET par la fiche vocabulaire (carte "rencontre").
+ * Dérivation GÉNITIF par déclencheur (préposition / numéral / expression figée).
+ * Source UNIQUE — Reader/Explorer (orchestrateur) ET carte vocabulaire.
+ * Réutilise getPrecedingPrepositionEntry / getPrecedingNormalizedToken : aucune
+ * détection parallèle de la préposition.
+ *
+ * Table (génitif) :
+ * - у + pronom curé → possession / violet
+ * - у + nom inanimé → location / green
+ * - у + nom, animacy inconnue → location / green (NE PAS DEVINER)
+ * - у + nom animé → possession / violet — branche présente mais inactive tant
+ *   que animacy vaut « inconnu ». « У врача́ » restera FAUX (location) jusqu'à
+ *   peuplement de l'animacy (dépendance chantier morphologie).
+ * - после → time / green
+ * - из → location / green
+ * - без → aucun badge (CLEAR_ROLE_BADGE_OVERRIDE)
+ * - numéral précédent → quantity, couleur vidée
+ * - до + expression figée → fixed_expression, couleur vidée
+ * - nom + génitif (adnominal) / aucun déclencheur → null (comportement actuel
+ *   inchangé : LLM pour les noms ; repli pronom géré par l'appelant)
  */
-export function derivePronounRoleOverride(
-  input: TPronounRoleOverrideInput,
-): { functionalRole: string; functionColor: string } | null {
-  if (!input.surface || !isCuratedPronounSurface(input.surface)) {
+export function deriveGenitiveTriggerRoleOverride(
+  input: TGenitiveTriggerRoleOverrideInput,
+): TDeterministicRoleOverride | null {
+  if (input.partOfSpeech === "verb" || !input.surface || !input.sentence) {
     return null;
+  }
+
+  const precedingRaw = getPrecedingNormalizedToken(input.surface, input.sentence);
+  const precedingKey = precedingRaw
+    ? stripStressMarks(normalizeToken(precedingRaw))
+    : null;
+  const surfaceKey = stripStressMarks(normalizeToken(input.surface));
+
+  // Expression figée : matching explicite avant même d'exiger le cas
+  // (до свида́ния). La préposition vient du même rail que la régence.
+  if (precedingKey && surfaceKey) {
+    const fixed = findCuratedFixedExpression(precedingKey, surfaceKey);
+
+    if (fixed) {
+      return {
+        functionalRole: FIXED_EXPRESSION_FUNCTIONAL_ROLE,
+        functionColor: "",
+      };
+    }
+  }
+
+  // Numéral précédent (ex. де́сять часо́в) : le numéral curé EST le déclencheur
+  // — pas besoin d'un paradigme confirmant le génitif (souvent absent hors bootstrap).
+  if (precedingKey && isCuratedGenitiveGoverningNumeral(precedingKey)) {
+    return {
+      functionalRole: QUANTITY_FUNCTIONAL_ROLE,
+      functionColor: "",
+    };
   }
 
   const { morphologicalCase } = detectReliableCase({
     surface: input.surface,
     sentence: input.sentence,
+    paradigms: input.paradigms,
+    morphology: input.morphology,
+    functionalRole: input.functionalRole,
+    explanation: input.explanation,
+  });
+
+  if (morphologicalCase !== "genitive") {
+    return null;
+  }
+
+  const prepEntry = getPrecedingPrepositionEntry(input.surface, input.sentence);
+
+  if (!prepEntry || !prepEntry.cases.includes("genitive")) {
+    // Adnominal / aucun déclencheur listé : ne pas forcer — LLM (noms) ou
+    // repli pronom chez l'appelant. Évite aussi нет + génitif → possession.
+    return null;
+  }
+
+  const prep = prepEntry.preposition;
+
+  if (prep === "без") {
+    return CLEAR_ROLE_BADGE_OVERRIDE;
+  }
+
+  if (prep === "после") {
+    return { functionalRole: "time", functionColor: "green" };
+  }
+
+  if (prep === "из") {
+    return { functionalRole: "location", functionColor: "green" };
+  }
+
+  if (prep === "у") {
+    if (input.isCuratedPronoun) {
+      return { functionalRole: "possession", functionColor: "violet" };
+    }
+
+    // Branche animée → possession : active SEULEMENT si animacy === "animate".
+    // Tant que l'animacy est inconnue, on reste en location/green (ne pas
+    // inférer). Conséquence : « У врача́ » restera FAUX (badge lieu) jusqu'au
+    // peuplement morphologique de l'animacy — dépendance chantier morphologie.
+    if (input.animacy === "animate") {
+      return { functionalRole: "possession", functionColor: "violet" };
+    }
+
+    // inanimé OU inconnu → location / green (inchangé, NE DEVINE PAS)
+    return { functionalRole: "location", functionColor: "green" };
+  }
+
+  // Autres prépositions au génitif (для, от, до hors figé, около…) :
+  // aucun override — comportement actuel inchangé.
+  return null;
+}
+
+export interface TPronounRoleOverrideInput {
+  surface?: string | null;
+  sentence?: string | null;
+  functionalRole?: string | null;
+  explanation?: string | null;
+  paradigms?: TLinguisticProfile["paradigms"] | null;
+  morphology?: TLinguisticProfile["morphology"] | null;
+  animacy?: "animate" | "inanimate" | null;
+}
+
+/**
+ * Dérive le rôle/couleur d'un pronom personnel/réfléchi curé depuis son cas
+ * (paradigme fermé) et, pour le génitif, depuis le déclencheur (même table
+ * que les noms). Source UNIQUE — Reader/Explorer ET carte "rencontre".
+ */
+export function derivePronounRoleOverride(
+  input: TPronounRoleOverrideInput,
+): TDeterministicRoleOverride | null {
+  if (!input.surface || !isCuratedPronounSurface(input.surface)) {
+    return null;
+  }
+
+  const triggerOverride = deriveGenitiveTriggerRoleOverride({
+    surface: input.surface,
+    sentence: input.sentence,
+    paradigms: input.paradigms,
+    morphology: input.morphology,
+    functionalRole: input.functionalRole,
+    explanation: input.explanation,
+    animacy: input.animacy ?? null,
+    isCuratedPronoun: true,
+  });
+
+  if (triggerOverride) {
+    return triggerOverride;
+  }
+
+  const { morphologicalCase } = detectReliableCase({
+    surface: input.surface,
+    sentence: input.sentence,
+    paradigms: input.paradigms,
+    morphology: input.morphology,
     functionalRole: input.functionalRole,
     explanation: input.explanation,
   });
 
   if (!morphologicalCase) {
     return null;
+  }
+
+  if (morphologicalCase === "genitive") {
+    return GENITIVE_FALLBACK_PRONOUN;
   }
 
   return PRONOUN_CASE_ROLE_OVERRIDE[morphologicalCase];
@@ -303,7 +486,7 @@ export function buildPronounFactPromptHint(fact: TPronounCuratedFact): string {
 
   if (neverPossessive) {
     lines.push(
-      `Ce n'est JAMAIS un déterminant possessif — le possessif de « ${fact.lemma} » est « ${neverPossessive} », un mot différent. Ne parle donc jamais de "possession" pour ce mot.`,
+      `Ce n'est JAMAIS un déterminant possessif — le possessif de « ${fact.lemma} » est « ${neverPossessive} », un mot différent. Ne le qualifie jamais de "possessif".`,
     );
   } else {
     lines.push(
@@ -313,7 +496,7 @@ export function buildPronounFactPromptHint(fact: TPronounCuratedFact): string {
 
   if (fact.morphologicalCase === "genitive" && fact.governingPreposition === "у") {
     lines.push(
-      `Ici, la construction « у + génitif » exprime la possession/existence AU NIVEAU DE LA PHRASE (« у меня́ » = « j'ai »), mais le mot lui-même reste le pronom personnel au génitif, pas un possessif — explique la construction sans qualifier le mot de "possessif".`,
+      `Ici, « у + génitif » (pronom personnel) marque le possesseur ou l'expérienceur, pas un lieu. Explique la construction sans qualifier le mot de "possessif".`,
     );
   }
 
