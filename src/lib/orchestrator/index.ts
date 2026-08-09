@@ -5,6 +5,7 @@ import {
   deriveInstrumentRoleOverride,
   derivePronounRoleOverride,
   ensureConceptGraphHydrated,
+  FIXED_EXPRESSION_FUNCTIONAL_ROLE,
   resolvePronounCuratedFact,
   resolveReaderConceptFromSignals,
 } from "@/lib/knowledge/concept-graph";
@@ -13,12 +14,14 @@ import { getKnowledgeForConceptResolution } from "@/lib/knowledge/get-knowledge"
 import {
   getCuratedPastTenseSuffix,
   isCuratedInvariableSurface,
+  isCuratedPrepositionSurface,
   isCuratedPronounSurface,
   isDeterministicVerbForRoleClear,
   resolveCuratedLemmaFromSurface,
 } from "@/lib/knowledge/morphology/curated";
 import {
   getCachedExplanation,
+  getLemmaFormById,
   incrementUsageCount,
   resolveOrCreateLemma,
   storeExplanationInCache,
@@ -221,20 +224,49 @@ function applyGenitiveTriggerRoleOverride(
     return response;
   }
 
+  // Expression figée : aucun badge de terminaison (pas une désinence analysable).
+  if (override.functionalRole === FIXED_EXPRESSION_FUNCTIONAL_ROLE) {
+    return {
+      ...response,
+      ...override,
+      suffix: "",
+      suffixExplanation: "",
+    };
+  }
+
   return { ...response, ...override };
+}
+
+/** Aucun badge — même sémantique que le chemin verbe. */
+function clearRoleBadgeOnResponse(
+  response: TWordExplanationResponseExtended,
+): TWordExplanationResponseExtended {
+  return {
+    ...response,
+    ...CLEAR_ROLE_BADGE_OVERRIDE,
+    suffix: "",
+    suffixExplanation: "",
+  };
 }
 
 /**
  * Point d'entrée unique des overrides déterministes de rôle/couleur.
- * Invariables d'abord (aucun badge) ; puis pronoms ; génitif ; instrumental.
+ * Prépositions / invariables d'abord (aucun badge — la préposition reste
+ * déclencheur pour le mot gouverné via getPrecedingPrepositionEntry) ;
+ * puis pronoms ; génitif ; instrumental.
  */
 function applyDeterministicRoleOverride(
   response: TWordExplanationResponseExtended,
   profile: TLinguisticProfile | null,
   sentence: string,
 ): TWordExplanationResponseExtended {
+  // AVANT toute autre dérivation : une préposition cliquée n'a pas de rôle.
+  if (isCuratedPrepositionSurface(response.surface)) {
+    return clearRoleBadgeOnResponse(response);
+  }
+
   if (isCuratedInvariableSurface(response.surface)) {
-    return { ...response, ...CLEAR_ROLE_BADGE_OVERRIDE };
+    return clearRoleBadgeOnResponse(response);
   }
 
   if (isCuratedPronounSurface(response.surface)) {
@@ -347,11 +379,16 @@ async function attachConceptResolution(
       : {}),
   };
 
-  if (!profile?.partOfSpeech) {
-    const overridden = applyDeterministicRoleOverride(withPos, profile, sentence);
-    mark("  applyDeterministicRoleOverride (POS sans profil complet)");
+  // Override rôle AVANT la résolution de concept : un fixed_expression ne doit
+  // jamais recevoir « Régence des prépositions » ni une décomposition de cas.
+  const withRole = applyDeterministicRoleOverride(withPos, profile, sentence);
+  mark("  applyDeterministicRoleOverride");
 
-    return overridden;
+  if (
+    !profile?.partOfSpeech ||
+    withRole.functionalRole === FIXED_EXPRESSION_FUNCTIONAL_ROLE
+  ) {
+    return withRole;
   }
 
   const concept = resolveReaderConceptFromSignals({
@@ -366,17 +403,14 @@ async function attachConceptResolution(
         : null,
     morphology: profile.morphology,
     paradigms: profile.paradigms,
-    surface: withPos.surface,
-    lemma: withPos.lemma,
-    explanation: withPos.explanation,
-    suffixExplanation: withPos.suffixExplanation,
-    functionalRole: withPos.functionalRole,
+    surface: withRole.surface,
+    lemma: withRole.lemma,
+    explanation: withRole.explanation,
+    suffixExplanation: withRole.suffixExplanation,
+    functionalRole: withRole.functionalRole,
     sentence,
   });
   mark("  resolveReaderConceptFromSignals");
-
-  const withRole = applyDeterministicRoleOverride(withPos, profile, sentence);
-  mark("  applyDeterministicRoleOverride");
 
   if (!concept) {
     return withRole;
@@ -436,6 +470,9 @@ export async function explainWord(
   const llmPayload = applyCuratedLemmaToPayload(surface, llmRaw);
   const lemmaId = await resolveOrCreateLemma(llmPayload.lemma);
   mark("resolveOrCreateLemma");
+  // Affichage : `lemmas.form` prime sur lemmaStressed LLM (ex. по́сле vs послé).
+  const lemmaFormFromDb = await getLemmaFormById(lemmaId);
+  mark("getLemmaFormById");
   const explanationCacheId = await storeExplanationInCache({
     contextHash,
     lemmaId,
@@ -448,7 +485,7 @@ export async function explainWord(
   const response = await attachConceptResolution(
     {
       surface,
-      lemma: llmPayload.lemma,
+      lemma: lemmaFormFromDb ?? llmPayload.lemma,
       lemmaStressed: llmPayload.lemmaStressed,
       translation: llmPayload.translation,
       functionalRole: llmPayload.functionalRole,

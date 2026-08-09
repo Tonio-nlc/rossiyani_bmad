@@ -10,11 +10,13 @@ import {
   deriveGenitiveTriggerRoleOverride,
   deriveInstrumentRoleOverride,
   derivePronounRoleOverride,
+  FIXED_EXPRESSION_FUNCTIONAL_ROLE,
 } from "@/lib/knowledge/concept-graph";
 import { ensureKnowledgeExists } from "@/lib/knowledge/get-knowledge";
 import { isKnowledgeComplete } from "@/lib/knowledge/is-knowledge-complete";
 import {
   isCuratedInvariableSurface,
+  isCuratedPrepositionSurface,
   isCuratedPronounSurface,
   isDeterministicVerbForRoleClear,
 } from "@/lib/knowledge/morphology/curated";
@@ -301,6 +303,8 @@ function applyGenitiveTriggerOverrideToEncounter(
     return encounter;
   }
 
+  const isFixed = override.functionalRole === FIXED_EXPRESSION_FUNCTIONAL_ROLE;
+
   return {
     ...encounter,
     functionalRole: override.functionalRole,
@@ -308,6 +312,12 @@ function applyGenitiveTriggerOverrideToEncounter(
     roleLabel: override.functionalRole
       ? getNaturalFunctionalRoleLabel(override.functionalRole)
       : "",
+    ...(isFixed
+      ? {
+          suffix: "",
+          suffixExplanation: "",
+        }
+      : {}),
   };
 }
 
@@ -319,12 +329,14 @@ function clearRoleBadgeOnEncounter(
     functionalRole: CLEAR_ROLE_BADGE_OVERRIDE.functionalRole,
     functionColor: null,
     roleLabel: "",
+    suffix: "",
+    suffixExplanation: "",
   };
 }
 
 /**
  * Point d'entrée unique des overrides déterministes de rôle pour la carte
- * "rencontre" : invariable → verbe (même critère que Reader) → pronom →
+ * "rencontre" : préposition → invariable → verbe → pronom →
  * déclencheur génitif → instrumental.
  */
 function applyDeterministicRoleOverrideToEncounter(
@@ -333,6 +345,12 @@ function applyDeterministicRoleOverrideToEncounter(
 ): TVocabularyContextEncounter | null {
   if (!encounter) {
     return encounter;
+  }
+
+  // Préposition cliquée : aucun badge (avant génitif — le déclencheur
+  // s'applique au mot gouverné, pas à la préposition elle-même).
+  if (isCuratedPrepositionSurface(encounter.surface)) {
+    return clearRoleBadgeOnEncounter(encounter);
   }
 
   if (isCuratedInvariableSurface(encounter.surface)) {

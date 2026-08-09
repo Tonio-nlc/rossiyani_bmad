@@ -1,7 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
+  assertLemmaFormCharset,
   canonicalizeLemmaForm,
+  countRussianVowels,
   hasStressMark,
+  stripMonosyllableStress,
   stripStressMark,
 } from "@/lib/vocabulary/canonicalize-lemma-form";
 import type {
@@ -53,6 +56,24 @@ function serializeCachedPayload(payload: TLlmExplanationPayload): string {
     suffixExplanation: payload.suffixExplanation,
     lemmaStressed: payload.lemmaStressed,
   });
+}
+
+/** Forme curée `lemmas.form` pour un id — autorité d'affichage du lemme. */
+export async function getLemmaFormById(
+  lemmaId: string,
+): Promise<string | null> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("lemmas")
+    .select("form")
+    .eq("id", lemmaId)
+    .maybeSingle();
+
+  if (error || !data?.form) {
+    return null;
+  }
+
+  return data.form as string;
 }
 
 export async function getCachedExplanation(contextHash: string) {
@@ -178,15 +199,25 @@ export async function storeExplanationInCache(params: {
  * Résout un lemme existant ou en crée un — canonicalisation à l'insertion.
  *
  * Règle d'unicité (voir canonicalize-lemma-form.ts et
- * docs/knowledge/lemma-canonicalization.md) : la forme canonique est la forme
- * ACCENTUÉE en NFC. Une forme SANS accent qui désigne le même mot qu'une forme
- * déjà accentuée en base réutilise cette ligne (jamais de nouvelle ligne).
- * Deux formes accentuées à des positions DIFFÉRENTES (ex. му́ка / мука́) ne sont
- * JAMAIS fusionnées : ce sont des mots distincts.
+ * docs/knowledge/lemma-canonicalization.md) : pour un POLYSYLLABE, la forme
+ * canonique est la forme ACCENTUÉE en NFC. Une forme SANS accent qui désigne
+ * le même mot qu'une forme déjà accentuée en base réutilise cette ligne
+ * (jamais de nouvelle ligne). Deux formes accentuées à des positions
+ * DIFFÉRENTES (ex. му́ка / мука́) ne sont JAMAIS fusionnées : ce sont des mots
+ * distincts.
+ *
+ * Exception monosyllabe (une seule voyelle russe) : aucun U+0301 noté —
+ * règle déterministe, ne pas déléguer au LLM.
  */
 export async function resolveOrCreateLemma(lemmaFormRaw: string): Promise<string> {
   const admin = createAdminClient();
-  const lemmaForm = canonicalizeLemmaForm(lemmaFormRaw);
+  // NFC d'abord, puis rejet charset, puis garde monosyllabe.
+  const lemmaFormNfc = canonicalizeLemmaForm(lemmaFormRaw);
+  // Un caractère latin dans une forme russe est invisible à
+  // l'œil et casse tout appariement — rejet à l'insertion.
+  assertLemmaFormCharset(lemmaFormNfc);
+  const lemmaForm = stripMonosyllableStress(lemmaFormNfc);
+  const isMonosyllable = countRussianVowels(lemmaForm) === 1;
 
   // 1. Correspondance exacte (NFC) — cas le plus fréquent, un aller simple.
   const { data: existing } = await admin
@@ -229,6 +260,8 @@ export async function resolveOrCreateLemma(lemmaFormRaw: string): Promise<string
       // La forme entrante est accentuée et une ligne "nue" existe déjà pour ce
       // même mot : on la fait enfin porter sa forme canonique (accentuée) au
       // lieu de créer une ligne séparée.
+      // (Inatteignable pour un monosyllabe : stripMonosyllableStress a déjà
+      // retiré l'accent, donc incomingHasStress est faux.)
       const target = bareExisting[0]!;
       await admin.from("lemmas").update({ form: lemmaForm }).eq("id", target.id);
       return target.id as string;
@@ -237,7 +270,13 @@ export async function resolveOrCreateLemma(lemmaFormRaw: string): Promise<string
     if (!incomingHasStress && bareExisting.length === 0 && distinctAccentedForms.size === 1) {
       // La forme entrante est nue et EXACTEMENT une forme accentuée existe déjà
       // pour ce même mot (aucune ambiguïté) : on réutilise cette ligne.
-      return accentedExisting[0]!.id as string;
+      // Monosyllabe : soigner une ligne legacy accentuée vers la forme nue
+      // (évite aussi un INSERT nu qui violerait lemmas_no_bare_vs_accented_dup).
+      const target = accentedExisting[0]!;
+      if (isMonosyllable) {
+        await admin.from("lemmas").update({ form: lemmaForm }).eq("id", target.id);
+      }
+      return target.id as string;
     }
 
     // Sinon : soit aucune correspondance sûre, soit plusieurs formes accentuées

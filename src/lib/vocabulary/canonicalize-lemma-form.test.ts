@@ -2,8 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  assertLemmaFormCharset,
   canonicalizeLemmaForm,
+  countRussianVowels,
   hasStressMark,
+  isAllowedLemmaFormCharset,
+  stripMonosyllableStress,
   stripStressMark,
 } from "./canonicalize-lemma-form";
 
@@ -43,5 +47,52 @@ describe("stripStressMark", () => {
     "quand les deux portent un accent — voir resolveOrCreateLemma)", () => {
     assert.equal(stripStressMark("му́ка"), stripStressMark("мука́"));
     assert.notEqual("му́ка", "мука́");
+  });
+});
+
+describe("assertLemmaFormCharset", () => {
+  it("accepte cyrillique, trait d'union et U+0301", () => {
+    assert.equal(isAllowedLemmaFormCharset("ваго́н"), true);
+    assert.equal(isAllowedLemmaFormCharset("по-французски"), true);
+    assert.equal(isAllowedLemmaFormCharset("я"), true);
+  });
+
+  it("rejette les homoglyphes latins (c, a, á)", () => {
+    assert.equal(isAllowedLemmaFormCharset("садитьcя"), false);
+    assert.equal(isAllowedLemmaFormCharset("двa"), false);
+    assert.equal(isAllowedLemmaFormCharset("знáть"), false);
+    assert.throws(
+      () => assertLemmaFormCharset("садитьcя"),
+      /Lemme rejeté/,
+    );
+  });
+});
+
+describe("countRussianVowels / stripMonosyllableStress", () => {
+  it("compte les voyelles, pas les caractères (вста́ть = 1)", () => {
+    assert.equal(countRussianVowels("вста́ть"), 1);
+    assert.equal(countRussianVowels("встать"), 1);
+    assert.equal(countRussianVowels("пить"), 1);
+    assert.equal(countRussianVowels("я́"), 1);
+    assert.equal(countRussianVowels("Я"), 1);
+  });
+
+  it("retire U+0301 sur monosyllabe, y compris après NFC", () => {
+    const nfc = canonicalizeLemmaForm("вста́ть");
+    assert.equal(stripMonosyllableStress(nfc), "встать");
+    assert.equal(stripMonosyllableStress(canonicalizeLemmaForm("пи́ть")), "пить");
+    assert.equal(stripMonosyllableStress(canonicalizeLemmaForm("я́")), "я");
+    assert.equal(stripMonosyllableStress(canonicalizeLemmaForm("де́нь")), "день");
+  });
+
+  it("ne touche pas les polysyllabes ni les paires accent-distinctives", () => {
+    assert.equal(countRussianVowels("му́ка"), 2);
+    assert.equal(countRussianVowels("мука́"), 2);
+    assert.equal(countRussianVowels("бо́леть"), 2);
+    assert.equal(countRussianVowels("боле́ть"), 2);
+    assert.equal(stripMonosyllableStress("му́ка"), "му́ка");
+    assert.equal(stripMonosyllableStress("мука́"), "мука́");
+    assert.equal(stripMonosyllableStress("бо́леть"), "бо́леть");
+    assert.equal(stripMonosyllableStress("боле́ть"), "боле́ть");
   });
 });

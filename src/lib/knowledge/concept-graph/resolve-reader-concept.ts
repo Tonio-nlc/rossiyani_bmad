@@ -575,6 +575,25 @@ export function resolveReaderConceptFromSignals(input: {
   /** Phrase d'origine — requise pour détecter la préposition précédente. */
   sentence?: string | null;
 }): TReaderConceptResolution | null {
+  // Filet : figé détecté ici même si l'appelant n'a pas encore appliqué l'override.
+  if (
+    input.functionalRole === FIXED_EXPRESSION_FUNCTIONAL_ROLE ||
+    (input.surface &&
+      input.sentence &&
+      deriveGenitiveTriggerRoleOverride({
+        surface: input.surface,
+        sentence: input.sentence,
+        partOfSpeech: input.partOfSpeech,
+        paradigms: input.paradigms,
+        morphology: input.morphology,
+        functionalRole: input.functionalRole,
+        explanation: input.explanation,
+        animacy: input.animacy ?? null,
+      })?.functionalRole === FIXED_EXPRESSION_FUNCTIONAL_ROLE)
+  ) {
+    return null;
+  }
+
   const morph = input.morphology;
   const aspect = input.aspect ?? morph?.aspect ?? null;
 

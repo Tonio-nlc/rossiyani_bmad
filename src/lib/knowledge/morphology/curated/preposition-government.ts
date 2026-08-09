@@ -6,6 +6,9 @@
  * в / на : deux cas selon le sens (mouvement → accusatif, lieu → prépositionnel).
  */
 
+import { stripStressMarks } from "@/lib/knowledge/morphology/curated/present-verbs";
+import { normalizeToken } from "@/lib/utils/russian";
+
 export type TGovernedCase =
   | "genitive"
   | "dative"
@@ -96,4 +99,16 @@ export function getPrepositionGovernmentEntry(
   preposition: string,
 ): TPrepositionGovernmentEntry | null {
   return byPreposition.get(preposition) ?? null;
+}
+
+/**
+ * true si la surface (éventuellement ponctuée / capitalisée / accentuée) est
+ * une préposition de la table de régence. Source UNIQUE — pas de liste
+ * dupliquée dans invariable-words. Appariement :
+ * stripStressMarks(normalizeToken(surface)).
+ */
+export function isCuratedPrepositionSurface(surface: string): boolean {
+  const key = stripStressMarks(normalizeToken(surface));
+
+  return Boolean(key) && getPrepositionGovernmentEntry(key) !== null;
 }

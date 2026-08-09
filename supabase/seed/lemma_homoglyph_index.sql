@@ -1,0 +1,5 @@
+-- Homoglyphes latins dans lemmas — index (ne pas exécuter en bloc).
+-- 1) lemma_homoglyph_saditsya.sql  — садитьcя → садиться
+-- 2) lemma_homoglyph_dva.sql       — двa → два
+-- 3) lemma_homoglyph_znat.sql      — знáть → знать
+-- Scan surface : voir aussi Áнна (U+00C1) dans explanation_cache — hors lemmas.

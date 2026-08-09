@@ -24,6 +24,7 @@ import {
   type TReaderFunctionColor,
 } from "@/lib/utils/russian";
 import { formatAspectLabel } from "@/lib/vocabulary/format-linguistic-labels";
+import { resolveDisplayLemma } from "@/lib/vocabulary/resolve-display-lemma";
 import type { TWordExplanationResponse } from "@/types/orchestrator";
 import type { TLessonLink } from "@/types/lessons";
 import { cn } from "@/lib/utils";
@@ -199,9 +200,12 @@ function ExplorerContent({
   const aspectLabel = isVerb
     ? formatAspectLabel(explanation.aspect)
     : null;
-  const displayLemma =
-    explanation.lemmaStressed ?? explanation.lemma.toLowerCase();
-  const plainLemma = explanation.lemma.toLowerCase();
+  // lemmas.form (explanation.lemma, hydraté depuis la DB) avant lemmaStressed.
+  const displayLemma = resolveDisplayLemma(
+    explanation.lemma,
+    explanation.lemmaStressed,
+  );
+  const plainLemma = explanation.lemma;
   const showSurfaceForm =
     cleanSurface !== displayLemma && cleanSurface !== plainLemma;
 

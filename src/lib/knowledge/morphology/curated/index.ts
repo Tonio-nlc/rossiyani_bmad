@@ -65,6 +65,7 @@ export { composePresentConjugationDemo } from "./compose-present-conjugation-dem
 export {
   CURATED_PREPOSITION_GOVERNMENT,
   getPrepositionGovernmentEntry,
+  isCuratedPrepositionSurface,
   type TGovernedCase,
   type TPrepositionGovernmentEntry,
 } from "./preposition-government";

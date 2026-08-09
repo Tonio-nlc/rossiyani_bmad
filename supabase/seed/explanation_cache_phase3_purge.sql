@@ -1,0 +1,4 @@
+-- PHASE 3 — index (ne pas exécuter en bloc).
+-- 1) explanation_cache_phase3_purge_1_select.sql
+-- 2) explanation_cache_phase3_purge_2_counts.sql  → noter total_dedup
+-- 3) explanation_cache_phase3_purge_3_delete.sql  → coller v_expected, après backup

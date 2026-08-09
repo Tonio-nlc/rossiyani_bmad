@@ -192,6 +192,18 @@ export function resolveConceptGraph(
   analysis: TLinguisticAnalysis,
   encounter: TVocabularyContextEncounter | null,
 ): TResolvedConceptGraph {
+  // Expression figée curée : libellé + sens suffisent — pas de concept de cas
+  // ni de régence (sinon « до свида́ния » → « Régence des prépositions »).
+  if (encounter?.functionalRole === "fixed_expression") {
+    return {
+      primary: buildNoConceptPlaceholder(),
+      secondary: [],
+      advanced: [],
+      teachingPath: [],
+      links: [],
+    };
+  }
+
   const signals = buildLemmaConceptLinks(profile, analysis, encounter);
   const primaryId = pickPrimaryConceptId(profile, signals);
 
