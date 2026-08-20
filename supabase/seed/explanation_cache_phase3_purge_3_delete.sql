@@ -9,7 +9,7 @@ begin;
 
 do $$
 declare
-  v_expected integer := null;  -- <<< COLLER total_dedup du §2
+  v_expected integer := 303;  -- <<< COLLER total_dedup du §2
   v_tolerance integer;
   v_actual integer;
   v_referenced integer;
