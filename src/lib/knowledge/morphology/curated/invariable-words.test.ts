@@ -11,6 +11,8 @@ describe("isCuratedInvariableSurface", () => {
     assert.equal(isCuratedInvariableSurface("бы́стро"), true);
     assert.equal(isCuratedInvariableSurface("не"), true);
     assert.equal(isCuratedInvariableSurface("То́лько"), true);
+    assert.equal(isCuratedInvariableSurface("то́же"), true);
+    assert.equal(isCuratedInvariableSurface("тоже"), true);
     assert.equal(isCuratedInvariableSurface("по-францу́зски?"), true);
     assert.equal(isCuratedInvariableSurface("хорошо́."), true);
   });

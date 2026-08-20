@@ -49,7 +49,9 @@ le serveur dérive certains badges à part, ne les invente pas toi-même) :
 - до свидания = formule d'adieu figée, ne pas analyser la terminaison
 
 INVARIABLES : les conjonctions, particules, prépositions et adverbes invariables
-n'ont pas de terminaison fléchie : aucun rôle fonctionnel, aucune couleur.
+n'ont PAS de badge pédagogique (pas de terminaison fléchie) : mettre quand même
+un rôle et une couleur techniques parmi les valeurs autorisées (obligatoire pour
+le schéma) — le serveur les effacera ensuite.
 
 FORMAT DE RÉPONSE JSON strict :
 {
