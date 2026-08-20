@@ -54,7 +54,7 @@ Chaque point ci-dessous porte un statut. **Aucune proposition de tranchage** sur
 | Statut | Décision |
 |--------|----------|
 | **TRANCHÉ** (intégration runtime) | Option batch offline → tables Supabase → **lecture TS seule** (pas de Python en prod Vercel). File `morphology_pending` pour lemmes manquants (§1b historique / §7). |
-| **À TRANCHER PAR MARIO** | Import **à la demande** (uniquement lemmes rencontrés / pending) **vs** dump OpenRussian **complet**. |
+| **TRANCHÉ** (2026-08-20) | Import **à la demande** (lemmes rencontrés / `morphology_pending` uniquement). Cohérent avec la file pending ; bascule vers un dump complet possible plus tard — l’inverse (revenir d’un dump massif à du ciblé) coûterait cher. |
 
 Note volume : base applicative citée ~16,45 Mo sur un plafond ~500 Mo — **le volume n’est PAS le facteur limitant**. Taille DB exacte : `pg_database_size` **NON VÉRIFIÉE** dans la session qui a rédigé `PROJECT_STATE.md` (2026-08-20).
 
@@ -70,7 +70,7 @@ Note volume : base applicative citée ~16,45 Mo sur un plafond ~500 Mo — **le 
 |--------|----------|
 | **TRANCHÉ** | Curé > moteur (doc précédent). |
 | **TRANCHÉ** (cadrage 2026-08) | Extension explicite : **curé > dictionnaire > analyseur**. |
-| **À TRANCHER PAR MARIO** | Comportement UI exact quand rang 2 manque mais rang 3 a un lemme (afficher forme non accentuée ? omettre cellule ? flag `stress_status`). |
+| **TRANCHÉ** (2026-08-20, Mario) | Quand le dictionnaire **n’a pas** l’accent : **afficher la forme nue**, jamais d’accent inventé ; `stress_status = missing`. « Vaut mieux afficher un mot sans accent qu’une erreur. » |
 
 ### 2.4 Canonicalisation côté Python
 
@@ -92,38 +92,66 @@ Doit **répliquer** les gardes TypeScript actuelles, sinon deux conventions dans
 
 | Statut | Décision |
 |--------|----------|
-| **TRANCHÉ** (cadrage) | Toute apostrophe d’accent OpenRussian `'` → combining acute **U+0301** avant écriture / comparaison avec Rossiyani. |
-| **À TRANCHER PAR MARIO** | Emplacement exact (script d’import vs couche SQL) et tests de non-régression sur le stock curé. |
+| **TRANCHÉ** (cadrage) | Toute apostrophe d’accent OpenRussian `'` → combining acute **U+0301**. |
+| **TRANCHÉ** (2026-08-20) | Conversion **dans le script Python d’import**, au **même endroit** que NFC + charset + strip-monosyllabe — **un seul** point de canonicalisation, pas de chemin parallèle SQL / runtime. |
 
 ### 2.6 Clé de jointure
 
 | Système | Clé |
 |---------|-----|
-| OpenRussian | champ `bare` (sans accent) |
+| OpenRussian | champ `bare` (sans accent apostrophe ; peut contenir **ё**) |
 | Rossiyani `lemmas` | `form` souvent **avec** U+0301 (2026-08-20 : **179**/256 lemmes accentués) |
+| `morphology_lemmas` | `lemma_bare` **obligatoire** + `lemma_stressed` / `stress_status` |
 
 | Statut | Décision |
 |--------|----------|
 | **TRANCHÉ** (nécessité) | Fonction de **dé-accentuation** (NFD + strip U+0301 + NFC) pour joindre OR ↔ Rossiyani. |
-| **À TRANCHER PAR MARIO** | Table de jointure dédiée vs colonne `lemma_bare` obligatoire sur toute ligne importée. |
+| **TRANCHÉ** (2026-08-20) | Colonne **`lemma_bare` obligatoire** sur chaque ligne importée — **pas** de table de mapping dédiée. |
+| **TRANCHÉ** (2026-08-20) | Clé `morphology_forms` = **MODÈLE B** : `UNIQUE (morphology_lemma_id, slot, variant)` avec `variant ∈ {plain, with_n, alt}`. Le slot décrit un **cas / cellule** ; plain/with_n est une variante contextuelle. OpenRussian → `plain` ; `with_n` / `alt` restent **curés** (classe fermée). Voir [`M0_FORM_VARIANT_KEY.md`](./M0_FORM_VARIANT_KEY.md). |
 
-### 2.7 Piège ё / е
+DDL : `supabase/seed/morphology_tables_ddl.sql` (**non exécutée** tant que Mario ne l’a pas collée après backup).
+
+### 2.7 Piège ё / е — MESURÉ (2026-08-20)
+
+Script : `scripts/morphology-audit/measure-yo-ye.py` (CSV locaux uniquement ; **pas** de `pip install`).
+
+| Source | Résultat |
+|--------|----------|
+| **OpenRussian** | Les probes où ё compte (`нашёл`, `ещё`, `её`, `идёшь`, `всё`) sont stockées **avec ё** (U+0451) dans `bare` / formes. Variantes en **е** absentes pour ces probes (sauf `все`, entrée **distincte** de `всё`). **1799** lemmes `bare` et **1782** `accented` contiennent ё. |
+| **pymorphy3** | **NON MESURÉ** — paquet absent localement ; non installé (consigne). |
 
 | Statut | Décision |
 |--------|----------|
-| **À TRANCHER PAR MARIO** / **À VÉRIFIER** | Comportement ё↔е sur **pymorphy3** et **OpenRussian** (normalisation audit gold : `ё`→`е` dans `run-audit.py` — ne prouve pas le comportement runtime des deux libs). Mesure empirique requise avant import. |
+| **TRANCHÉ** (constat OR) | OpenRussian **conserve ё** ; ce n’est pas un dump « tout en е ». |
+| **TRANCHÉ** (constat risque) | Une jointure stricte échoue si **un seul** côté normalise ё→е (saisie `нашел`, audit `strip_stress` qui mappe ё→е, ou analyseur — **non mesuré**). Ex. vocabulaire : `берёт` normalisé → `берет` entre en collision avec le nom `берет`. |
+| **À TRANCHER PAR MARIO** | Normaliser ou non ё→е **des deux côtés** pour la clé de jointure, tout en **conservant ё à l’affichage**. |
 
-### 2.8 Homonymie — scores pymorphy
+### 2.8 Homonymie / D3 — MESURÉ (2026-08-20)
 
 pymorphy renvoie une **liste scorée** d’analyses.
 
 | Statut | Décision |
 |--------|----------|
 | **TRANCHÉ** | **Interdit** de prendre automatiquement le meilleur score (principe anti-scores magiques). |
-| **TRANCHÉ** (D3, doc historique §8) | Homonymie verbale **sans override curée** → **pas de paradigme complet**. |
-| Impact chiffré | Overrides curés existants connus : ex. `CURATED_BOLET_HURT`, `CURATED_SLUCHITSYA*` (`present-verbs.ts` / curated). Nombre de lemmes vocabulaire / gold **bloqués** par D3 si on importe OR sans override : **NON VÉRIFIÉ** — **À TRANCHER PAR MARIO** (mesure avant go). |
+| **TRANCHÉ** (D3) | Homonymie **sans override curée** → **pas de paradigme complet**. |
+
+**Chiffrage** (proxy OpenRussian : forme normalisée présente dans ≥ 2 entrées `bare×POS` ; override = lemme bare dans `morphology/curated/` ; script `measure-d3-ambiguity.py`) :
+
+| Corpus | Formes | Ambiguës OR | Dont override curé | **SANS paradigme (D3)** |
+|--------|-------:|------------:|-------------------:|------------------------:|
+| 11 textes gold | 281 | 54 | 23 | **31** |
+| `user_vocabulary` (16 lignes → 23 formes lemme+surface) | 23 | 4 | 1 | **3** |
+
+Liste gold **sans** override (31) :  
+`берет`, `булочной`, `булочную`, `вечером`, `внутри`, `воды`, `все`, `второй`, `готов`, `домой`, `есть`, `зовут`, `извините`, `кафе`, `москвы`, `начало`, `нет`, `полке`, `потом`, `прохожего`, `русская`, `русский`, `русского`, `стоит`, `студенты`, `уже`, `урок`, `устал`, `французский`, `часов`, `это`.
+
+Liste `user_vocabulary` **sans** override (3) :  
+`берет` (lemme affiché `берёт` après ё→е), `булочная`, `прохожий`.
+
+Lecture : D3 **ne vide pas** l’app (31/281 ≈ **11 %** des surfaces gold ; 3/23 vocabulaire). Tenable pour un pilote, avec file de curation sur cette liste. Limite méthodo : collisions d’index OR (préfixes / `other`) et normalisation ё→е ; pymorphy non mesuré.
 
 ### 2.9 Mots non couverts
+
 
 | Statut | Décision |
 |--------|----------|
@@ -140,19 +168,22 @@ pymorphy renvoie une **liste scorée** d’analyses.
 
 | Classe | Couverture OR | Réponse Rossiyani |
 |--------|---------------|-------------------|
-| **Ouverte** (noms, verbes, adjectifs) | Forte (96,8 % présence gold ; 96,8 % formes+accent sur V/N/Adj) | Import dictionnaire + analyseur |
-| **Fermée** (mots-outils) | Faible utilité pédagogique des accents/paradigmes dans `others.csv` (0,34 Mo vs ~21 Mo de contenu) | **Curation manuelle permanente** |
+| **Ouverte** (noms, verbes, adjectifs) | Forte (96,8 % présence gold ; 96,8 % formes+accent sur V/N/Adj) | Import dictionnaire + analyseur → tables `morphology_*` |
+| **Fermée** (mots-outils) | Faible utilité pédagogique des accents/paradigmes dans `others.csv` (0,34 Mo vs ~21 Mo de contenu) | **Curation manuelle permanente en TypeScript** |
 
-Fichiers curés (classe fermée) — réponse **permanente**, pas une rustine :
+Fichiers curés (classe fermée) — réponse **permanente**, pas une rustine **ni une dette de migration** :
 
-- `pronouns.ts`
+- `pronouns.ts` (paradigme fermé ; variantes `with_n` restent curées même après M1)
 - `invariable-words.ts`
 - `preposition-government.ts` (+ détection régence)
 - numéraux / expressions figées (`genitive-numerals.ts`, `fixed-expressions.ts`)
 
+Les **~104 artefacts** identifiés en M0 (régence, invariables, numéraux, figés, phrases d’exemple) **restent en TS**. Ils n’entrent **pas** dans `morphology_*`. Ce n’est pas un backlog DDL : c’est la **frontière** posée ici. Seuls les paradigmes de classe ouverte (+ pronoms comme données de formes déjà mappées en M0 si import curé des paradigmes) utilisent les tables SQL.
+
 | Statut | Décision |
 |--------|----------|
 | **TRANCHÉ** (cadrage) | Mots-outils = classe fermée → curation TS ; OpenRussian n’est **pas** la source de vérité pour cette classe. |
+| **TRANCHÉ** (2026-08-20) | Les 104 hors schéma M0 **restent en TypeScript** — frontière §2.11, pas dette. |
 
 ### 2.12 Réversibilité + licence ShareAlike
 
@@ -229,17 +260,19 @@ Sans override → **D3** : pas de paradigme complet (§2.8).
 
 ---
 
-## 7. Schéma DB proposé (inchangé dans l’esprit)
+## 7. Schéma DB
 
-Tables cibles : `morphology_lemmas`, `morphology_forms`, `morphology_sense_overrides`, `morphology_pending`.
+Tables : `morphology_lemmas`, `morphology_forms`, `morphology_sense_overrides`, `morphology_pending`.
 
-Champs critiques à prévoir dès M1 :
-
-- `source` / `source_version` (réversibilité §2.12)
-- `lemma_bare` + `lemma_stressed` / `stress_status`
-- `UNIQUE` métier à définir **après** décision import à la demande vs dump (**À TRANCHER**)
-
-DDL détaillée : conserver le modèle du cadrage précédent (slots pédagogiques, `allowed_slots` pour défectivité). **Non appliqué** tant que Mario n’a pas lancé les SQL.
+| Point | Décision |
+|-------|----------|
+| DDL | `supabase/seed/morphology_tables_ddl.sql` — **à coller à la main** après backup ; non appliquée tant que Mario ne l’a pas lancée |
+| `source` / `source_version` | Sur lemmas / forms / sense_overrides — `curated` \| `openrussian` \| `pymorphy3` |
+| `lemma_bare` + stress | Obligatoire ; `stress_status` ∈ present \| missing \| unknown ; missing → forme nue affichée |
+| Clé forms | **MODÈLE B** : `UNIQUE (morphology_lemma_id, slot, variant)` |
+| FK vers `lemmas` | **Absente** pendant M1/M2 (`app_lemma_id` UUID libre) |
+| EXCLUDE bare↔accentué (`lemmas_no_bare_vs_accented_dup`) | **Non reproduit** : ici bare et stressed sont deux colonnes de la même ligne ; voir commentaire dans la DDL |
+| Classe fermée (104) | **Hors tables** — reste en TS (§2.11) |
 
 ---
 
@@ -254,8 +287,8 @@ Enregistrement mot (Reader)
 
 Batch offline
   → pymorphy3 (analyse) + OpenRussian (accents/paradigmes) + overrides curés
-  → canonicalisation NFC + charset + strip monosyllabe
-  → UPSERT morphology_* (source taggée)
+  → **un seul** point Python : `'`→U+0301 + NFC + charset + strip monosyllabe
+  → UPSERT morphology_* (`lemma_bare` obligatoire, `source` taggée)
   → rapport de diff AVANT purge cache / scénarios driftés
 ```
 
@@ -268,7 +301,7 @@ Batch offline
 | **M0** | Mapping slot curé → `morphology_forms.slot` |
 | **M1** | Import stock curé → DB |
 | **M2** | Runtime dual-read DB puis fallback TS |
-| **M3** | Batch deux sources pour pending / vocabulaire |
+| **M3** | Batch deux sources **à la demande** (pending / vocabulaire) |
 | **M4** | Retirer paradigmes utilisateur du LLM knowledge builder |
 | **M5** | Deprecate TS curés pour la classe ouverte (garder classe fermée) |
 
@@ -276,12 +309,12 @@ Batch offline
 
 ## 10. Liste claire — À TRANCHER PAR MARIO
 
-1. Import **à la demande** vs **dump complet** OpenRussian.  
-2. UI quand dictionnaire manque l’accent mais l’analyseur a un lemme.  
-3. Emplacement technique de la conversion `'` → U+0301 + batterie de tests.  
-4. Modèle de jointure (`lemma_bare` obligatoire vs table de mapping).  
-5. Comportement **ё/е** sur les deux sources (mesure empirique).  
-6. Chiffrage d’impact **D3** (combien de lemmes sans paradigme tant qu’override absent).  
+1. ~~Import à la demande vs dump~~ → **TRANCHÉ** : à la demande (§2.2).  
+2. ~~UI sans accent dict.~~ → **TRANCHÉ** : forme nue + `stress_status = missing` (§2.3).  
+3. ~~Emplacement conversion `'`~~ → **TRANCHÉ** : script Python, même pipeline que NFC/charset/strip (§2.5).  
+4. ~~Jointure bare~~ → **TRANCHÉ** : colonne `lemma_bare` obligatoire (§2.6).  
+5. **ё/е** — OR mesuré (conserve ё) ; pymorphy **NON MESURÉ** ; **à trancher** : normaliser ou non ё→е sur la clé de jointure (§2.7).  
+6. ~~Chiffrage D3~~ → **MESURÉ** : 31/281 gold, 3/23 vocab sans paradigme (§2.8) — D3 tenable ; liste de curation ouverte.  
 7. Périmètre du **rapport de diff** pré-purge post-import.  
 8. Emplacement UI de l’**attribution** CC BY-SA.  
 9. Portée **ShareAlike** sur données dérivées redistribuées (hors avis juridique ici).
@@ -300,5 +333,10 @@ Batch offline
 
 - [`../PROJECT_STATE.md`](../PROJECT_STATE.md) — dette lemmatisation LLM, baseline DB
 - [`READER_ORCHESTRATOR.md`](./READER_ORCHESTRATOR.md) — overrides déterministes actuels
+- [`M0_MAPPING.md`](./M0_MAPPING.md) — inventaire curé → tables
+- [`M0_FORM_VARIANT_KEY.md`](./M0_FORM_VARIANT_KEY.md) — plain/with_n ; **MODÈLE B acté**
+- `supabase/seed/morphology_tables_ddl.sql` — DDL (manuel)
 - `scripts/morphology-audit/coverage-report.md` — chiffres 96,8 % / 64,1 %
+- `scripts/morphology-audit/measure-yo-ye.py` — mesure ё/е OpenRussian
+- `scripts/morphology-audit/measure-d3-ambiguity.py` — chiffrage D3
 - `src/lib/vocabulary/canonicalize-lemma-form.ts` — gardes à répliquer en Python
