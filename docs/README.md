@@ -7,9 +7,11 @@
 | [lessons/](./lessons/) | Contenu Lessons | Pipeline éditorial des leçons |
 | [import/](./import/) | Produit Import | Conception + **UX V1** (maquettes, parcours) |
 | [reader/](./reader/) | Contenu Reader | Charte, checklist, templates texte |
-| [PROJECT_STATE.md](./PROJECT_STATE.md) | Développement | État technique réel du repo |
+| [PROJECT_STATE.md](./PROJECT_STATE.md) | Développement | État technique réel du repo (vérifié) |
+| [architecture/READER_ORCHESTRATOR.md](./architecture/READER_ORCHESTRATOR.md) | Développement | Chaîne d’overrides + points d’écriture |
+| [architecture/MORPHOLOGY_ENGINE.md](./architecture/MORPHOLOGY_ENGINE.md) | Développement | Moteur morpho deux sources (cadrage) |
 | [project-brief.md](./project-brief.md) | Vision | Positionnement, stack, roadmap |
-| [architecture.md](./architecture.md) | Développement | Schéma technique, orchestrateur |
+| [architecture.md](./architecture.md) | Développement | Schéma technique *(sections historiques — voir PROJECT_STATE)* |
 | [prd.md](./prd.md) | Spec cible | Features *(partiellement obsolète)* |
 
 **Règles** :

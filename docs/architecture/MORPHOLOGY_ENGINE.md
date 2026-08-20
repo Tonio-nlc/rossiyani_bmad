@@ -1,367 +1,304 @@
-# Moteur morphologique déterministe — cadrage (étape 1)
+# Moteur morphologique — architecture deux sources
 
-**Statut** : cadrage uniquement — **aucune implémentation** dans ce ticket.  
+**Statut** : cadrage — **aucune implémentation** runtime dans ce ticket.  
 **Décision produit** : les formes russes fléchies ne doivent plus être produites par le LLM.  
-**Cible technique** : `pymorphy3` (dictionnaire OpenCorpora) ou équivalent déterministe.  
-**Stack runtime** : Next.js 16 / TypeScript / Supabase (Vercel) ; migrations appliquées manuellement via SQL Editor (CLI Supabase non utilisable ici).
+**Stack** : Next.js / TypeScript / Supabase (Vercel) ; peuplement batch offline ; migrations SQL manuelles.
+
+Dernière mise à jour document : **2026-08-20**.  
+État du défaut actuel (lemmatisation LLM) : [`../PROJECT_STATE.md`](../PROJECT_STATE.md) § Dette.
 
 ---
 
-## 0. Problème à résoudre
+## 0. Problème
 
-Aujourd’hui Rossiyani mélange encore :
+Aujourd’hui Rossiyani délègue encore lemme + souvent traits au LLM (`generateWordExplanation` → `resolveOrCreateLemma`). Résultat observé : lemmes inexistants, accents faux, homoglyphes latins (rejetés depuis les gardes charset).
 
-| Source | Rôle actuel | Risque |
-|--------|-------------|--------|
-| LLM (`generate-knowledge-llm`) | Remplit parfois `paradigms`, conjugaisons, cas | Hallucinations de formes |
-| Curated TS (`src/lib/knowledge/morphology/curated/`) | Paradigmes validés à la main (petit stock) | Non scalable |
-| Seed teaching scenarios | Exemples illustratifs (чита́ть…) | Confusion si utilisés comme démo d’un autre lemme |
-
-**Objectif** : une seule source de vérité pour **toute forme fléchie** affichée ou stockée ; le LLM ne rédige plus que du texte pédagogique.
+**Objectif** : formes fléchies + accents + traits structurels = **déterministes** ; LLM = prose pédagogique uniquement.
 
 ---
 
-## 1. Intégration — trois options
+## 1. Deux sources — rôles distincts
 
-### a) Microservice Python (FastAPI) appelé par Next au bootstrap / enregistrement
+| Source | Nature | Accent tonique | Licence (données) | Preuve / notes |
+|--------|--------|----------------|-------------------|----------------|
+| **pymorphy3** (+ dictionnaire OpenCorpora) | **ANALYSEUR** : forme quelconque → lemme + tags | **Non** (formes en général sans U+0301 pédagogique) | MIT (code) ; données OpenCorpora **CC BY-SA 3.0** | ~400k lemmes / ~5M formes — chiffres usuels du projet ; **NON VÉRIFIÉS** dans cette session contre un dump local |
+| **OpenRussian** ([Badestrand/russian-dictionary](https://github.com/Badestrand/russian-dictionary), CSV figé ~2021) | **DICTIONNAIRE** lookup : lemme `bare` + inflexions | **Oui** (apostrophe `'` → à convertir en U+0301) | **CC BY-SA 4.0** | CSV locaux audit : `scripts/morphology-audit/data/` — total ~21,7 Mo (`nouns` 8,0 + `adjectives` 8,0 + `verbs` 5,4 + `others` 0,34 Mo) |
 
-**Flux** : `POST /api/vocabulary` ou `buildKnowledge` → HTTP → service Python (pymorphy3) → paradigme JSON → écriture Supabase / réponse synchrone.
+### Couverture OpenRussian sur le gold Rossiyani
 
-| Avantages | Inconvénients |
-|-----------|---------------|
-| Paradigme à la demande pour tout lemme nouveau | **Hébergement séparé** (Vercel ne fait pas tourner Python durablement) |
-| Toujours à jour dès l’enregistrement | Latence + point de défaillance réseau |
-| API unique réutilisable (batch + runtime) | Coût ops (Fly.io / Railway / Cloud Run…) |
-| | Secrets, monitoring, versioning dictionnaire |
-| | Complexité hors stack actuelle (règles AGENTS : stack contrôlée) |
+Source : `scripts/morphology-audit/coverage-report.md` (281 formes de surface distinctes, 11 textes Library).
 
-**Verdict pour Rossiyani** : viable à moyen terme si le volume de lemmes *nouveaux* est élevé et qu’on accepte un second service. **Trop lourd pour l’étape 1** et incompatible avec « Vercel-only » sans infra supplémentaire.
+| Indicateur | Valeur |
+|------------|--------|
+| Présence (lemme ou forme) | **96,8 %** (272/281) |
+| Formes + accent (toutes classes) | **64,1 %** (180/281) |
+| V / N / Adj avec inflexions + accent | **96,8 %** (180/186) |
 
----
-
-### b) Génération batch offline (script Python) → table Supabase → runtime TS lecture seule
-
-**Flux** :
-
-1. Script local / CI Python (`pymorphy3` + couches accent / défectivité).
-2. Export SQL ou upsert via service role (psql / SQL Editor / script `supabase-js` Node).
-3. Runtime Next.js : **lit uniquement** Postgres — **aucun Python en prod**.
-
-| Avantages | Inconvénients |
-|-----------|---------------|
-| Aligne parfaitement stack Vercel + TS | Lemme jamais vu → pas de paradigme tant que le batch n’a pas tourné |
-| Zéro dépendance runtime Python | Pipeline ops à documenter (qui lance le batch, quand) |
-| Migrations SQL manuelles OK (INSERT/UPSERT) | Délai entre premier enregistrement et enrichissement morpho |
-| Idempotent, auditable, rejouable | |
-| Compatible avec le modèle déjà en place (`linguistic_knowledge.paradigms`, `user_vocabulary.teaching_scenario`) | |
-
-**Atténuation du « lemme manquant »** : à l’enregistrement, la fiche reste en mode dégradé (principe + bridge, **paradigme omis** — déjà le comportement voulu). Une file `morphology_pending` alimente le prochain batch.
-
-**Verdict pour Rossiyani** : **recommandé**.
+→ pymorphy3 = **parser** (désambiguïsation morphosyntaxique / tags).  
+→ OpenRussian = **accent + paradigme dictionnaire** pour la classe ouverte (noms, verbes, adjectifs).
 
 ---
 
-### c) Portage / wrapper morphologique en TS ou WASM
+## 2. Décisions — TRANCHÉ vs À TRANCHER PAR MARIO
 
-Ex. : bindings WASM d’un analyseur, réimplémentation, ou API pure JS.
+Chaque point ci-dessous porte un statut. **Aucune proposition de tranchage** sur les items À TRANCHER.
 
-| Avantages | Inconvénients |
-|-----------|---------------|
-| Tout dans le même déploiement Vercel | **Pas d’équivalent mature à pymorphy3** en TS aujourd’hui |
-| Latence nulle (in-process) | Qualité / couverture OpenCorpora difficile à égaler |
-| | Maintenance lourde ; risque de « faux déterminisme » |
+### 2.1 Rôle de chaque source
 
-**Verdict** : **hors scope** tant qu’aucun package WASM/TS n’atteint la couverture OpenCorpora + licence claire. Réévaluer uniquement si un binding officiel apparaît.
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** (cadrage) | Analyseur (pymorphy3) pour tags / analyse de forme ; dictionnaire (OpenRussian) pour accent et paradigme de référence sur la classe ouverte. Les deux ne sont pas interchangeables. |
+
+### 2.2 Périmètre d’import
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** (intégration runtime) | Option batch offline → tables Supabase → **lecture TS seule** (pas de Python en prod Vercel). File `morphology_pending` pour lemmes manquants (§1b historique / §7). |
+| **À TRANCHER PAR MARIO** | Import **à la demande** (uniquement lemmes rencontrés / pending) **vs** dump OpenRussian **complet**. |
+
+Note volume : base applicative citée ~16,45 Mo sur un plafond ~500 Mo — **le volume n’est PAS le facteur limitant**. Taille DB exacte : `pg_database_size` **NON VÉRIFIÉE** dans la session qui a rédigé `PROJECT_STATE.md` (2026-08-20).
+
+### 2.3 Précédence à TROIS rangs
+
+| Rang | Source |
+|-----:|--------|
+| 1 | **Curé** (TS / overrides sens / accents validés Mario) |
+| 2 | **Dictionnaire** (OpenRussian, après conversion accent) |
+| 3 | **Analyseur** (pymorphy3 — tags / lemme candidat ; **pas** d’accent inventé) |
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** | Curé > moteur (doc précédent). |
+| **TRANCHÉ** (cadrage 2026-08) | Extension explicite : **curé > dictionnaire > analyseur**. |
+| **À TRANCHER PAR MARIO** | Comportement UI exact quand rang 2 manque mais rang 3 a un lemme (afficher forme non accentuée ? omettre cellule ? flag `stress_status`). |
+
+### 2.4 Canonicalisation côté Python
+
+Doit **répliquer** les gardes TypeScript actuelles, sinon deux conventions dans `lemmas` / `morphology_*` :
+
+| Garde TS | Fichier |
+|----------|---------|
+| NFC | `canonicalizeLemmaForm` — `canonicalize-lemma-form.ts` |
+| `assertLemmaFormCharset` | rejet hors cyrillique / `-` / U+0301 |
+| `stripMonosyllableStress` | une voyelle ⇒ retire U+0301 |
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** (principe) | Même pipeline de canonicalisation côté batch Python. |
+| **TRANCHÉ** (convention Rossiyani) | Monosyllabes **sans** accent pédagogique. |
+| Piège documenté | OpenRussian accentue souvent les monosyllabes (ex. `го'д`) — **doit** passer par `stripMonosyllableStress` équivalent. |
+
+### 2.5 Conversion apostrophe → U+0301
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** (cadrage) | Toute apostrophe d’accent OpenRussian `'` → combining acute **U+0301** avant écriture / comparaison avec Rossiyani. |
+| **À TRANCHER PAR MARIO** | Emplacement exact (script d’import vs couche SQL) et tests de non-régression sur le stock curé. |
+
+### 2.6 Clé de jointure
+
+| Système | Clé |
+|---------|-----|
+| OpenRussian | champ `bare` (sans accent) |
+| Rossiyani `lemmas` | `form` souvent **avec** U+0301 (2026-08-20 : **179**/256 lemmes accentués) |
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** (nécessité) | Fonction de **dé-accentuation** (NFD + strip U+0301 + NFC) pour joindre OR ↔ Rossiyani. |
+| **À TRANCHER PAR MARIO** | Table de jointure dédiée vs colonne `lemma_bare` obligatoire sur toute ligne importée. |
+
+### 2.7 Piège ё / е
+
+| Statut | Décision |
+|--------|----------|
+| **À TRANCHER PAR MARIO** / **À VÉRIFIER** | Comportement ё↔е sur **pymorphy3** et **OpenRussian** (normalisation audit gold : `ё`→`е` dans `run-audit.py` — ne prouve pas le comportement runtime des deux libs). Mesure empirique requise avant import. |
+
+### 2.8 Homonymie — scores pymorphy
+
+pymorphy renvoie une **liste scorée** d’analyses.
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** | **Interdit** de prendre automatiquement le meilleur score (principe anti-scores magiques). |
+| **TRANCHÉ** (D3, doc historique §8) | Homonymie verbale **sans override curée** → **pas de paradigme complet**. |
+| Impact chiffré | Overrides curés existants connus : ex. `CURATED_BOLET_HURT`, `CURATED_SLUCHITSYA*` (`present-verbs.ts` / curated). Nombre de lemmes vocabulaire / gold **bloqués** par D3 si on importe OR sans override : **NON VÉRIFIÉ** — **À TRANCHER PAR MARIO** (mesure avant go). |
+
+### 2.9 Mots non couverts
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** (§1b / §7 historiques) | Lemme jamais vu → fiche dégradée (principe + bridge ; **paradigme omis**) ; enqueue `morphology_pending` pour le prochain batch. Pas d’invention LLM de formes. |
+
+### 2.10 Régénération de prose post-import
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** (exigence doc 2026-08) | Après import morpho massif, prévoir un **rapport de diff AVANT purge** (ex. `explanation_cache` / scénarios dont lemme ou formes change). |
+| **À TRANCHER PAR MARIO** | Périmètre exact du rapport (quelles tables, critères de « drift »), et qui déclenche la purge. |
+
+### 2.11 Classe OUVERTE vs FERMÉE
+
+| Classe | Couverture OR | Réponse Rossiyani |
+|--------|---------------|-------------------|
+| **Ouverte** (noms, verbes, adjectifs) | Forte (96,8 % présence gold ; 96,8 % formes+accent sur V/N/Adj) | Import dictionnaire + analyseur |
+| **Fermée** (mots-outils) | Faible utilité pédagogique des accents/paradigmes dans `others.csv` (0,34 Mo vs ~21 Mo de contenu) | **Curation manuelle permanente** |
+
+Fichiers curés (classe fermée) — réponse **permanente**, pas une rustine :
+
+- `pronouns.ts`
+- `invariable-words.ts`
+- `preposition-government.ts` (+ détection régence)
+- numéraux / expressions figées (`genitive-numerals.ts`, `fixed-expressions.ts`)
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** (cadrage) | Mots-outils = classe fermée → curation TS ; OpenRussian n’est **pas** la source de vérité pour cette classe. |
+
+### 2.12 Réversibilité + licence ShareAlike
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** (cadrage) | Toute donnée importée porte une colonne **`source`** (ex. `openrussian`, `pymorphy3`, `curated`) → `DELETE WHERE source = 'openrussian'` possible. |
+| **À TRANCHER PAR MARIO** | Portée ShareAlike sur **données dérivées redistribuées** (pas d’avis juridique dans ce document). |
+
+### 2.13 Licence — attribution
+
+| Statut | Décision |
+|--------|----------|
+| **TRANCHÉ** (cadrage) | Attribution **due** pour CC BY-SA (OpenCorpora / OpenRussian) dès usage des données. |
+| **À TRANCHER PAR MARIO** | Emplacement UI exact (footer, page Légal, fiche lemme, etc.). |
 
 ---
 
-### Recommandation
+## 3. Frontière moteur vs LLM
 
-**Option (b) — batch offline Python → table(s) Supabase → lecture TS exclusive.**
+### Vient des sources déterministes (+ curé)
 
-Raisons liées à *ce* projet :
+Lemme normalisé, POS/tags, genre, animacité, aspect, paradigme de formes, terminaisons dérivées, flags structurels — **jamais inventés par le LLM**.
 
-1. Vercel héberge le front/API Next — pas de Python durable sans second cloud.
-2. Migrations / peuplement déjà manuels via SQL Editor — le batch peut émettre des `UPSERT` SQL ou un JSON importable.
-3. Sépare clairement « formes » (déterministe, offline) et « pédagogie » (LLM, runtime).
-4. S’inscrit dans le chemin déjà amorcé : morphologie curée TS → démonstration composée → `teaching_scenario` persisté ; le moteur remplace la *source* des formes, pas l’architecture pédagogique.
+### Reste au LLM
 
-**Évolution possible (étape 3+)** : ajouter un worker FastAPI *uniquement* pour vider `morphology_pending` en continu — toujours en écrivant la même table ; le runtime TS ne change pas.
-
----
-
-## 2. Frontière moteur vs LLM
-
-### Vient du moteur morphologique (déterministe)
-
-| Donnée | Exemple | Notes |
-|--------|---------|--------|
-| Lemme normalisé | `болеть` | Clé de jointure |
-| POS / tags OpenCorpora | `VERB`, `inan`, etc. | Mappés vers le modèle Rossiyani |
-| Genre, animacité (noms/adj) | `f`, `inanimate` | |
-| Aspect (verbe) | imperfective / perfective | Si présent dans le dictionnaire |
-| Classe de conjugaison (dérivée) | 1 / 2 | Heuristique déterministe sur les formes, pas LLM |
-| **Paradigme de formes** | présent, passé, cas, etc. | **Sans exception : jamais LLM** |
-| Terminaisons dérivées | `-ит`, `-ешь` | Calculées depuis surface − radical |
-| Flags structurels | `impersonal`, `invariable` | Si exposés ou dérivables |
-| Score / source | `pymorphy3@1.x` | Traçabilité |
-
-### Reste au LLM (et/ou rédaction curée)
-
-| Donnée | Exemple |
-|--------|---------|
-| Explication contextuelle (Reader) | Pourquoi *cette* forme dans *cette* phrase |
-| Bridge teaching scenario | « Dans ta phrase… » |
-| Intuition / hook / memoryAnchor *rédigés* | Métaphore pédagogique |
-| Erreurs fréquentes *en français* | Texte ; les formes citées viennent du moteur |
-| Traduction, registre, nuances sémantiques | |
-| Choix du *concept* pédagogique | Graph / matching (peut utiliser tags moteur) |
+Explication contextuelle Reader, bridge teaching scenario, intuition / hook rédigés, erreurs fréquentes en français, traduction / nuances, choix de concept pédagogique (peut *consommer* les tags moteur).
 
 ### Règle d’or
 
-> Toute chaîne cyrillique présentée comme **forme fléchie** dans l’UI ou en base doit être traçable à une ligne du moteur (ou à une **override curée** explicitement versionnée). Le LLM peut *citer* ces formes ; il ne doit pas les *inventer*.
+> Toute chaîne cyrillique présentée comme **forme fléchie** dans l’UI ou en base doit être traçable à une ligne curée, dictionnaire, ou analyseur tagué `source`. Le LLM peut *citer* ; il ne *invente* pas.
 
 ---
 
-## 3. Accentuation (U+0301)
+## 4. Intégration — rappel options
 
-### État des lieux
+| Option | Verdict |
+|--------|---------|
+| (a) Microservice Python runtime | Trop lourd pour Vercel-only à court terme |
+| **(b) Batch offline Python → Supabase → TS lecture** | **TRANCHÉ** comme voie d’intégration |
+| (c) Portage WASM/TS | Hors scope tant qu’aucune couverture équivalente |
 
-- **pymorphy3 / OpenCorpora** : les lemmes et formes sont en général **sans** accent tonique pédagogique.
-- **Rossiyani** : l’accent (combining acute U+0301) est **non négociable** (Reader, leçons, fiches).
-
-### Stratégie en couches
-
-```
-Forme brute moteur (без ударения)
-        ↓
-1) Table accents curés (lemme / forme → forme accentuée)   ← priorité max
-        ↓
-2) Lexique d’accentuation externe (si licence OK)            ← batch
-        ↓
-3) Conservation de l’accent déjà vu en Reader
-   (surface explanation_cache / textes seed)                 ← opportuniste
-        ↓
-4) Forme non accentuée + flag stress_status = 'missing'      ← jamais inventé par LLM
-```
-
-| Couche | Rôle |
-|--------|------|
-| **Curated accents** | Source de vérité pédagogique (comme `CURATED_*` aujourd’hui) |
-| **Lexique batch** | Accélérer la couverture (Wiktionary dumps, etc. — à valider licence) |
-| **Encounter reuse** | Si l’utilisateur a cliqué `боли́т`, on peut propager cet accent à la cellule du paradigme correspondante |
-| **LLM** | **Interdit** pour placer U+0301 sur une forme nouvelle |
-
-### Validation
-
-- Gate qualité : toute forme affichée en grand (lemmaStressed, visual nodes) doit passer un check `hasCombiningAcute` *ou* être explicitement `stress_status = 'unknown'` et affichée avec un style « accent à confirmer » (produit à trancher — v1 : préférer omettre plutôt que mal placer).
-- Les overrides curés gagnent toujours sur le dump moteur.
+Atténuation lemme manquant : mode dégradé + `morphology_pending` (§2.9).
 
 ---
 
-## 4. Défectivité (болеть « avoir mal », случиться)
+## 5. Accentuation (U+0301)
 
-### Ce que le dictionnaire donne
+```
+Forme / lemme candidat
+        ↓
+1) Curé (priorité max)
+        ↓
+2) OpenRussian (apostrophe → U+0301 + strip monosyllabe)
+        ↓
+3) Analyseur (sans accent) + stress_status = missing/unknown
+        ↓
+4) JAMAIS le LLM pour placer un accent nouveau
+```
 
-OpenCorpora / pymorphy traitent surtout des **lexèmes**. Ils ne modélisent pas toujours la distinction pédagogique :
+Encounter reuse (surface déjà vue en Reader) : opportuniste, sous le curé.
 
-- `болеть₁` « être malade » → paradigme complet (`боле́ю`…)
-- `болеть₂` « avoir mal » (sujet = partie du corps) → **3e personne seulement**
+---
 
-pymorphy peut lister un paradigme *complet* pour `болеть` sans flag « ce sens est défectif ».
+## 6. Défectivité / homonymie de sens
 
-### Position Rossiyani
+Exemple pédagogique : `болеть₁` (être malade) vs `болеть₂` (avoir mal) — paradigme OpenCorpora complet ≠ paradigme pédagogique.
 
 | Source | Rôle |
 |--------|------|
-| Moteur | Fournit le **superset** de formes du lemme |
-| **Couche de correction curée** (`morphology_sense_overrides`) | Restreint les personnes / cellules autorisées **par sens** |
-| Teaching engine | N’affiche que les cellules `allowed` |
+| Dictionnaire / analyseur | Superset de formes |
+| `morphology_sense_overrides` (curé) | Intersection des cellules autorisées **par sens** |
 
-Le flag `defective` / `allowed_persons` / `sense_key` **ne vient pas de pymorphy de façon fiable** : il faut une **couche curée par-dessus**, déjà amorcée dans `present-verbs.ts` (`CURATED_BOLET_HURT`, `CURATED_SLUCHITSYA`).
-
-### Modèle mental
-
-```
-lemma_id + sense_key
-  → paradigme moteur (toutes formes)
-  → ∩ override curée (allowed cells)
-  → paradigme pédagogique affiché
-```
-
-Sans override : afficher le paradigme moteur **complet** *ou* (politique prudente v1) n’afficher que la forme rencontrée + lemme jusqu’à curation du sens.
-
-**Recommandation v1** : politique prudente — si `sense_key` ambigu (homonymie verbale), ne pas afficher le paradigme complet tant qu’un override n’existe pas ; loguer pour curation.
+Sans override → **D3** : pas de paradigme complet (§2.8).
 
 ---
 
-## 5. Schéma DB proposé
+## 7. Schéma DB proposé (inchangé dans l’esprit)
 
-Pensé pour **remplissage batch** et **lecture TS**. Migrations manuelles via SQL Editor.
+Tables cibles : `morphology_lemmas`, `morphology_forms`, `morphology_sense_overrides`, `morphology_pending`.
 
-### 5.1 `morphology_lemmas` — tête de lexème
+Champs critiques à prévoir dès M1 :
 
-```sql
-CREATE TABLE morphology_lemmas (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  lemma_id UUID REFERENCES lemmas(id) ON DELETE SET NULL,
-  -- forme dictionnaire sans accent (clé moteur)
-  lemma_bare TEXT NOT NULL,
-  lemma_stressed TEXT,                 -- si connu
-  pos TEXT NOT NULL,                   -- noun | verb | adjective | ...
-  gender TEXT,
-  animacy TEXT,
-  aspect TEXT,                         -- imperfective | perfective | null
-  conjugation_class SMALLINT,          -- 1 | 2 | null
-  source TEXT NOT NULL DEFAULT 'pymorphy3',
-  source_version TEXT,
-  stress_status TEXT NOT NULL DEFAULT 'unknown',
-  -- unknown | partial | complete
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (lemma_bare, pos, aspect)
-);
-```
+- `source` / `source_version` (réversibilité §2.12)
+- `lemma_bare` + `lemma_stressed` / `stress_status`
+- `UNIQUE` métier à définir **après** décision import à la demande vs dump (**À TRANCHER**)
 
-### 5.2 `morphology_forms` — cellules du paradigme
-
-```sql
-CREATE TABLE morphology_forms (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  morphology_lemma_id UUID NOT NULL
-    REFERENCES morphology_lemmas(id) ON DELETE CASCADE,
-  -- grille pédagogique
-  slot TEXT NOT NULL,
-  -- ex: present.sg3 | past.m | case.acc.sg | ...
-  form_bare TEXT NOT NULL,
-  form_stressed TEXT,
-  stress_status TEXT NOT NULL DEFAULT 'unknown',
-  ending TEXT,                         -- dérivé, ex: -ит
-  tags JSONB NOT NULL DEFAULT '{}'::jsonb,
-  UNIQUE (morphology_lemma_id, slot)
-);
-
-CREATE INDEX idx_morphology_forms_lemma ON morphology_forms(morphology_lemma_id);
-CREATE INDEX idx_morphology_forms_bare ON morphology_forms(form_bare);
-```
-
-### 5.3 `morphology_sense_overrides` — défectivité / sens
-
-```sql
-CREATE TABLE morphology_sense_overrides (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  morphology_lemma_id UUID NOT NULL
-    REFERENCES morphology_lemmas(id) ON DELETE CASCADE,
-  sense_key TEXT NOT NULL,             -- ex: boleть.hurt | boleть.ill
-  label_fr TEXT,
-  -- personnes / slots autorisés (null = tous)
-  allowed_slots TEXT[],
-  notes_fr TEXT,
-  validated BOOLEAN NOT NULL DEFAULT false,
-  UNIQUE (morphology_lemma_id, sense_key)
-);
-```
-
-### 5.4 `morphology_pending` — file batch
-
-```sql
-CREATE TABLE morphology_pending (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  lemma_id UUID REFERENCES lemmas(id) ON DELETE CASCADE,
-  lemma_bare TEXT NOT NULL,
-  requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  reason TEXT,                         -- save | bootstrap | backfill
-  UNIQUE (lemma_bare)
-);
-```
-
-### 5.5 Lien avec l’existant
-
-| Existant | Relation |
-|----------|----------|
-| `lemmas` | `morphology_lemmas.lemma_id` |
-| `linguistic_knowledge.paradigms` | **Projection** dérivée (job ou trigger) pour ne pas casser le profil actuel ; à terme lecture directe depuis `morphology_*` |
-| `user_vocabulary.teaching_scenario` | Continue de stocker la démo *composée* ; les formes citées doivent matcher `morphology_forms` |
-| Curated TS | Migré vers `morphology_sense_overrides` + `form_stressed` (voir §6) |
-
-**RLS** : tables morphologiques = base propriétaire (lecture `authenticated`, écriture service role uniquement) — même modèle que `linguistic_knowledge`.
+DDL détaillée : conserver le modèle du cadrage précédent (slots pédagogiques, `allowed_slots` pour défectivité). **Non appliqué** tant que Mario n’a pas lancé les SQL.
 
 ---
 
-## 6. Migration depuis `src/lib/knowledge/morphology/curated/`
-
-### Inventaire actuel (à ne pas perdre)
-
-- `forms.ts` — exemples teaching (чита́ть, кни́га, motion…)
-- `present-verbs.ts` — paradigmes + **défectivité** (болеть, случиться)
-- Seeds teaching — illustrations de *concept*, pas de lemme utilisateur
-
-### Plan sans régression
-
-| Phase | Action | Critère de done |
-|-------|--------|-----------------|
-| **M0** | Documenter le mapping slot curé → `morphology_forms.slot` | Table de correspondance figée |
-| **M1** | Script d’import : chaque `TCuratedVerbPresent` → `morphology_lemmas` + forms + `sense_overrides` | Smoke : болеть.hurt = sg3/pl3 only |
-| **M2** | Runtime : `getCuratedPresentVerb(lemma)` lit **d’abord** DB, fallback fichier TS | Parité bit-à-bit sur le stock curé |
-| **M3** | Batch pymorphy pour lemmes `user_vocabulary` / `lemmas` absents | `morphology_pending` se vide |
-| **M4** | Retirer les paradigmes *utilisateur* du LLM knowledge builder (prompt + Zod reject) | Aucune forme nouvelle sans `source` moteur/curated |
-| **M5** | Deprecate fichiers TS curés (garder seeds *illustration concept* séparés) | Un seul chemin de lecture |
-
-### Garde-fous anti-régression
-
-1. **Test de parité** : pour chaque lemme curé, snapshot des formes accentuées avant/après import DB.
-2. **Gate `SCENARIO_FOREIGN_LEMMA_FORM`** : inchangé — s’applique aux scénarios persistés.
-3. **Pas de big-bang** : le teaching engine continue d’omettre le visual si paradigme absent (comportement déjà en place).
-4. **Seeds concept** (чита́ть dans « Illustration — … ») restent du contenu *illustratif* du concept, clairement étiquetés — hors chemin « lemme consulté ».
-
----
-
-## 7. Implications pour le flux actuel (rappel, sans implémenter)
+## 8. Flux cible (rappel)
 
 ```
 Enregistrement mot (Reader)
   → user_vocabulary
-  → enqueue morphology_pending (si pas en morphology_lemmas)
+  → enqueue morphology_pending (si absent)
   → compose teaching_scenario (formes = DB/curated only)
   → LLM = bridge / textes seulement
 
-Batch offline (ops)
-  → pymorphy3 + accents + overrides
-  → UPSERT morphology_*
-  → optionnel : re-compose teaching_scenario si visual était omis
+Batch offline
+  → pymorphy3 (analyse) + OpenRussian (accents/paradigmes) + overrides curés
+  → canonicalisation NFC + charset + strip monosyllabe
+  → UPSERT morphology_* (source taggée)
+  → rapport de diff AVANT purge cache / scénarios driftés
 ```
 
 ---
 
-## 8. Décisions à trancher avant l’étape 2 (implémentation)
+## 9. Phases (rappel)
 
-| # | Question | Proposition par défaut |
-|---|----------|------------------------|
-| D1 | Option intégration | **(b) batch offline** |
-| D2 | Affichage sans accent | Omettre l’accent plutôt que LLM |
-| D3 | Homonymie verbale sans override | Pas de paradigme complet |
-| D4 | Où tourne le batch | Machine locale / CI GitHub Actions Python |
-| D5 | Format d’import SQL Editor | Fichiers `supabase/seed/morphology_*.sql` générés |
-
----
-
-## 9. Hors scope de ce document
-
-- Code applicatif, migrations appliquées, choix de licence d’un lexique d’accents précis.
-- Hébergement concret du futur worker FastAPI (étape 3+).
-- Remplacement du matching de concepts / graph.
+| Phase | Action |
+|-------|--------|
+| **M0** | Mapping slot curé → `morphology_forms.slot` |
+| **M1** | Import stock curé → DB |
+| **M2** | Runtime dual-read DB puis fallback TS |
+| **M3** | Batch deux sources pour pending / vocabulaire |
+| **M4** | Retirer paradigmes utilisateur du LLM knowledge builder |
+| **M5** | Deprecate TS curés pour la classe ouverte (garder classe fermée) |
 
 ---
 
-## 10. Synthèse
+## 10. Liste claire — À TRANCHER PAR MARIO
 
-| Sujet | Position |
-|-------|----------|
-| Intégration | **Batch Python offline → Supabase ; runtime TS lecture seule** |
-| Frontière | Moteur = formes + traits ; LLM = prose pédagogique |
-| Accents | Couches curées + lexique + encounter ; **jamais LLM** |
-| Défectivité | **Override curée par sens** au-dessus du dictionnaire |
-| DB | `morphology_lemmas` / `_forms` / `_sense_overrides` / `_pending` |
-| Migration curated | Import DB → dual-read → parité → deprecate TS |
+1. Import **à la demande** vs **dump complet** OpenRussian.  
+2. UI quand dictionnaire manque l’accent mais l’analyseur a un lemme.  
+3. Emplacement technique de la conversion `'` → U+0301 + batterie de tests.  
+4. Modèle de jointure (`lemma_bare` obligatoire vs table de mapping).  
+5. Comportement **ё/е** sur les deux sources (mesure empirique).  
+6. Chiffrage d’impact **D3** (combien de lemmes sans paradigme tant qu’override absent).  
+7. Périmètre du **rapport de diff** pré-purge post-import.  
+8. Emplacement UI de l’**attribution** CC BY-SA.  
+9. Portée **ShareAlike** sur données dérivées redistribuées (hors avis juridique ici).
 
-**Prochaine étape (ticket séparé)** : migration SQL des tables + script Python d’import du stock curé (M0–M1), sans brancher encore pymorphy sur tout le vocabulaire.
+---
+
+## 11. Hors scope de ce document
+
+- Code applicatif et migrations appliquées.
+- Avis juridique ShareAlike.
+- Remplacement du Concept Graph.
+
+---
+
+## 12. Voir aussi
+
+- [`../PROJECT_STATE.md`](../PROJECT_STATE.md) — dette lemmatisation LLM, baseline DB
+- [`READER_ORCHESTRATOR.md`](./READER_ORCHESTRATOR.md) — overrides déterministes actuels
+- `scripts/morphology-audit/coverage-report.md` — chiffres 96,8 % / 64,1 %
+- `src/lib/vocabulary/canonicalize-lemma-form.ts` — gardes à répliquer en Python

@@ -8,6 +8,7 @@ export {
 } from "./registry";
 export { NO_CONCEPT_ID, resolveConceptGraph } from "./resolve-concept-graph";
 export {
+  buildGenitiveTriggerFactPromptHint,
   buildPronounFactPromptHint,
   CLEAR_ROLE_BADGE_OVERRIDE,
   detectReliableCase,
@@ -18,6 +19,7 @@ export {
   INSTRUMENT_FUNCTIONAL_ROLE,
   INSTRUMENT_FUNCTION_COLOR,
   QUANTITY_FUNCTIONAL_ROLE,
+  resolveCuratedFactPromptHint,
   resolvePronounCuratedFact,
   resolveReaderConcept,
   resolveReaderConceptFromSignals,

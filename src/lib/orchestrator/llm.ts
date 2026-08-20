@@ -32,7 +32,9 @@ RÈGLES ABSOLUES :
 SYSTÈME DE COULEURS FONCTIONNELLES (noms / pronoms / adjectifs uniquement) :
 - "blue"   → sujet (fait l'action)
 - "coral"  → objet direct (subit l'action)
-- "green"  → lieu ou temps
+- "green"  → valeur technique pour les rôles location ou time (le serveur dérive
+  le rôle réel ; n'utilise JAMAIS la couleur pour décider entre lieu et temps
+  dans ta prose — suis le FAIT GRAMMATICAL CERTAIN / les faits curés)
 - "violet" → possession ou relation entre mots
 - "amber"  → destinataire (à qui, pour qui)
 Les VERBES n'ont PAS de rôle fonctionnel : mettre quand même une valeur technique
@@ -53,7 +55,7 @@ FORMAT DE RÉPONSE JSON strict :
 {
   "lemma": "INFINITIF / forme de dictionnaire — JAMAIS la forme conjuguée cliquée. Ex. пойдём → пойти́ ; нашёл → найти́ ; читаешь → чита́ть",
   "lemmaStressed": "lemme avec accent tonique U+0301 ex: пойти́, найти́",
-  "translation": "traduction française du lemme",
+  "translation": "traduction française de la FORME RENCONTRÉE dans cette phrase (pas du lemme seul). Ex. меня́ dans « У меня́ боли́т » → « moi » (pas « je ») ; часо́в après un numéral → sens pluriel / quantité (pas seulement « heure » au singulier)",
   "functionalRole": "UN SEUL de ces 7 rôles EXACTEMENT — subject | object_direct | object_indirect | possession | location | time | manner. AUCUNE autre valeur n'est acceptée. Si le mot ne correspond pas exactement à un de ces rôles, choisir le plus proche parmi les 7. Règles de choix : Adjectif épithète qui décrit un nom sujet → subject. Adjectif épithète qui décrit un nom objet → object_direct. Adjectif attribut du sujet → subject. Complément de lieu (avec на, в, у, к...) → location. Complément de temps → time. Adverbe de manière → manner. Objet indirect (avec à, pour, дать кому) → object_indirect. Relation génitif de possession → possession",
   "functionColor": "blue|coral|green|violet|amber",
   "explanation": "2-3 phrases expliquant pourquoi ce mot a cette forme dans cette phrase",
@@ -75,6 +77,28 @@ const llmResponseSchema = z.object({
   suffix: z.string(),
   suffixExplanation: z.string(),
 });
+
+/** Échec de parsing de la réponse LLM — causes séparées (JSON vs Zod). */
+export class LlmResponseParseError extends Error {
+  readonly kind: "json" | "zod";
+  /** Réponse brute du modèle (pour journal prefill / diagnostic). */
+  readonly raw: string;
+  readonly zodDetails?: string;
+
+  constructor(kind: "json" | "zod", raw: string, zodDetails?: string) {
+    const message =
+      kind === "json"
+        ? "Réponse LLM invalide : JSON illisible"
+        : zodDetails
+          ? `Réponse LLM invalide : schéma Zod rejeté (${zodDetails})`
+          : "Réponse LLM invalide : schéma Zod rejeté";
+    super(message);
+    this.name = "LlmResponseParseError";
+    this.kind = kind;
+    this.raw = raw;
+    this.zodDetails = zodDetails;
+  }
+}
 
 function extractJsonPayload(content: string): string {
   const trimmed = content.trim();
@@ -100,22 +124,53 @@ function repairJsonPayload(content: string): string {
     .replace(/[\u201c\u201d]/g, '"');
 }
 
+function formatZodIssues(error: z.ZodError): string {
+  return error.issues
+    .map((issue) => `${issue.path.join(".") || "(root)"}: ${issue.message}`)
+    .join("; ");
+}
+
 function parseLlmJson(content: string): TLlmExplanationPayload {
   const extracted = extractJsonPayload(content);
-
   const attempts = [extracted, repairJsonPayload(extracted)];
 
+  let sawJsonParseFailure = false;
+  let lastZodError: z.ZodError | null = null;
+
   for (const candidate of attempts) {
+    let data: unknown;
+
     try {
-      return llmResponseSchema.parse(JSON.parse(candidate));
+      data = JSON.parse(candidate);
     } catch {
+      sawJsonParseFailure = true;
+      continue;
+    }
+
+    try {
+      return llmResponseSchema.parse(data);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        lastZodError = error;
+      }
+
       continue;
     }
   }
 
-  throw new Error(
-    "Réponse LLM invalide : le JSON retourné n'a pas pu être analysé",
-  );
+  if (lastZodError) {
+    throw new LlmResponseParseError(
+      "zod",
+      content,
+      formatZodIssues(lastZodError),
+    );
+  }
+
+  if (sawJsonParseFailure) {
+    throw new LlmResponseParseError("json", content);
+  }
+
+  throw new LlmResponseParseError("json", content);
 }
 
 /**
@@ -181,10 +236,10 @@ async function callWordExplanationOnce(
  * charger ce mot" qu'après épuisement des tentatives.
  *
  * `curatedFactHint` (optionnel) : fait grammatical déjà résolu de façon
- * déterministe (ex. pronoms curés, cf. concept-graph/resolve-reader-concept
- * ::buildPronounFactPromptHint) et injecté dans le prompt — le LLM rédige
+ * déterministe (pronom ou déclencheur génitif via
+ * resolveCuratedFactPromptHint) et injecté dans le prompt — le LLM rédige
  * toujours la prose, mais ne peut plus lui inventer un statut grammatical
- * différent (ex. qualifier меня́ de "possessif").
+ * différent (ex. qualifier меня́ de "possessif", ou после + génitif de "lieu").
  */
 export async function generateWordExplanation(
   surface: string,

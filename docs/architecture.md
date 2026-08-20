@@ -2,6 +2,13 @@
 ## Document BMAD — Référence technique permanente
 ### Version 2.0 — Juillet 2026
 
+> **Mise à jour 2026-08-20** — pour l’état **vérifié** (overrides, dettes, baseline DB) et le moteur morpho **deux sources**, lire en priorité :
+> - [`PROJECT_STATE.md`](./PROJECT_STATE.md)
+> - [`architecture/READER_ORCHESTRATOR.md`](./architecture/READER_ORCHESTRATOR.md)
+> - [`architecture/MORPHOLOGY_ENGINE.md`](./architecture/MORPHOLOGY_ENGINE.md)
+>
+> Les sections ci-dessous (schémas SQL, prompts) peuvent être **en retard** ; en cas de conflit, le trio ci-dessus prime.
+
 ---
 
 ## Vue d'ensemble

@@ -503,6 +503,141 @@ export function buildPronounFactPromptHint(fact: TPronounCuratedFact): string {
   return lines.join(" ");
 }
 
+/**
+ * Consigne FAIT GRAMMATICAL CERTAIN pour un déclencheur génitif déjà
+ * identifié par `deriveGenitiveTriggerRoleOverride` (table inchangée).
+ * Le détail du déclencheur est relu via les mêmes détecteurs (préposition /
+ * numéral / figé) — on ne re-dérive pas le rôle ici.
+ */
+export function buildGenitiveTriggerFactPromptHint(input: {
+  surface: string;
+  sentence: string;
+  override: TDeterministicRoleOverride;
+}): string {
+  const precedingRaw = getPrecedingNormalizedToken(input.surface, input.sentence);
+  const precedingKey = precedingRaw
+    ? stripStressMarks(normalizeToken(precedingRaw))
+    : null;
+  const surfaceKey = stripStressMarks(normalizeToken(input.surface));
+
+  const header =
+    "FAIT GRAMMATICAL CERTAIN (vérifié manuellement, ne pas contredire) :";
+
+  if (precedingKey && surfaceKey) {
+    const fixed = findCuratedFixedExpression(precedingKey, surfaceKey);
+
+    if (fixed || input.override.functionalRole === FIXED_EXPRESSION_FUNCTIONAL_ROLE) {
+      return [
+        header,
+        `« ${precedingRaw ?? precedingKey} ${input.surface} » est une expression figée.`,
+        "Explique-la comme une formule toute faite — ne analyse pas la terminaison comme un rôle libre (possession, lieu, etc.).",
+      ].join(" ");
+    }
+  }
+
+  if (
+    precedingKey &&
+    (isCuratedGenitiveGoverningNumeral(precedingKey) ||
+      input.override.functionalRole === QUANTITY_FUNCTIONAL_ROLE)
+  ) {
+    return [
+      header,
+      `le génitif après le numéral « ${precedingRaw ?? precedingKey} » marque une quantité comptée.`,
+      "Explique le comptage — ne parle pas de possession ni de lieu.",
+    ].join(" ");
+  }
+
+  const prepEntry = getPrecedingPrepositionEntry(input.surface, input.sentence);
+  const prep = prepEntry?.preposition;
+
+  if (prep === "после" || input.override.functionalRole === "time") {
+    return [
+      header,
+      "« после » + génitif marque la postériorité temporelle (un moment juste après), pas un lieu.",
+      "Dans ta prose, parle de temps / succession — jamais de « lieu » pour cette construction.",
+    ].join(" ");
+  }
+
+  if (prep === "из") {
+    return [
+      header,
+      "« из » + génitif marque la provenance (d'où l'on vient), un complément de lieu d'origine.",
+      "Ne le présente pas comme une possession ni comme un simple moment.",
+    ].join(" ");
+  }
+
+  if (prep === "без") {
+    return [
+      header,
+      "« без » + génitif marque la privation (sans X).",
+      "Ne lui invente pas un rôle de possession, de lieu ou de temps.",
+    ].join(" ");
+  }
+
+  if (prep === "у") {
+    if (input.override.functionalRole === "possession") {
+      return [
+        header,
+        "« у » + génitif marque ici le possesseur ou l'expérienceur, pas un lieu.",
+        "Explique la construction sans inventer un autre sens.",
+      ].join(" ");
+    }
+
+    return [
+      header,
+      "« у » + génitif (nom) marque ici un complément de lieu / localisation auprès de.",
+      "Ne le présente pas comme une postériorité temporelle.",
+    ].join(" ");
+  }
+
+  return [
+    header,
+    "ce génitif est gouverné par un déclencheur curé ; respecte le sens de la construction et ne le contredis pas.",
+  ].join(" ");
+}
+
+/**
+ * Résout le fait grammatical curé injecté dans le prompt LLM — quelle que
+ * soit l'origine : pronom personnel/réfléchi OU déclencheur génitif
+ * (у / после / из / без / numéral / expression figée).
+ * Une seule porte d'entrée pour l'orchestrateur.
+ */
+export function resolveCuratedFactPromptHint(input: {
+  surface?: string | null;
+  sentence?: string | null;
+  animacy?: "animate" | "inanimate" | null;
+}): string | undefined {
+  if (!input.surface || !input.sentence) {
+    return undefined;
+  }
+
+  const pronounFact = resolvePronounCuratedFact({
+    surface: input.surface,
+    sentence: input.sentence,
+  });
+
+  if (pronounFact) {
+    return buildPronounFactPromptHint(pronounFact);
+  }
+
+  const override = deriveGenitiveTriggerRoleOverride({
+    surface: input.surface,
+    sentence: input.sentence,
+    animacy: input.animacy ?? null,
+    isCuratedPronoun: isCuratedPronounSurface(input.surface),
+  });
+
+  if (!override) {
+    return undefined;
+  }
+
+  return buildGenitiveTriggerFactPromptHint({
+    surface: input.surface,
+    sentence: input.sentence,
+    override,
+  });
+}
+
 export interface TReaderConceptResolution {
   conceptId: string;
   conceptSlug: string;

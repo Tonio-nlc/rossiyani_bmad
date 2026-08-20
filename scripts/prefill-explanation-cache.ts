@@ -40,6 +40,7 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 import { explainWord } from "@/lib/orchestrator";
+import { LlmResponseParseError } from "@/lib/orchestrator/llm";
 import {
   buildWordIndex,
   fetchExistingHashes,
@@ -89,6 +90,8 @@ interface RunLogEntry {
   result: "cache-hit" | "generated" | "error";
   durationMs: number;
   error?: string;
+  /** Réponse brute LLM (parse JSON/Zod) — diagnostic A1. */
+  raw?: string;
 }
 
 function appendLog(entry: RunLogEntry) {
@@ -223,6 +226,8 @@ async function main() {
       done += 1;
 
       const message = error instanceof Error ? error.message : String(error);
+      const raw =
+        error instanceof LlmResponseParseError ? error.raw : undefined;
 
       appendLog({
         timestamp: new Date().toISOString(),
@@ -233,6 +238,7 @@ async function main() {
         result: "error",
         durationMs,
         error: message,
+        ...(raw !== undefined ? { raw } : {}),
       });
 
       console.error(
