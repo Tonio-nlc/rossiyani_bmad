@@ -1,0 +1,23 @@
+-- ============================================================
+-- PURGE CIBLÉE — fait curé absolu (génitifs) + gloses lemme + то́же
+-- N'EXÉCUTE RIEN automatiquement. Coller dans le SQL Editor, dans l'ordre.
+--
+-- 1) explanation_cache_curated_fact_gloss_purge_1_select.sql
+-- 2) explanation_cache_curated_fact_gloss_purge_2_counts.sql  → noter total_dedup
+-- 3) explanation_cache_curated_fact_gloss_purge_3_delete.sql  → coller v_expected
+--
+-- PÉRIMÈTRE (restreint — PAS les 303 de la phase 3) :
+--   A) Génitifs à déclencheur : у+pronom, после, из, без, numéral, до свидания
+--      (prose sans FAIT GRAMMATICAL CERTAIN USER pour les non-pronoms ;
+--       у+pronom inclus pour régénérer glose forme + prose sous nouveau prompt)
+--   B) Gloses « lemme » détectables à haute précision seulement (voir § notes)
+--   C) то́же (surface)
+--
+-- EXCLUS / NON AUTOMATIQUE :
+--   • Adnominal (nom + génitif sans déclencheur) — NON DÉTECTABLE de façon
+--     fiable en SQL sans analyseur. Critère possible (bruité) : génitif
+--     morpho + token précédent ∉ prépositions/numéraux — faux positifs
+--     nombreux. À revue manuelle si Mario le veut.
+--   • Gloses lemme « générales » — impossible sans lexique FR forme↔lemme ;
+--     seuls motifs haute précision inclus (pronoms nominatifs FR, часов sg).
+-- ============================================================
