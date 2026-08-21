@@ -25,6 +25,7 @@ import {
   CURATED_VRACH,
 } from "@/lib/knowledge/morphology/curated/forms";
 import { stripStressMarks } from "@/lib/knowledge/morphology/curated/present-verbs";
+import { logCuratedMorphologyDivergence } from "@/lib/knowledge/morphology/curated-store/divergence";
 import { normalizeToken } from "@/lib/utils/russian";
 import { normalizeGovernedCaseLabel } from "@/lib/knowledge/morphology/curated/detect-preposition-government";
 import { getPronounCaseCandidates } from "@/lib/knowledge/morphology/curated/pronouns";
@@ -85,53 +86,268 @@ function stressedFormKey(form: string): string {
 const STRESS_MARK = /\u0301/;
 
 /**
- * Formes curées univoques (une seule étiquette de cas).
- * Les ambiguïtés (стол nom=acc, врача́ gen=acc) sont tranchées ailleurs
- * via rôle fonctionnel / régence / paradigme labellisé.
+ * Structure TS (méthode Rossiyani) : quel cas / quels candidats.
+ * Les CHAÎNES `tsForm` sont le seed ; après hydrate, remplacées par la DB.
  */
-const UNAMBIGUOUS_CURATED_CASE_FORMS: Array<{
-  form: string;
+type TUnambiguousCaseSeed = {
+  lemmaBare: string;
+  slot: string;
+  tsForm: string;
   morphologicalCase: TMorphologicalCase;
-}> = [
-  { form: CURATED_KNIGA.nom, morphologicalCase: "nominative" },
-  { form: CURATED_KNIGA.acc, morphologicalCase: "accusative" },
-  { form: CURATED_KNIGA.gen, morphologicalCase: "genitive" },
-  { form: CURATED_STOL.gen, morphologicalCase: "genitive" },
-  { form: CURATED_STOL.dat, morphologicalCase: "dative" },
-  { form: CURATED_VRACH.dat, morphologicalCase: "dative" },
-  { form: CURATED_UNIVERSITET.prep, morphologicalCase: "prepositional" },
-  { form: CURATED_ANNA.nom, morphologicalCase: "nominative" },
-  { form: CURATED_ANNA.gen, morphologicalCase: "genitive" },
-  { form: CURATED_ANNA.dat, morphologicalCase: "dative" },
-  { form: CURATED_ANNA.acc, morphologicalCase: "accusative" },
-  { form: CURATED_ANNA.instr, morphologicalCase: "instrumental" },
-  { form: CURATED_KARTA.instr, morphologicalCase: "instrumental" },
-  { form: CURATED_AUDITORIYA.prep, morphologicalCase: "prepositional" },
-  { form: CURATED_MOSKVA.prepositional, morphologicalCase: "prepositional" },
+};
+
+type TAmbiguousCaseSeed = {
+  lemmaBare: string;
+  slot: string;
+  tsForm: string;
+  candidates: TMorphologicalCase[];
+};
+
+const UNAMBIGUOUS_CASE_SEED: readonly TUnambiguousCaseSeed[] = [
+  {
+    lemmaBare: "книга",
+    slot: "case.nominative",
+    tsForm: CURATED_KNIGA.nom,
+    morphologicalCase: "nominative",
+  },
+  {
+    lemmaBare: "книга",
+    slot: "case.accusative",
+    tsForm: CURATED_KNIGA.acc,
+    morphologicalCase: "accusative",
+  },
+  {
+    lemmaBare: "книга",
+    slot: "case.genitive",
+    tsForm: CURATED_KNIGA.gen,
+    morphologicalCase: "genitive",
+  },
+  {
+    lemmaBare: "стол",
+    slot: "case.genitive",
+    tsForm: CURATED_STOL.gen,
+    morphologicalCase: "genitive",
+  },
+  {
+    lemmaBare: "стол",
+    slot: "case.dative",
+    tsForm: CURATED_STOL.dat,
+    morphologicalCase: "dative",
+  },
+  {
+    lemmaBare: "врач",
+    slot: "case.dative",
+    tsForm: CURATED_VRACH.dat,
+    morphologicalCase: "dative",
+  },
+  {
+    lemmaBare: "университет",
+    slot: "case.prepositional",
+    tsForm: CURATED_UNIVERSITET.prep,
+    morphologicalCase: "prepositional",
+  },
+  {
+    lemmaBare: "Анна",
+    slot: "case.nominative",
+    tsForm: CURATED_ANNA.nom,
+    morphologicalCase: "nominative",
+  },
+  {
+    lemmaBare: "Анна",
+    slot: "case.genitive",
+    tsForm: CURATED_ANNA.gen,
+    morphologicalCase: "genitive",
+  },
+  {
+    lemmaBare: "Анна",
+    slot: "case.dative",
+    tsForm: CURATED_ANNA.dat,
+    morphologicalCase: "dative",
+  },
+  {
+    lemmaBare: "Анна",
+    slot: "case.accusative",
+    tsForm: CURATED_ANNA.acc,
+    morphologicalCase: "accusative",
+  },
+  {
+    lemmaBare: "Анна",
+    slot: "case.instrumental",
+    tsForm: CURATED_ANNA.instr,
+    morphologicalCase: "instrumental",
+  },
+  {
+    lemmaBare: "карта",
+    slot: "case.instrumental",
+    tsForm: CURATED_KARTA.instr,
+    morphologicalCase: "instrumental",
+  },
+  {
+    lemmaBare: "аудитория",
+    slot: "case.prepositional",
+    tsForm: CURATED_AUDITORIYA.prep,
+    morphologicalCase: "prepositional",
+  },
+  {
+    lemmaBare: "Москва",
+    slot: "case.prepositional",
+    tsForm: CURATED_MOSKVA.prepositional,
+    morphologicalCase: "prepositional",
+  },
 ];
 
-/** Formes ambiguës : candidates possibles selon le contexte. */
-const AMBIGUOUS_CURATED_CASE_FORMS: Array<{
-  form: string;
-  candidates: TMorphologicalCase[];
-}> = [
+const AMBIGUOUS_CASE_SEED: readonly TAmbiguousCaseSeed[] = [
   {
-    form: CURATED_STOL.nom,
+    lemmaBare: "стол",
+    slot: "case.nominative",
+    tsForm: CURATED_STOL.nom,
     candidates: ["nominative", "accusative"],
   },
   {
-    form: CURATED_VRACH.nom,
+    lemmaBare: "врач",
+    slot: "case.nominative",
+    tsForm: CURATED_VRACH.nom,
     candidates: ["nominative"],
   },
   {
-    form: CURATED_VRACH.acc,
+    lemmaBare: "врач",
+    slot: "case.accusative",
+    tsForm: CURATED_VRACH.acc,
     candidates: ["accusative", "genitive"],
   },
   {
-    form: CURATED_UNIVERSITET.nom,
+    lemmaBare: "университет",
+    slot: "case.nominative",
+    tsForm: CURATED_UNIVERSITET.nom,
     candidates: ["nominative", "accusative"],
   },
 ];
+
+/** Animacy : STRUCTURE TS (qui est animé) — chaînes overlaid depuis DB. */
+const ANIMATE_FORM_SEED: ReadonlyArray<{
+  lemmaBare: string;
+  slot: string;
+  tsForm: string;
+}> = [
+  { lemmaBare: "врач", slot: "case.nominative", tsForm: CURATED_VRACH.nom },
+  { lemmaBare: "врач", slot: "case.accusative", tsForm: CURATED_VRACH.acc },
+  { lemmaBare: "врач", slot: "case.genitive", tsForm: CURATED_VRACH.gen },
+  { lemmaBare: "врач", slot: "case.dative", tsForm: CURATED_VRACH.dat },
+];
+
+const INANIMATE_FORM_SEED: ReadonlyArray<{
+  lemmaBare: string;
+  slot: string;
+  tsForm: string;
+}> = [
+  { lemmaBare: "стол", slot: "case.nominative", tsForm: CURATED_STOL.nom },
+  { lemmaBare: "стол", slot: "case.accusative", tsForm: CURATED_STOL.acc },
+  { lemmaBare: "стол", slot: "case.genitive", tsForm: CURATED_STOL.gen },
+  { lemmaBare: "стол", slot: "case.dative", tsForm: CURATED_STOL.dat },
+  { lemmaBare: "книга", slot: "case.nominative", tsForm: CURATED_KNIGA.nom },
+  { lemmaBare: "книга", slot: "case.accusative", tsForm: CURATED_KNIGA.acc },
+  { lemmaBare: "книга", slot: "case.genitive", tsForm: CURATED_KNIGA.gen },
+  {
+    lemmaBare: "университет",
+    slot: "case.nominative",
+    tsForm: CURATED_UNIVERSITET.nom,
+  },
+  {
+    lemmaBare: "университет",
+    slot: "case.accusative",
+    tsForm: CURATED_UNIVERSITET.acc,
+  },
+  {
+    lemmaBare: "университет",
+    slot: "case.prepositional",
+    tsForm: CURATED_UNIVERSITET.prep,
+  },
+];
+
+type TUnambiguousRuntime = {
+  form: string;
+  morphologicalCase: TMorphologicalCase;
+};
+
+type TAmbiguousRuntime = {
+  form: string;
+  candidates: TMorphologicalCase[];
+};
+
+function resolveSeedForm(
+  seed: { lemmaBare: string; slot: string; tsForm: string },
+  formLookup: Map<string, string> | null,
+): string {
+  if (!formLookup) {
+    return seed.tsForm;
+  }
+
+  const key = `${seed.lemmaBare}\0${seed.slot}\0plain`;
+  const dbValue = formLookup.get(key);
+  if (!dbValue) {
+    return seed.tsForm;
+  }
+
+  if (dbValue !== seed.tsForm) {
+    logCuratedMorphologyDivergence({
+      kind: "case_form",
+      lemmaBare: seed.lemmaBare,
+      slot: seed.slot,
+      variant: "plain",
+      tsValue: seed.tsForm,
+      dbValue,
+    });
+  }
+
+  return dbValue;
+}
+
+function buildUnambiguous(
+  formLookup: Map<string, string> | null,
+): TUnambiguousRuntime[] {
+  return UNAMBIGUOUS_CASE_SEED.map((seed) => ({
+    form: resolveSeedForm(seed, formLookup),
+    morphologicalCase: seed.morphologicalCase,
+  }));
+}
+
+function buildAmbiguous(
+  formLookup: Map<string, string> | null,
+): TAmbiguousRuntime[] {
+  return AMBIGUOUS_CASE_SEED.map((seed) => ({
+    form: resolveSeedForm(seed, formLookup),
+    candidates: [...seed.candidates],
+  }));
+}
+
+function buildAnimacyKeys(
+  seeds: ReadonlyArray<{ lemmaBare: string; slot: string; tsForm: string }>,
+  formLookup: Map<string, string> | null,
+): Set<string> {
+  return new Set(
+    seeds.map((seed) => formKey(resolveSeedForm(seed, formLookup))),
+  );
+}
+
+/** Indexes runtime — seed TS au load ; chaînes DB après hydrate. */
+let unambiguousCuratedCaseForms = buildUnambiguous(null);
+let ambiguousCuratedCaseForms = buildAmbiguous(null);
+let animateKeys = buildAnimacyKeys(ANIMATE_FORM_SEED, null);
+let inanimateKeys = buildAnimacyKeys(INANIMATE_FORM_SEED, null);
+
+/**
+ * B3 Option 2 — après hydrate : remplace les CHAÎNES depuis formLookup DB.
+ * Structure (ambiguïté, listes animacy) reste TS.
+ * Doit être appelé AVANT que ensureMorphologyCuratedHydrated ne résolve.
+ */
+export function rebuildCaseRoutingIndexes(
+  formLookup: Map<string, string>,
+): void {
+  unambiguousCuratedCaseForms = buildUnambiguous(formLookup);
+  ambiguousCuratedCaseForms = buildAmbiguous(formLookup);
+  animateKeys = buildAnimacyKeys(ANIMATE_FORM_SEED, formLookup);
+  inanimateKeys = buildAnimacyKeys(INANIMATE_FORM_SEED, formLookup);
+}
 
 export function resolveCaseConceptId(
   morphologicalCase: TMorphologicalCase | null | undefined,
@@ -218,13 +434,13 @@ export function inferMorphologicalCase(input: {
     }
   }
 
-  for (const entry of UNAMBIGUOUS_CURATED_CASE_FORMS) {
+  for (const entry of unambiguousCuratedCaseForms) {
     if (formKey(entry.form) === surfaceKey) {
       return entry.morphologicalCase;
     }
   }
 
-  for (const entry of AMBIGUOUS_CURATED_CASE_FORMS) {
+  for (const entry of ambiguousCuratedCaseForms) {
     if (formKey(entry.form) !== surfaceKey) {
       continue;
     }
@@ -358,26 +574,6 @@ export function inferAnimacyFromCurated(input: {
   const keys = [input.surface, input.lemma]
     .filter((value): value is string => Boolean(value?.trim()))
     .map(formKey);
-
-  const animateKeys = new Set(
-    [CURATED_VRACH.nom, CURATED_VRACH.acc, CURATED_VRACH.gen, CURATED_VRACH.dat].map(
-      formKey,
-    ),
-  );
-  const inanimateKeys = new Set(
-    [
-      CURATED_STOL.nom,
-      CURATED_STOL.acc,
-      CURATED_STOL.gen,
-      CURATED_STOL.dat,
-      CURATED_KNIGA.nom,
-      CURATED_KNIGA.acc,
-      CURATED_KNIGA.gen,
-      CURATED_UNIVERSITET.nom,
-      CURATED_UNIVERSITET.acc,
-      CURATED_UNIVERSITET.prep,
-    ].map(formKey),
-  );
 
   for (const key of keys) {
     if (animateKeys.has(key)) {

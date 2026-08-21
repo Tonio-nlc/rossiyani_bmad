@@ -305,6 +305,19 @@ Batch offline
 | **M4** | Retirer paradigmes utilisateur du LLM knowledge builder |
 | **M5** | Deprecate TS curés pour la classe ouverte (garder classe fermée) |
 
+### M2 (2026-08-21) — dual-read acté
+
+- Hydratation mémoire (`ensureMorphologyCuratedHydrated`), Maps sync ; seed TS si échec.
+- Chaînes ouvertes depuis `morphology_*` ; structure d’ambiguïté cas / animacy curée reste TS.
+- Classe fermée (régence, invariables, numéraux, figés) non touchée.
+
+### M3 — animacy à arbitrer (ne pas traiter maintenant)
+
+OpenRussian expose l’animacy dans ses CSV. Après import OR, la base aura une
+animacy lemme à côté du set TS d’animés utilisé par `inferAnimacyFromCurated`
+(méthode Rossiyani). **Deux sources pour un même fait** — arbitrer en M3
+(qui gagne, fusion, ou colonne `morphology_lemmas.animacy` comme source unique).
+
 ---
 
 ## 10. Liste claire — À TRANCHER PAR MARIO

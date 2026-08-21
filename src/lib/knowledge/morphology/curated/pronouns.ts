@@ -188,34 +188,59 @@ export const CURATED_PRONOUNS: readonly TPronounParadigm[] = [
   SEBYA,
 ];
 
-const surfaceToCases = new Map<string, Set<TPronounCase>>();
+/** Paradigmes + index actifs — seed TS ; remplacés après hydrate DB (M2). */
+let activePronounParadigms: readonly TPronounParadigm[] = CURATED_PRONOUNS;
+let surfaceToCases = new Map<string, Set<TPronounCase>>();
 
-function registerForm(form: string | undefined, pronounCase: TPronounCase): void {
+function registerForm(
+  map: Map<string, Set<TPronounCase>>,
+  form: string | undefined,
+  pronounCase: TPronounCase,
+): void {
   if (!form) {
     return;
   }
 
   const key = pronounSurfaceKey(form);
-  const existing = surfaceToCases.get(key) ?? new Set<TPronounCase>();
+  const existing = map.get(key) ?? new Set<TPronounCase>();
   existing.add(pronounCase);
-  surfaceToCases.set(key, existing);
+  map.set(key, existing);
 }
 
-for (const paradigm of CURATED_PRONOUNS) {
-  for (const pronounCase of ALL_PRONOUN_CASES) {
-    const entry = paradigm.forms[pronounCase];
+function rebuildPronounMaps(paradigms: readonly TPronounParadigm[]): void {
+  const next = new Map<string, Set<TPronounCase>>();
 
-    if (!entry) {
-      continue;
-    }
+  for (const paradigm of paradigms) {
+    for (const pronounCase of ALL_PRONOUN_CASES) {
+      const entry = paradigm.forms[pronounCase];
 
-    registerForm(entry.plain, pronounCase);
-    registerForm(entry.withN, pronounCase);
+      if (!entry) {
+        continue;
+      }
 
-    for (const alt of entry.alt ?? []) {
-      registerForm(alt, pronounCase);
+      registerForm(next, entry.plain, pronounCase);
+      registerForm(next, entry.withN, pronounCase);
+
+      for (const alt of entry.alt ?? []) {
+        registerForm(next, alt, pronounCase);
+      }
     }
   }
+
+  activePronounParadigms = paradigms;
+  surfaceToCases = next;
+}
+
+rebuildPronounMaps(CURATED_PRONOUNS);
+
+/**
+ * Remplace paradigmes + index après hydratation DB.
+ * Appelé uniquement depuis ensureMorphologyCuratedHydrated (avant resolve).
+ */
+export function replaceCuratedPronounParadigms(
+  paradigms: readonly TPronounParadigm[],
+): void {
+  rebuildPronounMaps(paradigms);
 }
 
 /**
@@ -255,7 +280,7 @@ export function findPronounLemmaForCase(
 ): string | null {
   const key = pronounSurfaceKey(surface);
 
-  for (const paradigm of CURATED_PRONOUNS) {
+  for (const paradigm of activePronounParadigms) {
     const entry = paradigm.forms[pronounCase];
 
     if (!entry) {

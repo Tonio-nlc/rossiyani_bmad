@@ -99,3 +99,5 @@ export {
   CURATED_GENITIVE_GOVERNING_NUMERALS,
   isCuratedGenitiveGoverningNumeral,
 } from "./genitive-numerals";
+
+export { ensureMorphologyCuratedHydrated } from "../curated-store";

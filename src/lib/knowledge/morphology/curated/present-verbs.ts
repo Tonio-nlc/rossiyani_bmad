@@ -183,26 +183,44 @@ export const CURATED_PRESENT_VERBS: TCuratedVerbPresent[] = [
   CURATED_NAJTI_PRESENT,
 ];
 
-const byAlias = new Map<string, TCuratedVerbPresent>();
-const bySurfaceForm = new Map<string, TCuratedVerbPresent>();
+/** Indexes actifs — seed TS au load ; remplacés après hydrate DB (M2). */
+let byAlias = new Map<string, TCuratedVerbPresent>();
+let bySurfaceForm = new Map<string, TCuratedVerbPresent>();
 
-for (const verb of CURATED_PRESENT_VERBS) {
-  for (const alias of verb.aliases) {
-    byAlias.set(stripStressMarks(alias), verb);
-  }
-  byAlias.set(stripStressMarks(verb.lemma), verb);
+function rebuildVerbMaps(verbs: readonly TCuratedVerbPresent[]): void {
+  byAlias = new Map();
+  bySurfaceForm = new Map();
 
-  for (const form of Object.values(verb.present)) {
-    if (form) {
-      bySurfaceForm.set(stripStressMarks(form), verb);
+  for (const verb of verbs) {
+    for (const alias of verb.aliases) {
+      byAlias.set(stripStressMarks(alias), verb);
+    }
+    byAlias.set(stripStressMarks(verb.lemma), verb);
+
+    for (const form of Object.values(verb.present)) {
+      if (form) {
+        bySurfaceForm.set(stripStressMarks(form), verb);
+      }
+    }
+
+    for (const form of Object.values(verb.past ?? {})) {
+      if (form) {
+        bySurfaceForm.set(stripStressMarks(form), verb);
+      }
     }
   }
+}
 
-  for (const form of Object.values(verb.past ?? {})) {
-    if (form) {
-      bySurfaceForm.set(stripStressMarks(form), verb);
-    }
-  }
+rebuildVerbMaps(CURATED_PRESENT_VERBS);
+
+/**
+ * Remplace les indexes verbe après hydratation DB.
+ * Appelé uniquement depuis ensureMorphologyCuratedHydrated (avant resolve).
+ */
+export function replaceCuratedVerbIndexes(
+  verbs: readonly TCuratedVerbPresent[],
+): void {
+  rebuildVerbMaps(verbs);
 }
 
 export function getCuratedPresentVerb(

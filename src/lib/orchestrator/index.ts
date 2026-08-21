@@ -18,6 +18,7 @@ import {
   isDeterministicVerbForRoleClear,
   resolveCuratedLemmaFromSurface,
 } from "@/lib/knowledge/morphology/curated";
+import { ensureMorphologyCuratedHydrated } from "@/lib/knowledge/morphology/curated-store";
 import {
   getCachedExplanation,
   getLemmaFormById,
@@ -303,20 +304,24 @@ async function attachConceptResolution(
   sentence: string,
   mark: TPerfMark = () => undefined,
 ): Promise<TWordExplanationResponseExtended> {
-  const curatedSurface = resolveCuratedLemmaFromSurface(response.surface);
-
-  // Perf : ces deux lectures sont indépendantes (hydratation Concept Graph en
-  // mémoire vs linguistic_knowledge en DB) — les paralléliser évite de payer
-  // les deux latences en série, surtout sur un process/instance à froid où
-  // l'hydratation n'est pas encore mise en cache.
-  const [, knowledge] = await Promise.all([
+  // Perf : hydratations + linguistic_knowledge sont indépendants — les
+  // paralléliser évite de payer les latences en série. Important M2 :
+  // ensureMorphologyCuratedHydrated ne résout qu'APRÈS replaceCurated*Indexes
+  // + rebuildCaseRoutingIndexes ; Promise.all garantit donc un store sync
+  // prêt avant toute lecture morpho / override ci-dessous (pas de fenêtre seed-TS).
+  const [, , knowledge] = await Promise.all([
     ensureConceptGraphHydrated(),
+    ensureMorphologyCuratedHydrated(),
     getKnowledgeForConceptResolution({
       lemmaId: response.lemmaId,
       lemmaForm: response.lemma,
     }),
   ]);
-  mark("  ensureConceptGraphHydrated + getKnowledgeForConceptResolution (parallèle)");
+  mark(
+    "  ensureConceptGraphHydrated + ensureMorphologyCuratedHydrated + getKnowledge (parallèle)",
+  );
+
+  const curatedSurface = resolveCuratedLemmaFromSurface(response.surface);
 
   const profile = knowledge?.partOfSpeech && knowledge.partOfSpeech !== "unknown"
     ? buildLinguisticProfile(knowledge)
@@ -436,7 +441,15 @@ export async function explainWord(
   const { surface, sentence } = request;
   const mark = createPerfTimer(`explain:${surface}`);
   const contextHash = computeContextHash(surface, sentence);
-  const cached = await getCachedExplanation(contextHash);
+
+  // Hydrate morpho curated en parallèle du cache : les lectures sync suivantes
+  // (applyCuratedLemma*, resolveCuratedFactPromptHint) voient déjà les Maps DB
+  // (ou le seed TS si échec). La Promise est mémoïsée — attachConceptResolution
+  // la ré-await sans 2e SELECT.
+  const [cached] = await Promise.all([
+    getCachedExplanation(contextHash),
+    ensureMorphologyCuratedHydrated(),
+  ]);
   mark(`cache lookup (${cached ? "hit" : "miss"})`);
 
   if (cached) {
@@ -457,8 +470,7 @@ export async function explainWord(
 
   // Fait curé (pronom OU déclencheur génitif) injecté en message USER —
   // bloc FAIT GRAMMATICAL CERTAIN — avant l'appel LLM.
-  const curatedFactHint = resolveCuratedFactPromptHint({ surface, sentence });
-  const llmRaw = await generateWordExplanation(surface, sentence, curatedFactHint);
+  const curatedFactHint = resolveCuratedFactPromptHint({ surface, sentence });  const llmRaw = await generateWordExplanation(surface, sentence, curatedFactHint);
   mark("LLM generateWordExplanation");
   const llmPayload = applyCuratedLemmaToPayload(surface, llmRaw);
   const lemmaId = await resolveOrCreateLemma(llmPayload.lemma);
