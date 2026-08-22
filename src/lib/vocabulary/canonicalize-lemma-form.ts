@@ -12,10 +12,15 @@ import { toNfc } from "@/lib/utils/russian";
  * - Une forme SANS AUCUN accent ("nue") qui désigne le même mot qu'une forme déjà
  *   accentuée en base doit RÉUTILISER la ligne existante — jamais en créer une
  *   nouvelle.
- * - Deux formes qui portent CHACUNE un accent, mais à une position différente,
- *   sont des mots DIFFÉRENTS (ex. му́ка "tourment" / мука́ "farine", за́мок
- *   "château" / замо́к "serrure") et ne doivent JAMAIS être fusionnées, même si
- *   leurs lettres de base sont identiques une fois l'accent retiré.
+ * - Deux formes qui portent CHACUNE un accent à une position différente
+ *   *peuvent* être des mots distincts (му́ка / мука́). `stripStressMark` seul
+ *   ne doit jamais les traiter comme équivalents.
+ * - Anti-doublon LLM (voir `shouldReuseExistingAccentedLemma`) : si
+ *   **exactement une** forme accentuée existe déjà pour le bare et que
+ *   l'entrante porte un accent ailleurs, on réutilise la ligne existante
+ *   plutôt que d'en créer une seconde. Trade-off temporaire : bloque aussi
+ *   l'insertion d'un vrai homographe tant qu'il n'y a pas d'allowlist /
+ *   `homograph_key` — préférable à un UNIQUE SQL sur bare.
  *
  * Cette distinction est capitale : "retirer l'accent pour comparer" ne suffit
  * pas seul, il faut aussi savoir SI un accent existe déjà de chaque côté avant
@@ -134,4 +139,30 @@ export function hasStressMark(form: string): boolean {
 /** Retire uniquement l'accent tonique (U+0301) — ne touche à aucune autre lettre. */
 export function stripStressMark(form: string): string {
   return toNfc(form.normalize("NFD").replaceAll(STRESS_MARK, ""));
+}
+
+/**
+ * Anti-doublon d'accent à l'insertion (`resolveOrCreateLemma`).
+ *
+ * true si l'entrante est accentuée, qu'exactement une forme accentuée existe
+ * déjà pour le même bare, et que les formes NFC diffèrent → réutiliser
+ * l'existante (logger la divergence côté appelant) au lieu d'INSERT.
+ *
+ * false si plusieurs formes accentuées coexistent déjà (homographes) : on
+ * ne choisit pas arbitrairement ; l'appelant peut alors créer une ligne.
+ */
+export function shouldReuseExistingAccentedLemma(
+  incomingForm: string,
+  accentedExistingForms: readonly string[],
+): boolean {
+  if (!hasStressMark(incomingForm)) {
+    return false;
+  }
+
+  const distinct = [...new Set(accentedExistingForms)];
+  if (distinct.length !== 1) {
+    return false;
+  }
+
+  return distinct[0] !== incomingForm;
 }

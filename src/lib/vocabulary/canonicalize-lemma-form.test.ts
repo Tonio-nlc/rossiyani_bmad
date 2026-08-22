@@ -7,6 +7,7 @@ import {
   countRussianVowels,
   hasStressMark,
   isAllowedLemmaFormCharset,
+  shouldReuseExistingAccentedLemma,
   stripMonosyllableStress,
   stripStressMark,
 } from "./canonicalize-lemma-form";
@@ -94,5 +95,47 @@ describe("countRussianVowels / stripMonosyllableStress", () => {
     assert.equal(stripMonosyllableStress("мука́"), "мука́");
     assert.equal(stripMonosyllableStress("бо́леть"), "бо́леть");
     assert.equal(stripMonosyllableStress("боле́ть"), "боле́ть");
+  });
+});
+
+describe("shouldReuseExistingAccentedLemma", () => {
+  it("réutilise quand une seule forme accentuée existe avec un accent différent", () => {
+    assert.equal(
+      shouldReuseExistingAccentedLemma("бо́леть", ["боле́ть"]),
+      true,
+    );
+    assert.equal(
+      shouldReuseExistingAccentedLemma("и́дти", ["идти́"]),
+      true,
+    );
+  });
+
+  it("ne réutilise pas si la forme est déjà exacte (géré en amont)", () => {
+    assert.equal(
+      shouldReuseExistingAccentedLemma("боле́ть", ["боле́ть"]),
+      false,
+    );
+  });
+
+  it("ne réutilise pas une forme nue entrante", () => {
+    assert.equal(
+      shouldReuseExistingAccentedLemma("болеть", ["боле́ть"]),
+      false,
+    );
+  });
+
+  it("ne choisit pas arbitrairement si plusieurs accents coexistent déjà", () => {
+    assert.equal(
+      shouldReuseExistingAccentedLemma("мука́", ["му́ка", "мука́"]),
+      false,
+    );
+    assert.equal(
+      shouldReuseExistingAccentedLemma("му́ка", ["му́ка", "мука́"]),
+      false,
+    );
+  });
+
+  it("ne réutilise pas s'il n'y a aucune forme accentuée existante", () => {
+    assert.equal(shouldReuseExistingAccentedLemma("боле́ть", []), false);
   });
 });

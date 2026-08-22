@@ -4,6 +4,7 @@ import {
   canonicalizeLemmaForm,
   countRussianVowels,
   hasStressMark,
+  shouldReuseExistingAccentedLemma,
   stripMonosyllableStress,
   stripStressMark,
 } from "@/lib/vocabulary/canonicalize-lemma-form";
@@ -202,9 +203,13 @@ export async function storeExplanationInCache(params: {
  * docs/knowledge/lemma-canonicalization.md) : pour un POLYSYLLABE, la forme
  * canonique est la forme ACCENTUÉE en NFC. Une forme SANS accent qui désigne
  * le même mot qu'une forme déjà accentuée en base réutilise cette ligne
- * (jamais de nouvelle ligne). Deux formes accentuées à des positions
- * DIFFÉRENTES (ex. му́ка / мука́) ne sont JAMAIS fusionnées : ce sont des mots
- * distincts.
+ * (jamais de nouvelle ligne).
+ *
+ * Anti-doublon accentué : si exactement une forme accentuée existe déjà pour
+ * le bare et que l'entrante porte un accent à une autre position, on réutilise
+ * l'existante et on logue la divergence (évite бо́леть vs боле́ть créés par le
+ * LLM). Trade-off : bloque aussi un vrai homographe (му́ка/мука́) tant qu'il
+ * n'y a pas d'allowlist — volontaire, plutôt qu'un UNIQUE SQL sur bare.
  *
  * Exception monosyllabe (une seule voyelle russe) : aucun U+0301 noté —
  * règle déterministe, ne pas déléguer au LLM.
@@ -254,7 +259,8 @@ export async function resolveOrCreateLemma(lemmaFormRaw: string): Promise<string
 
     const bareExisting = sameBase.filter((row) => !hasStressMark(row.form as string));
     const accentedExisting = sameBase.filter((row) => hasStressMark(row.form as string));
-    const distinctAccentedForms = new Set(accentedExisting.map((row) => row.form as string));
+    const accentedForms = accentedExisting.map((row) => row.form as string);
+    const distinctAccentedForms = new Set(accentedForms);
 
     if (incomingHasStress && bareExisting.length === 1) {
       // La forme entrante est accentuée et une ligne "nue" existe déjà pour ce
@@ -279,10 +285,20 @@ export async function resolveOrCreateLemma(lemmaFormRaw: string): Promise<string
       return target.id as string;
     }
 
-    // Sinon : soit aucune correspondance sûre, soit plusieurs formes accentuées
-    // distinctes partagent la même base (ex. му́ка / мука́) — dans ce cas, une
-    // forme nue entrante ne permettrait pas de savoir laquelle est visée : on
-    // ne fusionne jamais, on crée une nouvelle ligne (étape 3).
+    // 2b. Même bare, accent à une autre position, une seule ligne accentuée
+    // déjà en base → anti-doublon (ne pas INSERT une 2ᵉ ligne).
+    if (shouldReuseExistingAccentedLemma(lemmaForm, accentedForms)) {
+      const target = accentedExisting[0]!;
+      console.warn(
+        `[resolveOrCreateLemma] accent divergence: incoming « ${lemmaForm} » ` +
+          `→ reuse existing « ${target.form as string} » (id=${target.id as string})`,
+      );
+      return target.id as string;
+    }
+
+    // Sinon : aucune correspondance sûre, ou plusieurs formes accentuées
+    // distinctes partagent déjà la même base (homographes) — on ne choisit
+    // pas arbitrairement ; création éventuelle à l'étape 3.
   }
 
   // 3. Aucune correspondance sûre : créer une nouvelle ligne avec la forme canonique.
