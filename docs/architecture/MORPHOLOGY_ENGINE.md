@@ -311,6 +311,40 @@ Batch offline
 - Chaînes ouvertes depuis `morphology_*` ; structure d’ambiguïté cas / animacy curée reste TS.
 - Classe fermée (régence, invariables, numéraux, figés) non touchée.
 
+### M3a (2026-08-22) — FILL OpenRussian + conflits en relecture
+
+- Import **FILL only** (23 lemmes `public.lemmas` sans accent, OR accentué) :
+  `scripts/import-openrussian-fill.ts` (`source=openrussian`).  
+  Skip si déjà `source=curated` (unicité bare+pos).  
+  Conflits d’accent : [`../knowledge/accent-conflicts-m3a.md`](../knowledge/accent-conflicts-m3a.md) — **pas** d’import auto.
+- Homographes à sens distincts (дома, болеть, себя, + candidats дорога / плохо) :
+  **jamais** écrasés automatiquement.
+
+### M3a — Homonymes bare OpenRussian → D3
+
+Quand un même `bare` a **≥ 2 entrées** OR (POS ou accent de citation différents),
+**pas de paradigme sans override curé** (règle D3, §2.8). Liste M3a dry-run
+(sur les 243 lemmes Rossiyani trouvés dans OR) :
+
+| bare | Variantes OR |
+|------|----------------|
+| выходить | verb выходи́ть / verb вы́ходить |
+| голубой | adjective голубо́й / noun голубо́й |
+| есть | other есть / verb есть |
+| знать | noun знать / verb знать |
+| мочь | verb мочь / noun мочь |
+| пахнуть | verb пахну́ть / verb па́хнуть |
+| писать | verb писа́ть / verb пи́сать |
+| прохожий | noun прохо́жий / adjective прохо́жий |
+| русский | noun ру́сский / adjective ру́сский |
+| транспорт | noun тра́нспорт / noun транспо́рт |
+| ужин | noun у́жин / noun ужи́н |
+| ужинать | verb ужина́ть / verb у́жинать |
+| французский | adjective францу́зский / noun францу́зский |
+
+**13** bares — import FILL les saute s’ils apparaissaient (aucun des 23 FILL
+n’est dans cette liste).
+
 ### M3 — animacy à arbitrer (ne pas traiter maintenant)
 
 OpenRussian expose l’animacy dans ses CSV. Après import OR, la base aura une
